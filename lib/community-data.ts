@@ -130,7 +130,7 @@ export const getCommunityPosts = cache(async (): Promise<CommunityPost[]> => {
     const { data, error } = await supabase
       .from("community_posts")
       .select("*")
-      .order("sort_order", { ascending: true })
+      .order("published_at", { ascending: false, nullsFirst: false })
       .order("created_at", { ascending: false });
 
     if (error || !data) {
