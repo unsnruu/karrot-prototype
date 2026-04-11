@@ -34,6 +34,9 @@ export type MarketplaceItem = {
   sellingPoints: string[];
   condition: string;
   meetupHint: string;
+  meetupAddress?: string;
+  meetupLat?: number;
+  meetupLng?: number;
   promoted?: boolean;
 };
 
@@ -50,6 +53,21 @@ export type HomeFeedItem = {
   chats: number;
   likes: number;
   promoted?: boolean;
+};
+
+export const itemDetailUnifiedAd: HomeFeedItem = {
+  id: "detail-ad-default",
+  slug: "detail-ad-default",
+  title: "912 룸 앤 패브릭 멀티 스프레이 섬유향수",
+  subtitle: "광고",
+  image: "/images/figma-migrated/item-detail-ad-912-room-fabric-mist.png",
+  town: "온라인",
+  distance: "",
+  postedAt: "",
+  priceLabel: "10,900원",
+  chats: 0,
+  likes: 0,
+  promoted: true,
 };
 
 export const HOME_FEED_PAGE_SIZE = 10;

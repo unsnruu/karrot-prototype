@@ -1,4 +1,7 @@
+"use client";
+
 import { AppImage } from "@/components/ui/app-image";
+import { useRouter } from "next/navigation";
 import {
   ArrowLeftIcon,
   HomeIcon,
@@ -8,6 +11,23 @@ import {
 } from "@/features/home/components/item-detail-icons";
 
 export function ItemDetailHero({ image, title }: { image: string; title: string }) {
+  const router = useRouter();
+
+  const handleBack = () => {
+    const hasInAppHistory =
+      typeof window !== "undefined" &&
+      window.history.length > 1 &&
+      typeof document.referrer === "string" &&
+      document.referrer.startsWith(window.location.origin);
+
+    if (hasInAppHistory) {
+      router.back();
+      return;
+    }
+
+    router.push("/home");
+  };
+
   return (
     <section className="relative">
       <AppImage
@@ -22,7 +42,7 @@ export function ItemDetailHero({ image, title }: { image: string; title: string 
 
       <header className="absolute inset-x-0 top-0 flex items-center justify-between px-5 pb-2 pt-7 text-white sm:px-6">
         <div className="flex items-center gap-[15px]">
-          <IconButton ariaLabel="뒤로가기" href="/home">
+          <IconButton ariaLabel="뒤로가기" onClick={handleBack}>
             <ArrowLeftIcon />
           </IconButton>
           <IconButton ariaLabel="홈으로" href="/home">

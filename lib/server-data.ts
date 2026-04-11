@@ -1,7 +1,13 @@
 import "server-only";
 
 import { cache } from "react";
-import { communityPosts, type CommunityPost } from "@/lib/community";
+import {
+  communityPosts,
+  getFallbackCommunityPostDetail,
+  getFallbackCommunityRecommendations,
+  type CommunityPost,
+  type CommunityPostDetail,
+} from "@/lib/community";
 import {
   HOME_FEED_PAGE_SIZE,
   formatItemSlug,
@@ -45,6 +51,9 @@ type ItemRow = {
   likes_count: number;
   chats_count: number;
   meetup_place_name: string | null;
+  meetup_place_address: string | null;
+  meetup_place_lat: number | null;
+  meetup_place_lng: number | null;
   meetup_distance_meters: number | null;
   sort_order: number;
   created_at: string;
@@ -96,6 +105,8 @@ type HomeFeedItemRow = Pick<
   | "meetup_distance_meters" | "sort_order"
 >;
 
+type HomeCategoryRow = Pick<ItemRow, "category" | "sort_order">;
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
 }
@@ -146,6 +157,28 @@ function readNullableNumber(row: Record<string, unknown>, key: string, scope: st
   }
 
   return value;
+}
+
+function readNullableFloat(row: Record<string, unknown>, key: string, scope: string) {
+  const value = row[key];
+
+  if (value == null) {
+    return null;
+  }
+
+  if (typeof value === "number" && !Number.isNaN(value)) {
+    return value;
+  }
+
+  if (typeof value === "string" && value.trim() !== "") {
+    const parsed = Number(value);
+
+    if (!Number.isNaN(parsed)) {
+      return parsed;
+    }
+  }
+
+  throw new Error(`[${scope}] Expected "${key}" to be a numeric value or null`);
 }
 
 function readBoolean(row: Record<string, unknown>, key: string, scope: string) {
@@ -212,6 +245,9 @@ function parseItemRow(value: unknown, scope: string): ItemRow {
     likes_count: readNumber(value, "likes_count", scope),
     chats_count: readNumber(value, "chats_count", scope),
     meetup_place_name: readNullableString(value, "meetup_place_name", scope),
+    meetup_place_address: readNullableString(value, "meetup_place_address", scope),
+    meetup_place_lat: readNullableFloat(value, "meetup_place_lat", scope),
+    meetup_place_lng: readNullableFloat(value, "meetup_place_lng", scope),
     meetup_distance_meters: readNullableNumber(value, "meetup_distance_meters", scope),
     sort_order: readNumber(value, "sort_order", scope),
     created_at: readString(value, "created_at", scope),
@@ -234,6 +270,17 @@ function parseHomeFeedItemRow(value: unknown, scope: string): HomeFeedItemRow {
     chats_count: readNumber(value, "chats_count", scope),
     likes_count: readNumber(value, "likes_count", scope),
     meetup_distance_meters: readNullableNumber(value, "meetup_distance_meters", scope),
+    sort_order: readNumber(value, "sort_order", scope),
+  };
+}
+
+function parseHomeCategoryRow(value: unknown, scope: string): HomeCategoryRow {
+  if (!isRecord(value)) {
+    throw new Error(`[${scope}] Expected home category row object`);
+  }
+
+  return {
+    category: readString(value, "category", scope),
     sort_order: readNumber(value, "sort_order", scope),
   };
 }
@@ -333,7 +380,7 @@ function mapSeller(row: SellerRow): SellerProfile {
   return {
     id: row.id,
     name: row.name,
-    avatar: row.avatar_url ?? "",
+    avatar: normalizeImageSrc(row.avatar_url ?? ""),
     town: row.town,
     responseRate: row.response_rate,
     mannerScore: row.manner_score,
@@ -504,6 +551,9 @@ function mapItemRowToMarketplaceItem(
     condition:
       row.status === "reserved" ? "예약중" : row.status === "sold" ? "판매완료" : "판매중",
     meetupHint: row.meetup_place_name ?? `${row.town} 인근`,
+    meetupAddress: row.meetup_place_address ?? undefined,
+    meetupLat: row.meetup_place_lat ?? undefined,
+    meetupLng: row.meetup_place_lng ?? undefined,
     promoted: false,
   };
 }
@@ -528,8 +578,9 @@ function mapItemRowToHomeFeedItem(
   };
 }
 
-function mapFallbackItemToHomeFeedItem(item: MarketplaceItem, index: number): HomeFeedItem {
-  const slug = formatItemSlug(index + 1);
+function mapFallbackItemToHomeFeedItem(item: MarketplaceItem): HomeFeedItem {
+  const fallbackIndex = marketplaceItems.findIndex((entry) => entry.id === item.id);
+  const slug = formatItemSlug((fallbackIndex >= 0 ? fallbackIndex : 0) + 1);
 
   return {
     id: item.id,
@@ -568,7 +619,75 @@ function getFallbackItemById(itemId: string) {
   return fallbackIndex >= 0 ? withFallbackItemSlug(marketplaceItems[fallbackIndex], fallbackIndex) : null;
 }
 
-function buildHomeCategories(items: ItemRow[]): HomeCategory[] {
+function interleaveItemsByGroup<T>(items: T[], getGroupKey: (item: T) => string): T[] {
+  const groupOrder: string[] = [];
+  const groupedItems = new Map<string, T[]>();
+
+  items.forEach((item) => {
+    const groupKey = getGroupKey(item);
+    const existingGroup = groupedItems.get(groupKey);
+
+    if (existingGroup) {
+      existingGroup.push(item);
+      return;
+    }
+
+    groupOrder.push(groupKey);
+    groupedItems.set(groupKey, [item]);
+  });
+
+  const hasAlternativeGroup = (excludedGroup: string) =>
+    groupOrder.some((groupKey) => groupKey !== excludedGroup && (groupedItems.get(groupKey)?.length ?? 0) > 0);
+
+  const mixedItems: T[] = [];
+  let nextGroupIndex = 0;
+  let lastGroupKey: string | null = null;
+
+  while (mixedItems.length < items.length) {
+    let selectedGroupIndex = -1;
+
+    for (let attempt = 0; attempt < groupOrder.length; attempt += 1) {
+      const candidateIndex = (nextGroupIndex + attempt) % groupOrder.length;
+      const candidateGroupKey = groupOrder[candidateIndex];
+      const candidateItems = groupedItems.get(candidateGroupKey);
+
+      if (!candidateItems?.length) {
+        continue;
+      }
+
+      if (candidateGroupKey === lastGroupKey && hasAlternativeGroup(candidateGroupKey)) {
+        continue;
+      }
+
+      selectedGroupIndex = candidateIndex;
+      break;
+    }
+
+    if (selectedGroupIndex < 0) {
+      selectedGroupIndex = groupOrder.findIndex((groupKey) => (groupedItems.get(groupKey)?.length ?? 0) > 0);
+    }
+
+    if (selectedGroupIndex < 0) {
+      break;
+    }
+
+    const selectedGroupKey = groupOrder[selectedGroupIndex];
+    const selectedItems = groupedItems.get(selectedGroupKey);
+    const nextItem = selectedItems?.shift();
+
+    if (!nextItem) {
+      break;
+    }
+
+    mixedItems.push(nextItem);
+    lastGroupKey = selectedGroupKey;
+    nextGroupIndex = (selectedGroupIndex + 1) % groupOrder.length;
+  }
+
+  return mixedItems;
+}
+
+function buildHomeCategories(items: Array<Pick<ItemRow, "category">>): HomeCategory[] {
   const categoryOrder = new Map<string, number>();
 
   items.forEach((item, index) => {
@@ -607,7 +726,7 @@ export const getHomeCategories = cache(async (): Promise<HomeCategory[]> => {
       throw error ?? new Error("Missing item categories");
     }
 
-    return buildHomeCategories(parseRows(data, "home-categories", parseItemRow));
+    return buildHomeCategories(parseRows(data, "home-categories", parseHomeCategoryRow));
   } catch (error) {
     logSupabaseFallback("home-categories", error);
     return homeCategoriesFallback;
@@ -630,10 +749,8 @@ export async function getHomeFeedPage({
   if (!hasSupabaseEnv()) {
     const filteredItems = normalizedCategory
       ? marketplaceItems.filter((item) => item.sellingPoints[0] === normalizedCategory)
-      : marketplaceItems;
-    const pageItems = filteredItems
-      .slice(safeOffset, safeOffset + safeLimit + 1)
-      .map((item, index) => mapFallbackItemToHomeFeedItem(item, safeOffset + index));
+      : interleaveItemsByGroup(marketplaceItems, (item) => item.sellingPoints[0] ?? "기타");
+    const pageItems = filteredItems.slice(safeOffset, safeOffset + safeLimit + 1).map(mapFallbackItemToHomeFeedItem);
 
     return {
       items: pageItems.slice(0, safeLimit),
@@ -649,11 +766,10 @@ export async function getHomeFeedPage({
       .neq("status", "sold")
       .order("sort_order", { ascending: true })
       .order("posted_at", { ascending: false })
-      .order("created_at", { ascending: false })
-      .range(safeOffset, safeOffset + safeLimit);
+      .order("created_at", { ascending: false });
 
     if (normalizedCategory) {
-      query = query.eq("category", normalizedCategory);
+      query = query.eq("category", normalizedCategory).range(safeOffset, safeOffset + safeLimit);
     }
 
     const { data: itemsData, error: itemsError } = await query;
@@ -662,7 +778,9 @@ export async function getHomeFeedPage({
       throw itemsError ?? new Error("Missing items data");
     }
 
-    const pagedItems = parseRows(itemsData, "home-feed.items", parseHomeFeedItemRow).slice(0, safeLimit);
+    const homeFeedItems = parseRows(itemsData, "home-feed.items", parseHomeFeedItemRow);
+    const orderedItems = normalizedCategory ? homeFeedItems : interleaveItemsByGroup(homeFeedItems, (item) => item.category);
+    const pagedItems = orderedItems.slice(safeOffset, safeOffset + safeLimit);
     const itemIds = pagedItems.map((item) => item.id);
 
     let imageRows: ItemImageRow[] = [];
@@ -689,16 +807,14 @@ export async function getHomeFeedPage({
 
     return {
       items: pagedItems.map((item) => mapItemRowToHomeFeedItem(item, firstImageByItemId.get(item.id))),
-      hasMore: itemsData.length > safeLimit,
+      hasMore: orderedItems.length > safeOffset + safeLimit,
     };
   } catch (error) {
     logSupabaseFallback("home-feed", error);
     const filteredItems = normalizedCategory
       ? marketplaceItems.filter((item) => item.sellingPoints[0] === normalizedCategory)
-      : marketplaceItems;
-    const pageItems = filteredItems
-      .slice(safeOffset, safeOffset + safeLimit + 1)
-      .map((item, index) => mapFallbackItemToHomeFeedItem(item, safeOffset + index));
+      : interleaveItemsByGroup(marketplaceItems, (item) => item.sellingPoints[0] ?? "기타");
+    const pageItems = filteredItems.slice(safeOffset, safeOffset + safeLimit + 1).map(mapFallbackItemToHomeFeedItem);
 
     return {
       items: pageItems.slice(0, safeLimit),
@@ -803,6 +919,14 @@ export const getCommunityPosts = cache(async (): Promise<CommunityPost[]> => {
     logSupabaseFallback("community", error);
     return communityPosts;
   }
+});
+
+export const getCommunityPostDetail = cache(async (postId: string): Promise<CommunityPostDetail | null> => {
+  return getFallbackCommunityPostDetail(postId);
+});
+
+export const getCommunityRecommendations = cache(async (postId: string): Promise<CommunityPost[]> => {
+  return getFallbackCommunityRecommendations(postId);
 });
 
 export const getMarketplaceItemDetail = cache(

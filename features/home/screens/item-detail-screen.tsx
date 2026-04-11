@@ -1,7 +1,12 @@
 import { ItemDetailBottomBar } from "@/features/home/components/item-detail-bottom-bar";
 import { ItemDetailHero } from "@/features/home/components/item-detail-hero";
 import { ItemDetailMainColumn } from "@/features/home/components/item-detail-main-column";
-import { type HomeFeedItem, type MarketplaceItem, type SellerProfile } from "@/lib/marketplace";
+import {
+  itemDetailUnifiedAd,
+  type HomeFeedItem,
+  type MarketplaceItem,
+  type SellerProfile,
+} from "@/lib/marketplace";
 
 type ItemDetailScreenProps = {
   item: MarketplaceItem;
@@ -10,8 +15,7 @@ type ItemDetailScreenProps = {
 };
 
 export function ItemDetailScreen({ item, seller, relatedItems }: ItemDetailScreenProps) {
-  const adItem = relatedItems[0];
-  const recommendationItems = relatedItems.slice(1, 7);
+  const recommendationItems = relatedItems.slice(0, 6);
 
   return (
     <main className="min-h-screen bg-white text-black">
@@ -20,7 +24,7 @@ export function ItemDetailScreen({ item, seller, relatedItems }: ItemDetailScree
 
         <div className="w-full px-4 pt-4 sm:px-5">
           <ItemDetailMainColumn
-            adItem={adItem}
+            adItem={itemDetailUnifiedAd}
             item={item}
             recommendationItems={recommendationItems}
             seller={seller}

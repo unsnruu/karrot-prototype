@@ -4,12 +4,10 @@ import {
   BellIcon,
   ChevronRightIcon,
   InfoIcon,
-  MapExpandIcon,
   MoreVerticalIcon,
 } from "@/features/home/components/item-detail-icons";
+import { ItemDetailKakaoMap } from "@/features/home/components/item-detail-kakao-map";
 import { formatPrice, type HomeFeedItem, type MarketplaceItem, type SellerProfile } from "@/lib/marketplace";
-
-const mapImage = "/images/figma-migrated/03bf73de-bc81-4555-914d-60b91a91235d.jpg";
 
 export function ItemDetailMainColumn({
   item,
@@ -24,6 +22,7 @@ export function ItemDetailMainColumn({
 }) {
   const categoryLabel = item.sellingPoints[0] ?? item.condition;
   const sellerTemperature = `${seller.mannerScore.toFixed(1)}°C`;
+  const locationHref = item.slug ? `/home/items/${item.slug}/location` : `/home/items/${item.id}/location`;
 
   return (
     <div className="min-w-0">
@@ -71,25 +70,25 @@ export function ItemDetailMainColumn({
         <div className="mt-6 space-y-5">
           <p className="whitespace-pre-line text-[16px] leading-[1.7] text-black sm:text-[17px]">{item.description}</p>
 
-          <div className="space-y-3">
+          <Link className="block space-y-3" href={locationHref}>
             <div className="flex flex-wrap items-center gap-x-[10px] gap-y-2">
               <p className="text-base font-semibold leading-none text-black">거래 희망 장소</p>
-              <Link className="flex items-center text-base leading-none text-black" href="/town-map">
+              <span className="flex items-center text-base leading-none text-black">
                 <span>{item.meetupHint}</span>
                 <ChevronRightIcon className="ml-0.5" />
-              </Link>
+              </span>
             </div>
 
-            <Link className="relative block h-[140px] overflow-hidden rounded-[14px] sm:h-[170px]" href="/town-map">
-              <AppImage alt={`${item.meetupHint} 지도`} className="h-full w-full object-cover" height={170} src={mapImage} width={430} />
-              <div className="absolute bottom-4 right-4 inline-flex items-center gap-1 rounded-full bg-white px-2 py-1 text-xs font-medium text-black shadow-[0_1px_3px_rgba(0,0,0,0.15)]">
-                <span>지도 보기</span>
-                <MapExpandIcon />
-              </div>
-            </Link>
+            <ItemDetailKakaoMap
+              lat={item.meetupLat}
+              lng={item.meetupLng}
+              meetupAddress={item.meetupAddress}
+              meetupHint={item.meetupHint}
+              title={item.title}
+            />
 
             <p className="text-[13px] leading-none text-[#1d1c21]">{item.distance} 근처에서 거래할 수 있어요</p>
-          </div>
+          </Link>
         </div>
 
         <div className="mt-5 flex flex-wrap items-center gap-x-1 gap-y-2 text-[13px] leading-none text-[#8b8c91]">
