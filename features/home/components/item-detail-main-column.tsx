@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname, useSearchParams } from "next/navigation";
 import { AppImage } from "@/components/ui/app-image";
 import {
   BellIcon,
@@ -20,9 +23,12 @@ export function ItemDetailMainColumn({
   adItem?: HomeFeedItem;
   recommendationItems: HomeFeedItem[];
 }) {
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const categoryLabel = item.sellingPoints[0] ?? item.condition;
   const sellerTemperature = `${seller.mannerScore.toFixed(1)}°C`;
   const locationHref = item.slug ? `/home/items/${item.slug}/location` : `/home/items/${item.id}/location`;
+  const currentPath = searchParams.toString() ? `${pathname}?${searchParams.toString()}` : pathname;
 
   return (
     <div className="min-w-0">
@@ -119,7 +125,11 @@ export function ItemDetailMainColumn({
 
           <div className="mt-6 grid grid-cols-2 gap-x-3 gap-y-5">
             {recommendationItems.map((relatedItem) => (
-              <Link className="space-y-3" href={`/home/items/${relatedItem.slug}`} key={relatedItem.id}>
+              <Link
+                className="space-y-3"
+                href={`/home/items/${relatedItem.slug}?from=${encodeURIComponent(currentPath)}`}
+                key={relatedItem.id}
+              >
                 <AppImage
                   alt={relatedItem.title}
                   className="aspect-[1.32/1] w-full rounded-[12px] object-cover"

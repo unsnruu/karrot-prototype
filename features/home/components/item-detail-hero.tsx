@@ -1,7 +1,7 @@
 "use client";
 
 import { AppImage } from "@/components/ui/app-image";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   ArrowLeftIcon,
   HomeIcon,
@@ -12,15 +12,17 @@ import {
 
 export function ItemDetailHero({ image, title }: { image: string; title: string }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   const handleBack = () => {
-    const hasInAppHistory =
-      typeof window !== "undefined" &&
-      window.history.length > 1 &&
-      typeof document.referrer === "string" &&
-      document.referrer.startsWith(window.location.origin);
+    const from = searchParams.get("from");
 
-    if (hasInAppHistory) {
+    if (from) {
+      router.push(from);
+      return;
+    }
+
+    if (typeof window !== "undefined" && window.history.length > 1) {
       router.back();
       return;
     }
