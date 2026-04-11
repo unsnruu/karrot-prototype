@@ -25,13 +25,13 @@ type CommunityPostRow = {
   id: string;
   topic: string;
   title: string;
-  excerpt: string;
+  body: string;
   town: string;
-  posted_at_label: string;
-  views_label: string;
-  comments_count: number;
+  published_at: string | null;
+  created_at: string;
+  views_count: number;
   likes_count: number | null;
-  image_url: string | null;
+  image_path: string | null;
 };
 
 // ─── Row parsers ──────────────────────────────────────────────────────────────
@@ -45,30 +45,76 @@ function parseCommunityPostRow(value: unknown, scope: string): CommunityPostRow 
     id: readString(value, "id", scope),
     topic: readString(value, "topic", scope),
     title: readString(value, "title", scope),
-    excerpt: readString(value, "excerpt", scope),
+    body: readString(value, "body", scope),
     town: readString(value, "town", scope),
-    posted_at_label: readString(value, "posted_at_label", scope),
-    views_label: readString(value, "views_label", scope),
-    comments_count: readNumber(value, "comments_count", scope),
+    published_at: readNullableString(value, "published_at", scope),
+    created_at: readString(value, "created_at", scope),
+    views_count: readNumber(value, "views_count", scope),
     likes_count: readNullableNumber(value, "likes_count", scope),
-    image_url: readNullableString(value, "image_url", scope),
+    image_path: readNullableString(value, "image_path", scope),
   };
 }
 
 // ─── Domain mappers ───────────────────────────────────────────────────────────
+
+function formatRelativeTimeLabel(source: string | null) {
+  if (!source) {
+    return "방금";
+  }
+
+  const diff = Date.now() - new Date(source).getTime();
+  const minute = 60 * 1000;
+  const hour = 60 * minute;
+  const day = 24 * hour;
+
+  if (diff < hour) {
+    return `${Math.max(1, Math.floor(diff / minute))}분 전`;
+  }
+
+  if (diff < day) {
+    return `${Math.floor(diff / hour)}시간 전`;
+  }
+
+  return `${Math.floor(diff / day)}일 전`;
+}
+
+function formatViewsLabel(viewsCount: number) {
+  if (viewsCount >= 1000) {
+    return `${(viewsCount / 1000).toFixed(1)}천`;
+  }
+
+  return `${viewsCount}`;
+}
+
+function buildCommunityImageSrc(imagePath: string | null) {
+  if (!imagePath) {
+    return undefined;
+  }
+
+  return encodeURI(`/api/community-post-images/${imagePath}`);
+}
+
+function buildExcerpt(body: string) {
+  const normalized = body.replace(/\s+/g, " ").trim();
+  if (normalized.length <= 88) {
+    return normalized;
+  }
+
+  return `${normalized.slice(0, 88).trimEnd()}…`;
+}
 
 function mapCommunityPost(row: CommunityPostRow): CommunityPost {
   return {
     id: row.id,
     topic: row.topic,
     title: row.title,
-    excerpt: row.excerpt,
+    excerpt: buildExcerpt(row.body),
     town: row.town,
-    postedAt: row.posted_at_label,
-    views: row.views_label,
-    comments: row.comments_count,
+    postedAt: formatRelativeTimeLabel(row.published_at ?? row.created_at),
+    views: formatViewsLabel(row.views_count),
+    comments: 0,
     likes: row.likes_count ?? undefined,
-    image: row.image_url ?? undefined,
+    image: buildCommunityImageSrc(row.image_path),
   };
 }
 

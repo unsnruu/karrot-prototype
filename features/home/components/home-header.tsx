@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useSearchParams } from "next/navigation";
 import { AppImage } from "@/components/ui/app-image";
 import { type HomeCategory } from "@/lib/marketplace";
 
@@ -18,9 +17,6 @@ export function HomeHeader({
   categories: HomeCategory[];
   selectedCategory?: string;
 }) {
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-
   return (
     <header className="sticky top-0 z-20 border-b border-black/5 bg-white/95 backdrop-blur">
       <div className="mx-auto w-full max-w-6xl bg-white/95 px-4 pt-5 sm:px-6 lg:px-8">
@@ -51,7 +47,7 @@ export function HomeHeader({
                 className={`flex h-10 shrink-0 items-center justify-center rounded-full px-4 text-[14px] font-medium leading-none ${
                   isActive ? "bg-[#2a3038] text-white" : "bg-[#f3f4f5] text-[#1a1c20]"
                 }`}
-                href={buildCategoryHref(pathname, searchParams, category.label)}
+                href={buildCategoryHref(category.label)}
                 key={category.label}
                 scroll={false}
               >
@@ -68,15 +64,12 @@ export function HomeHeader({
   );
 }
 
-function buildCategoryHref(pathname: string, searchParams: URLSearchParams, label: string) {
-  const nextParams = new URLSearchParams(searchParams.toString());
-
+function buildCategoryHref(label: string) {
   if (label === "전체") {
-    nextParams.delete("category");
+    return "/home";
   } else {
+    const nextParams = new URLSearchParams();
     nextParams.set("category", label);
+    return `/home?${nextParams.toString()}`;
   }
-
-  const nextQuery = nextParams.toString();
-  return nextQuery ? `${pathname}?${nextQuery}` : pathname;
 }

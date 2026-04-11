@@ -19,7 +19,7 @@ export function CommunityPostList({
   }
 
   return (
-    <div className="grid border-t border-[#eceef2] lg:grid-cols-2 lg:gap-x-8">
+    <div className="border-t border-[#eceef2]">
       {posts.map((post) => (
         <CommunityPostCard key={post.id} post={post} />
       ))}

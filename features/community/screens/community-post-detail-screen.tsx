@@ -18,9 +18,9 @@ export function CommunityPostDetailScreen({
 }: CommunityPostDetailScreenProps) {
   return (
     <main className="min-h-screen bg-[#f3f4f6] text-[#0a0a0a]">
-      <div className="mx-auto min-h-screen w-full max-w-screen-sm bg-[#f3f4f6] pb-28">
-        <header className="sticky top-0 z-20 border-b border-black/5 bg-white/95 px-4 pb-2 pt-5 backdrop-blur">
-          <div className="flex items-center justify-between">
+      <div className="min-h-screen w-full bg-[#f3f4f6] pb-28">
+        <header className="sticky top-0 z-20 border-b border-black/5 bg-white/95 backdrop-blur">
+          <div className="mx-auto flex w-full max-w-5xl items-center justify-between px-4 pb-2 pt-5 sm:px-6 lg:px-8">
             <div className="flex items-center gap-2">
               <Link
                 aria-label="뒤로 가기"
@@ -45,7 +45,7 @@ export function CommunityPostDetailScreen({
           </div>
         </header>
 
-        <section className="bg-white px-5 pb-8 pt-8">
+        <section className="mx-auto mt-0 w-full max-w-5xl bg-white px-5 pb-8 pt-8 sm:px-6 lg:px-8">
           <div className="inline-flex items-center gap-1 rounded-full bg-[#f3f4f6] px-3 py-2 text-[13px] font-medium tracking-[-0.02em] text-[#0a0a0a]">
             <span className="inline-flex h-[18px] w-[18px] items-center justify-center rounded-[3px] bg-[#d1d5dc]">
               <CardIcon />
@@ -96,7 +96,7 @@ export function CommunityPostDetailScreen({
           </div>
         </section>
 
-        <section className="mt-3 bg-white">
+        <section className="mx-auto mt-3 w-full max-w-5xl bg-white">
           <div className="flex items-center justify-between border-b border-[#f3f4f6] px-5 py-4">
             <h2 className="text-base font-medium tracking-[-0.02em] text-[#0a0a0a]">댓글 {detail.commentsList.length}</h2>
             <div className="flex items-center gap-2 text-base">
@@ -123,7 +123,7 @@ export function CommunityPostDetailScreen({
           </div>
         </section>
 
-        <section className="mt-3 bg-white px-5 pb-28 pt-8">
+        <section className="mx-auto mt-3 w-full max-w-5xl bg-white px-5 pb-28 pt-8 sm:px-6 lg:px-8">
           <h2 className="text-xl font-semibold tracking-[-0.03em] text-black">추천글</h2>
           <div className="mt-4">
             {recommendations.map((post) => (
@@ -134,7 +134,7 @@ export function CommunityPostDetailScreen({
       </div>
 
       <div className="fixed inset-x-0 bottom-0 z-20 border-t border-black/5 bg-white/95 backdrop-blur">
-        <div className="mx-auto flex w-full max-w-screen-sm items-center gap-3 px-2 py-2 pb-10">
+        <div className="mx-auto flex w-full max-w-5xl items-center gap-3 px-2 py-2 pb-10 sm:px-4 lg:px-6">
           <button aria-label="댓글 추가" className="flex h-8 w-8 items-center justify-center text-[#6b7280]" type="button">
             <AppImage alt="" className="h-8 w-8" height={32} src={iconPlus} width={32} />
           </button>
