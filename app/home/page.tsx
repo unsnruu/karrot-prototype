@@ -2,7 +2,7 @@ import { BottomNav } from "@/components/navigation/bottom-nav";
 import { HomeFeed } from "@/features/home/components/home-feed";
 import { HomeFab } from "@/features/home/components/home-fab";
 import { HomeHeader } from "@/features/home/components/home-header";
-import { getHomeCategories, getHomeFeedPage } from "@/lib/server-data";
+import { getHomeCategories, getHomeFeedPage } from "@/lib/marketplace-data";
 
 export const dynamic = "force-dynamic";
 

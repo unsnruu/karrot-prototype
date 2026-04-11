@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { HOME_FEED_PAGE_SIZE } from "@/lib/marketplace";
-import { getHomeFeedPage } from "@/lib/server-data";
+import { getHomeFeedPage } from "@/lib/marketplace-data";
 
 export const dynamic = "force-dynamic";
 

@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { CommunityPostDetailScreen } from "@/features/community/screens/community-post-detail-screen";
-import { getCommunityPostDetail, getCommunityRecommendations } from "@/lib/server-data";
+import { getCommunityPostDetail, getCommunityRecommendations } from "@/lib/community-data";
 
 export default async function CommunityPostPage({
   params,

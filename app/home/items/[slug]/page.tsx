@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { ItemDetailScreen } from "@/features/home/screens/item-detail-screen";
-import { getHomeFeedPage, getMarketplaceItemDetail } from "@/lib/server-data";
+import { getHomeFeedPage, getMarketplaceItemDetail } from "@/lib/marketplace-data";
 
 export default async function HomeItemPage({
   params,

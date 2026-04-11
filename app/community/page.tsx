@@ -1,6 +1,6 @@
 import { CommunityScreen } from "@/features/community/screens/community-screen";
 import { cafePosts, communityMeetups, type CommunityTabKey } from "@/lib/community";
-import { getCommunityPosts } from "@/lib/server-data";
+import { getCommunityPosts } from "@/lib/community-data";
 
 type CommunityPageProps = {
   searchParams?: Promise<{

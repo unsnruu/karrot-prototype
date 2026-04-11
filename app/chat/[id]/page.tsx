@@ -1,5 +1,5 @@
 import { ChatScreen } from "@/features/chat/screens/chat-screen";
-import { getChatScreenData } from "@/lib/server-data";
+import { getChatScreenData } from "@/lib/chat-data";
 
 export default async function ChatPage({
   params,

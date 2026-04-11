@@ -2,28 +2,33 @@ import "server-only";
 
 import { cache } from "react";
 import {
-  communityPosts,
-  getFallbackCommunityPostDetail,
-  getFallbackCommunityRecommendations,
-  type CommunityPost,
-  type CommunityPostDetail,
-} from "@/lib/community";
-import {
   HOME_FEED_PAGE_SIZE,
   formatItemSlug,
-  getChatByItemId,
-  getItemById,
   getSellerById,
   homeCategoriesFallback,
   marketplaceItems,
   parseItemSlug,
   type HomeCategory,
   type HomeFeedItem,
-  type ChatPreview,
   type MarketplaceItem,
   type SellerProfile,
 } from "@/lib/marketplace";
 import { createServerSupabaseClient, hasSupabaseEnv } from "@/lib/supabase/server";
+import {
+  isRecord,
+  logSupabaseFallback,
+  parseRows,
+  readBoolean,
+  readNullableFloat,
+  readNullableNumber,
+  readNullableString,
+  readNumber,
+  readStatus,
+  readString,
+  readStringArrayOrNull,
+} from "@/lib/supabase/row-helpers";
+
+// ─── Row types ────────────────────────────────────────────────────────────────
 
 type SellerRow = {
   id: string;
@@ -71,34 +76,6 @@ type SellerMetricsRow = {
   repeat_deals: number;
 };
 
-type CommunityPostRow = {
-  id: string;
-  topic: string;
-  title: string;
-  excerpt: string;
-  town: string;
-  posted_at_label: string;
-  views_label: string;
-  comments_count: number;
-  likes_count: number | null;
-  image_url: string | null;
-};
-
-type ChatThreadRow = {
-  id: string;
-  item_id: string;
-  buyer_name: string;
-  last_seen_label: string;
-};
-
-type ChatMessageRow = {
-  id: string;
-  thread_id: string;
-  sender_role: "buyer" | "seller";
-  body: string;
-  sent_at_label: string;
-};
-
 type HomeFeedItemRow = Pick<
   ItemRow,
   "id" | "title" | "category" | "town" | "posted_at" | "refreshed_at" | "price_value" | "chats_count" | "likes_count"
@@ -107,123 +84,7 @@ type HomeFeedItemRow = Pick<
 
 type HomeCategoryRow = Pick<ItemRow, "category" | "sort_order">;
 
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null;
-}
-
-function readString(row: Record<string, unknown>, key: string, scope: string) {
-  const value = row[key];
-
-  if (typeof value !== "string") {
-    throw new Error(`[${scope}] Expected "${key}" to be a string`);
-  }
-
-  return value;
-}
-
-function readNullableString(row: Record<string, unknown>, key: string, scope: string) {
-  const value = row[key];
-
-  if (value == null) {
-    return null;
-  }
-
-  if (typeof value !== "string") {
-    throw new Error(`[${scope}] Expected "${key}" to be a string or null`);
-  }
-
-  return value;
-}
-
-function readNumber(row: Record<string, unknown>, key: string, scope: string) {
-  const value = row[key];
-
-  if (typeof value !== "number" || Number.isNaN(value)) {
-    throw new Error(`[${scope}] Expected "${key}" to be a number`);
-  }
-
-  return value;
-}
-
-function readNullableNumber(row: Record<string, unknown>, key: string, scope: string) {
-  const value = row[key];
-
-  if (value == null) {
-    return null;
-  }
-
-  if (typeof value !== "number" || Number.isNaN(value)) {
-    throw new Error(`[${scope}] Expected "${key}" to be a number or null`);
-  }
-
-  return value;
-}
-
-function readNullableFloat(row: Record<string, unknown>, key: string, scope: string) {
-  const value = row[key];
-
-  if (value == null) {
-    return null;
-  }
-
-  if (typeof value === "number" && !Number.isNaN(value)) {
-    return value;
-  }
-
-  if (typeof value === "string" && value.trim() !== "") {
-    const parsed = Number(value);
-
-    if (!Number.isNaN(parsed)) {
-      return parsed;
-    }
-  }
-
-  throw new Error(`[${scope}] Expected "${key}" to be a numeric value or null`);
-}
-
-function readBoolean(row: Record<string, unknown>, key: string, scope: string) {
-  const value = row[key];
-
-  if (typeof value !== "boolean") {
-    throw new Error(`[${scope}] Expected "${key}" to be a boolean`);
-  }
-
-  return value;
-}
-
-function readStringArrayOrNull(row: Record<string, unknown>, key: string, scope: string) {
-  const value = row[key];
-
-  if (value == null) {
-    return null;
-  }
-
-  if (!Array.isArray(value) || value.some((entry) => typeof entry !== "string")) {
-    throw new Error(`[${scope}] Expected "${key}" to be a string array or null`);
-  }
-
-  return value;
-}
-
-function readStatus(row: Record<string, unknown>, key: string, scope: string): ItemRow["status"] {
-  const value = row[key];
-
-  if (value === "active" || value === "reserved" || value === "sold") {
-    return value;
-  }
-
-  throw new Error(`[${scope}] Expected "${key}" to be a valid item status`);
-}
-
-function readSenderRole(row: Record<string, unknown>, key: string, scope: string): ChatMessageRow["sender_role"] {
-  const value = row[key];
-
-  if (value === "buyer" || value === "seller") {
-    return value;
-  }
-
-  throw new Error(`[${scope}] Expected "${key}" to be a valid sender role`);
-}
+// ─── Row parsers ──────────────────────────────────────────────────────────────
 
 function parseItemRow(value: unknown, scope: string): ItemRow {
   if (!isRecord(value)) {
@@ -326,102 +187,7 @@ function parseSellerRow(value: unknown, scope: string): SellerRow {
   };
 }
 
-function parseCommunityPostRow(value: unknown, scope: string): CommunityPostRow {
-  if (!isRecord(value)) {
-    throw new Error(`[${scope}] Expected community post row object`);
-  }
-
-  return {
-    id: readString(value, "id", scope),
-    topic: readString(value, "topic", scope),
-    title: readString(value, "title", scope),
-    excerpt: readString(value, "excerpt", scope),
-    town: readString(value, "town", scope),
-    posted_at_label: readString(value, "posted_at_label", scope),
-    views_label: readString(value, "views_label", scope),
-    comments_count: readNumber(value, "comments_count", scope),
-    likes_count: readNullableNumber(value, "likes_count", scope),
-    image_url: readNullableString(value, "image_url", scope),
-  };
-}
-
-function parseChatThreadRow(value: unknown, scope: string): ChatThreadRow {
-  if (!isRecord(value)) {
-    throw new Error(`[${scope}] Expected chat thread row object`);
-  }
-
-  return {
-    id: readString(value, "id", scope),
-    item_id: readString(value, "item_id", scope),
-    buyer_name: readString(value, "buyer_name", scope),
-    last_seen_label: readString(value, "last_seen_label", scope),
-  };
-}
-
-function parseChatMessageRow(value: unknown, scope: string): ChatMessageRow {
-  if (!isRecord(value)) {
-    throw new Error(`[${scope}] Expected chat message row object`);
-  }
-
-  return {
-    id: readString(value, "id", scope),
-    thread_id: readString(value, "thread_id", scope),
-    sender_role: readSenderRole(value, "sender_role", scope),
-    body: readString(value, "body", scope),
-    sent_at_label: readString(value, "sent_at_label", scope),
-  };
-}
-
-function parseRows<T>(values: unknown[], scope: string, parser: (value: unknown, rowScope: string) => T) {
-  return values.map((value, index) => parser(value, `${scope}[${index}]`));
-}
-
-function mapSeller(row: SellerRow): SellerProfile {
-  return {
-    id: row.id,
-    name: row.name,
-    avatar: normalizeImageSrc(row.avatar_url ?? ""),
-    town: row.town,
-    responseRate: row.response_rate,
-    mannerScore: row.manner_score,
-    repeatDeals: row.repeat_deals,
-    badges: row.badges ?? [],
-  };
-}
-
-function mapCommunityPost(row: CommunityPostRow): CommunityPost {
-  return {
-    id: row.id,
-    topic: row.topic,
-    title: row.title,
-    excerpt: row.excerpt,
-    town: row.town,
-    postedAt: row.posted_at_label,
-    views: row.views_label,
-    comments: row.comments_count,
-    likes: row.likes_count ?? undefined,
-    image: row.image_url ?? undefined,
-  };
-}
-
-function mapChatPreview(thread: ChatThreadRow, messages: ChatMessageRow[]): ChatPreview {
-  return {
-    id: thread.id,
-    itemId: thread.item_id,
-    buyerName: thread.buyer_name,
-    lastSeen: thread.last_seen_label,
-    messages: messages.map((message) => ({
-      id: message.id,
-      from: message.sender_role,
-      text: message.body,
-      time: message.sent_at_label,
-    })),
-  };
-}
-
-function logSupabaseFallback(scope: string, error: unknown) {
-  console.warn(`[supabase-fallback:${scope}]`, error);
-}
+// ─── Formatters ───────────────────────────────────────────────────────────────
 
 function formatRelativeTimeLabel(source: string | null) {
   if (!source) {
@@ -486,6 +252,8 @@ function normalizeImageSrc(src: string | undefined) {
   return src;
 }
 
+// ─── Domain mappers ───────────────────────────────────────────────────────────
+
 function deriveTrustLabel(item: ItemRow, seller?: SellerMetricsRow) {
   if (seller && seller.response_rate >= 95) {
     return "응답이 정말 빨라요";
@@ -520,6 +288,19 @@ function deriveTrustNote(item: ItemRow, seller?: SellerMetricsRow) {
   }
 
   return "상품 설명과 거래 장소 정보가 비교적 또렷하게 정리된 편이에요.";
+}
+
+function mapSeller(row: SellerRow): SellerProfile {
+  return {
+    id: row.id,
+    name: row.name,
+    avatar: normalizeImageSrc(row.avatar_url ?? ""),
+    town: row.town,
+    responseRate: row.response_rate,
+    mannerScore: row.manner_score,
+    repeatDeals: row.repeat_deals,
+    badges: row.badges ?? [],
+  };
 }
 
 function mapItemRowToMarketplaceItem(
@@ -598,6 +379,8 @@ function mapFallbackItemToHomeFeedItem(item: MarketplaceItem): HomeFeedItem {
   };
 }
 
+// ─── Fallback helpers ─────────────────────────────────────────────────────────
+
 function withFallbackItemSlug(item: MarketplaceItem, index: number): MarketplaceItem {
   return {
     ...item,
@@ -613,7 +396,7 @@ function getFallbackItemBySlug(itemSlug: string) {
   return fallbackItem ? withFallbackItemSlug(fallbackItem, fallbackIndex) : null;
 }
 
-function getFallbackItemById(itemId: string) {
+export function getFallbackItemById(itemId: string) {
   const fallbackIndex = marketplaceItems.findIndex((item) => item.id === itemId);
 
   return fallbackIndex >= 0 ? withFallbackItemSlug(marketplaceItems[fallbackIndex], fallbackIndex) : null;
@@ -706,6 +489,8 @@ function buildHomeCategories(items: Array<Pick<ItemRow, "category">>): HomeCateg
       })),
   ];
 }
+
+// ─── Public exports ───────────────────────────────────────────────────────────
 
 export const getHomeCategories = cache(async (): Promise<HomeCategory[]> => {
   if (!hasSupabaseEnv()) {
@@ -897,38 +682,6 @@ export const getSingleHomeItem = cache(async (): Promise<{ item: MarketplaceItem
   }
 });
 
-export const getCommunityPosts = cache(async (): Promise<CommunityPost[]> => {
-  if (!hasSupabaseEnv()) {
-    return communityPosts;
-  }
-
-  try {
-    const supabase = createServerSupabaseClient();
-    const { data, error } = await supabase
-      .from("community_posts")
-      .select("*")
-      .order("sort_order", { ascending: true })
-      .order("created_at", { ascending: false });
-
-    if (error || !data) {
-      throw error ?? new Error("Missing community_posts data");
-    }
-
-    return parseRows(data, "community", parseCommunityPostRow).map(mapCommunityPost);
-  } catch (error) {
-    logSupabaseFallback("community", error);
-    return communityPosts;
-  }
-});
-
-export const getCommunityPostDetail = cache(async (postId: string): Promise<CommunityPostDetail | null> => {
-  return getFallbackCommunityPostDetail(postId);
-});
-
-export const getCommunityRecommendations = cache(async (postId: string): Promise<CommunityPost[]> => {
-  return getFallbackCommunityRecommendations(postId);
-});
-
 export const getMarketplaceItemDetail = cache(
   async (itemSlug: string): Promise<{ item: MarketplaceItem; seller: SellerProfile } | null> => {
     if (!hasSupabaseEnv()) {
@@ -1002,7 +755,7 @@ export const getMarketplaceItemDetail = cache(
   },
 );
 
-const getMarketplaceItemDetailById = cache(
+export const getMarketplaceItemDetailById = cache(
   async (itemId: string): Promise<{ item: MarketplaceItem; seller: SellerProfile } | null> => {
     if (!hasSupabaseEnv()) {
       const item = getFallbackItemById(itemId);
@@ -1071,78 +824,6 @@ const getMarketplaceItemDetailById = cache(
       const seller = item ? getSellerById(item.sellerId) : undefined;
 
       return item && seller ? { item, seller } : null;
-    }
-  },
-);
-
-export const getChatScreenData = cache(
-  async (itemId: string): Promise<{ item: MarketplaceItem; seller: SellerProfile; chat: ChatPreview } | null> => {
-    if (!hasSupabaseEnv()) {
-      const item = getItemById(itemId);
-      const seller = item ? getSellerById(item.sellerId) : undefined;
-
-      if (!item || !seller) {
-        return null;
-      }
-
-      return {
-        item,
-        seller,
-        chat: getChatByItemId(itemId),
-      };
-    }
-
-    try {
-      const supabase = createServerSupabaseClient();
-      const detail = await getMarketplaceItemDetailById(itemId);
-
-      if (!detail) {
-        return null;
-      }
-
-      const { data: threadData, error: threadError } = await supabase
-        .from("chat_threads")
-        .select("*")
-        .eq("item_id", itemId)
-        .order("created_at", { ascending: true })
-        .limit(1)
-        .maybeSingle();
-
-      if (threadError || !threadData) {
-        throw threadError ?? new Error(`Missing chat thread for item ${itemId}`);
-      }
-
-      const thread = parseChatThreadRow(threadData, "chat.thread");
-
-      const { data: messageData, error: messageError } = await supabase
-        .from("chat_messages")
-        .select("*")
-        .eq("thread_id", thread.id)
-        .order("sort_order", { ascending: true })
-        .order("created_at", { ascending: true });
-
-      if (messageError || !messageData) {
-        throw messageError ?? new Error(`Missing chat messages for item ${itemId}`);
-      }
-
-      return {
-        ...detail,
-        chat: mapChatPreview(thread, parseRows(messageData, "chat.messages", parseChatMessageRow)),
-      };
-    } catch (error) {
-      logSupabaseFallback("chat", error);
-      const item = getItemById(itemId);
-      const seller = item ? getSellerById(item.sellerId) : undefined;
-
-      if (!item || !seller) {
-        return null;
-      }
-
-      return {
-        item,
-        seller,
-        chat: getChatByItemId(itemId),
-      };
     }
   },
 );
