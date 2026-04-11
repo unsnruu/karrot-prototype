@@ -14,11 +14,11 @@ type CommunityScreenProps = {
 
 export function CommunityScreen({ selectedTab, posts, meetups, cafePosts }: CommunityScreenProps) {
   return (
-    <main className="min-h-screen bg-[#eef2f6] text-[#111827]">
-      <div className="min-h-screen bg-white pb-24">
+    <main className="min-h-screen bg-[#f3f4f6] text-[#111827]">
+      <div className="mx-auto flex min-h-screen w-full max-w-[393px] flex-col bg-white pb-24 shadow-none md:max-w-[720px]">
         <CommunityHeader selectedTab={selectedTab} />
 
-        <section className="mx-auto w-full max-w-6xl px-4 pb-28 pt-5 sm:px-6 lg:px-8">
+        <section className={`w-full flex-1 pb-28 ${selectedTab === "town" ? "px-4 pt-5" : ""}`}>
           {selectedTab === "town" ? <CommunityPostList posts={posts} /> : null}
           {selectedTab === "meetup" ? <CommunityMeetupList meetups={meetups} /> : null}
           {selectedTab === "cafe" ? <CafePostList posts={cafePosts} /> : null}

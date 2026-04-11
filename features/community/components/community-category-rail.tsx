@@ -7,7 +7,7 @@ export function CommunityCategoryRail({ className = "" }: { className?: string }
   return (
     <div className={`${className} flex gap-3 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden`}>
       {communityCategories.map((category) => (
-        <button className="shrink-0" key={category.id} type="button">
+        <button className="w-20 shrink-0" key={category.id} type="button">
           <div className="mx-auto relative h-16 w-16">
             <AppImage
               alt={category.label}
@@ -20,7 +20,9 @@ export function CommunityCategoryRail({ className = "" }: { className?: string }
               <AppImage alt="" className="h-3.5 w-3.5" height={14} src={iconPlus} width={14} />
             </span>
           </div>
-          <span className="mt-2 block text-center text-[12px] leading-4 text-[#0a0a0a]">{category.label}</span>
+          <span className="mt-2 block text-center text-[12px] leading-4 tracking-[-0.02em] text-[#0a0a0a]">
+            {category.label}
+          </span>
         </button>
       ))}
     </div>

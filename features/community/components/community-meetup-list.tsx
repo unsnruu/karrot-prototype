@@ -11,10 +11,19 @@ export function CommunityMeetupList({
   emptyMessage = "모임 글이 아직 없어요.",
 }: CommunityMeetupListProps) {
   return (
-    <section className="mt-6">
-      <div className="mb-5">
-        <h2 className="text-[22px] font-bold tracking-[-0.03em] text-black">{communityMeetupSection.title}</h2>
-        <p className="mt-2 text-sm text-[#556070]">{communityMeetupSection.description}</p>
+    <section className="bg-white px-4 py-6">
+      <div className="mb-6 flex items-start justify-between gap-4">
+        <div>
+          <h2 className="text-[18px] font-bold leading-7 tracking-[-0.03em] text-[#0a0a0a]">
+            {communityMeetupSection.title}
+          </h2>
+          <p className="mt-1 text-[13px] leading-5 tracking-[-0.015em] text-[#6a7282]">
+            {communityMeetupSection.description}
+          </p>
+        </div>
+        <button className="shrink-0 text-[14px] font-medium text-[#4a5565]" type="button">
+          전체보기 ›
+        </button>
       </div>
 
       {meetups.length === 0 ? (
@@ -22,7 +31,7 @@ export function CommunityMeetupList({
           <p className="text-sm text-[#64748b]">{emptyMessage}</p>
         </div>
       ) : (
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <div className="space-y-4">
           {meetups.map((meetup) => (
             <CommunityMeetupCard key={meetup.id} meetup={meetup} />
           ))}

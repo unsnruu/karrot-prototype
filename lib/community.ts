@@ -78,6 +78,23 @@ export type CafePost = {
   previewComment?: string;
 };
 
+const meetupFigmaAssets = {
+  banner: "https://www.figma.com/api/mcp/asset/b153308e-f1c4-4cef-912f-dddf053ba699",
+  categorySelfDevelopment: "https://www.figma.com/api/mcp/asset/17facc84-8cd6-4e9a-a31f-5099345d2503",
+  categoryCultureArt: "https://www.figma.com/api/mcp/asset/845e3c5e-d05b-4533-8e2c-c04ab8585e10",
+  categoryMusicShow: "https://www.figma.com/api/mcp/asset/9b0012b5-e7ae-493f-bcc7-92120d8a7ac7",
+  categoryLocalFriends: "https://www.figma.com/api/mcp/asset/5921de04-1fc2-4d10-9130-0eda30eae38d",
+  categoryTravel: "https://www.figma.com/api/mcp/asset/6df9ca6a-899a-4b12-8a11-a06e1f26b881",
+  friesMapo: "https://www.figma.com/api/mcp/asset/04a957a3-1125-4358-a359-fb51efc04027",
+  friesHapjeong: "https://www.figma.com/api/mcp/asset/1665b11d-ac49-4534-959f-27771a22e30c",
+  friesLovers: "https://www.figma.com/api/mcp/asset/e405d12c-566a-44d6-94dd-4cb7694994df",
+  pastaShare: "https://www.figma.com/api/mcp/asset/174a0fc9-b3ff-4430-bece-0de710e177e1",
+  ninetiesTalk: "https://www.figma.com/api/mcp/asset/e4a222d5-1d13-466e-84db-da67cff4f5b4",
+  mixedHobby: "https://www.figma.com/api/mcp/asset/ff5e5d7b-c680-4db7-9271-a5662822013c",
+  nightRunning: "https://www.figma.com/api/mcp/asset/7d6cef9c-50ca-4b58-9e89-009d5a84d509",
+  afterWorkDrink: "https://www.figma.com/api/mcp/asset/98d0591b-f166-49a3-9e7b-99df026bcbc2",
+} as const;
+
 export const communityTopTabs: CommunityTopTab[] = [
   { key: "town", label: "동네생활" },
   { key: "meetup", label: "모임" },
@@ -99,34 +116,34 @@ export const communityBanner = {
   title: "동네지도 전국 오픈",
   description: "한눈에 동네 소식을 보세요",
   ctaLabel: "우리 동네 지도 보러가기",
-  image: "/images/figma-migrated/ffee75cf-f540-4bc8-9028-4b554bd2d856.png",
+  image: meetupFigmaAssets.banner,
 };
 
 export const communityCategories: CommunityCategory[] = [
   {
     id: "self-development",
     label: "자기계발 모임",
-    image: "/images/figma-migrated/51ea0095-74aa-44be-b847-3ad1e93d2a26.png",
+    image: meetupFigmaAssets.categorySelfDevelopment,
   },
   {
     id: "culture-art",
     label: "문화/예술 모임",
-    image: "/images/figma-migrated/4772163f-171c-4ee6-a1ab-63ed1855d1e5.png",
+    image: meetupFigmaAssets.categoryCultureArt,
   },
   {
     id: "music-show",
     label: "음악/공연 모임",
-    image: "/images/figma-migrated/8937d748-074e-4574-a051-2dcc1ed0e0f2.png",
+    image: meetupFigmaAssets.categoryMusicShow,
   },
   {
     id: "local-friends",
     label: "동네친구 모임",
-    image: "/images/figma-migrated/df87f611-f817-4b48-9b0a-4fdade26ba01.png",
+    image: meetupFigmaAssets.categoryLocalFriends,
   },
   {
     id: "travel",
     label: "야외도어/여행 모임",
-    image: "/images/figma-migrated/a56f8fe4-4116-4f18-9310-f37c2d97fbac.png",
+    image: meetupFigmaAssets.categoryTravel,
   },
 ];
 
@@ -142,7 +159,7 @@ export const communityMeetups: CommunityMeetup[] = [
     excerpt: "맥도날드 감튀모임할 분들 구합니다!!! 합정·상수·홍대 인근 중심으로 모여요",
     location: "마포구 합정동",
     members: 96,
-    image: "/images/figma-migrated/50bddbb3-e095-4d27-9e98-33e09871d5d2.png",
+    image: meetupFigmaAssets.friesMapo,
   },
   {
     id: "fries-hapjeong",
@@ -150,7 +167,7 @@ export const communityMeetups: CommunityMeetup[] = [
     excerpt: "달에 2-3회 모여서 감자튀김 산처럼 쌓아놓고 먹는 소소한 모임이에요",
     location: "마포구 합정동",
     members: 247,
-    image: "/images/figma-migrated/958a8039-9d69-4141-bb33-d6fa09eb4b83.png",
+    image: meetupFigmaAssets.friesHapjeong,
   },
   {
     id: "fries-lovers",
@@ -158,7 +175,7 @@ export const communityMeetups: CommunityMeetup[] = [
     excerpt: "합정동, 망원동 근처에서 감자튀김 🍟 좋아하고 야식 메이트 구해요",
     location: "합정동, 망원동",
     members: 331,
-    image: "/images/figma-migrated/6e5431bf-e150-42f6-9907-303d997da666.png",
+    image: meetupFigmaAssets.friesLovers,
   },
   {
     id: "pasta-share",
@@ -167,7 +184,7 @@ export const communityMeetups: CommunityMeetup[] = [
     location: "합정동, 상수동",
     members: 64,
     status: "일정 모집 중",
-    image: "/images/figma-migrated/71af11dd-3bed-4da8-8f38-129045fe18c9.png",
+    image: meetupFigmaAssets.pastaShare,
   },
   {
     id: "nineties-talk",
@@ -176,7 +193,7 @@ export const communityMeetups: CommunityMeetup[] = [
     location: "연남동",
     members: 28,
     status: "일정 모집중",
-    image: "/images/figma-migrated/a28496ca-d52f-4547-b551-b1ebe3460458.png",
+    image: meetupFigmaAssets.ninetiesTalk,
   },
   {
     id: "mixed-hobby",
@@ -184,7 +201,7 @@ export const communityMeetups: CommunityMeetup[] = [
     excerpt: "보드게임·산책·가벼운 운동 번갈아가며 부담 없이 친해져요",
     location: "서교동",
     members: 137,
-    image: "/images/figma-migrated/95090c18-19ef-45f5-8848-11bd9938d9c1.png",
+    image: meetupFigmaAssets.mixedHobby,
   },
   {
     id: "night-running",
@@ -192,7 +209,7 @@ export const communityMeetups: CommunityMeetup[] = [
     excerpt: "화·목 저녁, 5km 내외 가볍게",
     location: "마포구청역",
     members: 11,
-    image: "/images/figma-migrated/03bf73de-bc81-4555-914d-60b91a91235d.jpg",
+    image: meetupFigmaAssets.nightRunning,
   },
   {
     id: "after-work-drink",
@@ -201,7 +218,7 @@ export const communityMeetups: CommunityMeetup[] = [
     location: "합정동",
     members: 58,
     status: "1시간 전 활동",
-    image: "/images/figma-migrated/8937d748-074e-4574-a051-2dcc1ed0e0f2.png",
+    image: meetupFigmaAssets.afterWorkDrink,
   },
 ];
 
@@ -225,7 +242,7 @@ export const cafePosts: CafePost[] = [
     id: "free-talk",
     cafeName: "거지방",
     cafeMeta: "주주총장 · 자유 게시판",
-    emoji: "🦋",
+    emoji: "🪰",
     title: "친구들이랑 놀 때 저 혼자 돈이 없어요",
     excerpt: "저만 그런가요?",
     likes: 1,

@@ -2,29 +2,94 @@ import { type CafePost } from "@/lib/community";
 
 export function CafePostCard({ post }: { post: CafePost }) {
   return (
-    <article className="rounded-[24px] border border-[#eceef2] bg-white p-5 shadow-[0_16px_40px_rgba(15,23,42,0.04)]">
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <p className="truncate text-sm font-semibold text-black">
-            <span className="mr-1">{post.emoji}</span>
-            {post.cafeName}
-          </p>
-          <p className="mt-1 text-xs text-[#868b94]">{post.cafeMeta}</p>
+    <article className="border-b border-[#f3f4f6] py-4 first:pt-0 last:border-b-0 last:pb-0">
+      <div className="flex items-center justify-between gap-3">
+        <div className="min-w-0 flex flex-1 items-center gap-3">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[10px] bg-black text-[20px]">
+            {post.emoji}
+          </div>
+          <div className="min-w-0">
+            <p className="truncate text-[13px] font-bold leading-5 tracking-[-0.015em] text-[#0a0a0a]">{post.cafeName}</p>
+            <p className="mt-0.5 text-[12px] leading-4 text-[#6a7282]">{post.cafeMeta}</p>
+          </div>
         </div>
+        <button
+          className="h-[34px] shrink-0 rounded-[4px] border border-[#d1d5dc] px-4 text-[14px] font-medium text-[#0a0a0a]"
+          type="button"
+        >
+          가입
+        </button>
       </div>
 
-      <h2 className="mt-4 text-[18px] font-semibold leading-[1.35] tracking-[-0.03em] text-black">{post.title}</h2>
-      <p className="mt-2 line-clamp-3 text-sm leading-[1.6] text-[#556070]">{post.excerpt}</p>
+      <h2 className="mt-4 text-[16px] font-semibold leading-6 tracking-[-0.02em] text-[#0a0a0a]">{post.title}</h2>
+      <p className="mt-2 line-clamp-3 text-[14px] leading-[1.5] tracking-[-0.015em] text-[#364153]">{post.excerpt}</p>
+      {post.previewComment ? <p className="mt-1 text-[14px] leading-5 tracking-[-0.015em] text-[#364153]">...더보기</p> : null}
 
       {post.previewComment ? (
-        <div className="mt-4 rounded-2xl bg-[#f8fafc] px-4 py-3 text-sm text-[#556070]">{post.previewComment}</div>
+        <div className="mt-4 flex items-center gap-2 rounded-full bg-[#f9fafb] px-4 py-3 text-[14px] leading-5 tracking-[-0.015em] text-[#4a5565]">
+          <span className="h-6 w-6 shrink-0 rounded-full bg-[#d1d5dc]" />
+          <span className="truncate">{post.previewComment}</span>
+        </div>
       ) : null}
 
-      <div className="mt-4 flex items-center gap-4 text-sm text-[#868b94]">
-        <span>공감 {post.likes}</span>
-        <span>댓글 {post.comments}</span>
-        <span>조회 {post.views}</span>
+      <div className="mt-4 flex items-center justify-between gap-4">
+        <div className="flex items-center gap-4 text-[14px] text-[#4a5565]">
+          <span className="flex items-center gap-1.5">
+            <ThumbUpIcon />
+            {post.likes}
+          </span>
+          <span className="flex items-center gap-1.5">
+            <CommentIcon />
+            {post.comments}
+          </span>
+          <span className="flex items-center gap-1.5">
+            <ShareIcon />
+          </span>
+        </div>
+        <span className="text-[14px] leading-5 tracking-[-0.015em] text-[#6a7282]">조회 {post.views}</span>
       </div>
     </article>
+  );
+}
+
+function ThumbUpIcon() {
+  return (
+    <svg aria-hidden="true" className="h-5 w-5 text-[#6a7282]" fill="none" viewBox="0 0 20 20">
+      <path
+        d="M8.412 3.122a.938.938 0 0 1 1.13 1.179l-.772 2.996h6.275c1.062 0 1.736 1.127 1.235 2.053l-3.15 5.786a2.188 2.188 0 0 1-1.924 1.139H5.5a1.875 1.875 0 0 1-1.875-1.875V10.66c0-.364.1-.722.3-1.037l3.325-5.65a2.188 2.188 0 0 1 1.162-.851Z"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.6"
+      />
+      <path d="M2.5 9.375h1.125v6.875H2.5a.625.625 0 0 1-.625-.625V10a.625.625 0 0 1 .625-.625Z" fill="currentColor" />
+    </svg>
+  );
+}
+
+function CommentIcon() {
+  return (
+    <svg aria-hidden="true" className="h-5 w-5 text-[#6a7282]" fill="none" viewBox="0 0 20 20">
+      <path
+        d="M4.167 4.792h11.666c.92 0 1.667.746 1.667 1.666v7.084c0 .92-.746 1.666-1.667 1.666H9.74l-3.907 2.5.887-2.5h-2.553A1.667 1.667 0 0 1 2.5 13.542V6.458c0-.92.746-1.666 1.667-1.666Z"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.6"
+      />
+    </svg>
+  );
+}
+
+function ShareIcon() {
+  return (
+    <svg aria-hidden="true" className="h-5 w-5 text-[#6a7282]" fill="none" viewBox="0 0 20 20">
+      <path
+        d="M14.792 13.958a2.084 2.084 0 1 0 0 4.167 2.084 2.084 0 0 0 0-4.167ZM5.208 7.917a2.084 2.084 0 1 0 0 4.166 2.084 2.084 0 0 0 0-4.166ZM14.792 1.875a2.084 2.084 0 1 0 0 4.167 2.084 2.084 0 0 0 0-4.167Z"
+        stroke="currentColor"
+        strokeWidth="1.6"
+      />
+      <path d="m6.967 9.11 6.066-3.378M6.967 10.89l6.066 3.378" stroke="currentColor" strokeLinecap="round" strokeWidth="1.6" />
+    </svg>
   );
 }

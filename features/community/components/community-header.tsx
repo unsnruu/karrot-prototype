@@ -8,8 +8,8 @@ const iconChevronDown = "/icons/chevron-down.svg";
 
 export function CommunityHeader({ selectedTab }: { selectedTab: CommunityTabKey }) {
   return (
-    <header className="sticky top-0 z-20 border-b border-black/10 bg-white">
-      <div className="mx-auto max-w-6xl px-4 pb-4 pt-5 sm:px-6 lg:px-8">
+    <header className="sticky top-0 z-20 bg-white">
+      <div className="w-full px-4 pb-1 pt-5">
         <p className="text-[22px] font-bold tracking-[-0.03em] text-black">커뮤니티</p>
 
         <div className="mt-5 flex items-center gap-5 text-[20px] font-semibold leading-none">
@@ -53,6 +53,7 @@ export function CommunityHeader({ selectedTab }: { selectedTab: CommunityTabKey 
 
         {selectedTab === "cafe" ? <CommunityCategoryRail className="mt-5" /> : null}
       </div>
+      {(selectedTab === "meetup" || selectedTab === "cafe") ? <div className="h-2 bg-[#f3f4f6]" /> : null}
     </header>
   );
 }
