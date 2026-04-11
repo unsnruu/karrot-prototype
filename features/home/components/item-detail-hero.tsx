@@ -1,11 +1,11 @@
 "use client";
 
 import { AppImage } from "@/components/ui/app-image";
+import { IconButton } from "@/components/ui/icon-button";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   ArrowLeftIcon,
   HomeIcon,
-  IconButton,
   MoreVerticalIcon,
   ShareIcon,
 } from "@/features/home/components/item-detail-icons";
@@ -22,7 +22,7 @@ export function ItemDetailHero({ image, title }: { image: string; title: string 
       return;
     }
 
-    if (typeof window !== "undefined" && window.history.length > 1) {
+    if (window.history.length > 1) {
       router.back();
       return;
     }

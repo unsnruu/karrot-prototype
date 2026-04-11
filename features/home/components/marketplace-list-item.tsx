@@ -6,6 +6,8 @@ import { AppImage } from "@/components/ui/app-image";
 import { type HomeFeedItem } from "@/lib/marketplace";
 
 const iconMore = "/icons/more.svg";
+
+const PROMOTED_SUBTITLE_PLACEHOLDER = "\u00A0";
 const iconLocation = "/icons/location.svg";
 const iconChat = "/icons/chat.svg";
 const iconHeart = "/icons/heart.svg";
@@ -44,7 +46,7 @@ export function MarketplaceListItem({ item }: { item: HomeFeedItem }) {
 
               {isPromoted ? (
                 <p className="mt-1 block text-[13px] leading-[1.35] text-[#b0b3ba]">
-                  {item.subtitle ?? "\u00A0"}
+                  {item.subtitle ?? PROMOTED_SUBTITLE_PLACEHOLDER}
                 </p>
               ) : (
                 <>

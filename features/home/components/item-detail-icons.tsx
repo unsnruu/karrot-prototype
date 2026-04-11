@@ -1,33 +1,4 @@
-import Link from "next/link";
 import { cn } from "@/lib/utils";
-
-export function IconButton({
-  ariaLabel,
-  children,
-  href,
-  onClick,
-}: {
-  ariaLabel: string;
-  children: React.ReactNode;
-  href?: string;
-  onClick?: () => void;
-}) {
-  const className = "flex h-8 w-8 items-center justify-center";
-
-  if (href) {
-    return (
-      <Link aria-label={ariaLabel} className={className} href={href}>
-        {children}
-      </Link>
-    );
-  }
-
-  return (
-    <button aria-label={ariaLabel} className={className} onClick={onClick} type="button">
-      {children}
-    </button>
-  );
-}
 
 export function ArrowLeftIcon() {
   return (
@@ -78,20 +49,6 @@ export function ChevronRightIcon({ className }: { className?: string }) {
   return (
     <svg className={cn("h-4 w-4", className)} fill="none" viewBox="0 0 16 16">
       <path d="M6 3L10.5 8L6 13" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.6" />
-    </svg>
-  );
-}
-
-export function MapExpandIcon() {
-  return (
-    <svg fill="none" height="16" viewBox="0 0 16 16" width="16">
-      <path
-        d="M5 2.75H2.75V5M11 2.75H13.25V5M5 13.25H2.75V11M11 13.25H13.25V11"
-        stroke="currentColor"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="1.4"
-      />
     </svg>
   );
 }

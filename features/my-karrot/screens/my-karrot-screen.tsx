@@ -122,6 +122,61 @@ const menuGroups: MenuGroup[] = [
   },
 ];
 
+function ProfileCard() {
+  return (
+    <section className="rounded-2xl bg-white px-5 py-4 shadow-[0_1px_3px_rgba(15,23,42,0.08)]">
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[#e5e7eb]">
+            <Image alt="" height={28} src={figmaIcons.profileAvatar} width={28} />
+          </span>
+          <div className="flex items-center gap-2">
+            <span className="text-[17px] font-bold leading-[25.5px] tracking-[-0.03em] text-[#0a0a0a]">젤리킹</span>
+            <span className="text-xs font-semibold leading-[18px] text-[#ff6900]">39.4°C</span>
+          </div>
+        </div>
+        <span aria-hidden="true" className="text-[20px] text-[#c9ced6]">
+          ›
+        </span>
+      </div>
+    </section>
+  );
+}
+
+function PayCard() {
+  return (
+    <section className="rounded-2xl bg-white px-5 py-4 shadow-[0_1px_3px_rgba(15,23,42,0.08)]">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-1">
+          <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#ff8a3d] text-[10px] font-bold text-white">
+            P
+          </span>
+          <span className="text-sm font-bold leading-[21px] text-[#ff8a3d]">pay</span>
+        </div>
+        <div className="flex items-center gap-1">
+          <span className="text-base font-bold leading-6 text-[#0a0a0a]">8,700원</span>
+          <span aria-hidden="true" className="text-[20px] text-[#c9ced6]">
+            ›
+          </span>
+        </div>
+      </div>
+      <div className="mt-3 flex items-center justify-between gap-4">
+        <div className="flex items-center gap-4 text-sm font-medium leading-[21px] text-[#364153]">
+          <button type="button">충전</button>
+          <button type="button">송금</button>
+        </div>
+        <button
+          className="inline-flex h-[35px] items-center gap-2 rounded-full bg-[#101828] px-4 text-[13px] font-semibold leading-[19.5px] text-white"
+          type="button"
+        >
+          <Image alt="" height={16} src={figmaIcons.payCard} width={16} />
+          결제
+        </button>
+      </div>
+    </section>
+  );
+}
+
 export function MyKarrotScreen() {
   return (
     <main className="min-h-screen bg-[#f9fafb] text-[#1e2939]">
@@ -142,52 +197,8 @@ export function MyKarrotScreen() {
         </header>
 
         <div className="space-y-3 px-[clamp(16px,4vw,24px)] pb-8 pt-3">
-          <section className="rounded-2xl bg-white px-5 py-4 shadow-[0_1px_3px_rgba(15,23,42,0.08)]">
-            <div className="flex items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[#e5e7eb]">
-                  <Image alt="" height={28} src={figmaIcons.profileAvatar} width={28} />
-                </span>
-                <div className="flex items-center gap-2">
-                  <span className="text-[17px] font-bold leading-[25.5px] tracking-[-0.03em] text-[#0a0a0a]">젤리킹</span>
-                  <span className="text-xs font-semibold leading-[18px] text-[#ff6900]">39.4°C</span>
-                </div>
-              </div>
-              <span aria-hidden="true" className="text-[20px] text-[#c9ced6]">
-                ›
-              </span>
-            </div>
-          </section>
-
-          <section className="rounded-2xl bg-white px-5 py-4 shadow-[0_1px_3px_rgba(15,23,42,0.08)]">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-1">
-                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#ff8a3d] text-[10px] font-bold text-white">
-                  P
-                </span>
-                <span className="text-sm font-bold leading-[21px] text-[#ff8a3d]">pay</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <span className="text-base font-bold leading-6 text-[#0a0a0a]">8,700원</span>
-                <span aria-hidden="true" className="text-[20px] text-[#c9ced6]">
-                  ›
-                </span>
-              </div>
-            </div>
-            <div className="mt-3 flex items-center justify-between gap-4">
-              <div className="flex items-center gap-4 text-sm font-medium leading-[21px] text-[#364153]">
-                <button type="button">충전</button>
-                <button type="button">송금</button>
-              </div>
-              <button
-                className="inline-flex h-[35px] items-center gap-2 rounded-full bg-[#101828] px-4 text-[13px] font-semibold leading-[19.5px] text-white"
-                type="button"
-              >
-                <Image alt="" height={16} src={figmaIcons.payCard} width={16} />
-                결제
-              </button>
-            </div>
-          </section>
+          <ProfileCard />
+          <PayCard />
 
           {serviceSections.map((section) => (
             <section
