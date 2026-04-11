@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { HomeNavigationHistoryProvider } from "@/features/home/components/home-navigation-history-provider";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -13,7 +14,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko">
-      <body className="antialiased">{children}</body>
+      <body className="antialiased">
+        <HomeNavigationHistoryProvider>{children}</HomeNavigationHistoryProvider>
+      </body>
     </html>
   );
 }

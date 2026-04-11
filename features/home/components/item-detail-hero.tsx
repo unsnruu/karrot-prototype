@@ -2,7 +2,8 @@
 
 import { AppImage } from "@/components/ui/app-image";
 import { IconButton } from "@/components/ui/icon-button";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
+import { useHomeNavigationHistory } from "@/features/home/components/home-navigation-history-provider";
 import {
   ArrowLeftIcon,
   HomeIcon,
@@ -12,13 +13,13 @@ import {
 
 export function ItemDetailHero({ image, title }: { image: string; title: string }) {
   const router = useRouter();
-  const searchParams = useSearchParams();
+  const { getPreviousPath } = useHomeNavigationHistory();
 
   const handleBack = () => {
-    const from = searchParams.get("from");
+    const previousPath = getPreviousPath();
 
-    if (from) {
-      router.push(from);
+    if (previousPath) {
+      router.push(previousPath);
       return;
     }
 

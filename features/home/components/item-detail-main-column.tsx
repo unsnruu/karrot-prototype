@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useSearchParams } from "next/navigation";
 import { AppImage } from "@/components/ui/app-image";
 import {
   BellIcon,
@@ -101,7 +100,7 @@ function ItemBodySection({ item }: { item: MarketplaceItem }) {
   );
 }
 
-function RecommendationsSection({ items, currentPath }: { items: HomeFeedItem[]; currentPath: string }) {
+function RecommendationsSection({ items }: { items: HomeFeedItem[] }) {
   if (items.length === 0) return null;
   return (
     <section className="py-7">
@@ -112,11 +111,7 @@ function RecommendationsSection({ items, currentPath }: { items: HomeFeedItem[];
 
       <div className="mt-6 grid grid-cols-2 gap-x-3 gap-y-5">
         {items.map((relatedItem) => (
-          <Link
-            className="space-y-3"
-            href={`/home/items/${relatedItem.slug}?from=${encodeURIComponent(currentPath)}`}
-            key={relatedItem.id}
-          >
+          <Link className="space-y-3" href={`/home/items/${relatedItem.slug}`} key={relatedItem.id}>
             <AppImage
               alt={relatedItem.title}
               className="aspect-[1.32/1] w-full rounded-[12px] object-cover"
@@ -146,10 +141,6 @@ export function ItemDetailMainColumn({
   adItem?: HomeFeedItem;
   recommendationItems: HomeFeedItem[];
 }) {
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const currentPath = searchParams.toString() ? `${pathname}?${searchParams.toString()}` : pathname;
-
   return (
     <div className="min-w-0">
       <SellerSection seller={seller} />
@@ -159,7 +150,7 @@ export function ItemDetailMainColumn({
           <ItemDetailAdCard item={adItem} />
         </section>
       ) : null}
-      <RecommendationsSection currentPath={currentPath} items={recommendationItems} />
+      <RecommendationsSection items={recommendationItems} />
       <section className="flex items-start gap-5 pb-[134px] pt-2">
         <KeywordAlert itemTitle={item.title} />
       </section>

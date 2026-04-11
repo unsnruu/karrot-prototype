@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useSearchParams } from "next/navigation";
 import { AppImage } from "@/components/ui/app-image";
 import { type HomeFeedItem } from "@/lib/marketplace";
 
@@ -14,10 +13,7 @@ const iconHeart = "/icons/heart.svg";
 
 export function MarketplaceListItem({ item }: { item: HomeFeedItem }) {
   const isPromoted = Boolean(item.promoted);
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const currentPath = searchParams.toString() ? `${pathname}?${searchParams.toString()}` : pathname;
-  const detailHref = `/home/items/${item.slug}?from=${encodeURIComponent(currentPath)}`;
+  const detailHref = `/home/items/${item.slug}`;
 
   return (
     <article className="mb-4 border-b border-[#eceef2] pb-4">
