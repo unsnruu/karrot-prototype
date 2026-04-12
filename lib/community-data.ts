@@ -118,6 +118,28 @@ function mapCommunityPost(row: CommunityPostRow): CommunityPost {
   };
 }
 
+function mapCommunityPostDetail(row: CommunityPostRow): CommunityPostDetail {
+  const post = mapCommunityPost(row);
+  const normalizedBody = row.body.trim();
+  const bodyParagraphs = normalizedBody
+    .split(/\n{2,}/)
+    .map((paragraph) => paragraph.trim())
+    .filter(Boolean);
+
+  return {
+    ...post,
+    badgeLabel: "동네친구",
+    author: {
+      name: "당근 이웃",
+      avatar: post.image ?? "/images/figma-migrated/51ea0095-74aa-44be-b847-3ad1e93d2a26.png",
+      activityLabel: `${row.town} 인증 · ${post.postedAt}`,
+    },
+    bodyParagraphs: bodyParagraphs.length ? bodyParagraphs : [post.excerpt],
+    viewSummary: `${post.views}명이 봤어요`,
+    commentsList: [],
+  };
+}
+
 // ─── Public exports ───────────────────────────────────────────────────────────
 
 export const getCommunityPosts = cache(async (): Promise<CommunityPost[]> => {
@@ -145,9 +167,36 @@ export const getCommunityPosts = cache(async (): Promise<CommunityPost[]> => {
 });
 
 export const getCommunityPostDetail = cache(async (postId: string): Promise<CommunityPostDetail | null> => {
-  return getFallbackCommunityPostDetail(postId);
+  if (!hasSupabaseEnv()) {
+    return getFallbackCommunityPostDetail(postId);
+  }
+
+  try {
+    const supabase = createServerSupabaseClient();
+    const { data, error } = await supabase.from("community_posts").select("*").eq("id", postId).maybeSingle();
+
+    if (error) {
+      throw error;
+    }
+
+    if (!data) {
+      return null;
+    }
+
+    return mapCommunityPostDetail(parseCommunityPostRow(data, "community-detail"));
+  } catch (error) {
+    logSupabaseFallback("community-detail", error);
+    return getFallbackCommunityPostDetail(postId);
+  }
 });
 
 export const getCommunityRecommendations = cache(async (postId: string): Promise<CommunityPost[]> => {
+  const posts = await getCommunityPosts();
+  const recommendations = posts.filter((post) => post.id !== postId).slice(0, 3);
+
+  if (recommendations.length > 0) {
+    return recommendations;
+  }
+
   return getFallbackCommunityRecommendations(postId);
 });
