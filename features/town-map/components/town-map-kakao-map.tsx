@@ -20,7 +20,6 @@ export function TownMapKakaoMap({
     }
 
     const overlays: Array<{ setMap: (map: unknown) => void }> = [];
-
     loadKakaoMapsSdk()
       .then((kakao) => {
         if (!containerRef.current) {
@@ -87,6 +86,7 @@ function createPinOverlay(pin: TownMapPin) {
   wrapper.style.flexDirection = "column";
   wrapper.style.alignItems = "center";
   wrapper.style.gap = "4px";
+  wrapper.style.cursor = pin.href ? "pointer" : "default";
 
   const iconBubble = document.createElement("div");
   iconBubble.style.position = "relative";
@@ -123,6 +123,12 @@ function createPinOverlay(pin: TownMapPin) {
   iconBubble.appendChild(iconImage);
   wrapper.appendChild(iconBubble);
   wrapper.appendChild(label);
+
+  if (pin.href) {
+    wrapper.addEventListener("click", () => {
+      window.location.assign(pin.href!);
+    });
+  }
 
   return wrapper;
 }

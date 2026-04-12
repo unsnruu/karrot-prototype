@@ -29,6 +29,7 @@ export type TownMapPin = {
   lat: number;
   lng: number;
   icon: string;
+  href?: string;
 };
 
 export type TownMapCoordinate = {
@@ -104,9 +105,30 @@ export const townMapQuickActions: TownMapQuickAction[] = [
 ];
 
 export const townMapPins: TownMapPin[] = [
-  { id: "burger", label: "망원수제버거\n합정점", lat: 37.55116, lng: 126.91692, icon: townMapAssets.pinBurger },
-  { id: "discount", label: "멋주미라탕", lat: 37.54905, lng: 126.91310, icon: townMapAssets.pinDiscount },
-  { id: "deal", label: "본점", lat: 37.55275, lng: 126.91158, icon: townMapAssets.pinDeal },
+  {
+    id: "mangwon-burger-hapjeong",
+    label: "망원수제버거\n합정점",
+    lat: 37.55116,
+    lng: 126.91692,
+    icon: townMapAssets.pinBurger,
+    href: "/town-map/businesses/mangwon-burger-hapjeong",
+  },
+  {
+    id: "geumhwa-tonkatsu-hapjeong",
+    label: "금화왕돈까스\n합정점",
+    lat: 37.54905,
+    lng: 126.91310,
+    icon: townMapAssets.pinDiscount,
+    href: "/town-map/businesses/geumhwa-tonkatsu-hapjeong",
+  },
+  {
+    id: "hapjeong-bagel-club",
+    label: "합정베이글클럽",
+    lat: 37.55275,
+    lng: 126.91158,
+    icon: townMapAssets.pinDeal,
+    href: "/town-map/businesses/hapjeong-bagel-club",
+  },
 ];
 
 export const townMapPosts: TownMapPost[] = [
