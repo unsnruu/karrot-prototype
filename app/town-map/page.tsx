@@ -1,5 +1,5 @@
-import { TabPlaceholderScreen } from "@/features/shared/screens/tab-placeholder-screen";
+import { TownMapScreen } from "@/features/town-map/screens/town-map-screen";
 
 export default function TownMapPage() {
-  return <TabPlaceholderScreen title="동네지도" />;
+  return <TownMapScreen />;
 }

@@ -12,6 +12,11 @@ const nextConfig: NextConfig = {
         hostname: "images.unsplash.com",
         pathname: "/**",
       },
+      {
+        protocol: "https",
+        hostname: "www.figma.com",
+        pathname: "/api/mcp/asset/**",
+      },
     ],
   },
   outputFileTracingRoot: __dirname,
