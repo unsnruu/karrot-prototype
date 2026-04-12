@@ -26,9 +26,14 @@ export type TownMapPost = {
 export type TownMapPin = {
   id: string;
   label: string;
-  top: string;
-  left: string;
+  lat: number;
+  lng: number;
   icon: string;
+};
+
+export type TownMapCoordinate = {
+  lat: number;
+  lng: number;
 };
 
 const townMapAssets = {
@@ -63,10 +68,14 @@ const townMapAssets = {
   burgerImageB: "https://www.figma.com/api/mcp/asset/83a1bf0a-d757-45a5-b805-b64009ea94d6",
 } as const;
 
+export const townMapCenter: TownMapCoordinate = {
+  lat: 37.54991,
+  lng: 126.91440,
+};
+
 export const townMapScreenData = {
   townLabel: "마포구 공덕동",
   searchPlaceholder: "여기서 업체 검색",
-  mapImage: townMapAssets.basemap,
   profileImage: townMapAssets.profile,
   locationIcon: townMapAssets.location,
   ad: {
@@ -95,9 +104,9 @@ export const townMapQuickActions: TownMapQuickAction[] = [
 ];
 
 export const townMapPins: TownMapPin[] = [
-  { id: "burger", label: "망원수제버거\n합정점", top: "42%", left: "63%", icon: townMapAssets.pinBurger },
-  { id: "discount", label: "멋주미라탕", top: "58%", left: "49%", icon: townMapAssets.pinDiscount },
-  { id: "deal", label: "본점", top: "19%", left: "39%", icon: townMapAssets.pinDeal },
+  { id: "burger", label: "망원수제버거\n합정점", lat: 37.55116, lng: 126.91692, icon: townMapAssets.pinBurger },
+  { id: "discount", label: "멋주미라탕", lat: 37.54905, lng: 126.91310, icon: townMapAssets.pinDiscount },
+  { id: "deal", label: "본점", lat: 37.55275, lng: 126.91158, icon: townMapAssets.pinDeal },
 ];
 
 export const townMapPosts: TownMapPost[] = [

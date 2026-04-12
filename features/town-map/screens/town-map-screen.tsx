@@ -1,10 +1,11 @@
 import { BottomNav } from "@/components/navigation/bottom-nav";
 import { AppImage } from "@/components/ui/app-image";
 import { TownMapCategoryChip } from "@/features/town-map/components/town-map-category-chip";
-import { TownMapMarker } from "@/features/town-map/components/town-map-marker";
+import { TownMapKakaoMap } from "@/features/town-map/components/town-map-kakao-map";
 import { TownMapPostCard } from "@/features/town-map/components/town-map-post-card";
 import { TownMapQuickActionCard } from "@/features/town-map/components/town-map-quick-action-card";
 import {
+  townMapCenter,
   townMapPins,
   townMapPosts,
   townMapQuickActions,
@@ -18,17 +19,7 @@ export function TownMapScreen() {
     <main className="min-h-screen bg-[#f2f4f7] text-[#111827]">
       <div className="mx-auto flex min-h-screen w-full max-w-[393px] flex-col overflow-hidden bg-white shadow-none md:max-w-[560px]">
         <section className="relative flex min-h-screen flex-1 flex-col overflow-hidden">
-          <div className="absolute inset-0">
-            <AppImage
-              alt="동네지도 배경"
-              className="object-cover object-center"
-              fill
-              priority
-              sizes="(max-width: 768px) 100vw, 560px"
-              src={townMapScreenData.mapImage}
-            />
-            <div className="absolute inset-0 bg-white/20" />
-          </div>
+          <TownMapKakaoMap center={townMapCenter} pins={townMapPins} />
 
           <div className="relative z-10 px-4 pt-5">
             <div className="rounded-[8px] bg-gradient-to-b from-[#fdfdfe] to-[#f4f6fa] p-2 shadow-[0px_1px_8px_0px_rgba(0,0,0,0.15)]">
@@ -49,12 +40,7 @@ export function TownMapScreen() {
               ))}
             </div>
           </div>
-
-          <div className="relative z-10 flex-1">
-            {townMapPins.map((pin) => (
-              <TownMapMarker key={pin.id} pin={pin} />
-            ))}
-          </div>
+          <div className="pointer-events-none relative z-10 flex-1" />
 
           <section className="relative z-10 mt-auto max-h-[56vh] rounded-t-[20px] bg-white px-4 pb-0 pt-5 shadow-[0px_-6px_24px_rgba(0,0,0,0.06)]">
             <div className="mx-auto mb-3 h-2 w-[62px] rounded-full bg-[#d9d9d9]" />
