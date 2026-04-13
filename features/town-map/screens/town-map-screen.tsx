@@ -16,7 +16,7 @@ import {
 export function TownMapScreen({ pins }: { pins: TownMapPin[] }) {
   return (
     <main className="min-h-screen bg-[#f2f4f7] text-[#111827]">
-      <div className="mx-auto flex min-h-screen w-full max-w-[393px] flex-col overflow-hidden bg-white shadow-none md:max-w-[560px]">
+      <div className="mobile-shell flex min-h-screen flex-col overflow-hidden bg-white shadow-none">
         <section className="relative flex min-h-screen flex-1 flex-col overflow-hidden">
           <TownMapKakaoMap center={townMapCenter} pins={pins} />
 

@@ -21,7 +21,7 @@ export function ItemDetailScreen({ item, seller, relatedItems }: ItemDetailScree
 
   return (
     <main className="min-h-screen bg-white text-black">
-      <div className="mx-auto min-h-screen w-full max-w-screen-sm bg-white">
+      <div className="mobile-shell min-h-screen bg-white">
         <ItemDetailHero image={item.image} title={item.title} />
 
         <div className="w-full px-4 pt-4 sm:px-5">

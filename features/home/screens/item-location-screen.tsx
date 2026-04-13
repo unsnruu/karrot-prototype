@@ -6,7 +6,7 @@ import { type MarketplaceItem } from "@/lib/marketplace";
 export function ItemLocationScreen({ item }: { item: MarketplaceItem }) {
   return (
     <main className="min-h-screen bg-white text-black">
-      <div className="mx-auto flex min-h-screen w-full max-w-screen-sm flex-col bg-white">
+      <div className="mobile-shell flex min-h-screen flex-col bg-white">
         <header className="sticky top-0 z-10 flex h-14 items-center justify-between bg-white px-2">
           <Link
             aria-label="뒤로 가기"
@@ -23,7 +23,7 @@ export function ItemLocationScreen({ item }: { item: MarketplaceItem }) {
 
         <div className="flex-1 px-0 pb-0">
           <ItemDetailKakaoMap
-            heightClassName="h-[calc(100vh-56px)] min-h-[640px]"
+            heightClassName="h-[calc(100dvh-56px)] min-h-[22rem]"
             lat={item.meetupLat}
             lng={item.meetupLng}
             meetupAddress={item.meetupAddress}

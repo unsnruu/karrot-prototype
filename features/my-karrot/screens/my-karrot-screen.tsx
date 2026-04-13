@@ -180,7 +180,7 @@ function PayCard() {
 export function MyKarrotScreen() {
   return (
     <main className="min-h-screen bg-[#f9fafb] text-[#1e2939]">
-      <div className="mx-auto min-h-screen w-full max-w-[760px] pb-28">
+      <div className="mobile-shell-wide min-h-screen pb-28">
         <header className="sticky top-0 z-10 bg-white/95 backdrop-blur">
           <div className="flex h-[72px] items-center justify-between px-[clamp(20px,5vw,32px)]">
             <h1 className="text-[clamp(1.25rem,5vw,1.375rem)] font-bold leading-[1.5] tracking-[-0.04em] text-[#0a0a0a]">

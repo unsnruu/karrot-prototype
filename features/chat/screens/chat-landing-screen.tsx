@@ -9,7 +9,7 @@ const iconBell = "/icons/bell.svg";
 export function ChatLandingScreen({ threads = chatThreadPreviews }: { threads?: ChatThreadPreview[] }) {
   return (
     <main className="min-h-screen bg-white text-[#111827]">
-      <div className="mx-auto min-h-screen max-w-[393px] bg-white pb-24">
+      <div className="mobile-shell min-h-screen bg-white pb-24">
         <header className="sticky top-0 z-20 bg-white">
           <div className="px-4 pb-3 pt-5">
             <div className="flex items-center justify-between py-4">

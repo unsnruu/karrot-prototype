@@ -19,7 +19,7 @@ export function HomeHeader({
 }) {
   return (
     <header className="sticky top-0 z-20 border-b border-black/5 bg-white/95 backdrop-blur">
-      <div className="mx-auto w-full max-w-6xl bg-white/95 px-4 pt-5 sm:px-6 lg:px-8">
+      <div className="mobile-shell-wide bg-white/95 px-4 pt-5 sm:px-6">
         <div className="flex items-center justify-between py-4">
           <button className="flex items-center gap-0.5" type="button">
             <span className="text-[22px] font-bold tracking-[-0.03em] text-black">합정동</span>

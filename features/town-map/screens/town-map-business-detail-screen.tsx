@@ -12,7 +12,7 @@ export function TownMapBusinessDetailScreen({
 }) {
   return (
     <main className="min-h-screen bg-white text-[#111827]">
-      <div className="mx-auto min-h-screen w-full max-w-[390px] bg-white pb-20">
+      <div className="mobile-shell-compact min-h-screen bg-white pb-20">
         <header className="sticky top-0 z-20 bg-white/95 backdrop-blur">
           <div className="flex items-center justify-between px-2 py-3">
             <Link
@@ -63,7 +63,7 @@ export function TownMapBusinessDetailScreen({
                   alt={`${detail.name} 사진 ${index + 1}`}
                   className="object-cover"
                   fill
-                  sizes="(max-width: 390px) 50vw, 180px"
+                  sizes="(max-width: 640px) 50vw, 320px"
                   src={image}
                 />
               </div>

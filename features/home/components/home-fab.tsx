@@ -32,8 +32,8 @@ export function HomeFab() {
 
   return (
     <>
-      <div className="pointer-events-none fixed inset-x-0 bottom-[103px] z-20 px-4 sm:px-6 lg:px-8">
-        <div className="mx-auto flex max-w-6xl justify-end">
+      <div className="pointer-events-none fixed inset-x-0 bottom-[103px] z-20 px-4 sm:px-6">
+        <div className="mobile-shell-wide flex justify-end">
           <button
             aria-expanded={isOpen}
             aria-haspopup="menu"
@@ -62,8 +62,8 @@ export function HomeFab() {
         }`}
         onClick={() => setIsOpen(false)}
       >
-        <div className="absolute inset-x-0 bottom-[96px] px-4 sm:px-6 lg:px-8">
-          <div className="mx-auto flex max-w-6xl justify-end">
+        <div className="absolute inset-x-0 bottom-[96px] px-4 sm:px-6">
+          <div className="mobile-shell-wide flex justify-end">
             <div
               className={`flex flex-col items-end gap-2.5 transition-all duration-200 ${
                 isOpen ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"

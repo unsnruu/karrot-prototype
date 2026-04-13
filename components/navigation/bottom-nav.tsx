@@ -9,7 +9,7 @@ export function BottomNav() {
 
   return (
     <nav className="fixed inset-x-0 bottom-0 z-20 border-t border-black/10 bg-white/95 backdrop-blur">
-      <ul className="mx-auto grid w-full max-w-6xl grid-cols-5 px-2 sm:px-4 lg:px-6">
+      <ul className="mobile-shell grid grid-cols-5 px-2 sm:px-4">
         {bottomTabs.map((tab) => {
           const active = isActiveTab(pathname, tab.href);
 

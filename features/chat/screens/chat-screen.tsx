@@ -45,7 +45,7 @@ export function ChatScreen({
 
   return (
     <main className="min-h-screen bg-[#eef2f6]">
-      <div className="mx-auto min-h-screen max-w-[393px] bg-white">
+      <div className="mobile-shell min-h-screen bg-white">
         <header className="border-b border-black/5 bg-white px-4 pb-2 pt-5">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -103,19 +103,21 @@ export function ChatScreen({
           </div>
         </section>
 
-        <footer className="fixed bottom-0 left-1/2 z-10 flex w-full max-w-[393px] -translate-x-1/2 items-center gap-3 bg-white px-2 pb-10 pt-2">
-          <button className="flex h-8 w-8 items-center justify-center text-[#8f95a3]" type="button">
-            <PlusIcon />
-          </button>
-          <div className="flex h-10 flex-1 items-center gap-1 rounded-full bg-[#f2f4f5] px-3">
-            <p className="flex-1 text-[16px] font-medium text-[#aeb2b5]">메시지 보내기</p>
-            <button className="flex h-6 w-6 items-center justify-center text-[#9aa1ac]" type="button">
-              <SmileIcon />
+        <footer className="fixed inset-x-0 bottom-0 z-10 bg-white">
+          <div className="mobile-shell flex items-center gap-3 px-2 pb-10 pt-2">
+            <button className="flex h-8 w-8 items-center justify-center text-[#8f95a3]" type="button">
+              <PlusIcon />
+            </button>
+            <div className="flex h-10 flex-1 items-center gap-1 rounded-full bg-[#f2f4f5] px-3">
+              <p className="flex-1 text-[16px] font-medium text-[#aeb2b5]">메시지 보내기</p>
+              <button className="flex h-6 w-6 items-center justify-center text-[#9aa1ac]" type="button">
+                <SmileIcon />
+              </button>
+            </div>
+            <button className="flex h-6 w-6 items-center justify-center text-[#d3d7dd]" type="button">
+              <SendIcon />
             </button>
           </div>
-          <button className="flex h-6 w-6 items-center justify-center text-[#d3d7dd]" type="button">
-            <SendIcon />
-          </button>
         </footer>
       </div>
     </main>

@@ -62,7 +62,7 @@ export function TownMapSearchScreen({ returnHref }: TownMapSearchScreenProps) {
 
   return (
     <main className="min-h-screen bg-white text-[#111827]">
-      <div className="mx-auto flex min-h-screen w-full max-w-[393px] flex-col overflow-hidden bg-white md:max-w-[560px]">
+      <div className="mobile-shell flex min-h-screen flex-col overflow-hidden bg-white">
         <header className="border-b border-[#f3f4f6] px-4 pb-[9px] pt-8">
           <div className="flex items-center gap-1">
             <Link
@@ -123,7 +123,7 @@ export function TownMapSearchScreen({ returnHref }: TownMapSearchScreenProps) {
         </section>
 
         <div className="fixed inset-x-0 bottom-0 z-20 border-t border-[#d1d5db] bg-[#d1d3d9]">
-          <div className="mx-auto w-full max-w-[393px] md:max-w-[560px]">
+          <div className="mobile-shell">
             <div className="border-b border-[#d1d5db] bg-[rgba(255,255,255,0.9)] px-4 py-[10px] backdrop-blur-[10px]">
               <div className="flex items-center justify-end">
                 <button className="text-[16px] font-medium leading-6 text-[#007aff]" type="button">

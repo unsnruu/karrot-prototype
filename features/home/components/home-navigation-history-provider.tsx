@@ -103,7 +103,9 @@ export function useHomeNavigationHistory() {
   const context = useContext(HomeNavigationHistoryContext);
 
   if (!context) {
-    throw new Error("useHomeNavigationHistory must be used within HomeNavigationHistoryProvider");
+    return {
+      getPreviousPath: () => null,
+    };
   }
 
   return context;

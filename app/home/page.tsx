@@ -27,7 +27,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
       <div className="min-h-screen bg-white pb-[84px]">
         <HomeHeader categories={categories} selectedCategory={selectedCategory} />
 
-        <section className="mx-auto w-full max-w-6xl px-4 pb-6 pt-4 sm:px-6 lg:px-8">
+        <section className="mobile-shell-wide px-4 pb-6 pt-4 sm:px-6">
           <div className="rounded-[28px] bg-white lg:px-2">
             <HomeFeed
               category={selectedCategory}

@@ -28,7 +28,7 @@ export function ChatAppointmentScreen({
 
   return (
     <main className="min-h-screen bg-[#f5f5f5]">
-      <div className="mx-auto min-h-screen max-w-[393px] bg-white px-4 pb-10 pt-6">
+      <div className="mobile-shell flex min-h-screen flex-col bg-white px-4 pb-10 pt-6">
         <header className="flex items-center justify-between">
           <Link className="flex h-8 w-8 items-center justify-center text-black" href={backHref}>
             <CloseIcon />
@@ -47,7 +47,7 @@ export function ChatAppointmentScreen({
           <AppointmentRow icon="down" label="약속 전 나에게 알림" trailing="없음" />
         </section>
 
-        <div className="mt-[380px]">
+        <div className="mt-auto pt-16">
           <Link
             className="flex h-[52px] w-full items-center justify-center rounded-[8px] bg-[#ff6f0f] text-[15px] font-bold text-white"
             href={backHref}

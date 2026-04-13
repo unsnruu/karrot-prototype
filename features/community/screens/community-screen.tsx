@@ -15,7 +15,7 @@ type CommunityScreenProps = {
 export function CommunityScreen({ selectedTab, posts, meetups, cafePosts }: CommunityScreenProps) {
   return (
     <main className="min-h-screen bg-[#f3f4f6] text-[#111827]">
-      <div className="mx-auto flex min-h-screen w-full max-w-[393px] flex-col bg-white pb-24 shadow-none md:max-w-[720px]">
+      <div className="mobile-shell-wide flex min-h-screen flex-col bg-white pb-24 shadow-none">
         <CommunityHeader selectedTab={selectedTab} />
 
         <section className={`w-full flex-1 pb-28 ${selectedTab === "town" ? "px-4 pt-5" : ""}`}>
