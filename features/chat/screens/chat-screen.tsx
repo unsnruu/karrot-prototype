@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { AppImage } from "@/components/ui/app-image";
-import { appendTabQuery } from "@/lib/tab-navigation";
+import { appendNavigationQuery } from "@/lib/tab-navigation";
 import { type ChatMessage, type ChatPreview, type MarketplaceItem, type SellerProfile } from "@/lib/marketplace";
 
 export function ChatScreen({
@@ -38,7 +38,10 @@ export function ChatScreen({
     responseLabel: "보통 30분 이내 응답",
     messages: [],
   };
-  const appointmentHref = appendTabQuery(`/chat/${itemId}/appointment`, "chat");
+  const appointmentHref = appendNavigationQuery(`/chat/${itemId}/appointment`, {
+    tab: "chat",
+    returnTo: backHref,
+  });
 
   return (
     <main className="min-h-screen bg-[#eef2f6]">

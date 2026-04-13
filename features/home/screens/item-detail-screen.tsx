@@ -1,7 +1,7 @@
 import { ItemDetailBottomBar } from "@/features/home/components/item-detail-bottom-bar";
 import { ItemDetailHero } from "@/features/home/components/item-detail-hero";
 import { ItemDetailMainColumn } from "@/features/home/components/item-detail-main-column";
-import { appendTabQuery } from "@/lib/tab-navigation";
+import { appendNavigationQuery } from "@/lib/tab-navigation";
 import {
   itemDetailUnifiedAd,
   type HomeFeedItem,
@@ -17,6 +17,7 @@ type ItemDetailScreenProps = {
 
 export function ItemDetailScreen({ item, seller, relatedItems }: ItemDetailScreenProps) {
   const recommendationItems = relatedItems.slice(0, 6);
+  const detailHref = `/home/items/${item.slug ?? item.id}`;
 
   return (
     <main className="min-h-screen bg-white text-black">
@@ -33,7 +34,12 @@ export function ItemDetailScreen({ item, seller, relatedItems }: ItemDetailScree
         </div>
       </div>
 
-      <ItemDetailBottomBar chatHref={appendTabQuery(`/chat/${item.id}`, "chat")} />
+      <ItemDetailBottomBar
+        chatHref={appendNavigationQuery(`/chat/${item.id}`, {
+          tab: "chat",
+          returnTo: detailHref,
+        })}
+      />
     </main>
   );
 }
