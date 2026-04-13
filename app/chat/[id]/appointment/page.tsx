@@ -1,8 +1,8 @@
-import { ChatScreen } from "@/features/chat/screens/chat-screen";
+import { ChatAppointmentScreen } from "@/features/chat/screens/chat-appointment-screen";
 import { getChatScreenData } from "@/lib/chat-data";
 import { resolveTabHref } from "@/lib/tab-navigation";
 
-export default async function ChatPage({
+export default async function ChatAppointmentPage({
   params,
   searchParams,
 }: {
@@ -15,7 +15,7 @@ export default async function ChatPage({
   const chatData = await getChatScreenData(id);
 
   return (
-    <ChatScreen
+    <ChatAppointmentScreen
       backHref={resolveTabHref(tab, "/chat")}
       chat={chatData?.chat}
       item={chatData?.item}

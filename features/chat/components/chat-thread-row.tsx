@@ -9,14 +9,14 @@ export function ChatThreadRow({ thread }: { thread: ChatThreadPreview }) {
         {thread.avatarImage ? <AppImage alt="" className="object-cover" fill sizes="52px" src={thread.avatarImage} /> : null}
       </div>
 
-      <div className="min-w-0">
-        <div className="flex flex-wrap items-center gap-1 leading-none">
-          <span className="text-base font-medium tracking-[-0.02em] text-black">{thread.name}</span>
+      <div className="min-w-0 max-w-[calc(100%-58px)] flex-1">
+        <div className="flex items-center gap-1 whitespace-nowrap leading-none">
+          <span className="shrink-0 text-base font-medium tracking-[-0.02em] text-black">{thread.name}</span>
           <span className="text-[13px] text-[#858b95]">{thread.town}</span>
           <span className="text-[13px] text-[#868b94]">·</span>
           <span className="text-[13px] text-[#858b95]">{thread.updatedAt}</span>
         </div>
-        <p className="mt-2 text-sm leading-none text-[#858b95]">{thread.lastMessage}</p>
+        <p className="mt-1 text-sm leading-[1.35] text-[#858b95]">{thread.lastMessage}</p>
       </div>
     </div>
   );

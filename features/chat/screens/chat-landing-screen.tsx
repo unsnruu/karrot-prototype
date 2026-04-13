@@ -1,17 +1,17 @@
 import { AppImage } from "@/components/ui/app-image";
 import { BottomNav } from "@/components/navigation/bottom-nav";
-import { chatCategories, chatThreadPreviews } from "@/lib/chat";
+import { chatCategories, chatThreadPreviews, type ChatThreadPreview } from "@/lib/chat";
 import { ChatCategoryChip } from "@/features/chat/components/chat-category-chip";
 import { ChatThreadRow } from "@/features/chat/components/chat-thread-row";
 
 const iconBell = "/icons/bell.svg";
 
-export function ChatLandingScreen() {
+export function ChatLandingScreen({ threads = chatThreadPreviews }: { threads?: ChatThreadPreview[] }) {
   return (
     <main className="min-h-screen bg-white text-[#111827]">
-      <div className="mx-auto min-h-screen max-w-3xl bg-white pb-24">
+      <div className="mx-auto min-h-screen max-w-[393px] bg-white pb-24">
         <header className="sticky top-0 z-20 bg-white">
-          <div className="mx-auto max-w-3xl px-4 pb-3 pt-5 sm:px-6">
+          <div className="px-4 pb-3 pt-5">
             <div className="flex items-center justify-between py-4">
               <h1 className="text-[22px] font-bold tracking-[-0.03em] text-black">채팅</h1>
 
@@ -34,9 +34,9 @@ export function ChatLandingScreen() {
           </div>
         </header>
 
-        <section className="px-4 pb-24 pt-8 sm:px-6">
+        <section className="px-4 pb-24 pt-8">
           <div className="space-y-7">
-            {chatThreadPreviews.map((thread) => (
+            {threads.map((thread) => (
               <ChatThreadRow key={thread.id} thread={thread} />
             ))}
           </div>
@@ -52,7 +52,7 @@ function BookmarkIcon() {
   return (
     <svg aria-hidden="true" className="h-8 w-8 text-black" fill="none" viewBox="0 0 32 32">
       <path
-        d="M11.5 6.75H20.5C21.7426 6.75 22.75 7.75736 22.75 9V25.0198C22.75 25.417 22.2929 25.6416 21.9779 25.3987L16.7636 21.3765C16.3266 21.0394 15.7176 21.0394 15.2806 21.3765L10.0221 25.4326C9.70715 25.6755 9.25 25.4509 9.25 25.0537V9C9.25 7.75736 10.2574 6.75 11.5 6.75Z"
+        d="M11.5 6.75H20.5C21.7426 6.75 22.75 7.75736 22.75 9V24.949C22.75 25.3593 22.2782 25.5915 21.9531 25.3407L16.7636 21.336C16.3266 20.9989 15.7176 20.9989 15.2806 21.336L10.0469 25.3745C9.72185 25.6253 9.25 25.3931 9.25 24.9828V9C9.25 7.75736 10.2574 6.75 11.5 6.75Z"
         stroke="currentColor"
         strokeWidth="1.8"
       />

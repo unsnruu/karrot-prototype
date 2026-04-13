@@ -1,6 +1,7 @@
 import { ItemDetailBottomBar } from "@/features/home/components/item-detail-bottom-bar";
 import { ItemDetailHero } from "@/features/home/components/item-detail-hero";
 import { ItemDetailMainColumn } from "@/features/home/components/item-detail-main-column";
+import { appendTabQuery } from "@/lib/tab-navigation";
 import {
   itemDetailUnifiedAd,
   type HomeFeedItem,
@@ -32,7 +33,7 @@ export function ItemDetailScreen({ item, seller, relatedItems }: ItemDetailScree
         </div>
       </div>
 
-      <ItemDetailBottomBar chatHref={`/chat/${item.id}?source=detail`} />
+      <ItemDetailBottomBar chatHref={appendTabQuery(`/chat/${item.id}`, "chat")} />
     </main>
   );
 }

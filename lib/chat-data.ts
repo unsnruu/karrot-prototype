@@ -1,13 +1,15 @@
 import "server-only";
 
 import { cache } from "react";
-import { getChatByItemId, getItemById, getSellerById, type ChatPreview } from "@/lib/marketplace";
+import { getFallbackChatThreadPreviews, getThreadAvatarImage, type ChatThreadPreview } from "@/lib/chat";
+import { buildGenericChatPreview, getChatByItemId, getItemById, getSellerById, type ChatPreview } from "@/lib/marketplace";
 import { createServerSupabaseClient, hasSupabaseEnv } from "@/lib/supabase/server";
+import { appendTabQuery } from "@/lib/tab-navigation";
 import {
   isRecord,
   logSupabaseFallback,
   parseRows,
-  readSenderRole,
+  readNullableString,
   readString,
 } from "@/lib/supabase/row-helpers";
 import { getMarketplaceItemDetailById } from "@/lib/marketplace-data";
@@ -20,14 +22,17 @@ type ChatThreadRow = {
   item_id: string;
   buyer_name: string;
   last_seen_label: string;
+  response_label: string;
+  updated_at_label: string;
+  last_message_preview: string;
 };
 
 type ChatMessageRow = {
   id: string;
   thread_id: string;
-  sender_role: "buyer" | "seller";
+  message_type: "buyer" | "seller" | "system-date" | "system-notice";
   body: string;
-  sent_at_label: string;
+  sent_at_label: string | null;
 };
 
 // ─── Row parsers ──────────────────────────────────────────────────────────────
@@ -42,7 +47,29 @@ function parseChatThreadRow(value: unknown, scope: string): ChatThreadRow {
     item_id: readString(value, "item_id", scope),
     buyer_name: readString(value, "buyer_name", scope),
     last_seen_label: readString(value, "last_seen_label", scope),
+    response_label: readString(value, "response_label", scope),
+    updated_at_label: readString(value, "updated_at_label", scope),
+    last_message_preview: readString(value, "last_message_preview", scope),
   };
+}
+
+function parseChatMessageType(
+  value: Record<string, unknown>,
+  key: string,
+  scope: string,
+): "buyer" | "seller" | "system-date" | "system-notice" {
+  const messageType = value[key];
+
+  if (
+    messageType === "buyer"
+    || messageType === "seller"
+    || messageType === "system-date"
+    || messageType === "system-notice"
+  ) {
+    return messageType;
+  }
+
+  throw new Error(`[${scope}] Expected "${key}" to be a valid chat message type`);
 }
 
 function parseChatMessageRow(value: unknown, scope: string): ChatMessageRow {
@@ -53,9 +80,9 @@ function parseChatMessageRow(value: unknown, scope: string): ChatMessageRow {
   return {
     id: readString(value, "id", scope),
     thread_id: readString(value, "thread_id", scope),
-    sender_role: readSenderRole(value, "sender_role", scope),
+    message_type: parseChatMessageType(value, "message_type", scope),
     body: readString(value, "body", scope),
-    sent_at_label: readString(value, "sent_at_label", scope),
+    sent_at_label: readNullableString(value, "sent_at_label", scope),
   };
 }
 
@@ -67,16 +94,75 @@ function mapChatPreview(thread: ChatThreadRow, messages: ChatMessageRow[]): Chat
     itemId: thread.item_id,
     buyerName: thread.buyer_name,
     lastSeen: thread.last_seen_label,
-    messages: messages.map((message) => ({
-      id: message.id,
-      from: message.sender_role,
-      text: message.body,
-      time: message.sent_at_label,
-    })),
+    responseLabel: thread.response_label,
+    updatedAtLabel: thread.updated_at_label,
+    lastMessagePreview: thread.last_message_preview,
+    messages: messages.map((message) =>
+      message.message_type === "buyer" || message.message_type === "seller"
+        ? {
+            id: message.id,
+            type: message.message_type,
+            text: message.body,
+            time: message.sent_at_label ?? "",
+          }
+        : {
+            id: message.id,
+            type: message.message_type,
+            text: message.body,
+          },
+    ),
+  };
+}
+
+function mapThreadPreview(
+  thread: ChatThreadRow,
+  detail: { item: MarketplaceItem; seller: SellerProfile } | null,
+): ChatThreadPreview | null {
+  if (!detail) {
+    return null;
+  }
+
+  return {
+    id: thread.id,
+    name: thread.buyer_name,
+    town: detail.item.town,
+    updatedAt: thread.updated_at_label,
+    lastMessage: thread.last_message_preview,
+    avatarImage: getThreadAvatarImage(thread.id, detail.seller.avatar),
+    href: appendTabQuery(`/chat/${thread.item_id}`, "chat"),
   };
 }
 
 // ─── Public exports ───────────────────────────────────────────────────────────
+
+export const getChatLandingData = cache(async (): Promise<ChatThreadPreview[]> => {
+  if (!hasSupabaseEnv()) {
+    return getFallbackChatThreadPreviews();
+  }
+
+  try {
+    const supabase = createServerSupabaseClient();
+    const { data, error } = await supabase
+      .from("chat_threads")
+      .select("*")
+      .order("updated_at", { ascending: false })
+      .order("created_at", { ascending: false });
+
+    if (error || !data) {
+      throw error ?? new Error("Missing chat threads");
+    }
+
+    const threads = parseRows(data, "chat-landing.threads", parseChatThreadRow);
+    const previews = await Promise.all(
+      threads.map(async (thread) => mapThreadPreview(thread, await getMarketplaceItemDetailById(thread.item_id))),
+    );
+
+    return previews.filter((preview): preview is ChatThreadPreview => preview != null);
+  } catch (error) {
+    logSupabaseFallback("chat-landing", error);
+    return getFallbackChatThreadPreviews();
+  }
+});
 
 export const getChatScreenData = cache(
   async (itemId: string): Promise<{ item: MarketplaceItem; seller: SellerProfile; chat: ChatPreview } | null> => {
@@ -134,6 +220,16 @@ export const getChatScreenData = cache(
       };
     } catch (error) {
       logSupabaseFallback("chat", error);
+
+      const detail = await getMarketplaceItemDetailById(itemId);
+
+      if (detail) {
+        return {
+          ...detail,
+          chat: buildGenericChatPreview(itemId, detail.seller.name),
+        };
+      }
+
       const item = getItemById(itemId);
       const seller = item ? getSellerById(item.sellerId) : undefined;
 

@@ -90,13 +90,24 @@ export type ChatPreview = {
   itemId: string;
   buyerName: string;
   lastSeen: string;
-  messages: Array<{
-    id: string;
-    from: "buyer" | "seller";
-    text: string;
-    time: string;
-  }>;
+  responseLabel?: string;
+  updatedAtLabel?: string;
+  lastMessagePreview?: string;
+  messages: ChatMessage[];
 };
+
+export type ChatMessage =
+  | {
+      id: string;
+      type: "buyer" | "seller";
+      text: string;
+      time: string;
+    }
+  | {
+      id: string;
+      type: "system-date" | "system-notice";
+      text: string;
+    };
 
 export type HomeFabActionIcon =
   | "lesson"
@@ -134,7 +145,7 @@ export const sellers: SellerProfile[] = [
   },
   {
     id: "seller-2",
-    name: "미니멀라이프",
+    name: "개발새발",
     avatar: "/images/figma-migrated/a56f8fe4-4116-4f18-9310-f37c2d97fbac.png",
     town: "합정동",
     responseRate: 92,
@@ -350,25 +361,53 @@ export const chatPreviews: ChatPreview[] = [
   {
     id: "chat-macbook",
     itemId: "macbook-air-m2",
-    buyerName: "민지님",
+    buyerName: "개발새발",
     lastSeen: "방금",
+    responseLabel: "보통 10분 이내 응답",
+    updatedAtLabel: "1시간 전",
+    lastMessagePreview: "감사합니다",
     messages: [
-      { id: "m1", from: "buyer", text: "안녕하세요! 아직 판매 중이실까요?", time: "오후 2:10" },
-      { id: "m2", from: "seller", text: "네, 아직 있어요. 합정역에서 거래 가능해요.", time: "오후 2:12" },
-      { id: "m3", from: "buyer", text: "오늘 저녁에 볼 수 있을까요?", time: "오후 2:14" },
+      { id: "m0", type: "system-date", text: "2026년 03월 18일" },
+      { id: "m1", type: "system-notice", text: "당근하트님이 참여자님의 110,000원 가격 제안을 수락했어요" },
+      { id: "m2", type: "buyer", text: "안녕하세요!", time: "오후 3:09" },
+      { id: "m3", type: "seller", text: "그 1,2번 출구 괜찮으실까요?", time: "오후 3:10" },
+      { id: "m4", type: "buyer", text: "너무 좋습니다!", time: "오후 3:10" },
+      { id: "m5", type: "seller", text: "차 세우기가 그래서요 ^-^", time: "오후 3:11" },
+      { id: "m6", type: "seller", text: "감사합니다", time: "오후 3:11" },
     ],
   },
   {
-    id: "chat-default",
-    itemId: "office-pass",
-    buyerName: "새싹님",
-    lastSeen: "1분 전",
+    id: "chat-lush-dirty",
+    itemId: "lush-dirty",
+    buyerName: "향수좋아",
+    lastSeen: "2시간 전",
+    responseLabel: "평균 15분 이내 응답",
+    updatedAtLabel: "2시간 전",
+    lastMessagePreview: "감사합니다",
     messages: [
-      { id: "m1", from: "buyer", text: "체험권 당일 사용 가능한가요?", time: "오전 11:04" },
-      { id: "m2", from: "seller", text: "네, 방문 시간만 알려주시면 바로 안내드릴게요.", time: "오전 11:06" },
+      { id: "m1", type: "buyer", text: "혹시 오늘 저녁에도 거래 가능하실까요?", time: "오후 6:42" },
+      { id: "m2", type: "seller", text: "네 가능해요. 합정역 7번 출구는 어떠세요?", time: "오후 6:48" },
+      { id: "m3", type: "buyer", text: "좋아요. 7시 반쯤 갈게요!", time: "오후 6:49" },
+      { id: "m4", type: "seller", text: "감사합니다", time: "오후 6:50" },
     ],
   },
 ];
+
+export function buildGenericChatPreview(itemId: string, counterpartName = "이웃님"): ChatPreview {
+  return {
+    id: `chat-${itemId}`,
+    itemId,
+    buyerName: counterpartName,
+    lastSeen: "방금",
+    responseLabel: "보통 30분 이내 응답",
+    updatedAtLabel: "방금",
+    lastMessagePreview: "안녕하세요! 아직 판매 중이실까요?",
+    messages: [
+      { id: `${itemId}-m1`, type: "buyer", text: "안녕하세요! 아직 판매 중이실까요?", time: "오후 3:00" },
+      { id: `${itemId}-m2`, type: "seller", text: "네, 아직 거래 가능해요. 편하게 문의 주세요.", time: "오후 3:02" },
+    ],
+  };
+}
 
 export const homeFabActionGroups: HomeFabAction[][] = [
   [
@@ -410,7 +449,16 @@ export function getItemById(id: string) {
 }
 
 export function getChatByItemId(itemId: string) {
-  return chatPreviews.find((chat) => chat.itemId === itemId) ?? chatPreviews[1];
+  const chat = chatPreviews.find((candidate) => candidate.itemId === itemId);
+
+  if (chat) {
+    return chat;
+  }
+
+  const item = getItemById(itemId);
+  const seller = item ? getSellerById(item.sellerId) : undefined;
+
+  return buildGenericChatPreview(itemId, seller?.name ?? "이웃님");
 }
 
 export function formatPrice(priceLabel?: string) {
