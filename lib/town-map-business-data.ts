@@ -79,11 +79,9 @@ function mapBusinessRowToPin(row: Record<string, unknown>): TownMapPin {
     throw new Error("[town-map-pin] Missing lat/lng");
   }
 
-  const townLabel = readNullableString(row, "town_label", "town-map-pin");
-
   return {
     id,
-    label: townLabel ? `${name}\n${townLabel}` : name,
+    label: name,
     lat,
     lng,
     icon: townMapMarkerIcon,

@@ -91,12 +91,12 @@ function createPinOverlay(pin: TownMapPin) {
   const iconImage = document.createElement("img");
   iconImage.src = pin.icon;
   iconImage.alt = "";
-  iconImage.width = 38;
-  iconImage.height = 43;
+  iconImage.width = 34;
+  iconImage.height = 38;
   iconImage.draggable = false;
   iconImage.style.display = "block";
-  iconImage.style.width = "38px";
-  iconImage.style.height = "43px";
+  iconImage.style.width = "34px";
+  iconImage.style.height = "38px";
   iconImage.style.objectFit = "contain";
   iconImage.style.filter = "drop-shadow(0px 4px 12px rgba(0,0,0,0.16))";
 
