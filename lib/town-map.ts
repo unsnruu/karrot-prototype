@@ -1,3 +1,5 @@
+import { appendTabQuery } from "@/lib/tab-navigation";
+
 export type TownMapSearchCategory = {
   id: string;
   label: string;
@@ -110,7 +112,7 @@ export const townMapPins: TownMapPin[] = [
     lat: 37.55116,
     lng: 126.91692,
     icon: townMapMarkerIcon,
-    href: "/town-map/businesses/mangwon-burger-hapjeong",
+    href: appendTabQuery("/town-map/businesses/mangwon-burger-hapjeong", "town-map"),
   },
   {
     id: "geumhwa-tonkatsu-hapjeong",
@@ -118,7 +120,7 @@ export const townMapPins: TownMapPin[] = [
     lat: 37.54905,
     lng: 126.91310,
     icon: townMapMarkerIcon,
-    href: "/town-map/businesses/geumhwa-tonkatsu-hapjeong",
+    href: appendTabQuery("/town-map/businesses/geumhwa-tonkatsu-hapjeong", "town-map"),
   },
   {
     id: "hapjeong-bagel-club",
@@ -126,7 +128,7 @@ export const townMapPins: TownMapPin[] = [
     lat: 37.55275,
     lng: 126.91158,
     icon: townMapMarkerIcon,
-    href: "/town-map/businesses/hapjeong-bagel-club",
+    href: appendTabQuery("/town-map/businesses/hapjeong-bagel-club", "town-map"),
   },
 ];
 

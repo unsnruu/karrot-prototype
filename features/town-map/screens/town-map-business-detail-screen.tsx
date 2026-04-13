@@ -3,7 +3,13 @@ import { AppImage } from "@/components/ui/app-image";
 import { TownMapBusinessMiniMap } from "@/features/town-map/components/town-map-business-mini-map";
 import { type TownMapBusinessDetail } from "@/lib/town-map-business";
 
-export function TownMapBusinessDetailScreen({ detail }: { detail: TownMapBusinessDetail }) {
+export function TownMapBusinessDetailScreen({
+  detail,
+  backHref,
+}: {
+  detail: TownMapBusinessDetail;
+  backHref: string;
+}) {
   return (
     <main className="min-h-screen bg-white text-[#111827]">
       <div className="mx-auto min-h-screen w-full max-w-[390px] bg-white pb-20">
@@ -12,7 +18,7 @@ export function TownMapBusinessDetailScreen({ detail }: { detail: TownMapBusines
             <Link
               aria-label="동네지도로 돌아가기"
               className="flex h-10 w-10 items-center justify-center rounded-full text-[#111827]"
-              href="/town-map"
+              href={backHref}
             >
               <BackIcon />
             </Link>
@@ -86,8 +92,8 @@ export function TownMapBusinessDetailScreen({ detail }: { detail: TownMapBusines
           />
           <InfoRow
             icon={<GlobeIcon />}
-            value={detail.websiteLabel ?? "홈페이지, SNS를 추가해주세요."}
-            valueClassName={detail.websiteUrl ? "text-[#111827] underline" : "text-[#9ca3af]"}
+            value="홈페이지, SNS를 추가해주세요."
+            valueClassName="text-[#9ca3af]"
           />
           <InfoRow icon={<MenuIcon />} multiline value={detail.amenities.join(", ")} />
           <InfoRow icon={<PinIcon />} value={detail.roadAddress} />
@@ -97,17 +103,21 @@ export function TownMapBusinessDetailScreen({ detail }: { detail: TownMapBusines
               <TownMapBusinessMiniMap label={detail.name} lat={detail.lat} lng={detail.lng} />
             </div>
           </div>
+          <button
+            className="flex w-full items-center justify-center gap-2 rounded-[8px] bg-[#f8f9fa] py-[10px] text-[14px] font-medium leading-5 text-[#374151]"
+            type="button"
+          >
+            <EditInfoIcon />
+            정보 수정 및 추가
+          </button>
         </section>
 
-        <Section title="소개">
-          <div className="space-y-3 text-[14px] leading-[22px] text-[#4b5563]">
-            {detail.introText.map((paragraph, index) => (
-              <p key={`${detail.id}-intro-${index}`}>{paragraph}</p>
-            ))}
-          </div>
-        </Section>
-
-        <Section title="대표 메뉴">
+        <Section
+          title="가격"
+          trailing={(
+            <span className="text-[11px] font-medium leading-4 text-[#9ca3af]">실제 메뉴 가격은 변동될 수 있어요.</span>
+          )}
+        >
           <div className="space-y-3">
             {detail.menuItems.map((menu) => (
               <div className="flex items-start justify-between gap-4 border-b border-[#f3f4f6] pb-3 last:border-b-0 last:pb-0" key={menu.id}>
@@ -119,27 +129,11 @@ export function TownMapBusinessDetailScreen({ detail }: { detail: TownMapBusines
               </div>
             ))}
           </div>
-        </Section>
-
-        <section className="px-5 py-8 text-center">
-          <p className="text-[16px] font-bold leading-6 text-[#111827]">
-            참여자님, {detail.name} 이용하셨나요?
-          </p>
-          <p className="mt-1 text-[14px] leading-5 text-[#6b7280]">이웃에게 도움이 되는 생생한 후기를 남겨주세요.</p>
-          <div className="mt-3 flex items-center justify-center gap-2">
-            {Array.from({ length: 5 }).map((_, index) => (
-              <span className="text-[30px] leading-none text-[#d1d5db]" key={`${detail.id}-rating-${index}`}>
-                ★
-              </span>
-            ))}
-          </div>
-          <button
-            className="mt-4 inline-flex items-center gap-1 rounded-full border border-[#edeef0] bg-[#f8f9fa] px-5 py-[11px] text-[14px] font-medium leading-5 text-[#111827]"
-            type="button"
-          >
-            업체 후기 쓰면 <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-[#facc15] text-[10px] text-white">₩</span> 당근머니 지급
+          <button className="mt-4 flex w-full items-center justify-center gap-1 py-2 text-[14px] font-medium leading-5 text-[#6b7280]" type="button">
+            가격 더보기
+            <ChevronDownIcon />
           </button>
-        </section>
+        </Section>
 
         <Section title="후기">
           <div className="space-y-6">
@@ -195,6 +189,17 @@ export function TownMapBusinessDetailScreen({ detail }: { detail: TownMapBusines
           </button>
         </Section>
 
+        <section className="px-5 py-8 text-center">
+          <p className="text-[16px] font-bold leading-6 text-[#111827]">이곳을 이용한 생생한 경험을 짧은 영상으로 보여주세요.</p>
+          <button
+            className="mt-4 inline-flex items-center gap-2 rounded-[8px] bg-[#f8f9fa] px-5 py-[10px] text-[14px] font-bold leading-5 text-[#1f2937]"
+            type="button"
+          >
+            <StoryIcon />
+            스토리 올리기
+          </button>
+        </section>
+
         <footer className="bg-[#f8f9fa] px-6 py-6 text-[12px] leading-4 text-[#9ca3af]">
           <button className="underline" type="button">
             장소 삭제 신고
@@ -206,10 +211,17 @@ export function TownMapBusinessDetailScreen({ detail }: { detail: TownMapBusines
   );
 }
 
-function Section({ title, children }: React.PropsWithChildren<{ title: string }>) {
+function Section({
+  title,
+  trailing,
+  children,
+}: React.PropsWithChildren<{ title: string; trailing?: React.ReactNode }>) {
   return (
     <section className="px-5 py-6">
-      <h2 className="text-[18px] font-bold leading-7 text-[#111827]">{title}</h2>
+      <div className="flex items-center justify-between gap-3">
+        <h2 className="text-[18px] font-bold leading-7 text-[#111827]">{title}</h2>
+        {trailing}
+      </div>
       <div className="mt-4">{children}</div>
     </section>
   );
@@ -351,10 +363,35 @@ function HelpfulIcon() {
   );
 }
 
-function ChevronDownIcon() {
+function ChevronDownIcon({ className = "" }: { className?: string }) {
   return (
-    <svg aria-hidden="true" className="h-4 w-4" fill="none" viewBox="0 0 16 16">
+    <svg aria-hidden="true" className={`h-4 w-4 ${className}`.trim()} fill="none" viewBox="0 0 16 16">
       <path d="m4 6 4 4 4-4" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.6" />
+    </svg>
+  );
+}
+
+function StoryIcon() {
+  return (
+    <svg aria-hidden="true" className="h-[14px] w-[14px]" fill="none" viewBox="0 0 16 16">
+      <path
+        d="M8 2.2c.39 0 .7.31.7.7v4.4h4.4a.7.7 0 1 1 0 1.4H8.7v4.4a.7.7 0 1 1-1.4 0V8.7H2.9a.7.7 0 1 1 0-1.4h4.4V2.9c0-.39.31-.7.7-.7Z"
+        fill="currentColor"
+      />
+    </svg>
+  );
+}
+
+function EditInfoIcon() {
+  return (
+    <svg aria-hidden="true" className="h-[12px] w-[12px]" fill="none" viewBox="0 0 16 16">
+      <path
+        d="M11.91 1.84a1.5 1.5 0 0 1 2.12 2.12l-7.5 7.5-3.03.91.9-3.03 7.51-7.5Zm-6.93 8.13 1.05 1.05"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.4"
+      />
     </svg>
   );
 }

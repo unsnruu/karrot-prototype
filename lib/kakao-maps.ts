@@ -5,7 +5,10 @@ declare global {
     kakao?: {
       maps: {
         load: (callback: () => void) => void;
-        LatLng: new (lat: number, lng: number) => unknown;
+        LatLng: new (lat: number, lng: number) => {
+          getLat: () => number;
+          getLng: () => number;
+        };
         Size: new (width: number, height: number) => unknown;
         Point: new (x: number, y: number) => unknown;
         Map: new (
@@ -18,6 +21,10 @@ declare global {
             disableDoubleClick?: boolean;
           },
         ) => {
+          getCenter: () => {
+            getLat: () => number;
+            getLng: () => number;
+          };
           setCenter: (latlng: unknown) => void;
           setDraggable: (draggable: boolean) => void;
           setZoomable: (zoomable: boolean) => void;

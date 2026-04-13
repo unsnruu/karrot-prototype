@@ -104,6 +104,22 @@ create table if not exists public.chat_messages (
   created_at timestamptz not null default now()
 );
 
+create table if not exists public.businesses (
+  id text primary key,
+  name text not null,
+  category text not null,
+  road_address text not null,
+  lat numeric(10, 7) not null,
+  lng numeric(10, 7) not null,
+  phone_number text not null,
+  business_hours_text text not null,
+  town_label text not null,
+  rating numeric(2, 1) not null default 0 check (rating >= 0 and rating <= 5),
+  review_count integer not null default 0 check (review_count >= 0),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
 create or replace function public.set_updated_at()
 returns trigger
 language plpgsql
@@ -123,6 +139,11 @@ before update on public.items
 for each row
 execute function public.set_updated_at();
 
+create trigger businesses_set_updated_at
+before update on public.businesses
+for each row
+execute function public.set_updated_at();
+
 create trigger chat_threads_set_updated_at
 before update on public.chat_threads
 for each row
@@ -136,18 +157,22 @@ create index if not exists items_sort_idx on public.items (sort_order asc, poste
 create index if not exists item_images_item_id_idx on public.item_images (item_id, sort_order);
 create index if not exists chat_threads_updated_at_idx on public.chat_threads (updated_at desc, created_at desc);
 create index if not exists chat_messages_thread_id_idx on public.chat_messages (thread_id, sort_order, created_at);
+create index if not exists businesses_category_idx on public.businesses (category);
+create index if not exists businesses_town_label_idx on public.businesses (town_label);
 
 alter table public.users enable row level security;
 alter table public.items enable row level security;
 alter table public.item_images enable row level security;
 alter table public.chat_threads enable row level security;
 alter table public.chat_messages enable row level security;
+alter table public.businesses enable row level security;
 
 drop policy if exists "Public read users" on public.users;
 drop policy if exists "Public read items" on public.items;
 drop policy if exists "Public read item images" on public.item_images;
 drop policy if exists "Public read chat threads" on public.chat_threads;
 drop policy if exists "Public read chat messages" on public.chat_messages;
+drop policy if exists "Public read businesses" on public.businesses;
 
 create policy "Public read users"
 on public.users
@@ -175,6 +200,12 @@ using (true);
 
 create policy "Public read chat messages"
 on public.chat_messages
+for select
+to anon, authenticated
+using (true);
+
+create policy "Public read businesses"
+on public.businesses
 for select
 to anon, authenticated
 using (true);
