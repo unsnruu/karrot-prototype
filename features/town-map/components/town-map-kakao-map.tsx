@@ -117,7 +117,36 @@ function createPinOverlay(pin: TownMapPin) {
   wrapper.appendChild(label);
 
   if (pin.href) {
-    wrapper.addEventListener("click", () => {
+    const clickThreshold = 8;
+    let pointerStartX = 0;
+    let pointerStartY = 0;
+    let pointerMoved = false;
+
+    wrapper.addEventListener("pointerdown", (event) => {
+      pointerStartX = event.clientX;
+      pointerStartY = event.clientY;
+      pointerMoved = false;
+    });
+
+    wrapper.addEventListener("pointermove", (event) => {
+      if (pointerMoved) {
+        return;
+      }
+
+      const deltaX = Math.abs(event.clientX - pointerStartX);
+      const deltaY = Math.abs(event.clientY - pointerStartY);
+
+      if (deltaX > clickThreshold || deltaY > clickThreshold) {
+        pointerMoved = true;
+      }
+    });
+
+    wrapper.addEventListener("click", (event) => {
+      if (pointerMoved) {
+        event.preventDefault();
+        return;
+      }
+
       window.location.assign(pin.href!);
     });
   }
