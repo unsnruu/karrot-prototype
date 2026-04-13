@@ -39,6 +39,14 @@ export type TownMapCoordinate = {
   lng: number;
 };
 
+export type TownMapKeyboardKey = {
+  id: string;
+  label: string;
+  action?: "char" | "shift" | "delete" | "numbers" | "emoji" | "space" | "search" | "globe" | "mic";
+  tone?: "default" | "muted" | "primary";
+  width?: "default" | "wide" | "search";
+};
+
 const townMapAssets = {
   basemap: "https://www.figma.com/api/mcp/asset/36b46c2f-4828-4b8f-bdca-95e1ceed8832",
   searchIcon: "https://www.figma.com/api/mcp/asset/91dfde88-cc22-4b41-9eba-d99397e33f3f",
@@ -170,3 +178,58 @@ export const townMapPosts: TownMapPost[] = [
 ];
 
 export const townMapSearchIcon = townMapAssets.searchIcon;
+
+export const townMapRecentSearches = [
+  "카페/간식",
+  "거래",
+  "마라탕",
+  "스타벅스",
+  "향수",
+  "붕어빵",
+  "헬스",
+];
+
+export const townMapKeyboardSuggestions = ["나", "아", "나는"];
+
+export const townMapKeyboardRows: TownMapKeyboardKey[][] = [
+  [
+    { id: "q-1", label: "ㅂ" },
+    { id: "q-2", label: "ㅈ" },
+    { id: "q-3", label: "ㄷ" },
+    { id: "q-4", label: "ㄱ" },
+    { id: "q-5", label: "ㅅ" },
+    { id: "q-6", label: "ㅛ" },
+    { id: "q-7", label: "ㅕ" },
+    { id: "q-8", label: "ㅑ" },
+    { id: "q-9", label: "ㅐ" },
+    { id: "q-10", label: "ㅔ" },
+  ],
+  [
+    { id: "a-1", label: "ㅁ" },
+    { id: "a-2", label: "ㄴ" },
+    { id: "a-3", label: "ㅇ" },
+    { id: "a-4", label: "ㄹ" },
+    { id: "a-5", label: "ㅎ" },
+    { id: "a-6", label: "ㅗ" },
+    { id: "a-7", label: "ㅓ" },
+    { id: "a-8", label: "ㅏ" },
+    { id: "a-9", label: "ㅣ" },
+  ],
+  [
+    { id: "z-1", label: "⇧", action: "shift", tone: "muted", width: "wide" },
+    { id: "z-2", label: "ㅋ" },
+    { id: "z-3", label: "ㅌ" },
+    { id: "z-4", label: "ㅊ" },
+    { id: "z-5", label: "ㅍ" },
+    { id: "z-6", label: "ㅠ" },
+    { id: "z-7", label: "ㅜ" },
+    { id: "z-8", label: "ㅡ" },
+    { id: "z-9", label: "⌫", action: "delete", tone: "muted", width: "wide" },
+  ],
+  [
+    { id: "x-1", label: "123", action: "numbers", tone: "muted", width: "wide" },
+    { id: "x-2", label: "☺", action: "emoji", tone: "muted", width: "wide" },
+    { id: "x-3", label: "스페이스", action: "space", width: "wide" },
+    { id: "x-4", label: "검색", action: "search", tone: "primary", width: "search" },
+  ],
+];

@@ -1,8 +1,10 @@
+import Link from "next/link";
 import { BottomNav } from "@/components/navigation/bottom-nav";
 import { AppImage } from "@/components/ui/app-image";
 import { TownMapBottomSheet } from "@/features/town-map/components/town-map-bottom-sheet";
 import { TownMapCategoryChip } from "@/features/town-map/components/town-map-category-chip";
 import { TownMapKakaoMap } from "@/features/town-map/components/town-map-kakao-map";
+import { appendNavigationQuery } from "@/lib/tab-navigation";
 import {
   townMapCenter,
   townMapScreenData,
@@ -19,7 +21,11 @@ export function TownMapScreen({ pins }: { pins: TownMapPin[] }) {
           <TownMapKakaoMap center={townMapCenter} pins={pins} />
 
           <div className="relative z-10 px-4 pt-5">
-            <div className="rounded-[8px] bg-gradient-to-b from-[#fdfdfe] to-[#f4f6fa] p-2 shadow-[0px_1px_8px_0px_rgba(0,0,0,0.15)]">
+            <Link
+              aria-label="업체 검색 화면 열기"
+              className="block rounded-[8px] bg-gradient-to-b from-[#fdfdfe] to-[#f4f6fa] p-2 shadow-[0px_1px_8px_0px_rgba(0,0,0,0.15)]"
+              href={appendNavigationQuery("/town-map/search", { returnTo: "/town-map", tab: "town-map" })}
+            >
               <div className="flex h-12 items-center gap-2">
                 <span className="relative h-8 w-8 shrink-0">
                   <AppImage alt="" className="object-contain" fill sizes="32px" src={townMapSearchIcon} />
@@ -29,7 +35,7 @@ export function TownMapScreen({ pins }: { pins: TownMapPin[] }) {
                   <AppImage alt="프로필" className="object-cover" fill sizes="36px" src={townMapScreenData.profileImage} />
                 </span>
               </div>
-            </div>
+            </Link>
 
             <div className="mt-2 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
               {townMapSearchCategories.map((category) => (
