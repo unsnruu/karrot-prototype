@@ -1,5 +1,8 @@
 import { TownMapScreen } from "@/features/town-map/screens/town-map-screen";
+import { getTownMapPins } from "@/lib/town-map-business-data";
 
-export default function TownMapPage() {
-  return <TownMapScreen />;
+export default async function TownMapPage() {
+  const pins = await getTownMapPins();
+
+  return <TownMapScreen pins={pins} />;
 }

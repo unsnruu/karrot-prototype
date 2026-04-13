@@ -5,18 +5,18 @@ import { TownMapCategoryChip } from "@/features/town-map/components/town-map-cat
 import { TownMapKakaoMap } from "@/features/town-map/components/town-map-kakao-map";
 import {
   townMapCenter,
-  townMapPins,
   townMapScreenData,
   townMapSearchCategories,
   townMapSearchIcon,
+  type TownMapPin,
 } from "@/lib/town-map";
 
-export function TownMapScreen() {
+export function TownMapScreen({ pins }: { pins: TownMapPin[] }) {
   return (
     <main className="min-h-screen bg-[#f2f4f7] text-[#111827]">
       <div className="mx-auto flex min-h-screen w-full max-w-[393px] flex-col overflow-hidden bg-white shadow-none md:max-w-[560px]">
         <section className="relative flex min-h-screen flex-1 flex-col overflow-hidden">
-          <TownMapKakaoMap center={townMapCenter} pins={townMapPins} />
+          <TownMapKakaoMap center={townMapCenter} pins={pins} />
 
           <div className="relative z-10 px-4 pt-5">
             <div className="rounded-[8px] bg-gradient-to-b from-[#fdfdfe] to-[#f4f6fa] p-2 shadow-[0px_1px_8px_0px_rgba(0,0,0,0.15)]">

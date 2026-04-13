@@ -55,9 +55,6 @@ const townMapAssets = {
   actionEstimate: "https://www.figma.com/api/mcp/asset/114d7a08-fbed-4dc3-a40c-37434840f1e1",
   adThumb: "https://www.figma.com/api/mcp/asset/9044bf5c-3fda-4b55-876c-1f41e898aade",
   adArrow: "https://www.figma.com/api/mcp/asset/442687ca-4f26-47af-a2d2-3333d32da2b0",
-  pinBurger: "https://www.figma.com/api/mcp/asset/53a58efe-999c-4cab-a21b-3575a11d089a",
-  pinDiscount: "https://www.figma.com/api/mcp/asset/7256dcb5-8cf2-4fc5-a262-91732b8171a9",
-  pinDeal: "https://www.figma.com/api/mcp/asset/a7a8a019-68db-402e-be3d-8cbb721c4e94",
   tonkatsuAvatar: "https://www.figma.com/api/mcp/asset/a02e45e8-5d10-47bc-a249-7642ecf2d523",
   tonkatsuImageA: "https://www.figma.com/api/mcp/asset/116955e6-6dca-4f3d-80c9-f995cf6dfc7b",
   tonkatsuImageB: "https://www.figma.com/api/mcp/asset/b21ac0e9-ae35-44a4-af3d-09d43f46868a",
@@ -104,13 +101,15 @@ export const townMapQuickActions: TownMapQuickAction[] = [
   { id: "estimate", label: "전문가 견적", image: townMapAssets.actionEstimate },
 ];
 
+export const townMapMarkerIcon = "/icons/town-map-marker.svg";
+
 export const townMapPins: TownMapPin[] = [
   {
     id: "mangwon-burger-hapjeong",
     label: "망원수제버거\n합정점",
     lat: 37.55116,
     lng: 126.91692,
-    icon: townMapAssets.pinBurger,
+    icon: townMapMarkerIcon,
     href: "/town-map/businesses/mangwon-burger-hapjeong",
   },
   {
@@ -118,7 +117,7 @@ export const townMapPins: TownMapPin[] = [
     label: "금화왕돈까스\n합정점",
     lat: 37.54905,
     lng: 126.91310,
-    icon: townMapAssets.pinDiscount,
+    icon: townMapMarkerIcon,
     href: "/town-map/businesses/geumhwa-tonkatsu-hapjeong",
   },
   {
@@ -126,7 +125,7 @@ export const townMapPins: TownMapPin[] = [
     label: "합정베이글클럽",
     lat: 37.55275,
     lng: 126.91158,
-    icon: townMapAssets.pinDeal,
+    icon: townMapMarkerIcon,
     href: "/town-map/businesses/hapjeong-bagel-club",
   },
 ];

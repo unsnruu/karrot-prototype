@@ -88,24 +88,17 @@ function createPinOverlay(pin: TownMapPin) {
   wrapper.style.gap = "4px";
   wrapper.style.cursor = pin.href ? "pointer" : "default";
 
-  const iconBubble = document.createElement("div");
-  iconBubble.style.position = "relative";
-  iconBubble.style.display = "flex";
-  iconBubble.style.height = "38px";
-  iconBubble.style.width = "38px";
-  iconBubble.style.alignItems = "center";
-  iconBubble.style.justifyContent = "center";
-  iconBubble.style.borderRadius = "999px";
-  iconBubble.style.background = "#ffffff";
-  iconBubble.style.boxShadow = "0px 4px 12px rgba(0,0,0,0.16)";
-
-  const iconImage = document.createElement("div");
-  iconImage.style.height = "38px";
+  const iconImage = document.createElement("img");
+  iconImage.src = pin.icon;
+  iconImage.alt = "";
+  iconImage.width = 38;
+  iconImage.height = 43;
+  iconImage.draggable = false;
+  iconImage.style.display = "block";
   iconImage.style.width = "38px";
-  iconImage.style.backgroundImage = `url(${pin.icon})`;
-  iconImage.style.backgroundPosition = "center";
-  iconImage.style.backgroundRepeat = "no-repeat";
-  iconImage.style.backgroundSize = "contain";
+  iconImage.style.height = "43px";
+  iconImage.style.objectFit = "contain";
+  iconImage.style.filter = "drop-shadow(0px 4px 12px rgba(0,0,0,0.16))";
 
   const label = document.createElement("div");
   label.textContent = pin.label;
@@ -120,8 +113,7 @@ function createPinOverlay(pin: TownMapPin) {
   label.style.color = "#36393f";
   label.style.boxShadow = "0px 2px 8px rgba(0,0,0,0.12)";
 
-  iconBubble.appendChild(iconImage);
-  wrapper.appendChild(iconBubble);
+  wrapper.appendChild(iconImage);
   wrapper.appendChild(label);
 
   if (pin.href) {
