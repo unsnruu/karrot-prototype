@@ -2,7 +2,7 @@ import { AppImage } from "@/components/ui/app-image";
 import { BottomNav } from "@/components/navigation/bottom-nav";
 import { chatCategories, chatThreadPreviews, type ChatThreadPreview } from "@/lib/chat";
 import { ChatCategoryChip } from "@/features/chat/components/chat-category-chip";
-import { ChatThreadRow } from "@/features/chat/components/chat-thread-row";
+import { ChatThreadListClient } from "@/features/chat/components/chat-thread-list-client";
 
 const iconBell = "/icons/bell.svg";
 
@@ -35,11 +35,7 @@ export function ChatLandingScreen({ threads = chatThreadPreviews }: { threads?: 
         </header>
 
         <section className="px-4 pb-24 pt-8">
-          <div className="space-y-7">
-            {threads.map((thread) => (
-              <ChatThreadRow key={thread.id} thread={thread} />
-            ))}
-          </div>
+          <ChatThreadListClient threads={threads} />
         </section>
 
         <BottomNav />

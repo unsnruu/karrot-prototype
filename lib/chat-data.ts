@@ -1,7 +1,7 @@
 import "server-only";
 
 import { cache } from "react";
-import { getFallbackChatThreadPreviews, getThreadAvatarImage, type ChatThreadPreview } from "@/lib/chat";
+import { getFallbackChatThreadPreviews, type ChatThreadPreview } from "@/lib/chat";
 import { buildGenericChatPreview, getChatByItemId, getItemById, getSellerById, type ChatPreview } from "@/lib/marketplace";
 import { createServerSupabaseClient, hasSupabaseEnv } from "@/lib/supabase/server";
 import { appendTabQuery } from "@/lib/tab-navigation";
@@ -12,7 +12,7 @@ import {
   readNullableString,
   readString,
 } from "@/lib/supabase/row-helpers";
-import { getMarketplaceItemDetailById } from "@/lib/marketplace-data";
+import { getMarketplaceItemDetail, getMarketplaceItemDetailById } from "@/lib/marketplace-data";
 import type { MarketplaceItem, SellerProfile } from "@/lib/marketplace";
 
 // ─── Row types ────────────────────────────────────────────────────────────────
@@ -124,12 +124,12 @@ function mapThreadPreview(
 
   return {
     id: thread.id,
-    name: thread.buyer_name,
+    name: detail.seller.name,
     town: detail.item.town,
     updatedAt: thread.updated_at_label,
     lastMessage: thread.last_message_preview,
-    avatarImage: getThreadAvatarImage(thread.id, detail.seller.avatar),
-    href: appendTabQuery(`/chat/${thread.item_id}`, "chat"),
+    avatarImage: detail.item.image,
+    href: appendTabQuery(`/chat/${detail.item.slug ?? thread.item_id}`, "chat"),
   };
 }
 
@@ -165,40 +165,40 @@ export const getChatLandingData = cache(async (): Promise<ChatThreadPreview[]> =
 });
 
 export const getChatScreenData = cache(
-  async (itemId: string): Promise<{ item: MarketplaceItem; seller: SellerProfile; chat: ChatPreview } | null> => {
+  async (itemKey: string): Promise<{ item: MarketplaceItem; seller: SellerProfile; chat: ChatPreview } | null> => {
     if (!hasSupabaseEnv()) {
-      const item = getItemById(itemId);
-      const seller = item ? getSellerById(item.sellerId) : undefined;
-
-      if (!item || !seller) {
-        return null;
-      }
-
-      return {
-        item,
-        seller,
-        chat: getChatByItemId(itemId),
-      };
-    }
-
-    try {
-      const supabase = createServerSupabaseClient();
-      const detail = await getMarketplaceItemDetailById(itemId);
+      const detail = await getMarketplaceItemDetail(itemKey);
 
       if (!detail) {
         return null;
       }
 
+      return {
+        ...detail,
+        chat: getChatByItemId(detail.item.id),
+      };
+    }
+
+    try {
+      const supabase = createServerSupabaseClient();
+      const detail = await getMarketplaceItemDetail(itemKey);
+
+      if (!detail) {
+        return null;
+      }
+
+      const resolvedItemId = detail.item.id;
+
       const { data: threadData, error: threadError } = await supabase
         .from("chat_threads")
         .select("*")
-        .eq("item_id", itemId)
+        .eq("item_id", resolvedItemId)
         .order("created_at", { ascending: true })
         .limit(1)
         .maybeSingle();
 
       if (threadError || !threadData) {
-        throw threadError ?? new Error(`Missing chat thread for item ${itemId}`);
+        throw threadError ?? new Error(`Missing chat thread for item ${resolvedItemId}`);
       }
 
       const thread = parseChatThreadRow(threadData, "chat.thread");
@@ -211,7 +211,7 @@ export const getChatScreenData = cache(
         .order("created_at", { ascending: true });
 
       if (messageError || !messageData) {
-        throw messageError ?? new Error(`Missing chat messages for item ${itemId}`);
+        throw messageError ?? new Error(`Missing chat messages for item ${resolvedItemId}`);
       }
 
       return {
@@ -221,16 +221,16 @@ export const getChatScreenData = cache(
     } catch (error) {
       logSupabaseFallback("chat", error);
 
-      const detail = await getMarketplaceItemDetailById(itemId);
+      const detail = await getMarketplaceItemDetail(itemKey);
 
       if (detail) {
         return {
           ...detail,
-          chat: buildGenericChatPreview(itemId, detail.seller.name),
+          chat: buildGenericChatPreview(detail.item.id, detail.seller.name, detail.item.title),
         };
       }
 
-      const item = getItemById(itemId);
+      const item = getItemById(itemKey);
       const seller = item ? getSellerById(item.sellerId) : undefined;
 
       if (!item || !seller) {
@@ -240,7 +240,7 @@ export const getChatScreenData = cache(
       return {
         item,
         seller,
-        chat: getChatByItemId(itemId),
+        chat: getChatByItemId(item.id),
       };
     }
   },

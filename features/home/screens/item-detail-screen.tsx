@@ -35,10 +35,15 @@ export function ItemDetailScreen({ item, seller, relatedItems }: ItemDetailScree
       </div>
 
       <ItemDetailBottomBar
-        chatHref={appendNavigationQuery(`/chat/${item.id}`, {
+        avatarImage={item.image}
+        chatKey={item.slug ?? item.id}
+        chatHref={appendNavigationQuery(`/chat/${item.slug ?? item.id}`, {
           tab: "chat",
           returnTo: detailHref,
         })}
+        itemId={item.id}
+        sellerName={seller.name}
+        town={item.town}
       />
     </main>
   );

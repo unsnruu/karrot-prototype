@@ -84,19 +84,25 @@ create table if not exists public.item_images (
 create table if not exists public.chat_threads (
   id uuid primary key default gen_random_uuid(),
   item_id uuid not null references public.items(id) on delete cascade,
+  seller_id uuid not null references public.users(id) on delete cascade,
+  buyer_id uuid not null references public.users(id) on delete cascade,
   buyer_name text not null,
+  status text not null default 'active' check (status in ('active', 'closed')),
   last_seen_label text not null default '방금',
   response_label text not null default '보통 30분 이내 응답',
   updated_at_label text not null default '방금',
   last_message_preview text not null default '',
+  last_message_at timestamptz,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
-  constraint chat_threads_item_id_unique unique (item_id)
+  constraint chat_threads_item_buyer_unique unique (item_id, buyer_id),
+  constraint chat_threads_seller_buyer_different check (seller_id <> buyer_id)
 );
 
 create table if not exists public.chat_messages (
   id uuid primary key default gen_random_uuid(),
   thread_id uuid not null references public.chat_threads(id) on delete cascade,
+  sender_id uuid references public.users(id) on delete set null,
   message_type text not null check (message_type in ('buyer', 'seller', 'system-date', 'system-notice')),
   body text not null,
   sent_at_label text,
@@ -156,7 +162,10 @@ create index if not exists items_category_idx on public.items (category);
 create index if not exists items_sort_idx on public.items (sort_order asc, posted_at desc, created_at desc);
 create index if not exists item_images_item_id_idx on public.item_images (item_id, sort_order);
 create index if not exists chat_threads_updated_at_idx on public.chat_threads (updated_at desc, created_at desc);
+create index if not exists chat_threads_seller_id_updated_at_idx on public.chat_threads (seller_id, updated_at desc, created_at desc);
+create index if not exists chat_threads_buyer_id_updated_at_idx on public.chat_threads (buyer_id, updated_at desc, created_at desc);
 create index if not exists chat_messages_thread_id_idx on public.chat_messages (thread_id, sort_order, created_at);
+create index if not exists chat_messages_sender_id_idx on public.chat_messages (sender_id, created_at desc);
 create index if not exists businesses_category_idx on public.businesses (category);
 create index if not exists businesses_town_label_idx on public.businesses (town_label);
 

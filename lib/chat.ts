@@ -1,4 +1,4 @@
-import { chatPreviews, getItemById, getSellerById } from "@/lib/marketplace";
+import { chatPreviews, getItemById } from "@/lib/marketplace";
 import { appendTabQuery } from "@/lib/tab-navigation";
 
 export type ChatCategory = {
@@ -27,17 +27,6 @@ export const chatCategories: ChatCategory[] = [
   { label: "모임" },
 ];
 
-const chatThreadAvatarMap: Record<string, string> = {
-  "chat-macbook": "https://www.figma.com/api/mcp/asset/1df94a1c-00aa-4f44-84d0-a28f6a6b8545",
-  "chat-lush-dirty": "https://www.figma.com/api/mcp/asset/67c7c837-e85b-4c90-8fa3-ead0032eda5c",
-  "00000000-0000-0000-0000-000000004001": "https://www.figma.com/api/mcp/asset/1df94a1c-00aa-4f44-84d0-a28f6a6b8545",
-  "00000000-0000-0000-0000-000000004002": "https://www.figma.com/api/mcp/asset/67c7c837-e85b-4c90-8fa3-ead0032eda5c",
-};
-
-export function getThreadAvatarImage(threadId: string, fallback?: string) {
-  return chatThreadAvatarMap[threadId] ?? fallback;
-}
-
 export function getFallbackChatThreadPreviews(): ChatThreadPreview[] {
   return chatPreviews.flatMap((chat) => {
     const item = getItemById(chat.itemId);
@@ -46,7 +35,6 @@ export function getFallbackChatThreadPreviews(): ChatThreadPreview[] {
       return [];
     }
 
-    const seller = getSellerById(item.sellerId);
     const lastMessage =
       chat.lastMessagePreview ??
       [...chat.messages].reverse().find((message) => message.type === "buyer" || message.type === "seller")?.text ??
@@ -59,8 +47,8 @@ export function getFallbackChatThreadPreviews(): ChatThreadPreview[] {
         town: item.town,
         updatedAt: chat.updatedAtLabel ?? "방금",
         lastMessage,
-        avatarImage: getThreadAvatarImage(chat.id, seller?.avatar),
-        href: appendTabQuery(`/chat/${chat.itemId}`, "chat"),
+        avatarImage: item.image,
+        href: appendTabQuery(`/chat/${item.slug ?? chat.itemId}`, "chat"),
       },
     ];
   });

@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { BottomNav } from "@/components/navigation/bottom-nav";
+import { prototypeViewerUser } from "@/lib/prototype-user";
 
 type ServiceItem = {
   label: string;
@@ -131,8 +132,12 @@ function ProfileCard() {
             <Image alt="" height={28} src={figmaIcons.profileAvatar} width={28} />
           </span>
           <div className="flex items-center gap-2">
-            <span className="text-[17px] font-bold leading-[25.5px] tracking-[-0.03em] text-[#0a0a0a]">젤리킹</span>
-            <span className="text-xs font-semibold leading-[18px] text-[#ff6900]">39.4°C</span>
+            <span className="text-[17px] font-bold leading-[25.5px] tracking-[-0.03em] text-[#0a0a0a]">
+              {prototypeViewerUser.name}
+            </span>
+            <span className="text-xs font-semibold leading-[18px] text-[#ff6900]">
+              {prototypeViewerUser.mannerScore.toFixed(1)}°C
+            </span>
           </div>
         </div>
         <span aria-hidden="true" className="text-[20px] text-[#c9ced6]">
