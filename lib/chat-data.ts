@@ -197,8 +197,15 @@ export const getChatScreenData = cache(
         .limit(1)
         .maybeSingle();
 
-      if (threadError || !threadData) {
-        throw threadError ?? new Error(`Missing chat thread for item ${resolvedItemId}`);
+      if (threadError) {
+        throw threadError;
+      }
+
+      if (!threadData) {
+        return {
+          ...detail,
+          chat: buildGenericChatPreview(detail.item.id, detail.seller.name, detail.item.title),
+        };
       }
 
       const thread = parseChatThreadRow(threadData, "chat.thread");

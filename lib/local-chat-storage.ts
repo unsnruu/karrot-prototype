@@ -2,6 +2,7 @@ import type { ChatThreadPreview } from "@/lib/chat";
 import { appendTabQuery } from "@/lib/tab-navigation";
 
 const LOCAL_CHAT_THREADS_KEY = "karrot.prototype.local-chat-threads.v1";
+const DEFAULT_CHAT_PREVIEW_MESSAGE = "네, 편하실 때 채팅 주세요. 오늘 저녁 직거래도 괜찮아요.";
 
 export type LocalChatThreadRecord = {
   id: string;
@@ -126,7 +127,7 @@ export function createLocalChatThread(input: CreateLocalChatThreadInput): LocalC
     href: appendTabQuery(`/chat/${input.chatKey}`, "chat"),
     createdAt: timestamp,
     updatedAt: timestamp,
-    lastMessage: "채팅을 시작해보세요.",
+    lastMessage: DEFAULT_CHAT_PREVIEW_MESSAGE,
   };
 }
 
