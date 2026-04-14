@@ -1,137 +1,138 @@
-# Karrot Prototype Roadmap
+# 당근 프로토타입 로드맵
 
-## Document Purpose
-This document defines the intended implementation order for the project.
+## 문서 목적
+이 문서는 프로젝트의 권장 구현 순서를 정의하기 위한 문서입니다.
 
-It exists to show:
+이 문서는 아래 내용을 보여주기 위해 존재합니다.
 
-- what should be built first
-- what can wait until later
-- what the team currently considers in scope
-- what the immediate todo items are
+- 무엇을 먼저 만들어야 하는지
+- 무엇은 나중으로 미뤄도 되는지
+- 팀이 현재 무엇을 in scope로 보고 있는지
+- 당장 어떤 작업이 todo 인지
 
-This document is primarily for sequencing and prioritization.
+이 문서는 우선순위와 순서를 위한 문서입니다.
 
-This document is **not**:
+이 문서는 아래 성격의 문서가 아닙니다.
 
-- a product background document
-- a permanent architecture rulebook
-- a final UX spec for every screen
+- 제품 배경 문서
+- 영구적인 아키텍처 규칙 문서
+- 모든 화면의 최종 UX 명세
 
-For product background, use `docs/product-context.md`.
-For stable implementation rules, use `docs/implementation-principles.md`.
+제품 배경은 `docs/product-context.md`를 참고합니다.
+안정적인 구현 규칙은 `docs/implementation-principles.md`를 참고합니다.
 
-## Usage Note
-If this document is referenced in another thread, it should be treated as the current build order and working checklist.
+## 사용 메모
+이 문서가 다른 스레드에서 참조될 때는 현재의 구현 순서와 작업 체크리스트로 해석합니다.
 
-It may guide implementation priority, but it can still evolve as the project changes.
+우선순위를 안내하는 데 사용할 수 있지만, 프로젝트가 변하면 내용도 함께 바뀔 수 있습니다.
 
-## Overview
-This document tracks the implementation order and current todo list for the Karrot prototype.
+## 개요
+이 문서는 당근 프로토타입의 구현 순서와 현재 todo 목록을 추적합니다.
 
-The immediate priority is to build the home screen for each bottom-tab destination first, before going deeper into any individual feature flow.
+현재의 즉시 우선순위는 개별 feature를 깊게 파기 전에, 각 하단 탭 목적지의 홈 화면을 먼저 갖추는 것입니다.
 
-## Current Bottom Tabs
+## 현재 하단 탭
 - 홈
 - 커뮤니티
 - 동네지도
 - 채팅
 - 나의 당근
 
-## Implementation Principle
-- Start with the full bottom-tab structure first.
-- Make each tab reachable and visually stable before deepening any one flow.
-- Treat each tab's first screen as that tab's "home screen".
-- Go deeper only after the base navigation skeleton is complete.
+## 구현 원칙
+- 먼저 전체 하단 탭 구조를 완성합니다.
+- 특정 하나의 흐름을 깊게 들어가기 전에 모든 탭이 도달 가능하고 시각적으로 안정적인 상태를 갖추게 합니다.
+- 각 탭의 첫 화면을 그 탭의 “홈 화면”으로 봅니다.
+- 기본 내비게이션 뼈대가 완성된 다음에만 깊이를 추가합니다.
 
-## Phase Plan
-### Phase 1. Bottom-tab entry screens
-Goal:
-Implement the primary landing screen for every bottom tab so the prototype has a complete top-level navigation structure.
+## 단계별 계획
+### Phase 1. 하단 탭 진입 화면
+목표:
+프로토타입이 완전한 top-level navigation 구조를 갖추도록, 모든 하단 탭의 기본 랜딩 화면을 구현합니다.
 
-Scope:
+범위:
 - 홈 탭 홈 화면
 - 커뮤니티 탭 홈 화면
 - 동네지도 탭 홈 화면
 - 채팅 탭 홈 화면
 - 나의 당근 탭 홈 화면
-- active state handling in the bottom navigation
-- route connection between each tab and its landing screen
+- 하단 navigation active state 처리
+- 각 탭과 랜딩 화면 간 route 연결
 
-Expected outcome:
-- Users can tap every bottom tab and land on a corresponding first screen.
-- The app feels structurally complete at the navigation level.
-- We can then decide where to deepen flows based on experiment priority.
+기대 결과:
+- 사용자가 모든 하단 탭을 눌렀을 때 대응되는 첫 화면으로 이동할 수 있습니다.
+- 앱이 구조적으로 완성된 느낌을 줍니다.
+- 이후 어떤 흐름을 더 깊게 구현할지 실험 우선순위 기준으로 판단할 수 있습니다.
 
-### Phase 2. Depth 2 pages
-Goal:
-Implement the second-level pages that users reach after entering each tab's home screen.
+### Phase 2. Depth 2 페이지
+목표:
+각 탭의 홈 화면에서 이어지는 2단계 페이지를 구현합니다.
 
-Scope:
+범위:
 - 상품 상세 페이지
 - 업체 상세 페이지
 - 커뮤니티 글 상세 페이지
 - 채팅방 상세 페이지
-- 나의 당근 내 주요 상세/서브 페이지
-- depth 1 screen -> depth 2 screen route connection
+- 나의 당근 주요 상세 / 서브 페이지
+- depth 1 screen 에서 depth 2 screen 으로의 route 연결
 
-Expected outcome:
-- The prototype supports deeper user flows beyond the first landing screens.
-- Each bottom tab starts to feel like a usable product area, not just a shell.
-- We can identify which second-level pages matter most for the main experiment.
+기대 결과:
+- 프로토타입이 첫 랜딩 화면을 넘어 더 깊은 사용자 흐름을 지원합니다.
+- 각 하단 탭이 껍데기만 있는 상태가 아니라 실제 제품 영역처럼 보이기 시작합니다.
+- 핵심 실험에 어떤 2단계 페이지가 더 중요한지 판단할 수 있습니다.
 
-### Phase 3. Home to Neighborhood Map experiment setup
-Goal:
-Design and test entry points that move users from 홈 into 동네지도.
+### Phase 3. 홈 -> 동네지도 실험 세팅
+목표:
+`홈`에서 `동네지도`로 사용자를 이동시키는 진입 포인트를 설계하고 검증합니다.
 
-Scope:
-- define candidate entry points in 홈
-- connect those entry points to 동네지도
-- compare discoverability and transition behavior
+범위:
+- 홈 안의 후보 진입 포인트 정의
+- 해당 진입 포인트와 동네지도 연결
+- 발견 가능성과 전환 행동 비교
 
-### Phase 4. Supporting flows
-Goal:
-Add only the supporting depth needed for product understanding and experiment context.
+### Phase 4. 보조 흐름 보강
+목표:
+제품 이해와 실험 맥락에 필요한 만큼만 보조 깊이를 추가합니다.
 
-Scope:
-- selective 상품 상세 확장
-- selective 채팅 흐름 보강
-- lightweight states for other tabs if needed
+범위:
+- 선택적 상품 상세 확장
+- 선택적 채팅 흐름 보강
+- 필요 시 다른 탭의 lightweight state 추가
 
-## Current Priority
-Right now, the team is prioritizing Phase 1.
+## 현재 우선순위
+지금 팀은 Phase 1을 가장 우선하고 있습니다.
 
-That means:
-- do not go too deep into item detail or chat yet
-- first complete the base home screen for each bottom tab
-- make sure the prototype can communicate the full app structure at a glance
-- evaluate each landing screen from a mobile-first perspective because current testing will happen only on mobile devices
+즉, 아래 해석이 맞습니다.
+
+- 아직 상품 상세나 채팅을 너무 깊게 구현하지 않습니다.
+- 먼저 모든 하단 탭의 기본 홈 화면을 완성합니다.
+- 프로토타입이 앱 전체 구조를 한눈에 설명할 수 있어야 합니다.
+- 현재 테스트는 모바일 중심이므로, 각 랜딩 화면은 모바일 우선 관점에서 검토합니다.
 
 ## Todo List
 ### Immediate Todo
-- [ ] Create a dedicated landing screen for `홈`
-- [ ] Create a dedicated landing screen for `커뮤니티`
-- [ ] Create a dedicated landing screen for `동네지도`
-- [ ] Create a dedicated landing screen for `채팅`
-- [ ] Create a dedicated landing screen for `나의 당근`
-- [ ] Connect each bottom tab to its own route
-- [ ] Make active tab state reflect the current route
-- [ ] Ensure the bottom navigation remains consistent across all tab landing screens
-- [ ] Verify each bottom-tab landing screen works cleanly in the primary mobile test viewport first
+- [ ] `홈` 전용 랜딩 화면 만들기
+- [ ] `커뮤니티` 전용 랜딩 화면 만들기
+- [ ] `동네지도` 전용 랜딩 화면 만들기
+- [ ] `채팅` 전용 랜딩 화면 만들기
+- [ ] `나의 당근` 전용 랜딩 화면 만들기
+- [ ] 각 하단 탭을 고유 route에 연결하기
+- [ ] active tab 상태가 현재 route를 반영하게 만들기
+- [ ] 모든 탭 랜딩 화면에서 하단 navigation 일관성 유지하기
+- [ ] 주요 모바일 테스트 viewport에서 각 탭 랜딩 화면이 안정적으로 동작하는지 확인하기
 
 ### Next Todo
-- [ ] Define the depth 2 pages needed under each bottom tab
-- [ ] Prioritize depth 2 pages by product importance
-- [ ] Implement 상품 상세 페이지
-- [ ] Implement 업체 상세 페이지
-- [ ] Implement 커뮤니티 글 상세 페이지
-- [ ] Implement 채팅방 상세 페이지
-- [ ] Implement 주요 나의 당근 서브 페이지
-- [ ] Decide which tab screens should remain lightweight placeholders
-- [ ] Decide which tab screens need realistic content first
-- [ ] Define the first `홈 -> 동네지도` entry-point experiment
+- [ ] 각 하단 탭 아래에 필요한 depth 2 페이지 정의하기
+- [ ] 제품 중요도 기준으로 depth 2 페이지 우선순위 정하기
+- [ ] 상품 상세 페이지 구현하기
+- [ ] 업체 상세 페이지 구현하기
+- [ ] 커뮤니티 글 상세 페이지 구현하기
+- [ ] 채팅방 상세 페이지 구현하기
+- [ ] 주요 나의 당근 서브 페이지 구현하기
+- [ ] 어떤 탭 화면은 lightweight placeholder 로 남길지 결정하기
+- [ ] 어떤 탭 화면에 먼저 realistic content 를 넣을지 결정하기
+- [ ] 첫 번째 `홈 -> 동네지도` 진입 실험 정의하기
 
-## One-Line Focus
-Current implementation focus:
+## 한 줄 집중점
+현재 구현 집중점은 아래와 같습니다.
 
-`Build the first landing screen for every bottom-tab destination before deepening feature flows.`
+`개별 feature를 깊게 파기 전에, 모든 하단 탭 목적지의 첫 랜딩 화면을 먼저 완성한다.`

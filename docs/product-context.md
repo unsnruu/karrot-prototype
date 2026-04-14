@@ -1,114 +1,155 @@
-# Karrot Prototype Context
+# 당근 프로토타입 컨텍스트
 
-## Document Purpose
-This document is for context sharing only.
+## 문서 목적
+이 문서는 프로젝트의 공통 맥락을 공유하기 위한 문서입니다.
 
-It exists to explain the background, product intent, and high-level direction of the project so the same context can be reused across threads and collaborators.
+이 문서는 아래 내용을 설명하기 위해 존재합니다.
 
-This document is **not**:
+- 이 프로젝트가 왜 만들어지고 있는지
+- 어떤 제품 가설을 검증하려는지
+- 현재 어떤 방향으로 범위를 잡고 있는지
+- 왜 일부 기능은 의도적으로 제한적으로 구현하는지
 
-- an implementation spec
-- a task list
-- a final UX definition
-- a direct instruction to build every idea described here
+이 문서는 아래 목적의 문서가 아닙니다.
 
-Actual build scope and execution order should be determined by:
+- 구현 명세서
+- 작업 체크리스트
+- 최종 UX 정의서
+- 여기에 적힌 모든 아이디어를 즉시 구현하라는 직접 지시
+
+실제 구현 범위와 우선순위는 아래 문서를 기준으로 판단합니다.
 
 - `docs/roadmap.md`
 - `docs/implementation-principles.md`
-- explicit implementation requests in the working thread
+- 작업 스레드에서 명시적으로 요청된 구현 범위
 
-## Overview
-This project is a prototype of a Karrot-like app.
+## 개요
+이 프로젝트는 당근과 유사한 앱 경험을 재현하는 프로토타입입니다.
 
-The goal is not to fully recreate Karrot feature-by-feature. The real purpose is to:
+하지만 목적은 당근을 화면 단위로 완벽하게 복제하는 것이 아닙니다.
+이 프로젝트의 실제 목적은 아래와 같습니다.
 
-- understand the current user flow
-- introduce improved to-be entry points and interaction design
-- observe whether those changes can shift user behavior and metrics
+- 현재 사용자 흐름을 이해한다.
+- 더 나은 to-be 진입점과 인터랙션을 제안한다.
+- 그런 변화가 실제 사용자 행동이나 지표에 영향을 줄 수 있는지 관찰한다.
 
-## Current Product Direction
-We do not want to go too deep into every screen right now.
+## 현재 제품 방향
+지금 단계에서는 모든 화면을 깊게 구현하는 것이 목표가 아닙니다.
 
-Instead, we are planning to:
+현재 방향은 아래와 같습니다.
 
-- implement the full bottom tab structure
-- give every bottom tab at least a minimal landing state
-- selectively go deeper only in the tabs and flows that matter most to the experiment
+- 하단 탭 구조를 전체적으로 먼저 구현한다.
+- 각 하단 탭에 최소한의 랜딩 상태를 만든다.
+- 실험에 중요한 탭과 흐름만 선택적으로 더 깊게 들어간다.
 
-## Testing Environment Context
-For the current prototype stage, validation and usability testing are planned to happen only in a mobile environment.
+즉, 이 프로젝트는 “모든 기능을 완성한 제품”보다 “핵심 가설을 설명할 수 있는 구조화된 프로토타입”에 더 가깝습니다.
 
-Because of that, implementation and UI decisions should prioritize the mobile experience first.
+## 테스트 환경 맥락
+현재 프로토타입 단계의 검증과 사용성 테스트는 모바일 환경을 기준으로 진행할 예정입니다.
 
-However, this should not be interpreted as permission to build a non-responsive app.
+그래서 구현과 UI 의사결정은 모바일 경험을 우선해야 합니다.
 
-The intended interpretation is:
+하지만 이것이 비반응형 앱을 만들어도 된다는 뜻은 아닙니다.
 
-- mobile is the primary test environment
-- mobile usability is the first priority for layout and interaction decisions
-- the product should still behave responsively outside the mobile viewport
-- larger screens should remain usable and visually coherent even if they are not the primary validation target
+정확한 해석은 아래와 같습니다.
 
-## Core Goal
-The most important long-term goal is to increase traffic into `동네지도` from the bottom navigation.
+- 모바일이 1차 테스트 환경이다.
+- 모바일 사용성은 레이아웃과 인터랙션 의사결정의 최우선 기준이다.
+- 그래도 제품은 모바일 외의 화면 크기에서도 반응형으로 동작해야 한다.
+- 큰 화면에서도 사용 가능하고 시각적으로 어색하지 않아야 한다.
 
-This means the project should be treated as a prototype for validating:
+## 핵심 목표
+가장 중요한 장기 목표는 `홈` 사용 흐름 안에서 `동네지도`로의 진입을 늘리는 것입니다.
 
-`How can we increase entry into 동네지도 from the main used-car marketplace home flow?`
+이 프로젝트는 아래 질문을 검증하기 위한 프로토타입으로 다뤄야 합니다.
 
-## Key Product Hypothesis
-Users spend a lot of time in the secondhand marketplace home flow.
+`중고거래 홈 흐름 안에서 더 좋은 진입점을 제공하면 동네지도로의 유입을 늘릴 수 있는가?`
 
-Because of that, `동네지도` should not be treated only as a separate destination in the bottom tab.
-Instead, it should gain traffic from meaningful entry points embedded inside the home experience.
+## 핵심 제품 가설
+사용자는 중고거래 홈 흐름 안에서 많은 시간을 보냅니다.
 
-In short:
+그래서 `동네지도`는 단순히 하단 탭의 별도 목적지로만 다뤄지면 안 됩니다.
+대신 `홈` 경험 안에 자연스럽게 녹아든 진입점을 통해 더 많은 트래픽을 받아야 합니다.
 
-- home is the highest-traffic behavior surface
-- 동네지도 is the feature we want to grow
-- the experiment is about connecting those two more effectively
+요약하면 아래와 같습니다.
 
-## Product Strategy
-The current strategy is:
+- `홈`은 가장 트래픽이 높은 행동 표면이다.
+- `동네지도`는 키우고 싶은 기능 영역이다.
+- 이번 실험의 핵심은 두 흐름을 더 잘 연결하는 것이다.
 
-1. build the full bottom tab IA first
-2. keep each tab lightweight at the beginning
-3. prioritize `홈` and `동네지도`
-4. focus the main experiment on `홈 -> 동네지도` transition points
-5. treat other flows such as detail/chat as supporting context, not the primary KPI
+## 제품 전략
+현재 전략은 아래와 같습니다.
 
-## Scope Priority
-### Highest priority
-- Home
-- Neighborhood Map
-- Entry points from Home to Neighborhood Map
+1. 먼저 전체 하단 탭 IA를 구축한다.
+2. 초반에는 각 탭을 가볍게 유지한다.
+3. 우선순위는 `홈`과 `동네지도`에 둔다.
+4. 핵심 실험은 `홈 -> 동네지도` 전환 지점을 설계하는 것이다.
+5. 상품 상세, 채팅 같은 흐름은 주된 KPI가 아니라 보조 맥락으로 다룬다.
 
-### Secondary priority
-- Item detail
-- Chat
-- Other bottom-tab destinations with lightweight placeholder or starter states
+## 범위 우선순위
+### 최우선
+- 홈
+- 동네지도
+- 홈에서 동네지도로 이어지는 진입 포인트
 
-## Example Experiment Directions
-Possible entry-point ideas from home to neighborhood map:
+### 차순위
+- 상품 상세
+- 채팅
+- 나머지 하단 탭의 가벼운 랜딩 화면이나 스타터 상태
 
-- top quick action or banner on the home feed
-- contextual recommendation module inserted between item cards
-- location-based CTA inside item detail
+## 예시 실험 방향
+홈에서 동네지도로 이어지는 진입점의 예시는 아래와 같습니다.
 
-The current thinking is that a contextual entry point inside the home feed is the strongest first experiment, because it fits naturally into the browsing behavior users already have.
+- 홈 피드 상단의 퀵 액션 또는 배너
+- 상품 카드 사이에 삽입되는 맥락형 추천 모듈
+- 상품 상세 안의 위치 기반 CTA
 
-## One-Sentence Summary
-This project is not just a Karrot clone.
-It is a prototype for testing whether better entry points from the marketplace home flow can increase traffic into `동네지도`.
+현재 생각으로는 홈 피드 안에 들어가는 맥락형 진입 포인트가 가장 유력한 첫 실험입니다.
+기존 탐색 행동을 크게 깨지 않으면서도 자연스럽게 연결될 수 있기 때문입니다.
 
-## Usage Note
-If this document is referenced in another thread, it should be treated as shared product context only.
+## 프로토타입 범위와 데이터 원칙
+이 프로젝트는 완전한 제품 구현이 아니라 프로토타입 생성을 목적으로 합니다.
 
-It should help explain:
+그래서 모든 기능을 실제 서비스처럼 끝까지 구현할 필요는 없습니다.
+특히 프론트엔드와 백엔드가 완전한 양방향 CRUD로 연결될 필요는 없습니다.
 
-- why the project exists
-- what the main business goal is
-- which direction the team is currently considering
+현재 단계에서 중요한 것은 사용자가 화면을 읽고 흐름을 이해할 수 있을 만큼의 맥락을 제공하는 것입니다.
+즉, “실제 데이터를 계속 바꾸는 경험”보다 “일관된 화면과 시나리오를 안정적으로 보여주는 경험”이 더 중요합니다.
 
-It should not be interpreted as a request to implement all described concepts immediately.
+## Supabase와 DB를 바라보는 방식
+이 프로젝트에서 Supabase DB는 완전한 운영 백엔드라기보다, 프로토타입 화면을 안정적으로 보여주기 위한 읽기 중심 데이터 소스에 가깝습니다.
+
+현재 단계에서는 아래 해석이 맞습니다.
+
+- `Read`는 필요하다.
+- `Create`, `Update`, `Delete`는 제한적이거나 생략될 수 있다.
+- 상호작용은 보여주되, 반드시 영속 데이터 변경으로 이어질 필요는 없다.
+
+그 이유는 프로토타입 환경의 일관성을 지키기 위해서입니다.
+만약 쓰기 동작을 실제로 열어두면, 한 사용자의 행동이 다른 사용자가 보게 될 화면 상태를 바꿔버릴 수 있습니다.
+그러면 테스트 세션마다 기준 화면이 흔들리고, 실험용 프로토타입으로서의 안정성이 무너질 수 있습니다.
+
+## 구현 해석
+위 원칙은 아래처럼 해석합니다.
+
+- 실제 DB 조회를 통해 현실감 있는 화면 맥락을 제공하는 것은 허용된다.
+- 좋아요, 예약, 댓글 작성, 수정, 삭제 같은 기능은 현재 단계에서 pseudo interaction 이거나 로컬 상태 수준이어도 충분하다.
+- 어떤 버튼은 동작하는 것처럼 보여도, 그 결과가 영속 저장되지 않아도 된다.
+- 데이터 변경이 꼭 필요해 보이는 기능도 우선은 시연 가능한 UI 흐름만 재현하면 된다.
+- 프로토타입의 기준 화면과 시나리오가 유지되는 것이 실제 쓰기 완성도보다 더 중요하다.
+
+즉, Supabase는 “실제 사용자 쓰기 행동을 모두 수용하는 시스템”이 아니라, “프로토타입을 읽기 가능하고 일관되게 유지하는 기반”으로 다뤄야 합니다.
+
+## 한 문장 요약
+이 프로젝트는 단순한 당근 클론이 아니라, `홈`에서 `동네지도`로의 진입을 늘릴 수 있는지 검증하기 위한 읽기 중심 프로토타입입니다.
+
+## 사용 메모
+이 문서가 다른 스레드에서 참조될 때는 공유된 제품 맥락 문서로만 해석해야 합니다.
+
+이 문서는 아래를 설명하는 데 도움을 줘야 합니다.
+
+- 프로젝트가 왜 존재하는지
+- 어떤 비즈니스 목표를 검증하려는지
+- 현재 어떤 방향과 제약 안에서 움직이고 있는지
+
+이 문서는 여기에 적힌 모든 내용을 즉시 구현하라는 요청으로 해석되어서는 안 됩니다.

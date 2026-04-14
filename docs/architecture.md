@@ -1,179 +1,179 @@
-# Karrot Prototype Architecture
+# 당근 프로토타입 아키텍처
 
-## Document Purpose
-This document defines the intended code structure for the project.
+## 문서 목적
+이 문서는 프로젝트의 권장 코드 구조를 정의하기 위한 문서입니다.
 
-It exists to explain:
+이 문서는 아래 내용을 설명하기 위해 존재합니다.
 
-- how page-level code should be organized
-- how responsibilities should be separated
-- where new code should usually live
-- what tradeoffs are acceptable as the prototype grows
+- 페이지 단위 코드를 어떻게 나눌지
+- 책임을 어떤 기준으로 분리할지
+- 새로운 코드가 보통 어디에 위치해야 하는지
+- 프로토타입이 커질 때 어떤 정도의 타협이 허용되는지
 
-This document is **not**:
+이 문서는 아래 성격의 문서가 아닙니다.
 
-- a product strategy document
-- a feature roadmap
-- a visual design spec
-- a strict rule that every file must follow mechanically
+- 제품 전략 문서
+- 기능 로드맵
+- 시각 디자인 명세
+- 모든 파일에 기계적으로 강제되는 엄격한 규칙
 
-For product background, use `docs/product-context.md`.
-For build order and current priorities, use `docs/roadmap.md`.
-For stable implementation rules across data, responsiveness, and change scope, use `docs/implementation-principles.md`.
+제품 배경은 `docs/product-context.md`를 참고합니다.
+구현 순서와 현재 우선순위는 `docs/roadmap.md`를 참고합니다.
+데이터, 반응형, 변경 범위와 관련된 안정적인 구현 규칙은 `docs/implementation-principles.md`를 참고합니다.
 
-## Usage Scope
-This document should be used when:
+## 사용 범위
+이 문서는 아래 상황에서 참고합니다.
 
-- adding a new route
-- refactoring a page that has grown too large
-- deciding where data fetching should live
-- deciding whether a UI element belongs to a screen, feature component, or shared component
-- reviewing whether a file mixes too many responsibilities
+- 새 라우트를 추가할 때
+- 너무 커진 페이지를 리팩터링할 때
+- 데이터 fetching 위치를 결정할 때
+- 어떤 UI가 screen, feature component, shared component 중 어디에 속하는지 판단할 때
+- 한 파일이 너무 많은 책임을 섞고 있는지 검토할 때
 
-This document should not be used as a reason to perform broad refactors without an explicit request.
+이 문서는 명시적 요청 없이 큰 범위의 리팩터링을 정당화하는 근거로 사용하면 안 됩니다.
 
-## Core Principle
-The project should separate:
+## 핵심 원칙
+프로젝트는 아래 세 가지를 분리하는 방향을 기본으로 합니다.
 
-- data fetching
-- screen or layout composition
-- small UI components
+- 데이터 fetching
+- screen 또는 layout 조합
+- 작은 UI component
 
-The goal is to keep route concerns, screen concerns, and reusable UI concerns from collapsing into one large file.
+목표는 라우트 관심사, 페이지 조합 관심사, 재사용 UI 관심사가 하나의 큰 파일로 뭉개지지 않게 하는 것입니다.
 
-In short:
+한 줄로 요약하면 아래와 같습니다.
 
-`Fetch data in routes, compose pages in screens, and render details in smaller components.`
+`데이터 조회는 route에서, 페이지 조합은 screen에서, 세부 UI는 더 작은 component에서 맡는다.`
 
-## Recommended Structure
+## 권장 구조
 ### 1. Route entry
-Location:
+위치:
 
 - `app/**/page.tsx`
 
-Primary responsibility:
+주요 책임:
 
-- define the route entry
-- read `params` and `searchParams`
-- perform server-side data fetching
-- handle `redirect`, `notFound`, and route-level control flow
-- pass prepared data into the next UI layer
+- route entry 정의
+- `params`, `searchParams` 읽기
+- 서버 사이드 데이터 fetching 수행
+- `redirect`, `notFound` 같은 route-level 제어 처리
+- 준비된 데이터를 다음 UI 레이어로 전달
 
-This layer should usually avoid holding large page markup.
+이 레이어에는 큰 페이지 마크업을 오래 쌓아두지 않는 것이 좋습니다.
 
 ### 2. Screen composition
-Location:
+위치:
 
 - `features/**/screens/*`
 
-Primary responsibility:
+주요 책임:
 
-- assemble the full screen layout
-- coordinate feature-level sections
-- receive already-fetched data as props
-- keep the screen readable even when the page grows
+- 전체 화면 레이아웃 조합
+- feature 단위 section 연결
+- 이미 조회된 데이터를 props로 받아 사용
+- 페이지가 커져도 screen 파일의 가독성을 유지
 
-This layer is where page-sized UI composition belongs.
+페이지 크기의 UI 조합은 이 레이어에 두는 것이 기본입니다.
 
 ### 3. Feature components
-Location:
+위치:
 
 - `features/**/components/*`
 
-Primary responsibility:
+주요 책임:
 
-- render smaller pieces of a feature screen
-- support one feature area without pretending to be globally reusable
-- isolate local UI logic that would otherwise bloat the screen file
+- 하나의 feature screen 안에 들어가는 더 작은 조각 렌더링
+- 전역 재사용 컴포넌트인 척하지 않고 feature 맥락 안에서 역할 수행
+- screen 파일이 비대해지지 않도록 지역 UI 로직 분리
 
-Examples:
+예시:
 
-- list items
-- headers specific to a feature
-- cards used only inside one feature area
-- local interactive widgets
+- 리스트 아이템
+- 특정 feature 전용 헤더
+- 한 feature 안에서만 쓰는 카드
+- 지역 인터랙션 위젯
 
 ### 4. Shared components
-Location:
+위치:
 
 - `components/**`
 
-Primary responsibility:
+주요 책임:
 
-- hold UI that is meaningfully shared across multiple features or screens
-- expose generic or cross-feature building blocks
+- 여러 feature나 screen에서 실제로 공유되는 UI 보관
+- 범용적이거나 cross-feature 성격의 building block 제공
 
-Examples:
+예시:
 
 - navigation
-- shared layout primitives
-- buttons, modals, or reusable common UI patterns
+- 공통 layout primitive
+- button, modal, 공통 UI 패턴
 
-This directory should not become a place where full pages are hidden under the name "component".
+이 디렉터리는 “component”라는 이름 아래 사실상 페이지 전체를 숨기는 장소가 되면 안 됩니다.
 
-## Responsibility Boundaries
-When choosing where code belongs, prefer the following rule:
+## 책임 경계
+코드 위치를 판단할 때는 아래 규칙을 우선합니다.
 
-- If it knows about routing, params, redirects, or server fetching, it belongs closer to `app`.
-- If it represents a full page-sized UI, it belongs in `features/**/screens`.
-- If it is a smaller piece used by one feature, it belongs in `features/**/components`.
-- If it is reused across features, it belongs in `components/**`.
+- routing, params, redirect, server fetching을 안다면 `app` 가까이에 둡니다.
+- 페이지 전체 크기의 UI라면 `features/**/screens`에 둡니다.
+- 하나의 feature에서만 쓰는 더 작은 조각이면 `features/**/components`에 둡니다.
+- 여러 feature에서 재사용된다면 `components/**`에 둡니다.
 
-## Client and Server Guidance
-Prefer keeping the client boundary as small as possible.
+## Client / Server 가이드
+가능하면 client boundary를 작게 유지합니다.
 
-That means:
+즉 아래를 기본으로 봅니다.
 
-- do not turn a full screen into a client component when only one interactive part needs it
-- keep server-renderable layout and content on the server when practical
-- isolate local interactivity into small client components
+- 인터랙션이 한 부분만 필요한데 screen 전체를 client component로 만들지 않습니다.
+- 서버에서 렌더링 가능한 layout과 content는 가능한 한 server에 둡니다.
+- 지역 인터랙션만 작은 client component로 분리합니다.
 
-Preferred pattern:
+권장 패턴은 아래와 같습니다.
 
-- route fetches data
-- screen stays server-compatible when possible
-- only interactive islands use `"use client"`
+- route가 데이터를 조회한다.
+- screen은 가능하면 server-compatible 하게 유지한다.
+- 실제 인터랙션이 필요한 작은 island만 `"use client"`를 사용한다.
 
-## Why This Structure Exists
-This structure is recommended because it improves:
+## 왜 이런 구조를 쓰는가
+이 구조는 아래를 개선하기 위해 권장됩니다.
 
-- readability of route files
-- clarity of ownership
-- flexibility when data sources change
-- ability to refactor a screen without touching route logic
-- ability to reuse smaller UI pieces without moving a whole page around
+- route 파일의 가독성
+- 책임과 소유권의 명확성
+- 데이터 소스 변경에 대한 유연성
+- route logic을 건드리지 않고도 screen을 리팩터링할 수 있는 구조
+- 페이지 전체를 옮기지 않고 작은 UI 조각을 재사용할 수 있는 구조
 
-It also helps the team reason about changes more safely:
+또한 팀이 변경 영향을 더 안전하게 판단하는 데도 도움이 됩니다.
 
-- route changes affect routing and data flow
-- screen changes affect layout and page composition
-- component changes affect local UI details
+- route 변경은 routing과 data flow에 영향을 준다.
+- screen 변경은 layout과 page composition에 영향을 준다.
+- component 변경은 지역 UI 디테일에 영향을 준다.
 
-## Acceptable Exceptions
-This structure is a default, not a law.
+## 허용 가능한 예외
+이 구조는 기본값이지 절대 법칙은 아닙니다.
 
-It is acceptable to keep markup directly inside `app/**/page.tsx` when:
+아래 조건에서는 마크업을 `app/**/page.tsx` 안에 그대로 두어도 괜찮습니다.
 
-- the route is very small
-- the UI is unlikely to grow
-- the page is truly one-off
-- adding another file would create more ceremony than clarity
+- route가 매우 작다.
+- UI가 커질 가능성이 낮다.
+- 정말 one-off 페이지다.
+- 파일을 더 나누는 것이 오히려 과한 ceremony를 만든다.
 
-A good rule of thumb:
+실무적으로는 아래 기준이 좋습니다.
 
-- if a page is tiny, keep it simple
-- if a page starts mixing route logic and large UI composition, split it
+- 페이지가 작으면 단순하게 유지한다.
+- route logic과 큰 UI composition이 한 파일에 섞이기 시작하면 분리한다.
 
-## Practical Review Questions
-When reviewing a page or planning new code, ask:
+## 실전 리뷰 질문
+페이지를 리뷰하거나 새 코드를 계획할 때는 아래를 확인합니다.
 
-- Does this route file mostly describe routing and data flow, or is it becoming a giant UI file?
-- Is this page-sized UI really a reusable component, or is it actually a screen?
-- Is this component shared enough to belong in `components/**`, or is it feature-specific?
-- Can the client boundary be made smaller?
-- If the data source changes later, will the UI layer stay mostly stable?
+- 이 route 파일은 routing과 data flow를 설명하고 있는가, 아니면 거대한 UI 파일이 되어가고 있는가?
+- 이 page-sized UI는 진짜 재사용 component인가, 아니면 사실상 screen인가?
+- 이 component는 `components/**`에 둘 만큼 충분히 공유되는가, 아니면 feature 전용인가?
+- client boundary를 더 작게 만들 수 있는가?
+- 나중에 데이터 소스가 바뀌어도 UI 레이어는 대체로 안정적으로 유지될 수 있는가?
 
-## One-Line Rule
-Default architecture rule:
+## 한 줄 규칙
+기본 아키텍처 규칙은 아래와 같습니다.
 
-`Use app for route entry and fetching, screens for page composition, and components for smaller UI pieces.`
+`app은 route entry와 fetching, screens는 페이지 조합, components는 더 작은 UI 조각에 사용한다.`

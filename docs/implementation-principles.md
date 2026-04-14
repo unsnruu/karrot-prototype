@@ -1,144 +1,162 @@
-# Implementation Principles
+# 구현 원칙
 
-## Document Purpose
-This document captures implementation principles that should remain stable even as the prototype grows.
+## 문서 목적
+이 문서는 프로토타입이 커지더라도 비교적 안정적으로 유지되어야 하는 구현 원칙을 정리합니다.
 
-The goal is to reduce rework later and make sure the app can evolve from a design-driven prototype into a product-like implementation.
+목표는 나중에 불필요한 재작업을 줄이고, 디자인 중심 프로토타입이 점진적으로 제품 같은 구현으로 발전할 수 있도록 기반을 맞추는 것입니다.
 
-This document should be used as a guardrail for how we implement things.
+이 문서는 구현 방식에 대한 가드레일로 사용합니다.
 
-This document is **not**:
+이 문서는 아래 성격의 문서가 아닙니다.
 
-- a product strategy document
-- a feature roadmap
-- a screen-by-screen task list
+- 제품 전략 문서
+- 기능 로드맵
+- 화면별 작업 목록
 
-For project background, use `docs/product-context.md`.
-For execution order and active tasks, use `docs/roadmap.md`.
+프로젝트 배경은 `docs/product-context.md`를 참고합니다.
+실행 순서와 현재 우선순위는 `docs/roadmap.md`를 참고합니다.
 
-## Usage Note
-If this document is referenced in another thread, it should be interpreted as a set of stable implementation rules.
+## 사용 메모
+이 문서가 다른 스레드에서 참조될 때는, 비교적 안정적으로 유지되어야 하는 구현 규칙 모음으로 해석해야 합니다.
 
-It should help answer questions like:
+이 문서는 아래 질문에 답하는 데 도움을 줘야 합니다.
 
-- how should data be structured right now?
-- how should future backend migration be considered?
-- how should responsive behavior be interpreted?
-- how should mobile-first implementation be prioritized during testing?
+- 현재 데이터는 어떤 방식으로 다뤄야 하는가?
+- 나중의 백엔드 변경 가능성을 어떻게 고려해야 하는가?
+- 반응형 동작은 어떤 기준으로 해석해야 하는가?
+- 모바일 우선 구현은 테스트 관점에서 어떻게 우선시해야 하는가?
 
-It should not be used as a request to build every possible supporting system immediately.
+이 문서는 가능한 모든 보조 시스템을 지금 당장 다 구현하라는 요청으로 해석되어서는 안 됩니다.
 
-## Data Source Principle
-For now, the project uses mock or dummy data, including data derived from Figma-based design work.
+## 데이터 소스 원칙
+현재 프로젝트는 Figma 기반 더미 데이터를 포함한 mock 또는 seed 데이터를 사용합니다.
 
-However, this is only the temporary source of truth for the prototype stage.
+다만 이것이 프로토타입 단계의 임시 진실 공급원이라는 점은 분명히 인식해야 합니다.
 
-The long-term plan is to introduce Supabase as the real backend and fetch actual data from the database.
+장기적으로는 Supabase가 실제 데이터 소스로 기능할 수 있도록 여지를 열어두는 것이 맞습니다.
 
-Because of that, all implementation should follow this rule:
+하지만 현재 단계에서 더 중요한 것은 “완전한 쓰기 시스템”이 아니라 “안정적으로 읽을 수 있는 화면 맥락”입니다.
 
-`Use mock data now, but structure the app so that the data source can later be replaced by Supabase with minimal UI rewrites.`
+따라서 구현은 아래 원칙을 따릅니다.
 
-## Practical Rules
-- Do not tightly couple screen components to hardcoded mock data structures when avoidable.
-- Prefer separating UI rendering from data access.
-- Keep domain types stable even if the current data is mocked.
-- Treat mock data as a temporary adapter, not the final architecture.
-- Avoid patterns that require rewriting screens from scratch when real fetching is introduced.
+`지금은 read 중심의 mock/seed/Supabase 데이터를 사용하되, 나중에 데이터 소스를 바꿔도 UI를 크게 다시 쓰지 않도록 구조를 만든다.`
 
-## Responsive UI Principle
-This project should be built responsively, with a mobile-first implementation priority.
+## Supabase 원칙
+이 프로젝트에서 Supabase는 현재 단계의 완전한 운영 백엔드가 아닙니다.
+더 정확히는, 프로토타입 화면을 일관되게 재현하기 위한 읽기 중심 데이터 소스입니다.
 
-The reason is operational, not stylistic:
+즉 아래처럼 해석합니다.
 
-- the current prototype will be tested only in a mobile environment
-- mobile usability is therefore the primary acceptance criteria for this stage
+- `select` 기반 read 흐름은 적극적으로 사용할 수 있다.
+- `create`, `update`, `delete`는 필수 요건이 아니다.
+- 일부 기능은 실제 영속 저장 없이도 충분하다.
 
-Even when a screen is designed or validated with mobile-first thinking, that should not be interpreted as:
+이 원칙이 필요한 이유는 프로토타입의 기준 화면을 안정적으로 유지하기 위해서입니다.
+실제 쓰기 동작을 열어두면 한 사람의 행동이 다른 사람이 보는 화면 상태를 바꾸게 되고, 그러면 테스트 세션 간 일관성이 깨질 수 있습니다.
 
-- locking the product into a fake mobile device frame
-- forcing all pages into a fixed narrow viewport container
-- treating desktop or larger screens as an afterthought
-- ignoring how the layout behaves beyond the primary mobile test width
+## 데이터 구현 실전 규칙
+- 가능한 경우 screen component를 하드코딩된 mock 데이터 구조에 과하게 묶지 않습니다.
+- UI 렌더링과 데이터 접근을 분리하는 쪽을 우선합니다.
+- 현재 데이터가 mock 이더라도 domain type은 가능한 한 안정적으로 유지합니다.
+- mock 데이터나 seed 데이터는 임시 adapter로 보고, 최종 아키텍처처럼 취급하지 않습니다.
+- 실제 fetching 도입 시 screen을 처음부터 다시 써야 하는 패턴은 피합니다.
+- 쓰기 기능이 필요해 보여도 우선은 로컬 상태, 임시 UI 상태, pseudo interaction 으로 해결 가능한지 먼저 봅니다.
+- 프로토타입 안정성이 실제 CRUD 완성도보다 우선입니다.
 
-The correct interpretation is:
+## 반응형 UI 원칙
+이 프로젝트는 반응형으로 구현하되, 모바일 우선으로 판단합니다.
 
-- use a mobile-first design approach
-- optimize first for common mobile viewport behavior, spacing, hierarchy, and touch interaction
-- treat mobile layout quality as the default baseline for implementation decisions
-- ensure layouts adapt naturally across screen sizes
-- allow the real browser viewport to define the canvas
-- avoid artificial device wrappers unless a specific demo scenario explicitly requires one
+이건 스타일 취향이 아니라 운영상의 이유 때문입니다.
 
-## Responsive Practical Rules
-- Do not wrap the whole app in a fake phone frame by default.
-- Start layout and component decisions from the mobile viewport first.
-- Prioritize touch-friendly spacing, tap targets, and readable hierarchy on small screens.
-- Prefer responsive layout systems over fixed device-sized containers.
-- Design components so they work cleanly on mobile first, then scale to larger widths.
-- Use breakpoint-aware spacing and layout decisions when needed.
-- When tradeoffs exist, protect the mobile test experience first, then refine larger breakpoints.
-- If a mobile mock is shown, treat it as a visual reference, not as a requirement to constrain the implementation canvas.
+- 현재 프로토타입 테스트는 모바일 환경에서만 진행될 예정이다.
+- 따라서 모바일 사용성이 현 단계의 핵심 acceptance criteria다.
 
-## Change Scope Principle
-When implementing a specific page or feature, do not arbitrarily modify the UI of unrelated pages.
+모바일 우선이라는 말은 아래를 뜻하지 않습니다.
 
-For example:
+- 가짜 모바일 디바이스 프레임 안에 제품을 고정한다.
+- 모든 페이지를 고정 폭 좁은 viewport container에 가둔다.
+- 데스크톱이나 큰 화면을 사실상 무시한다.
+- 1차 모바일 폭을 넘는 레이아웃 동작을 신경 쓰지 않는다.
 
-- if the task is to implement the community page, only change the community page
-- do not restyle or restructure other pages unless that work is explicitly requested
+올바른 해석은 아래와 같습니다.
 
-If a broader cross-page change is truly necessary, the implementer should:
+- 모바일 우선 디자인 접근을 사용한다.
+- 모바일 viewport에서의 spacing, hierarchy, touch interaction을 먼저 최적화한다.
+- 모바일 레이아웃 품질을 기본 구현 기준선으로 삼는다.
+- 화면 크기에 따라 자연스럽게 적응하는 layout을 만든다.
+- 실제 브라우저 viewport를 canvas로 사용한다.
+- 특별한 데모 목적이 없다면 인위적인 device wrapper는 피한다.
 
-- explain why the wider change is needed
-- describe the impact clearly
-- ask for permission before proceeding
+## 반응형 실전 규칙
+- 기본적으로 앱 전체를 가짜 폰 프레임으로 감싸지 않습니다.
+- layout과 component 판단은 모바일 viewport부터 시작합니다.
+- 작은 화면에서 touch-friendly spacing, tap target, readable hierarchy를 우선합니다.
+- 고정 디바이스 크기 container보다 반응형 layout 시스템을 선호합니다.
+- component는 모바일에서 먼저 자연스럽게 동작하고, 이후 큰 화면으로 확장될 수 있게 만듭니다.
+- 필요하면 breakpoint-aware spacing과 layout 결정을 사용합니다.
+- tradeoff가 생기면 모바일 테스트 경험을 먼저 지키고, 이후 큰 화면을 다듬습니다.
+- 모바일 mock은 시각적 기준일 뿐, 구현 canvas를 제한하는 강제 조건은 아닙니다.
 
-## Change Scope Practical Rules
-- Keep changes scoped to the requested screen or feature by default.
-- Do not "clean up" unrelated pages as a side effect of the task.
-- Do not apply visual consistency changes across the app unless requested.
-- If a shared component must be changed and that will affect other screens, call that out first.
-- Prefer local changes over broad UI refactors when fulfilling a targeted request.
+## 변경 범위 원칙
+특정 페이지나 기능을 구현할 때, 요청과 무관한 다른 페이지 UI를 임의로 바꾸지 않습니다.
 
-## Clarification Principle
-If something is unclear during implementation, do not silently decide it alone.
+예를 들어 아래가 기본입니다.
 
-When important ambiguity exists, the implementer should ask the user for clarification in enough detail to support a good decision.
+- 커뮤니티 페이지 작업이라면 커뮤니티 페이지 중심으로 변경합니다.
+- 요청되지 않은 다른 페이지의 restyle 이나 구조 변경은 하지 않습니다.
 
-This is especially important when the uncertainty affects:
+정말로 여러 페이지에 걸친 변경이 필요하다면 구현자는 아래를 먼저 해야 합니다.
 
-- layout or UX direction
-- feature scope
+- 왜 더 넓은 변경이 필요한지 설명한다.
+- 어떤 영향이 생기는지 명확히 설명한다.
+- 진행 전 허가를 받는다.
+
+## 변경 범위 실전 규칙
+- 기본적으로 변경 범위는 요청된 screen 또는 feature 안에 묶습니다.
+- 작업의 부수 효과로 무관한 페이지를 “정리”하지 않습니다.
+- 요청이 없으면 앱 전역 시각 일관성 정비를 같이 진행하지 않습니다.
+- shared component 수정이 다른 screen에도 영향을 준다면 먼저 그 사실을 알립니다.
+- 특정 요청을 처리할 때는 넓은 UI 리팩터링보다 국소적 변경을 우선합니다.
+
+## 명확화 원칙
+구현 중 중요한 것이 불명확하다면 혼자 조용히 결론내리지 않습니다.
+
+결과물에 의미 있는 영향을 줄 수 있는 모호함이 있다면, 좋은 결정을 내릴 수 있을 정도로 사용자와 맥락을 맞춰야 합니다.
+
+특히 아래에 영향을 주는 불확실성은 더 중요합니다.
+
+- layout 또는 UX 방향
+- 기능 범위
 - interaction behavior
-- data structure
-- shared component impact
-- changes that may affect other pages
+- 데이터 구조
+- shared component 영향
+- 다른 페이지에도 영향을 줄 수 있는 변경
 
-## Clarification Practical Rules
-- Do not guess when the decision could materially change the output.
-- Do not invent product intent when it has not been clearly established.
-- Ask detailed clarifying questions when needed instead of forcing a best guess.
-- Surface assumptions clearly if temporary assumptions must be made.
-- Prefer clarification over rework when the uncertainty is meaningful.
+## 명확화 실전 규칙
+- 결정이 결과를 크게 바꿀 수 있다면 함부로 추측하지 않습니다.
+- 명확하지 않은 제품 의도를 임의로 만들어내지 않습니다.
+- 필요하면 충분히 구체적인 clarifying question을 던집니다.
+- 임시 가정을 써야 할 때는 그 가정을 분명하게 드러냅니다.
+- 의미 있는 불확실성이 있다면, 재작업보다 명확화가 우선입니다.
 
-## Recommended Direction
-- Store mock data in dedicated data or domain layers.
-- Keep page and component code focused on presentation and interaction.
-- Make it possible to swap:
-  - `local mock data`
-  - `Figma-derived dummy data`
-  - `Supabase-fetched real data`
-  without redesigning the screen structure.
+## 권장 방향
+- mock 데이터는 별도의 data 또는 domain layer에 둡니다.
+- page와 component 코드는 presentation과 interaction에 집중하게 유지합니다.
+- 아래 데이터 소스를 바꾸더라도 screen 구조를 다시 설계하지 않아도 되게 만듭니다.
+- `local mock data`
+- `Figma 기반 더미 데이터`
+- `Supabase 기반 read 데이터`
 
-## Future Backend Direction
-When Supabase is introduced later:
+## 미래 백엔드 방향
+나중에 Supabase 활용 범위를 넓히게 된다면 아래 순서가 바람직합니다.
 
-- database-backed content should replace the mock source gradually
-- the fetch layer should change before the UI layer
-- existing screen contracts should remain as stable as possible
+- database-backed content가 mock source를 점진적으로 대체한다.
+- fetch layer가 UI layer보다 먼저 바뀐다.
+- 기존 screen contract는 가능한 한 안정적으로 유지한다.
 
-## One-Line Rule
-Current implementation rule:
+즉, 미래에 쓰기 기능이 필요해져도 지금은 그것을 전제로 모든 것을 무겁게 만들 필요는 없습니다.
 
-`Prototype with mock data now, but design the structure for an eventual Supabase-backed app.`
+## 한 줄 규칙
+현재 구현 원칙은 아래와 같습니다.
+
+`지금은 read 중심 프로토타입으로 구현하되, 나중에 Supabase 기반 앱으로 확장할 수 있게 구조를 설계한다.`
