@@ -1,12 +1,15 @@
 import Link from "next/link";
-import { AppImage } from "@/components/ui/app-image";
 import { CommunityCategoryRail } from "@/features/community/components/community-category-rail";
 import { CommunityBannerLink } from "@/features/community/components/community-banner-link";
-import { communityFilters, communityTopTabs, type CommunityTabKey } from "@/lib/community";
+import { communityFilters, communityTopTabs, type CommunityTabKey, type CommunityTopicFilterKey } from "@/lib/community";
 
-const iconChevronDown = "/icons/chevron-down.svg";
-
-export function CommunityHeader({ selectedTab }: { selectedTab: CommunityTabKey }) {
+export function CommunityHeader({
+  selectedTab,
+  selectedTopic,
+}: {
+  selectedTab: CommunityTabKey;
+  selectedTopic: CommunityTopicFilterKey;
+}) {
   return (
     <header className="sticky top-0 z-20 bg-white">
       <div className="w-full px-4 pb-1 pt-5">
@@ -28,18 +31,15 @@ export function CommunityHeader({ selectedTab }: { selectedTab: CommunityTabKey 
         {selectedTab === "town" ? (
           <div className="mt-4 flex gap-2 overflow-x-auto py-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {communityFilters.map((filter) => (
-              <button
+              <Link
                 className={`flex h-10 shrink-0 items-center justify-center rounded-full px-4 text-sm font-medium ${
-                  filter.active ? "bg-[#2a3038] text-white" : "bg-[#f3f4f5] text-[#1a1c20]"
+                  selectedTopic === filter.id ? "bg-[#2a3038] text-white" : "bg-[#f3f4f5] text-[#1a1c20]"
                 }`}
-                key={filter.label}
-                type="button"
+                href={filter.id === "all" ? "/community" : `/community?topic=${filter.id}`}
+                key={filter.id}
               >
                 {filter.label}
-                {filter.hasChevron ? (
-                  <AppImage alt="" className="ml-1 h-4 w-4" height={16} src={iconChevronDown} width={16} />
-                ) : null}
-              </button>
+              </Link>
             ))}
           </div>
         ) : null}

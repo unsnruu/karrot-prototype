@@ -1,10 +1,11 @@
 export type CommunityFilter = {
+  id: string;
   label: string;
-  active?: boolean;
-  hasChevron?: boolean;
+  topic?: CommunityPost["topic"];
 };
 
 export type CommunityTabKey = "town" | "meetup" | "cafe";
+export type CommunityTopicFilterKey = "all" | "general" | "town-scene" | "story";
 
 export type CommunityTopTab = {
   key: CommunityTabKey;
@@ -102,14 +103,10 @@ export const communityTopTabs: CommunityTopTab[] = [
 ];
 
 export const communityFilters: CommunityFilter[] = [
-  { label: "추천", active: true, hasChevron: true },
-  { label: "인기" },
-  { label: "생활정보" },
-  { label: "맛집/음식" },
-  { label: "반려동물" },
-  { label: "취미/여가" },
-  { label: "운동" },
-  { label: "가족/육아" },
+  { id: "all", label: "전체" },
+  { id: "general", label: "일반", topic: "일반" },
+  { id: "town-scene", label: "동네풍경", topic: "동네풍경" },
+  { id: "story", label: "고민/사연", topic: "고민/사연" },
 ];
 
 export const communityBanner = {
