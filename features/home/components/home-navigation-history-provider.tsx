@@ -117,7 +117,7 @@ function buildPath(pathname: string, searchParams: URLSearchParams) {
 }
 
 function isHomeTabPath(pathname: string) {
-  return pathname === "/home" || /^\/home\/items\/[^/]+$/.test(pathname);
+  return pathname === "/home" || pathname === "/home/services" || /^\/home\/items\/[^/]+$/.test(pathname);
 }
 
 function isOtherTabPath(pathname: string) {
