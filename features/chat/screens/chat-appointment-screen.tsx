@@ -26,6 +26,8 @@ export function ChatAppointmentScreen({
     );
   }
 
+  const todayLabel = formatTodayLabel();
+
   return (
     <main className="min-h-screen bg-[#f5f5f5]">
       <div className="mobile-shell flex min-h-screen flex-col bg-white px-4 pb-10 pt-6">
@@ -41,9 +43,9 @@ export function ChatAppointmentScreen({
         <h1 className="mt-8 text-[21px] font-semibold tracking-[-0.03em] text-black">{seller.name}님과 약속</h1>
 
         <section className="mt-8">
-          <AppointmentRow icon="down" label="날짜" trailing="3월 21일 금요일" />
+          <AppointmentRow icon="down" label="날짜" trailing={todayLabel} />
           <AppointmentRow icon="down" label="시간" trailing="오후 6:20" />
-          <AppointmentRow icon="right" label="장소" muted trailing={item.meetupHint || "장소 선택"} />
+          <AppointmentRow icon="right" label="장소" muted trailing="합정역" />
           <AppointmentRow icon="down" label="약속 전 나에게 알림" trailing="없음" />
         </section>
 
@@ -58,6 +60,21 @@ export function ChatAppointmentScreen({
       </div>
     </main>
   );
+}
+
+function formatTodayLabel() {
+  const now = new Date();
+  const monthDayFormatter = new Intl.DateTimeFormat("ko-KR", {
+    month: "long",
+    day: "numeric",
+    timeZone: "Asia/Seoul",
+  });
+  const weekdayFormatter = new Intl.DateTimeFormat("ko-KR", {
+    weekday: "long",
+    timeZone: "Asia/Seoul",
+  });
+
+  return `${monthDayFormatter.format(now)} ${weekdayFormatter.format(now)}`;
 }
 
 function AppointmentRow({
