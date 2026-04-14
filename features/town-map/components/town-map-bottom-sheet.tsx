@@ -169,7 +169,7 @@ export function TownMapBottomSheet() {
           <Link
             aria-label="광고 자세히 보기"
             className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-black/10 bg-white"
-            href={buildPendingFeatureHref("/town-map")}
+            href={buildPendingFeatureHref("/town-map", "동네지도 광고 보기")}
           >
             <span className="relative h-4 w-4">
               <AppImage alt="" className="object-contain" fill sizes="16px" src={townMapScreenData.ad.arrowIcon} />

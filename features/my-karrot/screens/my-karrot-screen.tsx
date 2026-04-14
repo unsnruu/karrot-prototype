@@ -126,7 +126,7 @@ const menuGroups: MenuGroup[] = [
 
 function ProfileCard() {
   return (
-    <PendingFeatureLink className="block rounded-2xl bg-white px-5 py-4 shadow-[0_1px_3px_rgba(15,23,42,0.08)]" returnTo="/my-karrot">
+    <PendingFeatureLink className="block rounded-2xl bg-white px-5 py-4 shadow-[0_1px_3px_rgba(15,23,42,0.08)]" featureLabel="내 프로필 보기" returnTo="/my-karrot">
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[#e5e7eb]">
@@ -168,11 +168,12 @@ function PayCard() {
       </div>
       <div className="mt-3 flex items-center justify-between gap-4">
         <div className="flex items-center gap-4 text-sm font-medium leading-[21px] text-[#364153]">
-          <PendingFeatureLink returnTo="/my-karrot">충전</PendingFeatureLink>
-          <PendingFeatureLink returnTo="/my-karrot">송금</PendingFeatureLink>
+          <PendingFeatureLink featureLabel="당근페이 충전" returnTo="/my-karrot">충전</PendingFeatureLink>
+          <PendingFeatureLink featureLabel="당근페이 송금" returnTo="/my-karrot">송금</PendingFeatureLink>
         </div>
         <PendingFeatureLink
           className="inline-flex h-[35px] items-center gap-2 rounded-full bg-[#101828] px-4 text-[13px] font-semibold leading-[19.5px] text-white"
+          featureLabel="당근페이 결제"
           returnTo="/my-karrot"
         >
           <Image alt="" height={16} src={figmaIcons.payCard} width={16} />
@@ -195,6 +196,7 @@ export function MyKarrotScreen() {
             <PendingFeatureLink
               aria-label="설정"
               className="flex h-8 w-8 items-center justify-center rounded-full text-[20px] text-[#6b7280]"
+              featureLabel="설정"
               returnTo="/my-karrot"
             >
               ⚙
@@ -221,7 +223,7 @@ export function MyKarrotScreen() {
               </div>
               <div className="grid grid-cols-[repeat(auto-fit,minmax(152px,1fr))] gap-x-4 gap-y-5">
                 {section.items.map((item) => (
-                  <PendingFeatureLink className="flex min-h-9 items-center gap-3" key={item.label} returnTo="/my-karrot">
+                  <PendingFeatureLink className="flex min-h-9 items-center gap-3" featureLabel={item.label} key={item.label} returnTo="/my-karrot">
                     <span
                       aria-hidden="true"
                       className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full"
@@ -241,7 +243,7 @@ export function MyKarrotScreen() {
           <section className="rounded-2xl bg-white px-5 py-5 shadow-[0_1px_3px_rgba(15,23,42,0.08)]">
             <div className="grid grid-cols-3 gap-4">
               {shortcuts.map((item) => (
-                <PendingFeatureLink className="flex flex-col items-center gap-2" key={item.label} returnTo="/my-karrot">
+                <PendingFeatureLink className="flex flex-col items-center gap-2" featureLabel={item.label} key={item.label} returnTo="/my-karrot">
                   <span className="relative flex h-[26px] w-[26px] items-center justify-center">
                     <Image alt="" height={26} src={item.iconSrc} width={26} />
                     {item.hasDot ? (
@@ -264,6 +266,7 @@ export function MyKarrotScreen() {
                 {group.items.map((item) => (
                   <PendingFeatureLink
                     className="flex w-full items-center justify-between py-3 text-left"
+                    featureLabel={item.label}
                     key={item.label}
                     returnTo="/my-karrot"
                   >

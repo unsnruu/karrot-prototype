@@ -33,13 +33,13 @@ export function CommunityPostDetailScreen({
             </div>
 
             <div className="flex items-center gap-2 text-black">
-              <PendingFeatureLink aria-label="알림" className="flex h-8 w-8 items-center justify-center" returnTo="/community">
+              <PendingFeatureLink aria-label="알림" className="flex h-8 w-8 items-center justify-center" featureLabel="커뮤니티 알림 확인" returnTo="/community">
                 <AppImage alt="" className="h-8 w-8" height={32} src={iconBell} width={32} />
               </PendingFeatureLink>
-              <PendingFeatureLink aria-label="공유" className="flex h-8 w-8 items-center justify-center" returnTo="/community">
+              <PendingFeatureLink aria-label="공유" className="flex h-8 w-8 items-center justify-center" featureLabel="커뮤니티 글 공유하기" returnTo="/community">
                 <ShareIcon />
               </PendingFeatureLink>
-              <PendingFeatureLink aria-label="더보기" className="flex h-8 w-8 items-center justify-center" returnTo="/community">
+              <PendingFeatureLink aria-label="더보기" className="flex h-8 w-8 items-center justify-center" featureLabel="커뮤니티 글 메뉴" returnTo="/community">
                 <KebabIcon />
               </PendingFeatureLink>
             </div>
@@ -87,11 +87,11 @@ export function CommunityPostDetailScreen({
           </div>
 
           <div className="mt-4 flex items-center justify-between gap-3">
-            <PendingFeatureLink className="inline-flex items-center gap-3 rounded-full border border-[#e5e7eb] px-4 py-2.5 text-sm font-medium text-[#0a0a0a]" returnTo="/community">
+            <PendingFeatureLink className="inline-flex items-center gap-3 rounded-full border border-[#e5e7eb] px-4 py-2.5 text-sm font-medium text-[#0a0a0a]" featureLabel="커뮤니티 글 공감하기" returnTo="/community">
               <ThumbOutlineIcon />
               공감하기
             </PendingFeatureLink>
-            <PendingFeatureLink className="rounded-full border border-[#e5e7eb] px-4 py-2.5 text-sm font-medium text-[#0a0a0a]" returnTo="/community">
+            <PendingFeatureLink className="rounded-full border border-[#e5e7eb] px-4 py-2.5 text-sm font-medium text-[#0a0a0a]" featureLabel="커뮤니티 글 저장하기" returnTo="/community">
               저장
             </PendingFeatureLink>
           </div>
@@ -101,11 +101,11 @@ export function CommunityPostDetailScreen({
           <div className="flex items-center justify-between border-b border-[#f3f4f6] px-5 py-4">
             <h2 className="text-base font-medium tracking-[-0.02em] text-[#0a0a0a]">댓글 {detail.commentsList.length}</h2>
             <div className="flex items-center gap-2 text-base">
-              <PendingFeatureLink className="font-medium text-black" returnTo="/community">
+              <PendingFeatureLink className="font-medium text-black" featureLabel="댓글 정렬 바꾸기" returnTo="/community">
                 등록순
               </PendingFeatureLink>
               <span className="text-[#d1d5dc]">|</span>
-              <PendingFeatureLink className="font-medium text-[#6a7282]" returnTo="/community">
+              <PendingFeatureLink className="font-medium text-[#6a7282]" featureLabel="댓글 정렬 바꾸기" returnTo="/community">
                 최신순
               </PendingFeatureLink>
             </div>
@@ -136,7 +136,7 @@ export function CommunityPostDetailScreen({
 
       <div className="fixed inset-x-0 bottom-0 z-20 border-t border-black/5 bg-white/95 backdrop-blur">
         <div className="mobile-shell-wide flex items-center gap-3 px-2 py-2 pb-10 sm:px-4">
-          <PendingFeatureLink aria-label="댓글 추가" className="flex h-8 w-8 items-center justify-center text-[#6b7280]" returnTo="/community">
+          <PendingFeatureLink aria-label="댓글 추가" className="flex h-8 w-8 items-center justify-center text-[#6b7280]" featureLabel="댓글 작성하기" returnTo="/community">
             <AppImage alt="" className="h-8 w-8" height={32} src={iconPlus} width={32} />
           </PendingFeatureLink>
           <div className="flex h-10 flex-1 items-center justify-between rounded-full bg-[#f2f4f5] px-4 text-base text-[#aeb2b5]">

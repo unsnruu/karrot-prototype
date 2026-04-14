@@ -10,6 +10,7 @@ export function TownMapCategoryChip({ category }: { category: TownMapSearchCateg
         "flex shrink-0 items-center gap-1 rounded-full px-3 py-2 text-[14px] font-medium text-black shadow-[0px_1px_8px_0px_rgba(0,0,0,0.15)]",
         category.active ? "bg-gradient-to-b from-white to-[#fff8eb]" : "bg-white",
       )}
+      featureLabel={`${category.label} 카테고리 보기`}
       returnTo="/town-map"
     >
       <span className="relative h-4 w-4 shrink-0">

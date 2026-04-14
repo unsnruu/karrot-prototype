@@ -56,6 +56,13 @@ export function appendNavigationQuery(
   return `${href}${separator}${query}`;
 }
 
-export function buildPendingFeatureHref(returnTo?: string) {
-  return appendNavigationQuery("/developing", { returnTo });
+export function buildPendingFeatureHref(returnTo?: string, featureLabel?: string) {
+  const href = appendNavigationQuery("/developing", { returnTo });
+
+  if (!featureLabel) {
+    return href;
+  }
+
+  const separator = href.includes("?") ? "&" : "?";
+  return `${href}${separator}feature=${encodeURIComponent(featureLabel)}`;
 }

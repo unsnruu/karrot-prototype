@@ -94,7 +94,11 @@ function ItemBodySection({ item }: { item: MarketplaceItem }) {
         <span>조회 {Math.max(170, item.likes * 7 + item.chats * 2)}</span>
       </div>
 
-      <PendingFeatureLink className="mt-5 inline-flex text-sm leading-none text-[#8b8c91] underline underline-offset-2" returnTo="/home">
+      <PendingFeatureLink
+        className="mt-5 inline-flex text-sm leading-none text-[#8b8c91] underline underline-offset-2"
+        featureLabel="게시글 신고하기"
+        returnTo="/home"
+      >
         이 게시글 신고하기
       </PendingFeatureLink>
     </section>
@@ -205,6 +209,7 @@ export function KeywordAlert({ itemTitle }: { itemTitle: string }) {
       </p>
       <PendingFeatureLink
         className="inline-flex shrink-0 items-center gap-1 rounded-full bg-[#f2f4f5] px-4 py-2 text-sm font-semibold text-black"
+        featureLabel="키워드 알림 받기"
         returnTo="/home"
       >
         <BellIcon />

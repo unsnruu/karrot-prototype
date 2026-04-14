@@ -1,9 +1,10 @@
 import { AppImage } from "@/components/ui/app-image";
+import { PendingFeatureLink } from "@/components/ui/pending-feature-link";
 import { type CommunityMeetup } from "@/lib/community";
 
 export function CommunityMeetupCard({ meetup }: { meetup: CommunityMeetup }) {
   return (
-    <article className="flex items-start gap-3">
+    <PendingFeatureLink className="flex items-start gap-3" featureLabel="모임 상세 보기" returnTo="/community?tab=meetup">
       <AppImage
         alt={meetup.title}
         className="h-20 w-20 shrink-0 rounded-[10px] object-cover"
@@ -30,6 +31,6 @@ export function CommunityMeetupCard({ meetup }: { meetup: CommunityMeetup }) {
           ) : null}
         </div>
       </div>
-    </article>
+    </PendingFeatureLink>
   );
 }

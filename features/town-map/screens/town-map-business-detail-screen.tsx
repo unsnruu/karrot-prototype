@@ -30,10 +30,10 @@ export function TownMapBusinessDetailScreen({
               <BackIcon />
             </Link>
             <div className="flex items-center gap-1">
-              <PendingFeatureLink aria-label="찜하기" className="flex h-10 w-10 items-center justify-center rounded-full text-[#111827]" returnTo={backHref}>
+              <PendingFeatureLink aria-label="찜하기" className="flex h-10 w-10 items-center justify-center rounded-full text-[#111827]" featureLabel="업체 찜하기" returnTo={backHref}>
                 <HeartIcon />
               </PendingFeatureLink>
-              <PendingFeatureLink aria-label="공유하기" className="flex h-10 w-10 items-center justify-center rounded-full text-[#111827]" returnTo={backHref}>
+              <PendingFeatureLink aria-label="공유하기" className="flex h-10 w-10 items-center justify-center rounded-full text-[#111827]" featureLabel="업체 공유하기" returnTo={backHref}>
                 <ShareIcon />
               </PendingFeatureLink>
             </div>
@@ -58,7 +58,7 @@ export function TownMapBusinessDetailScreen({
             <p className="flex-1 text-[14px] leading-5 text-[#4b5563]">
               <span className="font-bold text-[#111827]">{detail.informantName}</span> 이웃이 정보를 알려줬어요.
             </p>
-            <PendingFeatureLink className="text-[12px] text-[#9ca3af] underline" returnTo={backHref}>
+            <PendingFeatureLink className="text-[12px] text-[#9ca3af] underline" featureLabel="이웃 제보 자세히 보기" returnTo={backHref}>
               더보기
             </PendingFeatureLink>
           </div>
@@ -94,7 +94,7 @@ export function TownMapBusinessDetailScreen({
               <InfoRow
                 icon={<PhoneIcon />}
                 trailing={(
-                  <PendingFeatureLink className="rounded-full border border-[#d1d5db] px-[10px] py-[3px] text-[12px] leading-4 text-[#6b7280]" returnTo={backHref}>
+                  <PendingFeatureLink className="rounded-full border border-[#d1d5db] px-[10px] py-[3px] text-[12px] leading-4 text-[#6b7280]" featureLabel="전화번호 복사" returnTo={backHref}>
                     복사
                   </PendingFeatureLink>
                 )}
@@ -115,6 +115,7 @@ export function TownMapBusinessDetailScreen({
               </div>
               <PendingFeatureLink
                 className="flex w-full items-center justify-center gap-2 rounded-[8px] bg-[#f8f9fa] py-[10px] text-[14px] font-medium leading-5 text-[#374151]"
+                featureLabel="업체 정보 수정 및 추가"
                 returnTo={backHref}
               >
                 <EditInfoIcon />
@@ -139,7 +140,7 @@ export function TownMapBusinessDetailScreen({
                   </div>
                 ))}
               </div>
-              <PendingFeatureLink className="mt-4 flex w-full items-center justify-center gap-1 py-2 text-[14px] font-medium leading-5 text-[#6b7280]" returnTo={backHref}>
+              <PendingFeatureLink className="mt-4 flex w-full items-center justify-center gap-1 py-2 text-[14px] font-medium leading-5 text-[#6b7280]" featureLabel="가격 더보기" returnTo={backHref}>
                 가격 더보기
                 <ChevronDownIcon />
               </PendingFeatureLink>
@@ -167,7 +168,7 @@ export function TownMapBusinessDetailScreen({
                             <p className="mt-0.5 text-[12px] leading-4 text-[#9ca3af]">{review.authorSummary}</p>
                           </div>
                         </div>
-                        <PendingFeatureLink aria-label="후기 더보기" className="px-1 text-[#9ca3af]" returnTo={backHref}>
+                        <PendingFeatureLink aria-label="후기 더보기" className="px-1 text-[#9ca3af]" featureLabel="후기 메뉴" returnTo={backHref}>
                           <KebabIcon />
                         </PendingFeatureLink>
                       </div>
@@ -181,6 +182,7 @@ export function TownMapBusinessDetailScreen({
 
                       <PendingFeatureLink
                         className="mt-4 inline-flex items-center gap-1 rounded-full border border-[#edeef0] px-3 py-[7px] text-[12px] font-medium leading-4 text-[#4b5563]"
+                        featureLabel="후기 도움돼요"
                         returnTo={backHref}
                       >
                         <HelpfulIcon />
@@ -193,7 +195,7 @@ export function TownMapBusinessDetailScreen({
                 )}
               </div>
 
-              <PendingFeatureLink className="mt-4 flex w-full items-center justify-center gap-1 py-2 text-[14px] font-medium leading-5 text-[#6b7280]" returnTo={backHref}>
+              <PendingFeatureLink className="mt-4 flex w-full items-center justify-center gap-1 py-2 text-[14px] font-medium leading-5 text-[#6b7280]" featureLabel="후기 더보기" returnTo={backHref}>
                 후기 더보기
                 <ChevronDownIcon />
               </PendingFeatureLink>
@@ -203,6 +205,7 @@ export function TownMapBusinessDetailScreen({
               <p className="text-[16px] font-bold leading-6 text-[#111827]">이곳을 이용한 생생한 경험을 짧은 영상으로 보여주세요.</p>
               <PendingFeatureLink
                 className="mt-4 inline-flex items-center gap-2 rounded-[8px] bg-[#f8f9fa] px-5 py-[10px] text-[14px] font-bold leading-5 text-[#1f2937]"
+                featureLabel="스토리 올리기"
                 returnTo={backHref}
               >
                 <StoryIcon />
@@ -211,7 +214,7 @@ export function TownMapBusinessDetailScreen({
             </section>
 
             <footer className="bg-[#f8f9fa] px-6 py-6 text-[12px] leading-4 text-[#9ca3af]">
-              <PendingFeatureLink className="underline" returnTo={backHref}>
+              <PendingFeatureLink className="underline" featureLabel="장소 삭제 신고" returnTo={backHref}>
                 장소 삭제 신고
               </PendingFeatureLink>
               <p className="mt-2">마지막 수정일 {detail.updatedAtLabel}</p>
@@ -235,7 +238,7 @@ export function TownMapBusinessDetailScreen({
                       </p>
                     </div>
                   </div>
-                  <PendingFeatureLink aria-label="소식 더보기" className="px-1 text-[#9ca3af]" returnTo={backHref}>
+                  <PendingFeatureLink aria-label="소식 더보기" className="px-1 text-[#9ca3af]" featureLabel="소식 메뉴" returnTo={backHref}>
                     <KebabIcon />
                   </PendingFeatureLink>
                 </div>
@@ -304,7 +307,7 @@ export function TownMapBusinessDetailScreen({
                           <p className="mt-0.5 text-[12px] leading-4 text-[#9ca3af]">{review.authorSummary}</p>
                         </div>
                       </div>
-                      <PendingFeatureLink aria-label="후기 더보기" className="px-1 text-[#9ca3af]" returnTo={backHref}>
+                      <PendingFeatureLink aria-label="후기 더보기" className="px-1 text-[#9ca3af]" featureLabel="후기 메뉴" returnTo={backHref}>
                         <KebabIcon />
                       </PendingFeatureLink>
                     </div>
@@ -343,10 +346,10 @@ export function TownMapBusinessDetailScreen({
         ) : null}
 
         <div className="fixed bottom-0 left-1/2 z-30 flex w-full max-w-[375px] -translate-x-1/2 gap-2 border-t border-[#edeef0] bg-white px-4 py-3">
-          <PendingFeatureLink className="flex-1 rounded-[8px] bg-[#f3f4f6] py-[13px] text-[15px] font-bold leading-5 text-[#374151]" returnTo={backHref}>
+          <PendingFeatureLink className="flex-1 rounded-[8px] bg-[#f3f4f6] py-[13px] text-[15px] font-bold leading-5 text-[#374151]" featureLabel="전화 문의" returnTo={backHref}>
             전화 문의
           </PendingFeatureLink>
-          <PendingFeatureLink className="flex-1 rounded-[8px] bg-[#ff6f0f] py-[13px] text-[15px] font-bold leading-5 text-white" returnTo={backHref}>
+          <PendingFeatureLink className="flex-1 rounded-[8px] bg-[#ff6f0f] py-[13px] text-[15px] font-bold leading-5 text-white" featureLabel="채팅 문의" returnTo={backHref}>
             채팅 문의
           </PendingFeatureLink>
         </div>

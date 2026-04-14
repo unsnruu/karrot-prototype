@@ -4,7 +4,7 @@ import { type TownMapQuickAction } from "@/lib/town-map";
 
 export function TownMapQuickActionCard({ action }: { action: TownMapQuickAction }) {
   return (
-    <PendingFeatureLink className="flex flex-col items-center gap-2 text-center" returnTo="/town-map">
+    <PendingFeatureLink className="flex flex-col items-center gap-2 text-center" featureLabel={action.label} returnTo="/town-map">
       <div className="relative h-[58px] w-[68px] overflow-hidden rounded-[19px] border border-black/10 bg-white">
         <AppImage alt={action.label} className="object-cover" fill sizes="68px" src={action.image} />
       </div>

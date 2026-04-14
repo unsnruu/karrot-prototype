@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { AppImage } from "@/components/ui/app-image";
 import { homeFabActionGroups, type HomeFabAction } from "@/lib/marketplace";
+import { buildPendingFeatureHref } from "@/lib/tab-navigation";
 
 const iconPlus = "/icons/plus.svg";
 
@@ -121,7 +122,16 @@ function resolveFabActionHref(action: HomeFabAction) {
     return "/home/sell?reset=1";
   }
 
-  return "/developing?returnTo=%2Fhome";
+  return buildPendingFeatureHref("/home", action.label);
+}
+
+function CloseIcon() {
+  return (
+    <span aria-hidden="true" className="relative block h-6 w-6">
+      <span className="absolute left-1/2 top-1/2 h-0.5 w-5 -translate-x-1/2 -translate-y-1/2 rotate-45 rounded-full bg-[#111827]" />
+      <span className="absolute left-1/2 top-1/2 h-0.5 w-5 -translate-x-1/2 -translate-y-1/2 -rotate-45 rounded-full bg-[#111827]" />
+    </span>
+  );
 }
 
 function FabActionIcon({ action }: { action: HomeFabAction }) {
@@ -191,17 +201,4 @@ function FabActionIcon({ action }: { action: HomeFabAction }) {
     default:
       return null;
   }
-}
-
-function CloseIcon() {
-  return (
-    <span aria-hidden="true" className="relative block h-6 w-6">
-      <span className="absolute left-1/2 top-1/2 h-0.5 w-5 -translate-x-1/2 -translate-y-1/2 rotate-45 rounded-full bg-[#111827]" />
-      <span className="absolute left-1/2 top-1/2 h-0.5 w-5 -translate-x-1/2 -translate-y-1/2 -rotate-45 rounded-full bg-[#111827]" />
-    </span>
-  );
-}
-
-function resolveFabActionHref(action: HomeFabAction) {
-  return buildPendingFeatureHref("/home", action.label);
 }

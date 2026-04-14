@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { BottomNav } from "@/components/navigation/bottom-nav";
 import { AppImage } from "@/components/ui/app-image";
+import { PendingFeatureLink } from "@/components/ui/pending-feature-link";
 import { TownMapBottomSheet } from "@/features/town-map/components/town-map-bottom-sheet";
 import { TownMapCategoryChip } from "@/features/town-map/components/town-map-category-chip";
 import { TownMapKakaoMap } from "@/features/town-map/components/town-map-kakao-map";
@@ -31,9 +32,9 @@ export function TownMapScreen({ pins }: { pins: TownMapPin[] }) {
                   <AppImage alt="" className="object-contain" fill sizes="32px" src={townMapSearchIcon} />
                 </span>
                 <span className="flex-1 text-[18px] text-[#aeb3bb]">{townMapScreenData.searchPlaceholder}</span>
-                <span className="relative h-9 w-9 shrink-0 overflow-hidden rounded-full">
+                <PendingFeatureLink className="relative h-9 w-9 shrink-0 overflow-hidden rounded-full" featureLabel="동네지도 프로필 보기" returnTo="/town-map">
                   <AppImage alt="프로필" className="object-cover" fill sizes="36px" src={townMapScreenData.profileImage} />
-                </span>
+                </PendingFeatureLink>
               </div>
             </Link>
 

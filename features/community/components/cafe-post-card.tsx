@@ -16,39 +16,42 @@ export function CafePostCard({ post }: { post: CafePost }) {
         </div>
         <PendingFeatureLink
           className="h-[34px] shrink-0 rounded-[4px] border border-[#d1d5dc] px-4 text-[14px] font-medium text-[#0a0a0a]"
+          featureLabel="카페 가입하기"
           returnTo="/community?tab=cafe"
         >
           가입
         </PendingFeatureLink>
       </div>
 
-      <h2 className="mt-4 text-[16px] font-semibold leading-6 tracking-[-0.02em] text-[#0a0a0a]">{post.title}</h2>
-      <p className="mt-2 line-clamp-3 text-[14px] leading-[1.5] tracking-[-0.015em] text-[#364153]">{post.excerpt}</p>
-      {post.previewComment ? <p className="mt-1 text-[14px] leading-5 tracking-[-0.015em] text-[#364153]">...더보기</p> : null}
+      <PendingFeatureLink className="mt-4 block" featureLabel="카페 글 상세 보기" returnTo="/community?tab=cafe">
+        <h2 className="text-[16px] font-semibold leading-6 tracking-[-0.02em] text-[#0a0a0a]">{post.title}</h2>
+        <p className="mt-2 line-clamp-3 text-[14px] leading-[1.5] tracking-[-0.015em] text-[#364153]">{post.excerpt}</p>
+        {post.previewComment ? <p className="mt-1 text-[14px] leading-5 tracking-[-0.015em] text-[#364153]">...더보기</p> : null}
 
-      {post.previewComment ? (
-        <div className="mt-4 flex items-center gap-2 rounded-full bg-[#f9fafb] px-4 py-3 text-[14px] leading-5 tracking-[-0.015em] text-[#4a5565]">
-          <span className="h-6 w-6 shrink-0 rounded-full bg-[#d1d5dc]" />
-          <span className="truncate">{post.previewComment}</span>
-        </div>
-      ) : null}
+        {post.previewComment ? (
+          <div className="mt-4 flex items-center gap-2 rounded-full bg-[#f9fafb] px-4 py-3 text-[14px] leading-5 tracking-[-0.015em] text-[#4a5565]">
+            <span className="h-6 w-6 shrink-0 rounded-full bg-[#d1d5dc]" />
+            <span className="truncate">{post.previewComment}</span>
+          </div>
+        ) : null}
 
-      <div className="mt-4 flex items-center justify-between gap-4">
-        <div className="flex items-center gap-4 text-[14px] text-[#4a5565]">
-          <span className="flex items-center gap-1.5">
-            <ThumbUpIcon />
-            {post.likes}
-          </span>
-          <span className="flex items-center gap-1.5">
-            <CommentIcon />
-            {post.comments}
-          </span>
-          <span className="flex items-center gap-1.5">
-            <ShareIcon />
-          </span>
+        <div className="mt-4 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-4 text-[14px] text-[#4a5565]">
+            <span className="flex items-center gap-1.5">
+              <ThumbUpIcon />
+              {post.likes}
+            </span>
+            <span className="flex items-center gap-1.5">
+              <CommentIcon />
+              {post.comments}
+            </span>
+            <span className="flex items-center gap-1.5">
+              <ShareIcon />
+            </span>
+          </div>
+          <span className="text-[14px] leading-5 tracking-[-0.015em] text-[#6a7282]">조회 {post.views}</span>
         </div>
-        <span className="text-[14px] leading-5 tracking-[-0.015em] text-[#6a7282]">조회 {post.views}</span>
-      </div>
+      </PendingFeatureLink>
     </article>
   );
 }

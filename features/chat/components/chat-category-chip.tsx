@@ -7,6 +7,7 @@ export function ChatCategoryChip({ category }: { category: ChatCategory }) {
   return (
     <PendingFeatureLink
       className={`flex h-10 shrink-0 items-center justify-center gap-1 rounded-full px-4 text-sm font-medium ${className}`}
+      featureLabel={category.label || "채팅 필터"}
       returnTo="/chat"
     >
       {category.icon === "filter" ? <FilterIcon /> : null}

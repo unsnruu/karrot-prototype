@@ -2,8 +2,10 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { PendingFeatureLink } from "@/components/ui/pending-feature-link";
 import { ArrowLeftIcon } from "@/features/home/components/item-detail-icons";
+import { buildPendingFeatureHref } from "@/lib/tab-navigation";
 import {
   townMapKeyboardRows,
   townMapKeyboardSuggestions,
@@ -16,6 +18,7 @@ type TownMapSearchScreenProps = {
 };
 
 export function TownMapSearchScreen({ returnHref }: TownMapSearchScreenProps) {
+  const router = useRouter();
   const [query, setQuery] = useState("");
   const [recentSearches, setRecentSearches] = useState(townMapRecentSearches);
 
@@ -38,6 +41,17 @@ export function TownMapSearchScreen({ returnHref }: TownMapSearchScreenProps) {
     setRecentSearches((current) => [value, ...current.filter((item) => item !== value)].slice(0, townMapRecentSearches.length));
   };
 
+  const handleSearchSubmit = (term: string) => {
+    const value = term.trim();
+
+    if (!value) {
+      return;
+    }
+
+    addRecentSearch(value);
+    router.push(buildPendingFeatureHref(returnHref, "동네지도에서 업체 찾기"));
+  };
+
   const handleKeyboardPress = (key: TownMapKeyboardKey) => {
     switch (key.action) {
       case "delete":
@@ -47,8 +61,7 @@ export function TownMapSearchScreen({ returnHref }: TownMapSearchScreenProps) {
         setQuery((current) => `${current} `);
         return;
       case "search":
-        addRecentSearch(query);
-        setQuery("");
+        handleSearchSubmit(query);
         return;
       case "shift":
       case "numbers":
@@ -101,7 +114,7 @@ export function TownMapSearchScreen({ returnHref }: TownMapSearchScreenProps) {
             {hasRecentSearches ? (
               recentSearches.map((term) => (
                 <div className="flex items-center justify-between" key={term}>
-                  <button className="flex min-w-0 items-center gap-3 text-left" onClick={() => setQuery(term)} type="button">
+                  <button className="flex min-w-0 items-center gap-3 text-left" onClick={() => handleSearchSubmit(term)} type="button">
                     <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#f3f4f6]">
                       <RecentClockIcon />
                     </span>
@@ -127,7 +140,7 @@ export function TownMapSearchScreen({ returnHref }: TownMapSearchScreenProps) {
           <div className="mobile-shell">
             <div className="border-b border-[#d1d5db] bg-[rgba(255,255,255,0.9)] px-4 py-[10px] backdrop-blur-[10px]">
               <div className="flex items-center justify-end">
-                <PendingFeatureLink className="text-[16px] font-medium leading-6 text-[#007aff]" returnTo={returnHref}>
+                <PendingFeatureLink className="text-[16px] font-medium leading-6 text-[#007aff]" featureLabel="동네지도 검색 완료" returnTo={returnHref}>
                   완료
                 </PendingFeatureLink>
               </div>
@@ -135,7 +148,7 @@ export function TownMapSearchScreen({ returnHref }: TownMapSearchScreenProps) {
 
             <div className="grid grid-cols-3 border-b border-[#d1d5db] bg-[#d1d3d9] text-center text-[14px] leading-5 text-[#111827]">
               {suggestedTerms.map((item) => (
-                <button className="h-11 border-r border-[#d1d5db] last:border-r-0" key={item} onClick={() => setQuery(item)} type="button">
+                <button className="h-11 border-r border-[#d1d5db] last:border-r-0" key={item} onClick={() => handleSearchSubmit(item)} type="button">
                   {item}
                 </button>
               ))}
@@ -172,10 +185,10 @@ export function TownMapSearchScreen({ returnHref }: TownMapSearchScreenProps) {
                 </div>
 
                 <div className="flex items-center justify-between px-8 pb-3 pt-1 text-[#111827]">
-                  <PendingFeatureLink className="flex h-6 w-6 items-center justify-center" returnTo={returnHref}>
+                  <PendingFeatureLink className="flex h-6 w-6 items-center justify-center" featureLabel="키보드 언어 변경" returnTo={returnHref}>
                     <GlobeIcon />
                   </PendingFeatureLink>
-                  <PendingFeatureLink className="flex h-6 w-6 items-center justify-center" returnTo={returnHref}>
+                  <PendingFeatureLink className="flex h-6 w-6 items-center justify-center" featureLabel="음성으로 검색" returnTo={returnHref}>
                     <MicIcon />
                   </PendingFeatureLink>
                 </div>

@@ -4,12 +4,13 @@ import { buildPendingFeatureHref } from "@/lib/tab-navigation";
 
 type PendingFeatureLinkProps = Omit<ComponentPropsWithoutRef<typeof Link>, "href"> & {
   children: ReactNode;
+  featureLabel: string;
   returnTo?: string;
 };
 
-export function PendingFeatureLink({ children, returnTo, ...props }: PendingFeatureLinkProps) {
+export function PendingFeatureLink({ children, featureLabel, returnTo, ...props }: PendingFeatureLinkProps) {
   return (
-    <Link {...props} href={buildPendingFeatureHref(returnTo)}>
+    <Link {...props} href={buildPendingFeatureHref(returnTo, featureLabel)}>
       {children}
     </Link>
   );

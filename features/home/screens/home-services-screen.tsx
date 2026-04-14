@@ -58,7 +58,12 @@ export function HomeServicesScreen() {
                         <span className="text-[16px] font-medium leading-6 text-[#101828]">{item.label}</span>
                       </Link>
                     ) : (
-                      <PendingFeatureLink className="flex items-center gap-3 rounded-[10px] pl-3 text-left" key={item.label} returnTo="/home/services">
+                      <PendingFeatureLink
+                        className="flex items-center gap-3 rounded-[10px] pl-3 text-left"
+                        featureLabel={item.label}
+                        key={item.label}
+                        returnTo="/home/services"
+                      >
                         <ServiceIcon icon={item.icon} label={item.label} />
                         <span className="text-[16px] font-medium leading-6 text-[#101828]">{item.label}</span>
                       </PendingFeatureLink>

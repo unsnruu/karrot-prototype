@@ -67,10 +67,10 @@ export function ItemDetailHero({
           </IconButton>
         </div>
         <div className="flex items-center gap-[7px]">
-          <IconButton ariaLabel="공유하기" href={buildPendingFeatureHref(returnTo ?? "/home")}>
+          <IconButton ariaLabel="공유하기" href={buildPendingFeatureHref(returnTo ?? "/home", "상품 공유하기")}>
             <ShareIcon />
           </IconButton>
-          <IconButton ariaLabel="더보기" href={buildPendingFeatureHref(returnTo ?? "/home")}>
+          <IconButton ariaLabel="더보기" href={buildPendingFeatureHref(returnTo ?? "/home", "상품 상세 메뉴")}>
             <MoreVerticalIcon />
           </IconButton>
         </div>

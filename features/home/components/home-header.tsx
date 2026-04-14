@@ -22,15 +22,15 @@ export function HomeHeader({
     <header className="sticky top-0 z-20 border-b border-black/5 bg-white/95 backdrop-blur">
       <div className="mobile-shell-wide bg-white/95 px-4 pt-5 sm:px-6">
         <div className="flex items-center justify-between py-4">
-          <PendingFeatureLink className="flex items-center gap-0.5" returnTo="/home">
+          <PendingFeatureLink className="flex items-center gap-0.5" featureLabel="동네 선택" returnTo="/home">
             <span className="text-[22px] font-bold tracking-[-0.03em] text-black">합정동</span>
             <AppImage alt="" className="h-6 w-6" height={24} src={iconChevronDown} width={24} />
           </PendingFeatureLink>
           <div className="flex items-center gap-3">
-            <PendingFeatureLink aria-label="검색" returnTo="/home">
+            <PendingFeatureLink aria-label="검색" featureLabel="홈 검색" returnTo="/home">
               <AppImage alt="" className="h-8 w-8" height={32} src={iconSearch} width={32} />
             </PendingFeatureLink>
-            <PendingFeatureLink aria-label="알림" returnTo="/home">
+            <PendingFeatureLink aria-label="알림" featureLabel="알림 확인" returnTo="/home">
               <AppImage alt="" className="h-8 w-8" height={32} src={iconBell} width={32} />
             </PendingFeatureLink>
             <Link aria-label="메뉴" href="/home/services">

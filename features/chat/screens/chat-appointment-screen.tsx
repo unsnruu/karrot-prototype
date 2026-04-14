@@ -35,7 +35,7 @@ export function ChatAppointmentScreen({
           <HistoryBackButton className="flex h-8 w-8 items-center justify-center text-black" fallbackHref={backHref}>
             <CloseIcon />
           </HistoryBackButton>
-          <PendingFeatureLink className="flex h-8 w-8 items-center justify-center text-black" returnTo={backHref}>
+          <PendingFeatureLink className="flex h-8 w-8 items-center justify-center text-black" featureLabel="약속 메뉴" returnTo={backHref}>
             <KebabIcon />
           </PendingFeatureLink>
         </header>

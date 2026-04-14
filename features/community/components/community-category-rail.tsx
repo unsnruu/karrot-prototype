@@ -8,7 +8,7 @@ export function CommunityCategoryRail({ className = "" }: { className?: string }
   return (
     <div className={`${className} flex gap-3 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden`}>
       {communityCategories.map((category) => (
-        <PendingFeatureLink className="w-20 shrink-0" key={category.id} returnTo="/community">
+        <PendingFeatureLink className="w-20 shrink-0" featureLabel={category.label} key={category.id} returnTo="/community">
           <div className="mx-auto relative h-16 w-16">
             <AppImage
               alt={category.label}

@@ -23,6 +23,7 @@ export function ItemDetailBottomBar({
         <PendingFeatureLink
           aria-label="관심 상품 추가"
           className="flex h-[52px] w-9 items-center justify-center text-[#d6d7dc]"
+          featureLabel="관심 상품 추가하기"
           returnTo="/home"
         >
           <HeartIcon />

@@ -34,7 +34,7 @@ export function CommunityCommentThread({
               </span>
             ) : null}
           </div>
-          <PendingFeatureLink aria-label="댓글 더보기" className="text-[#9ca3af]" returnTo="/community">
+          <PendingFeatureLink aria-label="댓글 더보기" className="text-[#9ca3af]" featureLabel="댓글 메뉴" returnTo="/community">
             <KebabIcon />
           </PendingFeatureLink>
         </div>
@@ -43,11 +43,11 @@ export function CommunityCommentThread({
         <p className="mt-2 whitespace-pre-line text-sm leading-5 tracking-[-0.015em] text-[#0a0a0a]">{comment.body}</p>
 
         <div className="mt-3 flex items-center gap-4 text-sm font-medium text-[#6b7280]">
-          <PendingFeatureLink className="inline-flex items-center gap-1" returnTo="/community">
+          <PendingFeatureLink className="inline-flex items-center gap-1" featureLabel="댓글 좋아요" returnTo="/community">
             <ThumbIcon />
             좋아요
           </PendingFeatureLink>
-          <PendingFeatureLink className="inline-flex items-center gap-1" returnTo="/community">
+          <PendingFeatureLink className="inline-flex items-center gap-1" featureLabel="답글 작성하기" returnTo="/community">
             <ReplyIcon />
             {comment.replyCount ? `답글 ${comment.replyCount}` : "답글쓰기"}
           </PendingFeatureLink>

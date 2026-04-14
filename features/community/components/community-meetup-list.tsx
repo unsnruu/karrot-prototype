@@ -22,7 +22,7 @@ export function CommunityMeetupList({
             {communityMeetupSection.description}
           </p>
         </div>
-        <PendingFeatureLink className="shrink-0 text-[14px] font-medium text-[#4a5565]" returnTo="/community?tab=meetup">
+        <PendingFeatureLink className="shrink-0 text-[14px] font-medium text-[#4a5565]" featureLabel="모임 전체 보기" returnTo="/community?tab=meetup">
           전체보기 ›
         </PendingFeatureLink>
       </div>

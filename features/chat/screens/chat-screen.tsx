@@ -68,10 +68,10 @@ export function ChatScreen({
             </div>
 
             <div className="flex items-center gap-2">
-              <PendingFeatureLink className="flex h-8 w-8 items-center justify-center text-black" returnTo={backHref}>
+              <PendingFeatureLink className="flex h-8 w-8 items-center justify-center text-black" featureLabel="전화하기" returnTo={backHref}>
                 <CallIcon />
               </PendingFeatureLink>
-              <PendingFeatureLink className="flex h-8 w-8 items-center justify-center text-black" returnTo={backHref}>
+              <PendingFeatureLink className="flex h-8 w-8 items-center justify-center text-black" featureLabel="채팅 메뉴" returnTo={backHref}>
                 <KebabIcon />
               </PendingFeatureLink>
             </div>
@@ -107,16 +107,16 @@ export function ChatScreen({
 
         <footer className="fixed inset-x-0 bottom-0 z-10 bg-white">
           <div className="mobile-shell flex items-center gap-3 px-2 pb-10 pt-2">
-            <PendingFeatureLink className="flex h-8 w-8 items-center justify-center text-[#8f95a3]" returnTo={backHref}>
+            <PendingFeatureLink className="flex h-8 w-8 items-center justify-center text-[#8f95a3]" featureLabel="채팅에 항목 추가하기" returnTo={backHref}>
               <PlusIcon />
             </PendingFeatureLink>
             <div className="flex h-10 flex-1 items-center gap-1 rounded-full bg-[#f2f4f5] px-3">
               <p className="flex-1 text-[16px] font-medium text-[#aeb2b5]">메시지 보내기</p>
-              <PendingFeatureLink className="flex h-6 w-6 items-center justify-center text-[#9aa1ac]" returnTo={backHref}>
+              <PendingFeatureLink className="flex h-6 w-6 items-center justify-center text-[#9aa1ac]" featureLabel="이모지 보내기" returnTo={backHref}>
                 <SmileIcon />
               </PendingFeatureLink>
             </div>
-            <PendingFeatureLink className="flex h-6 w-6 items-center justify-center text-[#d3d7dd]" returnTo={backHref}>
+            <PendingFeatureLink className="flex h-6 w-6 items-center justify-center text-[#d3d7dd]" featureLabel="메시지 보내기" returnTo={backHref}>
               <SendIcon />
             </PendingFeatureLink>
           </div>
@@ -142,6 +142,7 @@ function ChatActionButton({ icon, label, href, backHref }: { icon: ReactNode; la
   return (
     <PendingFeatureLink
       className="flex h-[36px] items-center gap-1 rounded border border-black/10 bg-white px-3 text-[13px] font-semibold text-black"
+      featureLabel={label}
       returnTo={backHref}
     >
       <span className="flex h-4 w-4 items-center justify-center">{icon}</span>
