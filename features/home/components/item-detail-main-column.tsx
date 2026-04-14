@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { AppImage } from "@/components/ui/app-image";
+import { PendingFeatureLink } from "@/components/ui/pending-feature-link";
 import {
   BellIcon,
   ChevronRightIcon,
@@ -93,9 +94,9 @@ function ItemBodySection({ item }: { item: MarketplaceItem }) {
         <span>조회 {Math.max(170, item.likes * 7 + item.chats * 2)}</span>
       </div>
 
-      <button className="mt-5 text-sm leading-none text-[#8b8c91] underline underline-offset-2" type="button">
+      <PendingFeatureLink className="mt-5 inline-flex text-sm leading-none text-[#8b8c91] underline underline-offset-2" returnTo="/home">
         이 게시글 신고하기
-      </button>
+      </PendingFeatureLink>
     </section>
   );
 }
@@ -202,10 +203,13 @@ export function KeywordAlert({ itemTitle }: { itemTitle: string }) {
       <p className="flex-1 text-sm leading-[1.5] text-black">
         이웃들이 <span className="font-semibold">{itemTitle.split(" ")[0]}</span> 게시글 올리면 바로 알려드릴까요?
       </p>
-      <button className="inline-flex shrink-0 items-center gap-1 rounded-full bg-[#f2f4f5] px-4 py-2 text-sm font-semibold text-black" type="button">
+      <PendingFeatureLink
+        className="inline-flex shrink-0 items-center gap-1 rounded-full bg-[#f2f4f5] px-4 py-2 text-sm font-semibold text-black"
+        returnTo="/home"
+      >
         <BellIcon />
         <span>알림 받기</span>
-      </button>
+      </PendingFeatureLink>
     </>
   );
 }

@@ -1,7 +1,9 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { AppImage } from "@/components/ui/app-image";
+import { buildPendingFeatureHref } from "@/lib/tab-navigation";
 import { homeFabActionGroups, type HomeFabAction } from "@/lib/marketplace";
 
 const iconPlus = "/icons/plus.svg";
@@ -78,11 +80,11 @@ export function HomeFab() {
                 >
                   <div className="flex flex-col gap-4">
                     {group.map((action) => (
-                      <button
+                      <Link
                         className="flex w-full items-center gap-3 text-left"
+                        href={buildPendingFeatureHref("/home")}
                         key={action.label}
                         role="menuitem"
-                        type="button"
                       >
                         <span
                           className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full"
@@ -93,7 +95,7 @@ export function HomeFab() {
                         <span className="text-[15px] font-medium leading-[1.5] tracking-[-0.02em] text-[#101828]">
                           {action.label}
                         </span>
-                      </button>
+                      </Link>
                     ))}
                   </div>
                 </div>

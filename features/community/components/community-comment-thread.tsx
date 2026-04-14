@@ -1,4 +1,5 @@
 import { AppImage } from "@/components/ui/app-image";
+import { PendingFeatureLink } from "@/components/ui/pending-feature-link";
 import { cn } from "@/lib/utils";
 import { type CommunityComment } from "@/lib/community";
 
@@ -33,23 +34,23 @@ export function CommunityCommentThread({
               </span>
             ) : null}
           </div>
-          <button aria-label="댓글 더보기" className="text-[#9ca3af]" type="button">
+          <PendingFeatureLink aria-label="댓글 더보기" className="text-[#9ca3af]" returnTo="/community">
             <KebabIcon />
-          </button>
+          </PendingFeatureLink>
         </div>
 
         <p className="mt-1 text-xs text-[#9ca3af]">{comment.metaLabel}</p>
         <p className="mt-2 whitespace-pre-line text-sm leading-5 tracking-[-0.015em] text-[#0a0a0a]">{comment.body}</p>
 
         <div className="mt-3 flex items-center gap-4 text-sm font-medium text-[#6b7280]">
-          <button className="inline-flex items-center gap-1" type="button">
+          <PendingFeatureLink className="inline-flex items-center gap-1" returnTo="/community">
             <ThumbIcon />
             좋아요
-          </button>
-          <button className="inline-flex items-center gap-1" type="button">
+          </PendingFeatureLink>
+          <PendingFeatureLink className="inline-flex items-center gap-1" returnTo="/community">
             <ReplyIcon />
             {comment.replyCount ? `답글 ${comment.replyCount}` : "답글쓰기"}
-          </button>
+          </PendingFeatureLink>
         </div>
 
         {comment.replies?.length ? (

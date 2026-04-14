@@ -1,3 +1,4 @@
+import { PendingFeatureLink } from "@/components/ui/pending-feature-link";
 import { CommunityMeetupCard } from "@/features/community/components/community-meetup-card";
 import { communityMeetupSection, type CommunityMeetup } from "@/lib/community";
 
@@ -21,9 +22,9 @@ export function CommunityMeetupList({
             {communityMeetupSection.description}
           </p>
         </div>
-        <button className="shrink-0 text-[14px] font-medium text-[#4a5565]" type="button">
+        <PendingFeatureLink className="shrink-0 text-[14px] font-medium text-[#4a5565]" returnTo="/community?tab=meetup">
           전체보기 ›
-        </button>
+        </PendingFeatureLink>
       </div>
 
       {meetups.length === 0 ? (

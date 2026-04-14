@@ -2,6 +2,7 @@
 
 import { AppImage } from "@/components/ui/app-image";
 import { IconButton } from "@/components/ui/icon-button";
+import { buildPendingFeatureHref } from "@/lib/tab-navigation";
 import { useRouter } from "next/navigation";
 import { useHomeNavigationHistory } from "@/features/home/components/home-navigation-history-provider";
 import {
@@ -66,10 +67,10 @@ export function ItemDetailHero({
           </IconButton>
         </div>
         <div className="flex items-center gap-[7px]">
-          <IconButton ariaLabel="공유하기">
+          <IconButton ariaLabel="공유하기" href={buildPendingFeatureHref(returnTo ?? "/home")}>
             <ShareIcon />
           </IconButton>
-          <IconButton ariaLabel="더보기">
+          <IconButton ariaLabel="더보기" href={buildPendingFeatureHref(returnTo ?? "/home")}>
             <MoreVerticalIcon />
           </IconButton>
         </div>

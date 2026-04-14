@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { AppImage } from "@/components/ui/app-image";
+import { PendingFeatureLink } from "@/components/ui/pending-feature-link";
 import { TownMapBusinessMiniMap } from "@/features/town-map/components/town-map-business-mini-map";
 import { type TownMapBusinessDetail } from "@/lib/town-map-business";
 
@@ -29,12 +30,12 @@ export function TownMapBusinessDetailScreen({
               <BackIcon />
             </Link>
             <div className="flex items-center gap-1">
-              <button aria-label="찜하기" className="flex h-10 w-10 items-center justify-center rounded-full text-[#111827]" type="button">
+              <PendingFeatureLink aria-label="찜하기" className="flex h-10 w-10 items-center justify-center rounded-full text-[#111827]" returnTo={backHref}>
                 <HeartIcon />
-              </button>
-              <button aria-label="공유하기" className="flex h-10 w-10 items-center justify-center rounded-full text-[#111827]" type="button">
+              </PendingFeatureLink>
+              <PendingFeatureLink aria-label="공유하기" className="flex h-10 w-10 items-center justify-center rounded-full text-[#111827]" returnTo={backHref}>
                 <ShareIcon />
-              </button>
+              </PendingFeatureLink>
             </div>
           </div>
         </header>
@@ -57,9 +58,9 @@ export function TownMapBusinessDetailScreen({
             <p className="flex-1 text-[14px] leading-5 text-[#4b5563]">
               <span className="font-bold text-[#111827]">{detail.informantName}</span> 이웃이 정보를 알려줬어요.
             </p>
-            <button className="text-[12px] text-[#9ca3af] underline" type="button">
+            <PendingFeatureLink className="text-[12px] text-[#9ca3af] underline" returnTo={backHref}>
               더보기
-            </button>
+            </PendingFeatureLink>
           </div>
 
           <div className="mt-4 grid grid-cols-2 gap-2">
@@ -93,9 +94,9 @@ export function TownMapBusinessDetailScreen({
               <InfoRow
                 icon={<PhoneIcon />}
                 trailing={(
-                  <button className="rounded-full border border-[#d1d5db] px-[10px] py-[3px] text-[12px] leading-4 text-[#6b7280]" type="button">
+                  <PendingFeatureLink className="rounded-full border border-[#d1d5db] px-[10px] py-[3px] text-[12px] leading-4 text-[#6b7280]" returnTo={backHref}>
                     복사
-                  </button>
+                  </PendingFeatureLink>
                 )}
                 value={detail.phoneNumber}
               />
@@ -112,13 +113,13 @@ export function TownMapBusinessDetailScreen({
                   <TownMapBusinessMiniMap label={detail.name} lat={detail.lat} lng={detail.lng} />
                 </div>
               </div>
-              <button
+              <PendingFeatureLink
                 className="flex w-full items-center justify-center gap-2 rounded-[8px] bg-[#f8f9fa] py-[10px] text-[14px] font-medium leading-5 text-[#374151]"
-                type="button"
+                returnTo={backHref}
               >
                 <EditInfoIcon />
                 정보 수정 및 추가
-              </button>
+              </PendingFeatureLink>
             </section>
 
             <Section
@@ -138,10 +139,10 @@ export function TownMapBusinessDetailScreen({
                   </div>
                 ))}
               </div>
-              <button className="mt-4 flex w-full items-center justify-center gap-1 py-2 text-[14px] font-medium leading-5 text-[#6b7280]" type="button">
+              <PendingFeatureLink className="mt-4 flex w-full items-center justify-center gap-1 py-2 text-[14px] font-medium leading-5 text-[#6b7280]" returnTo={backHref}>
                 가격 더보기
                 <ChevronDownIcon />
-              </button>
+              </PendingFeatureLink>
             </Section>
 
             <Section title="후기">
@@ -166,9 +167,9 @@ export function TownMapBusinessDetailScreen({
                             <p className="mt-0.5 text-[12px] leading-4 text-[#9ca3af]">{review.authorSummary}</p>
                           </div>
                         </div>
-                        <button aria-label="후기 더보기" className="px-1 text-[#9ca3af]" type="button">
+                        <PendingFeatureLink aria-label="후기 더보기" className="px-1 text-[#9ca3af]" returnTo={backHref}>
                           <KebabIcon />
-                        </button>
+                        </PendingFeatureLink>
                       </div>
 
                       <div className="mt-3 flex items-center gap-1 text-[12px] leading-4 text-[#9ca3af]">
@@ -178,13 +179,13 @@ export function TownMapBusinessDetailScreen({
 
                       <p className="mt-3 whitespace-pre-line text-[14px] leading-[22px] text-[#1f2937]">{review.content}</p>
 
-                      <button
+                      <PendingFeatureLink
                         className="mt-4 inline-flex items-center gap-1 rounded-full border border-[#edeef0] px-3 py-[7px] text-[12px] font-medium leading-4 text-[#4b5563]"
-                        type="button"
+                        returnTo={backHref}
                       >
                         <HelpfulIcon />
                         도움돼요
-                      </button>
+                      </PendingFeatureLink>
                     </article>
                   ))
                 ) : (
@@ -192,27 +193,27 @@ export function TownMapBusinessDetailScreen({
                 )}
               </div>
 
-              <button className="mt-4 flex w-full items-center justify-center gap-1 py-2 text-[14px] font-medium leading-5 text-[#6b7280]" type="button">
+              <PendingFeatureLink className="mt-4 flex w-full items-center justify-center gap-1 py-2 text-[14px] font-medium leading-5 text-[#6b7280]" returnTo={backHref}>
                 후기 더보기
                 <ChevronDownIcon />
-              </button>
+              </PendingFeatureLink>
             </Section>
 
             <section className="px-5 py-8 text-center">
               <p className="text-[16px] font-bold leading-6 text-[#111827]">이곳을 이용한 생생한 경험을 짧은 영상으로 보여주세요.</p>
-              <button
+              <PendingFeatureLink
                 className="mt-4 inline-flex items-center gap-2 rounded-[8px] bg-[#f8f9fa] px-5 py-[10px] text-[14px] font-bold leading-5 text-[#1f2937]"
-                type="button"
+                returnTo={backHref}
               >
                 <StoryIcon />
                 스토리 올리기
-              </button>
+              </PendingFeatureLink>
             </section>
 
             <footer className="bg-[#f8f9fa] px-6 py-6 text-[12px] leading-4 text-[#9ca3af]">
-              <button className="underline" type="button">
+              <PendingFeatureLink className="underline" returnTo={backHref}>
                 장소 삭제 신고
-              </button>
+              </PendingFeatureLink>
               <p className="mt-2">마지막 수정일 {detail.updatedAtLabel}</p>
             </footer>
           </>
@@ -225,7 +226,7 @@ export function TownMapBusinessDetailScreen({
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-start gap-2.5">
                     <div className="relative h-7 w-7 shrink-0 overflow-hidden rounded-full bg-[#f3f4f6]">
-                      <AppImage alt="" className="object-cover" fill sizes="28px" src={post.avatar} />
+                      {post.avatar ? <AppImage alt="" className="object-cover" fill sizes="28px" src={post.avatar} /> : null}
                     </div>
                     <div>
                       <p className="text-[13px] font-semibold leading-4 text-[#111827]">{detail.name}</p>
@@ -234,9 +235,9 @@ export function TownMapBusinessDetailScreen({
                       </p>
                     </div>
                   </div>
-                  <button aria-label="소식 더보기" className="px-1 text-[#9ca3af]" type="button">
+                  <PendingFeatureLink aria-label="소식 더보기" className="px-1 text-[#9ca3af]" returnTo={backHref}>
                     <KebabIcon />
-                  </button>
+                  </PendingFeatureLink>
                 </div>
 
                 <div className="mt-3">
@@ -303,9 +304,9 @@ export function TownMapBusinessDetailScreen({
                           <p className="mt-0.5 text-[12px] leading-4 text-[#9ca3af]">{review.authorSummary}</p>
                         </div>
                       </div>
-                      <button aria-label="후기 더보기" className="px-1 text-[#9ca3af]" type="button">
+                      <PendingFeatureLink aria-label="후기 더보기" className="px-1 text-[#9ca3af]" returnTo={backHref}>
                         <KebabIcon />
-                      </button>
+                      </PendingFeatureLink>
                     </div>
 
                     <div className="mt-3 flex items-center gap-1 text-[12px] leading-4 text-[#9ca3af]">
@@ -342,12 +343,12 @@ export function TownMapBusinessDetailScreen({
         ) : null}
 
         <div className="fixed bottom-0 left-1/2 z-30 flex w-full max-w-[375px] -translate-x-1/2 gap-2 border-t border-[#edeef0] bg-white px-4 py-3">
-          <button className="flex-1 rounded-[8px] bg-[#f3f4f6] py-[13px] text-[15px] font-bold leading-5 text-[#374151]" type="button">
+          <PendingFeatureLink className="flex-1 rounded-[8px] bg-[#f3f4f6] py-[13px] text-[15px] font-bold leading-5 text-[#374151]" returnTo={backHref}>
             전화 문의
-          </button>
-          <button className="flex-1 rounded-[8px] bg-[#ff6f0f] py-[13px] text-[15px] font-bold leading-5 text-white" type="button">
+          </PendingFeatureLink>
+          <PendingFeatureLink className="flex-1 rounded-[8px] bg-[#ff6f0f] py-[13px] text-[15px] font-bold leading-5 text-white" returnTo={backHref}>
             채팅 문의
-          </button>
+          </PendingFeatureLink>
         </div>
       </div>
     </main>
@@ -358,7 +359,7 @@ type BusinessDetailTab = "home" | "news" | "reviews" | "photos";
 
 type BusinessNewsPost = {
   id: string;
-  avatar: string;
+  avatar: string | null;
   metaPrimary: string;
   metaSecondary: string;
   postedAt: string;
@@ -369,7 +370,7 @@ type BusinessNewsPost = {
 };
 
 function buildNewsPosts(detail: TownMapBusinessDetail): BusinessNewsPost[] {
-  const primaryImage = detail.imageGallery[0] ?? "";
+  const primaryImage = detail.imageGallery[0] ?? null;
   const secondaryImage = detail.imageGallery[1] ?? primaryImage;
 
   return [

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { AppImage } from "@/components/ui/app-image";
+import { PendingFeatureLink } from "@/components/ui/pending-feature-link";
 import { type HomeCategory } from "@/lib/marketplace";
 
 const iconChevronDown = "/icons/chevron-down.svg";
@@ -21,20 +22,20 @@ export function HomeHeader({
     <header className="sticky top-0 z-20 border-b border-black/5 bg-white/95 backdrop-blur">
       <div className="mobile-shell-wide bg-white/95 px-4 pt-5 sm:px-6">
         <div className="flex items-center justify-between py-4">
-          <button className="flex items-center gap-0.5" type="button">
+          <PendingFeatureLink className="flex items-center gap-0.5" returnTo="/home">
             <span className="text-[22px] font-bold tracking-[-0.03em] text-black">합정동</span>
             <AppImage alt="" className="h-6 w-6" height={24} src={iconChevronDown} width={24} />
-          </button>
+          </PendingFeatureLink>
           <div className="flex items-center gap-3">
-            <button aria-label="검색" type="button">
+            <PendingFeatureLink aria-label="검색" returnTo="/home">
               <AppImage alt="" className="h-8 w-8" height={32} src={iconSearch} width={32} />
-            </button>
-            <button aria-label="알림" type="button">
+            </PendingFeatureLink>
+            <PendingFeatureLink aria-label="알림" returnTo="/home">
               <AppImage alt="" className="h-8 w-8" height={32} src={iconBell} width={32} />
-            </button>
-            <button aria-label="메뉴" type="button">
+            </PendingFeatureLink>
+            <Link aria-label="메뉴" href="/home/services">
               <AppImage alt="" className="h-8 w-8" height={32} src={iconMenu} width={32} />
-            </button>
+            </Link>
           </div>
         </div>
 

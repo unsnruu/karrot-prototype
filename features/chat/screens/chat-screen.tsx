@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { AppImage } from "@/components/ui/app-image";
+import { PendingFeatureLink } from "@/components/ui/pending-feature-link";
 import { HistoryBackButton } from "@/features/chat/components/history-back-button";
 import { appendNavigationQuery } from "@/lib/tab-navigation";
 import { type ChatMessage, type ChatPreview, type MarketplaceItem, type SellerProfile } from "@/lib/marketplace";
@@ -67,12 +68,12 @@ export function ChatScreen({
             </div>
 
             <div className="flex items-center gap-2">
-              <button className="flex h-8 w-8 items-center justify-center text-black" type="button">
+              <PendingFeatureLink className="flex h-8 w-8 items-center justify-center text-black" returnTo={backHref}>
                 <CallIcon />
-              </button>
-              <button className="flex h-8 w-8 items-center justify-center text-black" type="button">
+              </PendingFeatureLink>
+              <PendingFeatureLink className="flex h-8 w-8 items-center justify-center text-black" returnTo={backHref}>
                 <KebabIcon />
-              </button>
+              </PendingFeatureLink>
             </div>
           </div>
         </header>
@@ -90,9 +91,9 @@ export function ChatScreen({
           </div>
 
           <div className="mt-2 flex gap-2">
-            <ChatActionButton href={appointmentHref} icon={<CalendarIcon />} label="약속잡기" />
-            <ChatActionButton icon={<WonIcon />} label="당근페이" />
-            <ChatActionButton icon={<PlusCircleIcon />} label="물품추가" />
+            <ChatActionButton backHref={backHref} href={appointmentHref} icon={<CalendarIcon />} label="약속잡기" />
+            <ChatActionButton backHref={backHref} icon={<WonIcon />} label="당근페이" />
+            <ChatActionButton backHref={backHref} icon={<PlusCircleIcon />} label="물품추가" />
           </div>
         </section>
 
@@ -106,18 +107,18 @@ export function ChatScreen({
 
         <footer className="fixed inset-x-0 bottom-0 z-10 bg-white">
           <div className="mobile-shell flex items-center gap-3 px-2 pb-10 pt-2">
-            <button className="flex h-8 w-8 items-center justify-center text-[#8f95a3]" type="button">
+            <PendingFeatureLink className="flex h-8 w-8 items-center justify-center text-[#8f95a3]" returnTo={backHref}>
               <PlusIcon />
-            </button>
+            </PendingFeatureLink>
             <div className="flex h-10 flex-1 items-center gap-1 rounded-full bg-[#f2f4f5] px-3">
               <p className="flex-1 text-[16px] font-medium text-[#aeb2b5]">메시지 보내기</p>
-              <button className="flex h-6 w-6 items-center justify-center text-[#9aa1ac]" type="button">
+              <PendingFeatureLink className="flex h-6 w-6 items-center justify-center text-[#9aa1ac]" returnTo={backHref}>
                 <SmileIcon />
-              </button>
+              </PendingFeatureLink>
             </div>
-            <button className="flex h-6 w-6 items-center justify-center text-[#d3d7dd]" type="button">
+            <PendingFeatureLink className="flex h-6 w-6 items-center justify-center text-[#d3d7dd]" returnTo={backHref}>
               <SendIcon />
-            </button>
+            </PendingFeatureLink>
           </div>
         </footer>
       </div>
@@ -125,7 +126,7 @@ export function ChatScreen({
   );
 }
 
-function ChatActionButton({ icon, label, href }: { icon: ReactNode; label: string; href?: string }) {
+function ChatActionButton({ icon, label, href, backHref }: { icon: ReactNode; label: string; href?: string; backHref: string }) {
   if (href) {
     return (
       <Link
@@ -139,13 +140,13 @@ function ChatActionButton({ icon, label, href }: { icon: ReactNode; label: strin
   }
 
   return (
-    <button
+    <PendingFeatureLink
       className="flex h-[36px] items-center gap-1 rounded border border-black/10 bg-white px-3 text-[13px] font-semibold text-black"
-      type="button"
+      returnTo={backHref}
     >
       <span className="flex h-4 w-4 items-center justify-center">{icon}</span>
       <span>{label}</span>
-    </button>
+    </PendingFeatureLink>
   );
 }
 

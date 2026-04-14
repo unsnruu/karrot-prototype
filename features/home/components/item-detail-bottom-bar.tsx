@@ -1,3 +1,4 @@
+import { PendingFeatureLink } from "@/components/ui/pending-feature-link";
 import { HeartIcon } from "@/features/home/components/item-detail-icons";
 import { ItemDetailChatButton } from "@/features/home/components/item-detail-chat-button";
 
@@ -19,9 +20,13 @@ export function ItemDetailBottomBar({
   return (
     <div className="fixed inset-x-0 bottom-0 z-20 border-t border-black/10 bg-white/95 backdrop-blur">
       <div className="mobile-shell flex items-center gap-3 px-4 pb-[calc(12px+env(safe-area-inset-bottom))] pt-3 sm:px-5">
-        <button aria-label="관심 상품 추가" className="flex h-[52px] w-9 items-center justify-center text-[#d6d7dc]" type="button">
+        <PendingFeatureLink
+          aria-label="관심 상품 추가"
+          className="flex h-[52px] w-9 items-center justify-center text-[#d6d7dc]"
+          returnTo="/home"
+        >
           <HeartIcon />
-        </button>
+        </PendingFeatureLink>
         <ItemDetailChatButton
           avatarImage={avatarImage}
           chatKey={chatKey}

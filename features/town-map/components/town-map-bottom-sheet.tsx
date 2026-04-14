@@ -1,9 +1,11 @@
 "use client";
 
+import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AppImage } from "@/components/ui/app-image";
 import { TownMapPostCard } from "@/features/town-map/components/town-map-post-card";
 import { TownMapQuickActionCard } from "@/features/town-map/components/town-map-quick-action-card";
+import { buildPendingFeatureHref } from "@/lib/tab-navigation";
 import {
   townMapPosts,
   townMapQuickActions,
@@ -164,15 +166,15 @@ export function TownMapBottomSheet() {
             <p className="truncate text-[14px] leading-[1.5] text-black">{townMapScreenData.ad.title}</p>
             <p className="truncate text-[14px] font-semibold leading-[1.5] text-black">{townMapScreenData.ad.description}</p>
           </div>
-          <button
+          <Link
             aria-label="광고 자세히 보기"
             className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-black/10 bg-white"
-            type="button"
+            href={buildPendingFeatureHref("/town-map")}
           >
             <span className="relative h-4 w-4">
               <AppImage alt="" className="object-contain" fill sizes="16px" src={townMapScreenData.ad.arrowIcon} />
             </span>
-          </button>
+          </Link>
         </div>
 
         <div className="mt-5 flex flex-col gap-10 pb-10">

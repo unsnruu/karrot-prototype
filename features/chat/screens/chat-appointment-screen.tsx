@@ -1,17 +1,16 @@
 import Link from "next/link";
+import { PendingFeatureLink } from "@/components/ui/pending-feature-link";
 import { HistoryBackButton } from "@/features/chat/components/history-back-button";
 import { type ChatPreview, type MarketplaceItem, type SellerProfile } from "@/lib/marketplace";
 
 export function ChatAppointmentScreen({
   seller,
   item,
-  itemId,
   backHref,
 }: {
   seller?: SellerProfile | null;
   item?: MarketplaceItem | null;
   chat?: ChatPreview | null;
-  itemId: string;
   backHref: string;
 }) {
   if (!seller || !item) {
@@ -36,9 +35,9 @@ export function ChatAppointmentScreen({
           <HistoryBackButton className="flex h-8 w-8 items-center justify-center text-black" fallbackHref={backHref}>
             <CloseIcon />
           </HistoryBackButton>
-          <button className="flex h-8 w-8 items-center justify-center text-black" type="button">
+          <PendingFeatureLink className="flex h-8 w-8 items-center justify-center text-black" returnTo={backHref}>
             <KebabIcon />
-          </button>
+          </PendingFeatureLink>
         </header>
 
         <h1 className="mt-8 text-[21px] font-semibold tracking-[-0.03em] text-black">{seller.name}님과 약속</h1>

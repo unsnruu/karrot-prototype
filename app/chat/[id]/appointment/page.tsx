@@ -22,7 +22,6 @@ export default async function ChatAppointmentPage({
       backHref={appendNavigationQuery(`/chat/${id}`, { tab: tab === "chat" ? "chat" : undefined, returnTo })}
       chat={chatData?.chat}
       item={chatData?.item}
-      itemId={id}
       seller={chatData?.seller}
     />
   );

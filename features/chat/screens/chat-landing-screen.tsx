@@ -1,5 +1,6 @@
 import { AppImage } from "@/components/ui/app-image";
 import { BottomNav } from "@/components/navigation/bottom-nav";
+import { PendingFeatureLink } from "@/components/ui/pending-feature-link";
 import { chatCategories, chatThreadPreviews, type ChatThreadPreview } from "@/lib/chat";
 import { ChatCategoryChip } from "@/features/chat/components/chat-category-chip";
 import { ChatThreadListClient } from "@/features/chat/components/chat-thread-list-client";
@@ -16,13 +17,13 @@ export function ChatLandingScreen({ threads = chatThreadPreviews }: { threads?: 
               <h1 className="text-[22px] font-bold tracking-[-0.03em] text-black">채팅</h1>
 
               <div className="flex items-center gap-3">
-                <button aria-label="알림" className="relative" type="button">
+                <PendingFeatureLink aria-label="알림" className="relative" returnTo="/chat">
                   <AppImage alt="" className="h-8 w-8" height={32} src={iconBell} width={32} />
                   <span className="absolute right-[5px] top-[5px] h-[6px] w-[6px] rounded-full bg-[#ff6f0f]" />
-                </button>
-                <button aria-label="저장한 채팅" className="flex h-8 w-8 items-center justify-center" type="button">
+                </PendingFeatureLink>
+                <PendingFeatureLink aria-label="저장한 채팅" className="flex h-8 w-8 items-center justify-center" returnTo="/chat">
                   <BookmarkIcon />
-                </button>
+                </PendingFeatureLink>
               </div>
             </div>
 

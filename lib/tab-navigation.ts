@@ -55,3 +55,7 @@ export function appendNavigationQuery(
   const separator = href.includes("?") ? "&" : "?";
   return `${href}${separator}${query}`;
 }
+
+export function buildPendingFeatureHref(returnTo?: string) {
+  return appendNavigationQuery("/developing", { returnTo });
+}

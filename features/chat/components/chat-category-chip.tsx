@@ -1,17 +1,18 @@
+import { PendingFeatureLink } from "@/components/ui/pending-feature-link";
 import { type ChatCategory } from "@/lib/chat";
 
 export function ChatCategoryChip({ category }: { category: ChatCategory }) {
   const className = category.active ? "bg-[#2a3038] text-white" : "bg-[#f3f4f5] text-[#1a1c20]";
 
   return (
-    <button
+    <PendingFeatureLink
       className={`flex h-10 shrink-0 items-center justify-center gap-1 rounded-full px-4 text-sm font-medium ${className}`}
-      type="button"
+      returnTo="/chat"
     >
       {category.icon === "filter" ? <FilterIcon /> : null}
       {category.icon ? null : <span>{category.label}</span>}
       {category.hasChevron ? <ChevronDownSmallIcon /> : null}
-    </button>
+    </PendingFeatureLink>
   );
 }
 

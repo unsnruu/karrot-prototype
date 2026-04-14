@@ -1,4 +1,5 @@
 import { AppImage } from "@/components/ui/app-image";
+import { PendingFeatureLink } from "@/components/ui/pending-feature-link";
 import { communityCategories } from "@/lib/community";
 
 const iconPlus = "/icons/plus.svg";
@@ -7,7 +8,7 @@ export function CommunityCategoryRail({ className = "" }: { className?: string }
   return (
     <div className={`${className} flex gap-3 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden`}>
       {communityCategories.map((category) => (
-        <button className="w-20 shrink-0" key={category.id} type="button">
+        <PendingFeatureLink className="w-20 shrink-0" key={category.id} returnTo="/community">
           <div className="mx-auto relative h-16 w-16">
             <AppImage
               alt={category.label}
@@ -23,7 +24,7 @@ export function CommunityCategoryRail({ className = "" }: { className?: string }
           <span className="mt-2 block text-center text-[12px] leading-4 tracking-[-0.02em] text-[#0a0a0a]">
             {category.label}
           </span>
-        </button>
+        </PendingFeatureLink>
       ))}
     </div>
   );

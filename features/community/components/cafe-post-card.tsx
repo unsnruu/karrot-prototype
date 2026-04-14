@@ -1,3 +1,4 @@
+import { PendingFeatureLink } from "@/components/ui/pending-feature-link";
 import { type CafePost } from "@/lib/community";
 
 export function CafePostCard({ post }: { post: CafePost }) {
@@ -13,12 +14,12 @@ export function CafePostCard({ post }: { post: CafePost }) {
             <p className="mt-0.5 text-[12px] leading-4 text-[#6a7282]">{post.cafeMeta}</p>
           </div>
         </div>
-        <button
+        <PendingFeatureLink
           className="h-[34px] shrink-0 rounded-[4px] border border-[#d1d5dc] px-4 text-[14px] font-medium text-[#0a0a0a]"
-          type="button"
+          returnTo="/community?tab=cafe"
         >
           가입
-        </button>
+        </PendingFeatureLink>
       </div>
 
       <h2 className="mt-4 text-[16px] font-semibold leading-6 tracking-[-0.02em] text-[#0a0a0a]">{post.title}</h2>

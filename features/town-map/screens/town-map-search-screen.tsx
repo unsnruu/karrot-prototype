@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { PendingFeatureLink } from "@/components/ui/pending-feature-link";
 import { ArrowLeftIcon } from "@/features/home/components/item-detail-icons";
 import {
   townMapKeyboardRows,
@@ -126,9 +127,9 @@ export function TownMapSearchScreen({ returnHref }: TownMapSearchScreenProps) {
           <div className="mobile-shell">
             <div className="border-b border-[#d1d5db] bg-[rgba(255,255,255,0.9)] px-4 py-[10px] backdrop-blur-[10px]">
               <div className="flex items-center justify-end">
-                <button className="text-[16px] font-medium leading-6 text-[#007aff]" type="button">
+                <PendingFeatureLink className="text-[16px] font-medium leading-6 text-[#007aff]" returnTo={returnHref}>
                   완료
-                </button>
+                </PendingFeatureLink>
               </div>
             </div>
 
@@ -171,12 +172,12 @@ export function TownMapSearchScreen({ returnHref }: TownMapSearchScreenProps) {
                 </div>
 
                 <div className="flex items-center justify-between px-8 pb-3 pt-1 text-[#111827]">
-                  <button className="flex h-6 w-6 items-center justify-center" type="button">
+                  <PendingFeatureLink className="flex h-6 w-6 items-center justify-center" returnTo={returnHref}>
                     <GlobeIcon />
-                  </button>
-                  <button className="flex h-6 w-6 items-center justify-center" type="button">
+                  </PendingFeatureLink>
+                  <PendingFeatureLink className="flex h-6 w-6 items-center justify-center" returnTo={returnHref}>
                     <MicIcon />
-                  </button>
+                  </PendingFeatureLink>
                 </div>
               </div>
             </div>
