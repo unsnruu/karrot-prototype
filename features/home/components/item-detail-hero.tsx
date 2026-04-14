@@ -11,11 +11,24 @@ import {
   ShareIcon,
 } from "@/features/home/components/item-detail-icons";
 
-export function ItemDetailHero({ image, title }: { image: string; title: string }) {
+export function ItemDetailHero({
+  image,
+  title,
+  returnTo,
+}: {
+  image: string;
+  title: string;
+  returnTo?: string;
+}) {
   const router = useRouter();
   const { getPreviousPath } = useHomeNavigationHistory();
 
   const handleBack = () => {
+    if (returnTo) {
+      router.replace(returnTo);
+      return;
+    }
+
     const previousPath = getPreviousPath();
 
     if (previousPath) {

@@ -13,16 +13,17 @@ type ItemDetailScreenProps = {
   item: MarketplaceItem;
   seller: SellerProfile;
   relatedItems: HomeFeedItem[];
+  returnTo?: string;
 };
 
-export function ItemDetailScreen({ item, seller, relatedItems }: ItemDetailScreenProps) {
+export function ItemDetailScreen({ item, seller, relatedItems, returnTo }: ItemDetailScreenProps) {
   const recommendationItems = relatedItems.slice(0, 6);
   const detailHref = `/home/items/${item.slug ?? item.id}`;
 
   return (
     <main className="min-h-screen bg-white text-black">
       <div className="mobile-shell min-h-screen bg-white">
-        <ItemDetailHero image={item.image} title={item.title} />
+        <ItemDetailHero image={item.image} returnTo={returnTo} title={item.title} />
 
         <div className="w-full px-4 pt-4 sm:px-5">
           <ItemDetailMainColumn

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { HistoryBackButton } from "@/features/chat/components/history-back-button";
 import { type ChatPreview, type MarketplaceItem, type SellerProfile } from "@/lib/marketplace";
 
 export function ChatAppointmentScreen({
@@ -32,9 +33,9 @@ export function ChatAppointmentScreen({
     <main className="min-h-screen bg-[#f5f5f5]">
       <div className="mobile-shell flex min-h-screen flex-col bg-white px-4 pb-10 pt-6">
         <header className="flex items-center justify-between">
-          <Link className="flex h-8 w-8 items-center justify-center text-black" href={backHref}>
+          <HistoryBackButton className="flex h-8 w-8 items-center justify-center text-black" fallbackHref={backHref}>
             <CloseIcon />
-          </Link>
+          </HistoryBackButton>
           <button className="flex h-8 w-8 items-center justify-center text-black" type="button">
             <KebabIcon />
           </button>
@@ -50,12 +51,12 @@ export function ChatAppointmentScreen({
         </section>
 
         <div className="mt-auto pt-16">
-          <Link
+          <HistoryBackButton
             className="flex h-[52px] w-full items-center justify-center rounded-[8px] bg-[#ff6f0f] text-[15px] font-bold text-white"
-            href={backHref}
+            fallbackHref={backHref}
           >
             완료
-          </Link>
+          </HistoryBackButton>
         </div>
       </div>
     </main>

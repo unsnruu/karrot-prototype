@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { AppImage } from "@/components/ui/app-image";
+import { HistoryBackButton } from "@/features/chat/components/history-back-button";
 import { appendNavigationQuery } from "@/lib/tab-navigation";
 import { type ChatMessage, type ChatPreview, type MarketplaceItem, type SellerProfile } from "@/lib/marketplace";
 
@@ -49,9 +50,9 @@ export function ChatScreen({
         <header className="border-b border-black/5 bg-white px-4 pb-2 pt-5">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Link className="flex h-8 w-8 items-center justify-center text-black" href={backHref}>
+              <HistoryBackButton className="flex h-8 w-8 items-center justify-center text-black" fallbackHref={backHref}>
                 <BackIcon />
-              </Link>
+              </HistoryBackButton>
               <div className="flex h-8 w-8 items-center justify-center" />
             </div>
 
