@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { AppImage } from "@/components/ui/app-image";
-import { buildPendingFeatureHref } from "@/lib/tab-navigation";
 import { homeFabActionGroups, type HomeFabAction } from "@/lib/marketplace";
 
 const iconPlus = "/icons/plus.svg";
@@ -82,7 +81,7 @@ export function HomeFab() {
                     {group.map((action) => (
                       <Link
                         className="flex w-full items-center gap-3 text-left"
-                        href={buildPendingFeatureHref("/home")}
+                        href={resolveFabActionHref(action)}
                         key={action.label}
                         role="menuitem"
                       >
@@ -115,6 +114,14 @@ export function HomeFab() {
       </div>
     </>
   );
+}
+
+function resolveFabActionHref(action: HomeFabAction) {
+  if (action.icon === "sell") {
+    return "/home/sell?reset=1";
+  }
+
+  return "/developing?returnTo=%2Fhome";
 }
 
 function FabActionIcon({ action }: { action: HomeFabAction }) {
@@ -193,4 +200,8 @@ function CloseIcon() {
       <span className="absolute left-1/2 top-1/2 h-0.5 w-5 -translate-x-1/2 -translate-y-1/2 -rotate-45 rounded-full bg-[#111827]" />
     </span>
   );
+}
+
+function resolveFabActionHref(action: HomeFabAction) {
+  return buildPendingFeatureHref("/home", action.label);
 }
