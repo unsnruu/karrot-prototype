@@ -2,6 +2,7 @@
 
 import { startTransition, useCallback, useEffect, useRef, useState } from "react";
 import { MarketplaceListItem } from "@/features/home/components/marketplace-list-item";
+import { buildPublishedSellFeedItem, readPublishedSellItem } from "@/lib/local-sell-storage";
 import { HOME_FEED_PAGE_SIZE, type HomeFeedItem } from "@/lib/marketplace";
 
 type HomeFeedResponse = {
@@ -26,6 +27,23 @@ export function HomeFeed({
   const sentinelRef = useRef<HTMLDivElement | null>(null);
   const isLoadingRef = useRef(false);
   const hasMoreRef = useRef(initialHasMore);
+
+  useEffect(() => {
+    if (category && category !== "전체") {
+      return;
+    }
+
+    const publishedItem = readPublishedSellItem();
+    if (!publishedItem) {
+      return;
+    }
+
+    const feedItem = buildPublishedSellFeedItem(publishedItem);
+    setItems((currentItems) => {
+      const nextItems = currentItems.filter((item) => item.id !== feedItem.id);
+      return [feedItem, ...nextItems];
+    });
+  }, [category]);
 
   useEffect(() => {
     isLoadingRef.current = isLoading;

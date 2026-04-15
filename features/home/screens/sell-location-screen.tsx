@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { SellLocationPickerMap } from "@/features/home/components/sell-location-picker-map";
@@ -10,42 +10,33 @@ import { SELL_FLOW_DEFAULT_LOCATION } from "@/lib/sell-flow";
 export function SellLocationScreen() {
   const router = useRouter();
   const { draft, hydrated, setLocation } = useSellFlow();
-  const [center, setCenter] = useState({
-    lat: draft.location?.lat ?? SELL_FLOW_DEFAULT_LOCATION.lat,
-    lng: draft.location?.lng ?? SELL_FLOW_DEFAULT_LOCATION.lng,
-  });
 
   useEffect(() => {
     if (hydrated && draft.photos.length === 0) {
-      router.replace("/home/sell");
+      router.replace("/home/sell/photos");
     }
   }, [draft.photos.length, hydrated, router]);
 
-  const handleCenterChange = useCallback((coords: { lat: number; lng: number }) => {
-    setCenter(coords);
-  }, []);
+  useEffect(() => {
+    setLocation(SELL_FLOW_DEFAULT_LOCATION);
+  }, [setLocation]);
 
   const handleComplete = () => {
-    setLocation({
-      label: "합정역 8번 출구",
-      address: "서울 마포구 양화로 55 합정역 인근",
-      lat: center.lat,
-      lng: center.lng,
-      distanceLabel: "120m",
-    });
+    setLocation(SELL_FLOW_DEFAULT_LOCATION);
     router.push("/home/sell/write");
   };
 
   return (
     <main className="min-h-screen bg-white text-[#111827]">
       <div className="mobile-shell flex min-h-screen flex-col overflow-hidden bg-white">
-        <header className="absolute inset-x-0 top-0 z-20 px-4 pt-4">
-          <Link aria-label="글쓰기 화면으로 닫기" className="flex h-10 w-10 items-center justify-center rounded-full bg-white/92 shadow" href="/home/sell/write">
+        <header className="sticky top-0 z-10 flex h-14 items-center border-b border-[#f3f4f6] bg-white px-4">
+          <Link aria-label="글쓰기 화면으로 닫기" className="flex h-10 w-10 items-center justify-center" href="/home/sell/write">
             <CloseIcon />
           </Link>
+          <h1 className="flex-1 pr-10 text-center text-[20px] font-bold tracking-[-0.03em] text-[#111827]">거래 희망 장소</h1>
         </header>
 
-        <section className="relative z-10 bg-white px-4 pb-4 pt-20">
+        <section className="relative z-10 bg-white px-4 pb-4 pt-6">
           <h1 className="text-[20px] font-bold leading-[1.35] tracking-[-0.03em] text-[#111827]">
             이웃과 만나서
             <br />
@@ -57,9 +48,10 @@ export function SellLocationScreen() {
         </section>
 
         <SellLocationPickerMap
-          initialLat={draft.location?.lat}
-          initialLng={draft.location?.lng}
-          onCenterChange={handleCenterChange}
+          initialLat={SELL_FLOW_DEFAULT_LOCATION.lat}
+          initialLng={SELL_FLOW_DEFAULT_LOCATION.lng}
+          interactive={false}
+          onCenterChange={() => {}}
         />
 
         <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 bg-gradient-to-t from-white via-white/92 to-transparent px-4 pb-[calc(20px+env(safe-area-inset-bottom))] pt-16">
@@ -69,7 +61,7 @@ export function SellLocationScreen() {
               onClick={handleComplete}
               type="button"
             >
-              선택 완료
+              {draft.location?.label ?? SELL_FLOW_DEFAULT_LOCATION.label}로 설정
             </button>
           </div>
         </div>

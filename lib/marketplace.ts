@@ -53,6 +53,7 @@ export type HomeFeedItem = {
   chats: number;
   likes: number;
   promoted?: boolean;
+  href?: string;
 };
 
 export const itemDetailUnifiedAd: HomeFeedItem = {

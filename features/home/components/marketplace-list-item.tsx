@@ -13,7 +13,7 @@ const iconHeart = "/icons/heart.svg";
 
 export function MarketplaceListItem({ item }: { item: HomeFeedItem }) {
   const isPromoted = Boolean(item.promoted);
-  const detailHref = `/home/items/${item.slug}`;
+  const detailHref = item.href ?? `/home/items/${item.slug}`;
 
   return (
     <article className="mb-4 border-b border-[#eceef2] pb-4">

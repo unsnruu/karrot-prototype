@@ -5,8 +5,29 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { AppImage } from "@/components/ui/app-image";
 import { useSellFlow } from "@/features/home/components/sell-flow-provider";
+import { savePublishedSellItem } from "@/lib/local-sell-storage";
 import { formatSellPriceText } from "@/lib/sell-flow";
+import { buildSellPreviewItem } from "@/lib/sell-flow";
 import { prototypeViewerUser } from "@/lib/prototype-user";
+
+const AUTO_FILLED_TITLE = "향수 일괄 판매해요";
+
+const AUTO_FILLED_DESCRIPTION = `향수 여러 개 한 번에 정리하려고 올려요 :)
+하나씩 모아두었던 제품들인데 사용 빈도가 적어서 이번에 일괄로 판매합니다.
+
+전부 실내 보관했고
+전체적으로 상태는 괜찮은 편이에요.
+제품마다 사용감이나 잔량 차이는 조금 있어서
+자세한 건 사진으로 확인 부탁드려요!
+
+향이 궁금하시거나
+상태 더 보고 싶으시면 편하게 채팅 주세요.
+개별 판매보다는 일괄 판매 우선으로 생각하고 있어서
+한 번에 가져가실 분이면 더 좋을 것 같아요 🙏
+
+거래는 시간 맞춰서 진행 가능하고
+너무 무리한 네고만 아니면 편하게 문의 주세요.
+필요하시면 추가 사진도 보내드릴게요.`;
 
 export function SellWriteScreen() {
   const router = useRouter();
@@ -22,9 +43,23 @@ export function SellWriteScreen() {
 
   useEffect(() => {
     if (hydrated && draft.photos.length === 0) {
-      router.replace("/home/sell");
+      router.replace("/home/sell/photos");
     }
   }, [draft.photos.length, hydrated, router]);
+
+  const handleAutoFillTitle = () => {
+    setTitle(AUTO_FILLED_TITLE);
+  };
+
+  const handleAutoFillDescription = () => {
+    setDescription(AUTO_FILLED_DESCRIPTION);
+  };
+
+  const handleComplete = () => {
+    const nextItem = buildSellPreviewItem(draft);
+    savePublishedSellItem(nextItem);
+    router.push("/home/sell/preview");
+  };
 
   return (
     <main className="min-h-screen bg-white text-[#111827]">
@@ -42,10 +77,10 @@ export function SellWriteScreen() {
         <section className="flex gap-2 overflow-x-auto border-b border-[#f3f4f6] px-4 py-4">
           <Link
             className="flex h-16 w-16 shrink-0 flex-col items-center justify-center rounded-[14px] border-2 border-[#d1d5db] bg-white"
-            href="/home/sell"
+            href="/home/sell/photos"
           >
             <CameraMiniIcon />
-            <span className="mt-1 text-[11px] font-medium text-[#4b5563]">{draft.photos.length}/10</span>
+            <span className="mt-1 text-[11px] font-medium text-[#4b5563]">{draft.photos.length}/4</span>
           </Link>
 
           {draft.photos.map((photo, index) => (
@@ -57,30 +92,27 @@ export function SellWriteScreen() {
 
         <section className="border-b border-[#f3f4f6] px-4 py-4">
           <p className="text-[14px] font-semibold text-[#111827]">제목</p>
-          <input
-            className="mt-3 w-full border-0 p-0 text-[15px] text-[#111827] placeholder:text-[#99a1af] focus:outline-none"
-            onChange={(event) => setTitle(event.target.value)}
-            placeholder="제목을 입력해주세요."
-            type="text"
-            value={draft.title}
-          />
+          <button
+            className="mt-3 w-full border-0 p-0 text-left text-[15px] text-[#111827] focus:outline-none"
+            onClick={handleAutoFillTitle}
+            type="button"
+          >
+            <span className={draft.title ? "text-[#111827]" : "text-[#99a1af]"}>
+              {draft.title || "탭해서 제목 자동 완성"}
+            </span>
+          </button>
         </section>
 
         <section className="border-b border-[#f3f4f6] px-4 py-4">
           <p className="text-[14px] font-semibold text-[#111827]">자세한 설명</p>
-          <textarea
-            className="mt-4 h-[168px] w-full resize-none rounded-[14px] border border-[#e5e7eb] px-[13px] py-3 text-[14px] leading-[1.6] text-[#111827] placeholder:text-[#99a1af] focus:border-[#ff6f0f] focus:outline-none"
-            onChange={(event) => setDescription(event.target.value)}
-            placeholder={
-              "합정동에 올릴 게시글 내용을 작성해 주세요. (판매 금지 물품은 게시가 제한될 수 있어요.)\n\n신뢰할 수 있는 거래를 위해 자세히 적어주세요. 과학기술정보통신부, 한국 인터넷진흥원과 함께 해요."
-            }
-            value={draft.description}
-          />
           <button
-            className="mt-4 inline-flex h-[34px] items-center justify-center rounded-[10px] border border-[#d1d5db] px-4 text-[13px] font-medium text-[#374151]"
+            className="mt-4 block min-h-[168px] w-full rounded-[14px] border border-[#e5e7eb] px-[13px] py-3 text-left text-[14px] leading-[1.6] focus:border-[#ff6f0f] focus:outline-none"
+            onClick={handleAutoFillDescription}
             type="button"
           >
-            자주 쓰는 문구
+            <span className={draft.description ? "whitespace-pre-wrap text-[#111827]" : "text-[#99a1af]"}>
+              {draft.description || "탭해서 자세한 설명 자동 완성"}
+            </span>
           </button>
         </section>
 
@@ -100,28 +132,32 @@ export function SellWriteScreen() {
             />
           </div>
 
-          <Link
-            className="mt-4 flex h-[48px] items-center justify-between border-t border-[#f3f4f6] text-[15px] text-[#111827]"
-            href="/home/sell/price"
-          >
-            <div className="flex items-center gap-2">
-              <span className="text-[#9ca3af]">₩</span>
-              <span className={draft.priceText ? "text-[#111827]" : "text-[#99a1af]"}>
-                {draft.priceText ? formatSellPriceText(draft.priceText) : "가격을 입력해주세요."}
-              </span>
-            </div>
-            <ChevronRightIcon />
-          </Link>
+          {draft.tradeType !== "share" ? (
+            <>
+              <Link
+                className="mt-4 flex h-[48px] items-center justify-between border-t border-[#f3f4f6] text-[15px] text-[#111827]"
+                href="/home/sell/price"
+              >
+                <div className="flex items-center gap-2">
+                  <span className="text-[#9ca3af]">₩</span>
+                  <span className={draft.priceText ? "text-[#111827]" : "text-[#99a1af]"}>
+                    {draft.priceText ? formatSellPriceText(draft.priceText) : "가격을 입력해주세요."}
+                  </span>
+                </div>
+                <ChevronRightIcon />
+              </Link>
 
-          <label className="mt-1 flex items-center gap-2 text-[14px] text-[#374151]">
-            <input
-              checked={draft.acceptPriceSuggestion}
-              className="h-5 w-5 rounded-[4px] border-2 border-[#d1d5db] text-[#ff6f0f] focus:ring-[#ff6f0f]"
-              onChange={(event) => setAcceptPriceSuggestion(event.target.checked)}
-              type="checkbox"
-            />
-            가격 제안 받기
-          </label>
+              <label className="mt-1 flex items-center gap-2 text-[14px] text-[#374151]">
+                <input
+                  checked={draft.acceptPriceSuggestion}
+                  className="h-5 w-5 rounded-[4px] border-2 border-[#d1d5db] text-[#ff6f0f] focus:ring-[#ff6f0f]"
+                  onChange={(event) => setAcceptPriceSuggestion(event.target.checked)}
+                  type="checkbox"
+                />
+                가격 제안 받기
+              </label>
+            </>
+          ) : null}
         </section>
 
         <section className="border-b border-[#f3f4f6] px-4 py-4">
@@ -138,23 +174,6 @@ export function SellWriteScreen() {
             </span>
           </Link>
         </section>
-
-        <section className="border-b border-[#f3f4f6] px-4 py-3">
-          <button className="flex items-center gap-1 text-[14px] font-medium text-[#374151]" type="button">
-            보여줄 동네 선택
-            <ChevronRightIcon small />
-          </button>
-          <p className="mt-2 text-[13px] leading-[1.5] text-[#9ca3af]">{prototypeViewerUser.town} 기준으로 게시글이 보여져요.</p>
-        </section>
-
-        <section className="px-4 py-4">
-          <div className="flex items-center justify-between">
-            <p className="text-[15px] text-[#9ca3af]">남현동에 같은 글 올리기</p>
-            <div className="h-[31px] w-[51px] rounded-full bg-[#e5e7eb] p-[2px]">
-              <div className="h-[27px] w-[27px] rounded-full bg-white shadow-[0_2px_4px_rgba(0,0,0,0.2)]" />
-            </div>
-          </div>
-        </section>
       </div>
 
       <div className="fixed inset-x-0 bottom-0 z-20 border-t border-[#f3f4f6] bg-white px-4 pb-[calc(13px+env(safe-area-inset-bottom))] pt-3">
@@ -164,7 +183,7 @@ export function SellWriteScreen() {
               isReadyToSubmit ? "bg-[#ff6f0f] text-white" : "bg-[#9ca3af] text-[#d1d3d8]"
             }`}
             disabled={!isReadyToSubmit}
-            onClick={() => router.push("/home/sell/preview")}
+            onClick={handleComplete}
             type="button"
           >
             작성 완료

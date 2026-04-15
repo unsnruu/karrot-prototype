@@ -4,45 +4,18 @@ import { useEffect, useRef, useState } from "react";
 import { loadKakaoMapsSdk } from "@/lib/kakao-maps";
 import { SELL_FLOW_DEFAULT_LOCATION } from "@/lib/sell-flow";
 
-declare global {
-  interface Window {
-    kakao?: {
-      maps: {
-        LatLng: new (lat: number, lng: number) => {
-          getLat: () => number;
-          getLng: () => number;
-        };
-        Map: new (
-          container: HTMLElement,
-          options: {
-            center: unknown;
-            level: number;
-          },
-        ) => {
-          setCenter: (latLng: unknown) => void;
-          getCenter: () => {
-            getLat: () => number;
-            getLng: () => number;
-          };
-        };
-        event: {
-          addListener: (target: unknown, type: string, handler: () => void) => void;
-        };
-      };
-    };
-  }
-}
-
 type SellLocationPickerMapProps = {
   initialLat?: number;
   initialLng?: number;
   onCenterChange: (coords: { lat: number; lng: number }) => void;
+  interactive?: boolean;
 };
 
 export function SellLocationPickerMap({
   initialLat = SELL_FLOW_DEFAULT_LOCATION.lat,
   initialLng = SELL_FLOW_DEFAULT_LOCATION.lng,
   onCenterChange,
+  interactive = true,
 }: SellLocationPickerMapProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<{
@@ -64,17 +37,24 @@ export function SellLocationPickerMap({
         const map = new kakao.maps.Map(containerRef.current, {
           center,
           level: 4,
+          draggable: interactive,
+          scrollwheel: interactive,
+          disableDoubleClick: !interactive,
         });
 
         mapRef.current = map;
+        map.setDraggable(interactive);
+        map.setZoomable(interactive);
         onCenterChange({ lat: initialLat, lng: initialLng });
-        kakao.maps.event.addListener(map, "idle", () => {
-          const nextCenter = map.getCenter();
-          onCenterChange({
-            lat: nextCenter.getLat(),
-            lng: nextCenter.getLng(),
+        if (interactive) {
+          kakao.maps.event.addListener(map, "idle", () => {
+            const nextCenter = map.getCenter();
+            onCenterChange({
+              lat: nextCenter.getLat(),
+              lng: nextCenter.getLng(),
+            });
           });
-        });
+        }
         setStatus("ready");
       })
       .catch(() => {
@@ -118,13 +98,15 @@ export function SellLocationPickerMap({
         <div className="mx-auto -mt-2 h-4 w-4 rotate-45 bg-[#ff6f0f]" />
       </div>
 
-      <button
-        className="absolute bottom-8 right-5 flex h-14 w-14 items-center justify-center rounded-full bg-white text-[#111827] shadow-[0_10px_24px_rgba(15,23,42,0.18)]"
-        onClick={recenter}
-        type="button"
-      >
-        <CrosshairIcon />
-      </button>
+      {interactive ? (
+        <button
+          className="absolute bottom-8 right-5 flex h-14 w-14 items-center justify-center rounded-full bg-white text-[#111827] shadow-[0_10px_24px_rgba(15,23,42,0.18)]"
+          onClick={recenter}
+          type="button"
+        >
+          <CrosshairIcon />
+        </button>
+      ) : null}
     </div>
   );
 }

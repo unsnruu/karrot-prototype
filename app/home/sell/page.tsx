@@ -1,5 +1,5 @@
-import { SellPhotoSelectionScreen } from "@/features/home/screens/sell-photo-selection-screen";
+import { redirect } from "next/navigation";
 
 export default function HomeSellPage() {
-  return <SellPhotoSelectionScreen />;
+  redirect("/home/sell/photos");
 }

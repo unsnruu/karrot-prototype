@@ -49,6 +49,9 @@ declare global {
         }) => {
           setMap: (map: unknown) => void;
         };
+        event: {
+          addListener: (target: unknown, type: string, handler: () => void) => void;
+        };
       };
     };
   }

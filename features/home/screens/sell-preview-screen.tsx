@@ -2,33 +2,33 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { ItemDetailBottomBar } from "@/features/home/components/item-detail-bottom-bar";
 import { ItemDetailHero } from "@/features/home/components/item-detail-hero";
 import { ItemDetailMainColumn } from "@/features/home/components/item-detail-main-column";
+import { SellPreviewBottomBar } from "@/features/home/components/sell-preview-bottom-bar";
 import { useSellFlow } from "@/features/home/components/sell-flow-provider";
+import { readPublishedSellItem } from "@/lib/local-sell-storage";
 import {
   buildSellPreviewItem,
   buildSellPreviewRecommendations,
   buildSellPreviewSeller,
   isSellFlowReady,
 } from "@/lib/sell-flow";
-import { appendNavigationQuery } from "@/lib/tab-navigation";
 import { itemDetailUnifiedAd } from "@/lib/marketplace";
 
 export function SellPreviewScreen() {
   const router = useRouter();
   const { draft, hydrated } = useSellFlow();
+  const publishedItem = readPublishedSellItem();
 
   useEffect(() => {
-    if (hydrated && !isSellFlowReady(draft)) {
+    if (hydrated && !publishedItem && !isSellFlowReady(draft)) {
       router.replace("/home/sell/write");
     }
-  }, [draft, hydrated, router]);
+  }, [draft, hydrated, publishedItem, router]);
 
-  const item = buildSellPreviewItem(draft);
+  const item = publishedItem ?? buildSellPreviewItem(draft);
   const seller = buildSellPreviewSeller();
   const recommendationItems = buildSellPreviewRecommendations();
-  const detailHref = "/home/sell/preview";
 
   return (
     <main className="min-h-screen bg-white text-black">
@@ -45,17 +45,7 @@ export function SellPreviewScreen() {
         </div>
       </div>
 
-      <ItemDetailBottomBar
-        avatarImage={item.image}
-        chatKey={item.slug ?? item.id}
-        chatHref={appendNavigationQuery(`/chat/${item.slug ?? item.id}`, {
-          tab: "chat",
-          returnTo: detailHref,
-        })}
-        itemId={item.id}
-        sellerName={seller.name}
-        town={item.town}
-      />
+      <SellPreviewBottomBar />
     </main>
   );
 }

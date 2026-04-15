@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { AppImage } from "@/components/ui/app-image";
+import { clearSellFlowDraftStorage } from "@/lib/sell-flow";
 import { homeFabActionGroups, type HomeFabAction } from "@/lib/marketplace";
 import { buildPendingFeatureHref } from "@/lib/tab-navigation";
 
@@ -84,6 +85,13 @@ export function HomeFab() {
                         className="flex w-full items-center gap-3 text-left"
                         href={resolveFabActionHref(action)}
                         key={action.label}
+                        onClick={() => {
+                          if (action.icon === "sell") {
+                            clearSellFlowDraftStorage();
+                          }
+
+                          setIsOpen(false);
+                        }}
                         role="menuitem"
                       >
                         <span
@@ -119,7 +127,7 @@ export function HomeFab() {
 
 function resolveFabActionHref(action: HomeFabAction) {
   if (action.icon === "sell") {
-    return "/home/sell?reset=1";
+    return "/home/sell/photos";
   }
 
   return buildPendingFeatureHref("/home", action.label);

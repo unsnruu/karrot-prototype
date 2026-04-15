@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import {
+  clearSellFlowDraftStorage,
   emptySellFlowDraft,
   isSellFlowReady,
   normalizeSellPriceInput,
@@ -43,7 +44,7 @@ function parseStoredDraft(value: string | null): SellFlowDraft | null {
     const nextDraft = emptySellFlowDraft();
 
     nextDraft.photos = Array.isArray(parsed.photos)
-      ? parsed.photos.filter((photo): photo is string => typeof photo === "string").slice(0, SELL_FLOW_MAX_PHOTOS)
+      ? parsed.photos.filter((photo: unknown): photo is string => typeof photo === "string").slice(0, SELL_FLOW_MAX_PHOTOS)
       : [];
     nextDraft.title = typeof parsed.title === "string" ? parsed.title : "";
     nextDraft.description = typeof parsed.description === "string" ? parsed.description : "";
@@ -142,10 +143,7 @@ export function SellFlowProvider({ children }: { children: React.ReactNode }) {
     resetDraft: () => {
       const nextDraft = emptySellFlowDraft();
       setDraft(nextDraft);
-
-      if (typeof window !== "undefined") {
-        window.sessionStorage.removeItem(SELL_FLOW_STORAGE_KEY);
-      }
+      clearSellFlowDraftStorage();
     },
   }), [draft, hydrated]);
 

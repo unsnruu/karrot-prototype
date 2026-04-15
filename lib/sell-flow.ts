@@ -29,25 +29,26 @@ export type SellFlowDraft = {
 
 export const SELL_FLOW_STORAGE_KEY = "karrot.prototype.sell-flow.v1";
 
-export const SELL_FLOW_MAX_PHOTOS = 10;
+export const SELL_FLOW_MAX_PHOTOS = 4;
 
 export const SELL_FLOW_DEFAULT_LOCATION: SellLocation = {
-  label: "합정역 8번 출구",
-  address: "서울 마포구 양화로 55 합정역 인근",
+  label: "합정역 2번 출구",
+  address: "서울 마포구 양화로 55 합정역 2번 출구 인근",
   lat: 37.54957,
   lng: 126.91383,
   distanceLabel: "120m",
 };
 
 export const SELL_FLOW_SAMPLE_PHOTOS = [
-  "/images/figma-migrated/df87f611-f817-4b48-9b0a-4fdade26ba01.png",
-  "/images/figma-migrated/50bddbb3-e095-4d27-9e98-33e09871d5d2.png",
-  "/images/figma-migrated/a28496ca-d52f-4547-b551-b1ebe3460458.png",
-  "/images/figma-migrated/8937d748-074e-4574-a051-2dcc1ed0e0f2.png",
-  "/images/figma-migrated/71af11dd-3bed-4da8-8f38-129045fe18c9.png",
-  "/images/figma-migrated/95090c18-19ef-45f5-8848-11bd9938d9c1.png",
-  "/images/figma-migrated/a56f8fe4-4116-4f18-9310-f37c2d97fbac.png",
-  "/images/figma-migrated/4772163f-171c-4ee6-a1ab-63ed1855d1e5.png",
+  "/api/item-images/perfume-selection/image-01.jpg",
+  "/api/item-images/perfume-selection/image-02.jpg",
+  "/api/item-images/perfume-selection/image-03.jpg",
+  "/api/item-images/perfume-selection/image-04.jpg",
+  "/api/item-images/perfume-selection/image-05.jpg",
+  "/api/item-images/perfume-selection/image-06.jpg",
+  "/api/item-images/perfume-selection/image-07.jpg",
+  "/api/item-images/perfume-selection/image-08.jpg",
+  "/api/item-images/perfume-selection/image-09.jpg",
 ];
 
 export const emptySellFlowDraft = (): SellFlowDraft => ({
@@ -59,6 +60,12 @@ export const emptySellFlowDraft = (): SellFlowDraft => ({
   acceptPriceSuggestion: false,
   location: null,
 });
+
+export function clearSellFlowDraftStorage() {
+  if (typeof window !== "undefined") {
+    window.sessionStorage.removeItem(SELL_FLOW_STORAGE_KEY);
+  }
+}
 
 export function normalizeSellPriceInput(value: string) {
   const digitsOnly = value.replace(/\D/g, "");
