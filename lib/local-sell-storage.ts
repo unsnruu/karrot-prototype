@@ -64,6 +64,7 @@ export function readPublishedSellItem(): MarketplaceItem | null {
 
 export function buildPublishedSellFeedItem(item: MarketplaceItem): HomeFeedItem {
   return {
+    type: "marketplace-item",
     id: item.id,
     slug: item.slug ?? item.id,
     title: item.title,

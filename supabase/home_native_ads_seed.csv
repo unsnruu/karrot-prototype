@@ -1,0 +1,11 @@
+title,feature,image_url,destination,likes_count,placement_key,sort_order
+우리 동네에 뭐가 생겼는지 지금 바로 둘러보세요 👀,동네지도,https://udazzhluazlmcsbdbhzo.supabase.co/storage/v1/object/public/home-native-ads/town-map/town-map-ad-01.webp,동네지도,41,home_feed_inline,1
+이웃들은 요즘 어떤 생활 이야기를 나누는지 들어보세요 💬,동네 생활,https://udazzhluazlmcsbdbhzo.supabase.co/storage/v1/object/public/home-native-ads/town-life/town-life-ad-01.webp,동네 생활,27,home_feed_inline,2
+"이번 주말, 같이할 사람 있는 모임을 찾아보세요 🙌",모임,https://udazzhluazlmcsbdbhzo.supabase.co/storage/v1/object/public/home-native-ads/meetup/meetup-ad-01.webp,모임,36,home_feed_inline,3
+같은 관심사 이웃들과 이야기할 카페를 구경해보세요 ☕,카페,https://udazzhluazlmcsbdbhzo.supabase.co/storage/v1/object/public/home-native-ads/cafe/cafe-ad-01.webp,카페,58,home_feed_inline,4
+"붕어빵 파는 곳, 지금 동네지도에서 바로 찾아보세요 🗺️",동네지도,https://udazzhluazlmcsbdbhzo.supabase.co/storage/v1/object/public/home-native-ads/town-map/town-map-ad-02.webp,동네지도,64,home_feed_inline,5
+"오늘 우리 동네 소식, 놓치기 전에 한번 확인해보세요 📌",동네 생활,https://udazzhluazlmcsbdbhzo.supabase.co/storage/v1/object/public/home-native-ads/town-life/town-life-ad-02.webp,동네 생활,19,home_feed_inline,6
+"혼자 하기 망설였던 취미, 함께할 모임을 찾아보세요 🎯",모임,https://udazzhluazlmcsbdbhzo.supabase.co/storage/v1/object/public/home-native-ads/meetup/meetup-ad-02.webp,모임,72,home_feed_inline,7
+동네 관심사별 카페를 둘러보고 마음 맞는 곳을 찾아보세요 🌿,카페,https://udazzhluazlmcsbdbhzo.supabase.co/storage/v1/object/public/home-native-ads/cafe/cafe-ad-02.webp,카페,33,home_feed_inline,8
+"주민들이 남긴 장소 정보, 지금 확인해보면 더 편해요 📍",동네지도,https://udazzhluazlmcsbdbhzo.supabase.co/storage/v1/object/public/home-native-ads/town-map/town-map-ad-03.webp,동네지도,46,home_feed_inline,9
+"가볍게 시작할 수 있는 모임, 지금 한 번 들어가보세요 🎈",모임,https://udazzhluazlmcsbdbhzo.supabase.co/storage/v1/object/public/home-native-ads/meetup/meetup-ad-03.webp,모임,25,home_feed_inline,10

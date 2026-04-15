@@ -1,29 +1,33 @@
 "use client";
 
 import { startTransition, useCallback, useEffect, useRef, useState } from "react";
+import { HomeNativeAdCard } from "@/features/home/components/home-native-ad-card";
 import { MarketplaceListItem } from "@/features/home/components/marketplace-list-item";
 import { buildPublishedSellFeedItem, readPublishedSellItem } from "@/lib/local-sell-storage";
-import { HOME_FEED_PAGE_SIZE, type HomeFeedItem } from "@/lib/marketplace";
+import { HOME_FEED_PAGE_SIZE, type HomeFeedEntry } from "@/lib/marketplace";
 
 type HomeFeedResponse = {
-  items: HomeFeedItem[];
+  items: HomeFeedEntry[];
   hasMore: boolean;
+  nextOffset: number;
 };
 
 export function HomeFeed({
   initialItems,
   initialHasMore,
+  initialNextOffset,
   category,
 }: {
-  initialItems: HomeFeedItem[];
+  initialItems: HomeFeedEntry[];
   initialHasMore: boolean;
+  initialNextOffset: number;
   category?: string;
 }) {
   const [items, setItems] = useState(initialItems);
   const [hasMore, setHasMore] = useState(initialHasMore);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const nextOffsetRef = useRef(initialItems.length);
+  const nextOffsetRef = useRef(initialNextOffset);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
   const isLoadingRef = useRef(false);
   const hasMoreRef = useRef(initialHasMore);
@@ -80,7 +84,7 @@ export function HomeFeed({
         setHasMore(data.hasMore);
       });
 
-      nextOffsetRef.current += data.items.length;
+      nextOffsetRef.current = data.nextOffset;
     } catch (loadError) {
       console.error("[home-feed] loadMore failed", {
         category,
@@ -122,8 +126,10 @@ export function HomeFeed({
 
   return (
     <div>
-      {items.map((item) => (
-        <MarketplaceListItem item={item} key={item.id} />
+      {items.map((entry) => (
+        entry.type === "native-ad"
+          ? <HomeNativeAdCard ad={entry} key={entry.id} />
+          : <MarketplaceListItem item={entry} key={entry.id} />
       ))}
 
       {items.length === 0 && !isLoading ? (

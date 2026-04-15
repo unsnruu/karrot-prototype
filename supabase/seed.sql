@@ -4,6 +4,7 @@ delete from public.item_images;
 delete from public.items;
 delete from public.users;
 delete from public.businesses;
+delete from public.home_native_ads;
 
 insert into public.users (
   id, name, avatar_url, town, response_rate, manner_score, repeat_deals, badges, is_business, bio, created_at, last_active_at
@@ -51,6 +52,24 @@ insert into public.items (
 ('00000000-0000-0000-0000-000000002028','00000000-0000-0000-0000-000000001008','알톤 하이브리드 자전거 21단','출퇴근용으로 타던 자전거인데 이사 후엔 탈 일이 없어져서 판매해요.기어 변속 잘 되고 브레이크도 최근 점검받았습니다. 사용감은 당연히 조금 있지만 전체적으로는 무난한 편이고, 동네 이동이나 가벼운 라이딩용으로 좋습니다. 직접 보시고 시승 느낌 정도는 확인하셔도 괜찮아요.',180000,'KRW','active','스포츠/레저',true,'당인동','2026-04-07T07:40:00+09:00'::timestamptz,'2026-04-08T12:50:00+09:00'::timestamptz,98,11,6,'당인리발전소 문화공원 앞','서울 마포구 토정로 56',37.5427,126.9192,520,28,now(),now()),
 ('00000000-0000-0000-0000-000000002029','00000000-0000-0000-0000-000000001001','LG 27인치 모니터 QHD','사무용으로 사용하던 모니터예요.화면 번짐이나 줄 가는 현상 없고 선명하게 잘 나옵니다. 문서 작업이나 영상 보기 다 무난했고, QHD라서 확실히 화면 넓게 쓰기 좋았어요. 구성품은 전원선만 있고 박스는 없습니다. 재택용이나 서브 모니터 찾으시면 괜찮은 선택일 거예요.',160000,'KRW','active','디지털기기',false,'합정동','2026-04-06T13:25:00+09:00'::timestamptz,'2026-04-07T20:20:00+09:00'::timestamptz,82,9,4,'합정역 8번 출구','서울 마포구 양화로 72',37.5491,126.9146,260,29,now(),now()),
 ('00000000-0000-0000-0000-000000002030','00000000-0000-0000-0000-000000001002','브리츠 블루투스 스피커 BA-C1','집에서 음악 틀어두는 용도로 쓰던 스피커입니다.크기가 작아서 책상 위에 두기 좋고 블루투스 연결도 잘 됩니다. 배터리도 아직 괜찮은 편이고, 소리도 생각보다 빵빵하게 나와요. 완전 고가 제품처럼 디테일한 음질은 아니지만 가볍게 듣기엔 충분히 만족스러운 제품이었습니다.',30000,'KRW','active','디지털기기',false,'망원동','2026-04-08T11:40:00+09:00'::timestamptz,'2026-04-08T11:40:00+09:00'::timestamptz,44,4,1,'망원시장 정문 앞','서울 마포구 포은로8길 14',37.5574,126.9055,470,30,now(),now());
+
+with ranked_items as (
+  select
+    id,
+    row_number() over (order by md5(id::text)) as row_number,
+    count(*) over () as total_count
+  from public.items
+)
+update public.items as items
+set
+  meetup_place_name = null,
+  meetup_place_address = null,
+  meetup_place_lat = null,
+  meetup_place_lng = null,
+  meetup_distance_meters = null
+from ranked_items
+where items.id = ranked_items.id
+  and ranked_items.row_number <= floor(ranked_items.total_count / 2.0);
 
 insert into public.item_images (id, item_id, image_url, sort_order, created_at) values
 ('00000000-0000-0000-0000-000000003001','00000000-0000-0000-0000-000000002001','/api/item-images/iphone-13/image-01.webp',0,now()),
@@ -153,3 +172,17 @@ insert into public.businesses (
 ('biz_018','합정정형케어의원','의료','서울 마포구 양화로 48',37.55011,126.91358,'02-0000-1018','평일 09:00 - 18:30 / 토 09:00 - 13:00','합정동',4.3,58,'2026-04-10T14:25:00+09:00'::timestamptz),
 ('biz_019','서교반려미용실','생활 서비스','서울 마포구 동교로12길 44',37.55628,126.91601,'02-0000-1019','화-일 10:00 - 19:00','서교동',4.3,36,'2026-04-12T09:35:00+09:00'::timestamptz),
 ('biz_020','합정일본가정식온기','음식점','서울 마포구 토정로 18',37.54963,126.91088,'02-0000-1020','매일 11:30 - 21:00','합정동',4.7,121,'2026-04-12T10:45:00+09:00'::timestamptz);
+
+insert into public.home_native_ads (
+  title, feature, image_url, destination, likes_count, placement_key, sort_order, created_at, updated_at
+) values
+('우리 동네에 뭐가 생겼는지 지금 바로 둘러보세요 👀','동네지도','https://udazzhluazlmcsbdbhzo.supabase.co/storage/v1/object/public/home-native-ads/town-map/town-map-ad-01.webp','동네지도',41,'home_feed_inline',1,'2026-04-13T19:02:15+09:00'::timestamptz,'2026-04-13T19:02:15+09:00'::timestamptz),
+('이웃들은 요즘 어떤 생활 이야기를 나누는지 들어보세요 💬','동네 생활','https://udazzhluazlmcsbdbhzo.supabase.co/storage/v1/object/public/home-native-ads/town-life/town-life-ad-01.webp','동네 생활',27,'home_feed_inline',2,'2026-04-13T19:03:00+09:00'::timestamptz,'2026-04-13T19:03:00+09:00'::timestamptz),
+('이번 주말, 같이할 사람 있는 모임을 찾아보세요 🙌','모임','https://udazzhluazlmcsbdbhzo.supabase.co/storage/v1/object/public/home-native-ads/meetup/meetup-ad-01.webp','모임',36,'home_feed_inline',3,'2026-04-13T19:04:00+09:00'::timestamptz,'2026-04-13T19:04:00+09:00'::timestamptz),
+('같은 관심사 이웃들과 이야기할 카페를 구경해보세요 ☕','카페','https://udazzhluazlmcsbdbhzo.supabase.co/storage/v1/object/public/home-native-ads/cafe/cafe-ad-01.webp','카페',58,'home_feed_inline',4,'2026-04-13T19:05:00+09:00'::timestamptz,'2026-04-13T19:05:00+09:00'::timestamptz),
+('붕어빵 파는 곳, 지금 동네지도에서 바로 찾아보세요 🗺️','동네지도','https://udazzhluazlmcsbdbhzo.supabase.co/storage/v1/object/public/home-native-ads/town-map/town-map-ad-02.webp','동네지도',64,'home_feed_inline',5,'2026-04-13T19:06:00+09:00'::timestamptz,'2026-04-13T19:06:00+09:00'::timestamptz),
+('오늘 우리 동네 소식, 놓치기 전에 한번 확인해보세요 📌','동네 생활','https://udazzhluazlmcsbdbhzo.supabase.co/storage/v1/object/public/home-native-ads/town-life/town-life-ad-02.webp','동네 생활',19,'home_feed_inline',6,'2026-04-13T19:07:00+09:00'::timestamptz,'2026-04-13T19:07:00+09:00'::timestamptz),
+('혼자 하기 망설였던 취미, 함께할 모임을 찾아보세요 🎯','모임','https://udazzhluazlmcsbdbhzo.supabase.co/storage/v1/object/public/home-native-ads/meetup/meetup-ad-02.webp','모임',72,'home_feed_inline',7,'2026-04-13T19:08:00+09:00'::timestamptz,'2026-04-13T19:08:00+09:00'::timestamptz),
+('동네 관심사별 카페를 둘러보고 마음 맞는 곳을 찾아보세요 🌿','카페','https://udazzhluazlmcsbdbhzo.supabase.co/storage/v1/object/public/home-native-ads/cafe/cafe-ad-02.webp','카페',33,'home_feed_inline',8,'2026-04-13T19:09:00+09:00'::timestamptz,'2026-04-13T19:09:00+09:00'::timestamptz),
+('주민들이 남긴 장소 정보, 지금 확인해보면 더 편해요 📍','동네지도','https://udazzhluazlmcsbdbhzo.supabase.co/storage/v1/object/public/home-native-ads/town-map/town-map-ad-03.webp','동네지도',46,'home_feed_inline',9,'2026-04-13T19:10:00+09:00'::timestamptz,'2026-04-13T19:10:00+09:00'::timestamptz),
+('가볍게 시작할 수 있는 모임, 지금 한 번 들어가보세요 🎈','모임','https://udazzhluazlmcsbdbhzo.supabase.co/storage/v1/object/public/home-native-ads/meetup/meetup-ad-03.webp','모임',25,'home_feed_inline',10,'2026-04-13T19:11:00+09:00'::timestamptz,'2026-04-13T19:11:00+09:00'::timestamptz);

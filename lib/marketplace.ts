@@ -40,7 +40,8 @@ export type MarketplaceItem = {
   promoted?: boolean;
 };
 
-export type HomeFeedItem = {
+export type HomeFeedMarketplaceItem = {
+  type: "marketplace-item";
   id: string;
   slug: string;
   title: string;
@@ -56,7 +57,26 @@ export type HomeFeedItem = {
   href?: string;
 };
 
+export type HomeNativeAdFeature = "동네지도" | "동네 생활" | "모임" | "카페";
+
+export type HomeFeedNativeAd = {
+  type: "native-ad";
+  id: string;
+  title: string;
+  feature: HomeNativeAdFeature;
+  image: string;
+  destination: HomeNativeAdFeature;
+  likes: number;
+  placementKey: string;
+  href: string;
+};
+
+export type HomeFeedEntry = HomeFeedMarketplaceItem | HomeFeedNativeAd;
+
+export type HomeFeedItem = HomeFeedMarketplaceItem;
+
 export const itemDetailUnifiedAd: HomeFeedItem = {
+  type: "marketplace-item",
   id: "detail-ad-default",
   slug: "detail-ad-default",
   title: "912 룸 앤 패브릭 멀티 스프레이 섬유향수",
@@ -70,6 +90,132 @@ export const itemDetailUnifiedAd: HomeFeedItem = {
   likes: 0,
   promoted: true,
 };
+
+export const homeNativeAdsFallback: HomeFeedNativeAd[] = [
+  {
+    type: "native-ad",
+    id: "home-native-ad-01",
+    title: "우리 동네에 뭐가 생겼는지 지금 바로 둘러보세요 👀",
+    feature: "동네지도",
+    image: "https://udazzhluazlmcsbdbhzo.supabase.co/storage/v1/object/public/home-native-ads/town-map/town-map-ad-01.webp",
+    destination: "동네지도",
+    likes: 41,
+    placementKey: "home_feed_inline",
+    href: "/town-map",
+  },
+  {
+    type: "native-ad",
+    id: "home-native-ad-02",
+    title: "이웃들은 요즘 어떤 생활 이야기를 나누는지 들어보세요 💬",
+    feature: "동네 생활",
+    image: "https://udazzhluazlmcsbdbhzo.supabase.co/storage/v1/object/public/home-native-ads/town-life/town-life-ad-01.webp",
+    destination: "동네 생활",
+    likes: 27,
+    placementKey: "home_feed_inline",
+    href: "/community",
+  },
+  {
+    type: "native-ad",
+    id: "home-native-ad-03",
+    title: "이번 주말, 같이할 사람 있는 모임을 찾아보세요 🙌",
+    feature: "모임",
+    image: "https://udazzhluazlmcsbdbhzo.supabase.co/storage/v1/object/public/home-native-ads/meetup/meetup-ad-01.webp",
+    destination: "모임",
+    likes: 36,
+    placementKey: "home_feed_inline",
+    href: "/community?tab=meetup",
+  },
+  {
+    type: "native-ad",
+    id: "home-native-ad-04",
+    title: "같은 관심사 이웃들과 이야기할 카페를 구경해보세요 ☕",
+    feature: "카페",
+    image: "https://udazzhluazlmcsbdbhzo.supabase.co/storage/v1/object/public/home-native-ads/cafe/cafe-ad-01.webp",
+    destination: "카페",
+    likes: 58,
+    placementKey: "home_feed_inline",
+    href: "/community?tab=cafe",
+  },
+  {
+    type: "native-ad",
+    id: "home-native-ad-05",
+    title: "붕어빵 파는 곳, 지금 동네지도에서 바로 찾아보세요 🗺️",
+    feature: "동네지도",
+    image: "https://udazzhluazlmcsbdbhzo.supabase.co/storage/v1/object/public/home-native-ads/town-map/town-map-ad-02.webp",
+    destination: "동네지도",
+    likes: 64,
+    placementKey: "home_feed_inline",
+    href: "/town-map",
+  },
+  {
+    type: "native-ad",
+    id: "home-native-ad-06",
+    title: "오늘 우리 동네 소식, 놓치기 전에 한번 확인해보세요 📌",
+    feature: "동네 생활",
+    image: "https://udazzhluazlmcsbdbhzo.supabase.co/storage/v1/object/public/home-native-ads/town-life/town-life-ad-02.webp",
+    destination: "동네 생활",
+    likes: 19,
+    placementKey: "home_feed_inline",
+    href: "/community",
+  },
+  {
+    type: "native-ad",
+    id: "home-native-ad-07",
+    title: "혼자 하기 망설였던 취미, 함께할 모임을 찾아보세요 🎯",
+    feature: "모임",
+    image: "https://udazzhluazlmcsbdbhzo.supabase.co/storage/v1/object/public/home-native-ads/meetup/meetup-ad-02.webp",
+    destination: "모임",
+    likes: 72,
+    placementKey: "home_feed_inline",
+    href: "/community?tab=meetup",
+  },
+  {
+    type: "native-ad",
+    id: "home-native-ad-08",
+    title: "동네 관심사별 카페를 둘러보고 마음 맞는 곳을 찾아보세요 🌿",
+    feature: "카페",
+    image: "https://udazzhluazlmcsbdbhzo.supabase.co/storage/v1/object/public/home-native-ads/cafe/cafe-ad-02.webp",
+    destination: "카페",
+    likes: 33,
+    placementKey: "home_feed_inline",
+    href: "/community?tab=cafe",
+  },
+  {
+    type: "native-ad",
+    id: "home-native-ad-09",
+    title: "주민들이 남긴 장소 정보, 지금 확인해보면 더 편해요 📍",
+    feature: "동네지도",
+    image: "https://udazzhluazlmcsbdbhzo.supabase.co/storage/v1/object/public/home-native-ads/town-map/town-map-ad-03.webp",
+    destination: "동네지도",
+    likes: 46,
+    placementKey: "home_feed_inline",
+    href: "/town-map",
+  },
+  {
+    type: "native-ad",
+    id: "home-native-ad-10",
+    title: "가볍게 시작할 수 있는 모임, 지금 한 번 들어가보세요 🎈",
+    feature: "모임",
+    image: "https://udazzhluazlmcsbdbhzo.supabase.co/storage/v1/object/public/home-native-ads/meetup/meetup-ad-03.webp",
+    destination: "모임",
+    likes: 25,
+    placementKey: "home_feed_inline",
+    href: "/community?tab=meetup",
+  },
+];
+
+export function resolveHomeNativeAdHref(destination: HomeNativeAdFeature) {
+  switch (destination) {
+    case "동네지도":
+      return "/town-map";
+    case "동네 생활":
+      return "/community";
+    case "모임":
+      return "/community?tab=meetup";
+    case "카페":
+      return "/community?tab=cafe";
+  }
+}
 
 export const HOME_FEED_PAGE_SIZE = 10;
 

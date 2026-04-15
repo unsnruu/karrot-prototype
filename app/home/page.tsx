@@ -17,7 +17,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   const selectedCategory = Array.isArray(resolvedSearchParams.category)
     ? resolvedSearchParams.category[0]
     : resolvedSearchParams.category;
-  const [{ items, hasMore }, categories] = await Promise.all([
+  const [{ items, hasMore, nextOffset }, categories] = await Promise.all([
     getHomeFeedPage({ category: selectedCategory }),
     getHomeCategories(),
   ]);
@@ -33,6 +33,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
               category={selectedCategory}
               initialHasMore={hasMore}
               initialItems={items}
+              initialNextOffset={nextOffset}
               key={selectedCategory ?? "all"}
             />
           </div>

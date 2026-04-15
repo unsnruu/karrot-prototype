@@ -5,9 +5,14 @@ import {
   HOME_FEED_PAGE_SIZE,
   formatItemSlug,
   getSellerById,
+  homeNativeAdsFallback,
   homeCategoriesFallback,
+  type HomeFeedEntry,
+  type HomeNativeAdFeature,
+  type HomeFeedNativeAd,
   marketplaceItems,
   parseItemSlug,
+  resolveHomeNativeAdHref,
   type HomeCategory,
   type HomeFeedItem,
   type MarketplaceItem,
@@ -84,6 +89,16 @@ type HomeFeedItemRow = Pick<
 
 type HomeCategoryRow = Pick<ItemRow, "category" | "sort_order">;
 
+type HomeNativeAdRow = {
+  id: string;
+  title: string;
+  feature: HomeNativeAdFeature;
+  image_url: string;
+  destination: HomeNativeAdFeature;
+  likes_count: number;
+  placement_key: string;
+};
+
 // ─── Row parsers ──────────────────────────────────────────────────────────────
 
 function parseItemRow(value: unknown, scope: string): ItemRow {
@@ -143,6 +158,33 @@ function parseHomeCategoryRow(value: unknown, scope: string): HomeCategoryRow {
   return {
     category: readString(value, "category", scope),
     sort_order: readNumber(value, "sort_order", scope),
+  };
+}
+
+function parseHomeNativeAdRow(value: unknown, scope: string): HomeNativeAdRow {
+  if (!isRecord(value)) {
+    throw new Error(`[${scope}] Expected home native ad row object`);
+  }
+
+  const feature = readString(value, "feature", scope);
+  const destination = readString(value, "destination", scope);
+
+  if (feature !== "동네지도" && feature !== "동네 생활" && feature !== "모임" && feature !== "카페") {
+    throw new Error(`[${scope}] Unsupported feature: ${feature}`);
+  }
+
+  if (destination !== "동네지도" && destination !== "동네 생활" && destination !== "모임" && destination !== "카페") {
+    throw new Error(`[${scope}] Unsupported destination: ${destination}`);
+  }
+
+  return {
+    id: readString(value, "id", scope),
+    title: readString(value, "title", scope),
+    feature,
+    image_url: readString(value, "image_url", scope),
+    destination,
+    likes_count: readNumber(value, "likes_count", scope),
+    placement_key: readString(value, "placement_key", scope),
   };
 }
 
@@ -344,6 +386,7 @@ function mapItemRowToHomeFeedItem(
   imageUrl: string | undefined,
 ): HomeFeedItem {
   return {
+    type: "marketplace-item",
     id: row.id,
     slug: formatItemSlug(row.sort_order),
     title: row.title,
@@ -364,6 +407,7 @@ function mapFallbackItemToHomeFeedItem(item: MarketplaceItem): HomeFeedItem {
   const slug = formatItemSlug((fallbackIndex >= 0 ? fallbackIndex : 0) + 1);
 
   return {
+    type: "marketplace-item",
     id: item.id,
     slug,
     title: item.title,
@@ -376,6 +420,20 @@ function mapFallbackItemToHomeFeedItem(item: MarketplaceItem): HomeFeedItem {
     chats: item.chats,
     likes: item.likes,
     promoted: item.promoted,
+  };
+}
+
+function mapHomeNativeAdRow(row: HomeNativeAdRow): HomeFeedNativeAd {
+  return {
+    type: "native-ad",
+    id: row.id,
+    title: row.title,
+    feature: row.feature,
+    image: normalizeImageSrc(row.image_url),
+    destination: row.destination,
+    likes: row.likes_count,
+    placementKey: row.placement_key,
+    href: resolveHomeNativeAdHref(row.destination),
   };
 }
 
@@ -518,6 +576,56 @@ export const getHomeCategories = cache(async (): Promise<HomeCategory[]> => {
   }
 });
 
+export const getHomeNativeAds = cache(async ({
+  placementKey = "home_feed_inline",
+}: {
+  placementKey?: string;
+} = {}): Promise<HomeFeedNativeAd[]> => {
+  if (!hasSupabaseEnv()) {
+    return homeNativeAdsFallback.filter((ad) => ad.placementKey === placementKey);
+  }
+
+  try {
+    const supabase = createServerSupabaseClient();
+    const { data, error } = await supabase
+      .from("home_native_ads")
+      .select("id, title, feature, image_url, destination, likes_count, placement_key")
+      .eq("placement_key", placementKey)
+      .order("sort_order", { ascending: true })
+      .order("created_at", { ascending: true });
+
+    if (error || !data) {
+      throw error ?? new Error("Missing home native ads data");
+    }
+
+    return parseRows(data, "home-native-ads", parseHomeNativeAdRow).map(mapHomeNativeAdRow);
+  } catch (error) {
+    logSupabaseFallback("home-native-ads", error);
+    return homeNativeAdsFallback.filter((ad) => ad.placementKey === placementKey);
+  }
+});
+
+function insertNativeAdsIntoHomeFeed(items: HomeFeedItem[], ads: HomeFeedNativeAd[], itemOffset: number) {
+  const entries: HomeFeedEntry[] = [];
+
+  items.forEach((item, index) => {
+    const globalItemIndex = itemOffset + index + 1;
+    entries.push(item);
+
+    if (globalItemIndex % 3 !== 0) {
+      return;
+    }
+
+    const adIndex = Math.floor(globalItemIndex / 3) - 1;
+    const ad = ads[adIndex];
+    if (ad) {
+      entries.push(ad);
+    }
+  });
+
+  return entries;
+}
+
 export async function getHomeFeedPage({
   offset = 0,
   limit = HOME_FEED_PAGE_SIZE,
@@ -526,7 +634,7 @@ export async function getHomeFeedPage({
   offset?: number;
   limit?: number;
   category?: string;
-} = {}): Promise<{ items: HomeFeedItem[]; hasMore: boolean }> {
+} = {}): Promise<{ items: HomeFeedEntry[]; hasMore: boolean; nextOffset: number }> {
   const safeOffset = Math.max(0, offset);
   const safeLimit = Math.max(1, Math.min(limit, HOME_FEED_PAGE_SIZE));
   const normalizedCategory = category && category !== "전체" ? category : undefined;
@@ -536,10 +644,13 @@ export async function getHomeFeedPage({
       ? marketplaceItems.filter((item) => item.sellingPoints[0] === normalizedCategory)
       : interleaveItemsByGroup(marketplaceItems, (item) => item.sellingPoints[0] ?? "기타");
     const pageItems = filteredItems.slice(safeOffset, safeOffset + safeLimit + 1).map(mapFallbackItemToHomeFeedItem);
+    const pagedItems = pageItems.slice(0, safeLimit);
+    const ads = await getHomeNativeAds();
 
     return {
-      items: pageItems.slice(0, safeLimit),
+      items: insertNativeAdsIntoHomeFeed(pagedItems, ads, safeOffset),
       hasMore: pageItems.length > safeLimit,
+      nextOffset: safeOffset + pagedItems.length,
     };
   }
 
@@ -591,9 +702,13 @@ export async function getHomeFeedPage({
       }
     }
 
+    const mappedItems = pagedItems.map((item) => mapItemRowToHomeFeedItem(item, firstImageByItemId.get(item.id)));
+    const ads = await getHomeNativeAds();
+
     return {
-      items: pagedItems.map((item) => mapItemRowToHomeFeedItem(item, firstImageByItemId.get(item.id))),
+      items: insertNativeAdsIntoHomeFeed(mappedItems, ads, safeOffset),
       hasMore: homeFeedItems.length > safeLimit,
+      nextOffset: safeOffset + mappedItems.length,
     };
   } catch (error) {
     logSupabaseFallback("home-feed", error);
@@ -601,10 +716,13 @@ export async function getHomeFeedPage({
       ? marketplaceItems.filter((item) => item.sellingPoints[0] === normalizedCategory)
       : interleaveItemsByGroup(marketplaceItems, (item) => item.sellingPoints[0] ?? "기타");
     const pageItems = filteredItems.slice(safeOffset, safeOffset + safeLimit + 1).map(mapFallbackItemToHomeFeedItem);
+    const pagedItems = pageItems.slice(0, safeLimit);
+    const ads = await getHomeNativeAds();
 
     return {
-      items: pageItems.slice(0, safeLimit),
+      items: insertNativeAdsIntoHomeFeed(pagedItems, ads, safeOffset),
       hasMore: pageItems.length > safeLimit,
+      nextOffset: safeOffset + pagedItems.length,
     };
   }
 }

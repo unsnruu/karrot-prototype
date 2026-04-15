@@ -55,7 +55,7 @@ export const emptySellFlowDraft = (): SellFlowDraft => ({
   photos: [],
   title: "",
   description: "",
-  tradeType: null,
+  tradeType: "sell",
   priceText: "",
   acceptPriceSuggestion: false,
   location: null,
@@ -143,6 +143,7 @@ export function buildSellPreviewItem(draft: SellFlowDraft): MarketplaceItem {
 
 export function buildSellPreviewRecommendations(): HomeFeedItem[] {
   return marketplaceItems.slice(0, 6).map((item, index) => ({
+    type: "marketplace-item",
     id: item.id,
     slug: item.slug ?? formatItemSlug(index + 1),
     title: item.title,

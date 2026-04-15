@@ -126,6 +126,19 @@ create table if not exists public.businesses (
   updated_at timestamptz not null default now()
 );
 
+create table if not exists public.home_native_ads (
+  id uuid primary key default gen_random_uuid(),
+  title text not null,
+  feature text not null check (feature in ('동네지도', '동네 생활', '모임', '카페')),
+  image_url text not null,
+  destination text not null check (destination in ('동네지도', '동네 생활', '모임', '카페')),
+  likes_count integer not null default 0 check (likes_count >= 0),
+  placement_key text not null default 'home_feed_inline',
+  sort_order integer not null default 0,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
 create or replace function public.set_updated_at()
 returns trigger
 language plpgsql
@@ -139,6 +152,7 @@ $$;
 drop trigger if exists items_set_updated_at on public.items;
 drop trigger if exists businesses_set_updated_at on public.businesses;
 drop trigger if exists chat_threads_set_updated_at on public.chat_threads;
+drop trigger if exists home_native_ads_set_updated_at on public.home_native_ads;
 
 create trigger items_set_updated_at
 before update on public.items
@@ -155,6 +169,11 @@ before update on public.chat_threads
 for each row
 execute function public.set_updated_at();
 
+create trigger home_native_ads_set_updated_at
+before update on public.home_native_ads
+for each row
+execute function public.set_updated_at();
+
 create index if not exists users_town_idx on public.users (town);
 create index if not exists items_seller_id_idx on public.items (seller_id);
 create index if not exists items_status_idx on public.items (status);
@@ -168,6 +187,7 @@ create index if not exists chat_messages_thread_id_idx on public.chat_messages (
 create index if not exists chat_messages_sender_id_idx on public.chat_messages (sender_id, created_at desc);
 create index if not exists businesses_category_idx on public.businesses (category);
 create index if not exists businesses_town_label_idx on public.businesses (town_label);
+create index if not exists home_native_ads_feed_idx on public.home_native_ads (placement_key, sort_order asc, created_at asc);
 
 alter table public.users enable row level security;
 alter table public.items enable row level security;
@@ -175,6 +195,7 @@ alter table public.item_images enable row level security;
 alter table public.chat_threads enable row level security;
 alter table public.chat_messages enable row level security;
 alter table public.businesses enable row level security;
+alter table public.home_native_ads enable row level security;
 
 drop policy if exists "Public read users" on public.users;
 drop policy if exists "Public read items" on public.items;
@@ -182,6 +203,7 @@ drop policy if exists "Public read item images" on public.item_images;
 drop policy if exists "Public read chat threads" on public.chat_threads;
 drop policy if exists "Public read chat messages" on public.chat_messages;
 drop policy if exists "Public read businesses" on public.businesses;
+drop policy if exists "Public read home native ads" on public.home_native_ads;
 
 create policy "Public read users"
 on public.users
@@ -215,6 +237,12 @@ using (true);
 
 create policy "Public read businesses"
 on public.businesses
+for select
+to anon, authenticated
+using (true);
+
+create policy "Public read home native ads"
+on public.home_native_ads
 for select
 to anon, authenticated
 using (true);
