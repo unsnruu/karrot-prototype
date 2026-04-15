@@ -1,4 +1,5 @@
 import { ChatAppointmentScreen } from "@/features/chat/screens/chat-appointment-screen";
+import { parseChatAppointmentDraft } from "@/lib/chat-appointment";
 import { getChatScreenData } from "@/lib/chat-data";
 import { appendNavigationQuery } from "@/lib/tab-navigation";
 
@@ -7,7 +8,15 @@ export default async function ChatAppointmentPage({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams?: Promise<{ returnTo?: string | string[]; tab?: string | string[] }>;
+  searchParams?: Promise<{
+    returnTo?: string | string[];
+    tab?: string | string[];
+    appointmentDate?: string | string[];
+    appointmentTime?: string | string[];
+    appointmentReminder?: string | string[];
+    appointmentLocation?: string | string[];
+    appointmentCreatedAt?: string | string[];
+  }>;
 }) {
   const { id } = await params;
   const resolvedSearchParams = (await searchParams) ?? {};
@@ -28,9 +37,10 @@ export default async function ChatAppointmentPage({
   return (
     <ChatAppointmentScreen
       backHref={backHref}
-      chat={chatData?.chat}
+      completeBaseHref={backHref}
+      initialDraft={parseChatAppointmentDraft(resolvedSearchParams)}
       item={chatData?.item}
-      locationHref={locationHref}
+      locationBaseHref={locationHref}
       seller={chatData?.seller}
     />
   );

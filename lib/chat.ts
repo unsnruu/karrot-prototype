@@ -37,7 +37,7 @@ export function getFallbackChatThreadPreviews(): ChatThreadPreview[] {
 
     const lastMessage =
       chat.lastMessagePreview ??
-      [...chat.messages].reverse().find((message) => message.type === "buyer" || message.type === "seller")?.text ??
+      [...chat.messages].reverse().find((message): message is Extract<typeof message, { type: "buyer" | "seller" }> => message.type === "buyer" || message.type === "seller")?.text ??
       "";
 
     return [

@@ -7,7 +7,7 @@ import { SELL_FLOW_DEFAULT_LOCATION } from "@/lib/sell-flow";
 type SellLocationPickerMapProps = {
   initialLat?: number;
   initialLng?: number;
-  onCenterChange: (coords: { lat: number; lng: number }) => void;
+  onCenterChange?: (coords: { lat: number; lng: number }) => void;
   interactive?: boolean;
   showRecenterButton?: boolean;
 };
@@ -47,11 +47,11 @@ export function SellLocationPickerMap({
         mapRef.current = map;
         map.setDraggable(interactive);
         map.setZoomable(interactive);
-        onCenterChange({ lat: initialLat, lng: initialLng });
+        onCenterChange?.({ lat: initialLat, lng: initialLng });
         if (interactive) {
           kakao.maps.event.addListener(map, "idle", () => {
             const nextCenter = map.getCenter();
-            onCenterChange({
+            onCenterChange?.({
               lat: nextCenter.getLat(),
               lng: nextCenter.getLng(),
             });
@@ -77,14 +77,14 @@ export function SellLocationPickerMap({
 
     const center = new window.kakao.maps.LatLng(SELL_FLOW_DEFAULT_LOCATION.lat, SELL_FLOW_DEFAULT_LOCATION.lng);
     mapRef.current.setCenter(center);
-    onCenterChange({
+    onCenterChange?.({
       lat: SELL_FLOW_DEFAULT_LOCATION.lat,
       lng: SELL_FLOW_DEFAULT_LOCATION.lng,
     });
   };
 
   return (
-    <div className="relative flex-1 overflow-hidden bg-[#eef2f7]">
+    <div className="relative min-h-[22rem] flex-1 overflow-hidden bg-[#eef2f7]">
       <div className="h-full w-full" ref={containerRef} />
 
       {status !== "ready" ? (

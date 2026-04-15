@@ -106,6 +106,15 @@ export type ChatMessage =
     }
   | {
       id: string;
+      type: "appointment-card";
+      date: string;
+      time: string;
+      location: string;
+      createdAt: string;
+      viewHref: string;
+    }
+  | {
+      id: string;
       type: "system-date" | "system-notice";
       text: string;
     };

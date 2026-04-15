@@ -7,7 +7,6 @@ import {
   BellIcon,
   ChevronRightIcon,
   InfoIcon,
-  MoreVerticalIcon,
 } from "@/features/home/components/item-detail-icons";
 import { ItemDetailKakaoMap } from "@/features/home/components/item-detail-kakao-map";
 import { formatPrice, type HomeFeedItem, type MarketplaceItem, type SellerProfile } from "@/lib/marketplace";
@@ -48,6 +47,7 @@ function SellerSection({ seller }: { seller: SellerProfile }) {
 function ItemBodySection({ item }: { item: MarketplaceItem }) {
   const categoryLabel = item.sellingPoints[0] ?? item.condition;
   const locationHref = item.slug ? `/home/items/${item.slug}/location` : `/home/items/${item.id}/location`;
+  const hasMeetupLocation = item.meetupLat != null && item.meetupLng != null && Boolean(item.meetupHint.trim());
   return (
     <section className="py-6">
       <div className="space-y-4">
@@ -65,25 +65,27 @@ function ItemBodySection({ item }: { item: MarketplaceItem }) {
       <div className="mt-6 space-y-5">
         <p className="whitespace-pre-line text-[16px] leading-[1.7] text-black sm:text-[17px]">{item.description}</p>
 
-        <Link className="block space-y-3" href={locationHref}>
-          <div className="flex flex-wrap items-center gap-x-[10px] gap-y-2">
-            <p className="text-base font-semibold leading-none text-black">거래 희망 장소</p>
-            <span className="flex items-center text-base leading-none text-black">
-              <span>{item.meetupHint}</span>
-              <ChevronRightIcon className="ml-0.5" />
-            </span>
-          </div>
+        {hasMeetupLocation ? (
+          <Link className="block space-y-3" href={locationHref}>
+            <div className="flex flex-wrap items-center gap-x-[10px] gap-y-2">
+              <p className="text-base font-semibold leading-none text-black">거래 희망 장소</p>
+              <span className="flex items-center text-base leading-none text-black">
+                <span>{item.meetupHint}</span>
+                <ChevronRightIcon className="ml-0.5" />
+              </span>
+            </div>
 
-          <ItemDetailKakaoMap
-            lat={item.meetupLat}
-            lng={item.meetupLng}
-            meetupAddress={item.meetupAddress}
-            meetupHint={item.meetupHint}
-            title={item.title}
-          />
+            <ItemDetailKakaoMap
+              lat={item.meetupLat}
+              lng={item.meetupLng}
+              meetupAddress={item.meetupAddress}
+              meetupHint={item.meetupHint}
+              title={item.title}
+            />
 
-          <p className="text-[13px] leading-none text-[#1d1c21]">{item.distance} 근처에서 거래할 수 있어요</p>
-        </Link>
+            <p className="text-[13px] leading-none text-[#1d1c21]">{item.distance} 근처에서 거래할 수 있어요</p>
+          </Link>
+        ) : null}
       </div>
 
       <div className="mt-5 flex flex-wrap items-center gap-x-1 gap-y-2 text-[13px] leading-none text-[#8b8c91]">
@@ -107,12 +109,14 @@ function ItemBodySection({ item }: { item: MarketplaceItem }) {
 
 function RecommendationsSection({ items }: { items: HomeFeedItem[] }) {
   if (items.length === 0) return null;
+  const firstRecommendationHref = `/home/items/${items[0].slug}`;
+
   return (
     <section className="py-7">
-      <div className="flex items-center justify-between">
+      <Link className="flex items-center justify-between" href={firstRecommendationHref}>
         <h2 className="text-[18px] font-bold leading-none text-black">다른 물품 보러가기</h2>
         <ChevronRightIcon className="text-black" />
-      </div>
+      </Link>
 
       <div className="mt-6 grid grid-cols-2 gap-x-3 gap-y-5">
         {items.map((relatedItem) => (
@@ -165,7 +169,7 @@ export function ItemDetailMainColumn({
 
 export function ItemDetailAdCard({ item }: { item: HomeFeedItem }) {
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <div className="flex items-center gap-1">
         <h2 className="text-[18px] font-bold leading-none text-black">혹시 이 상품 찾으시나요?</h2>
         <span className="text-[18px] font-bold leading-none text-black">·</span>
@@ -182,18 +186,10 @@ export function ItemDetailAdCard({ item }: { item: HomeFeedItem }) {
           width={108}
         />
         <div className="flex min-w-0 flex-1 flex-col justify-between">
-          <div className="flex items-start gap-1">
-            <div className="min-w-0 flex-1">
-              <p className="line-clamp-2 text-base leading-[1.35] text-black">{item.title}</p>
-              <p className="mt-2 text-[13px] leading-none text-[#878a8f]">쿠팡</p>
-              <p className="mt-2 text-base font-bold leading-none text-black">{item.priceLabel ?? "가격 문의"}</p>
-            </div>
-            <MoreVerticalIcon className="mt-0.5 text-[#8a8a94]" />
-          </div>
-
-          <div className="flex items-center justify-end text-sm leading-none text-[#8a8a94]">
-            <span>새 상품 구매하기</span>
-            <ChevronRightIcon className="ml-0.5" />
+          <div className="min-w-0 flex-1">
+            <p className="line-clamp-2 text-base leading-[1.35] text-black">{item.title}</p>
+            <p className="mt-2 text-[13px] leading-none text-[#878a8f]">쿠팡</p>
+            <p className="mt-2 text-base font-bold leading-none text-black">{item.priceLabel ?? "가격 문의"}</p>
           </div>
         </div>
       </article>

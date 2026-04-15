@@ -1,19 +1,33 @@
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
 import { PendingFeatureLink } from "@/components/ui/pending-feature-link";
-import { HistoryBackButton } from "@/features/chat/components/history-back-button";
-import { type ChatPreview, type MarketplaceItem, type SellerProfile } from "@/lib/marketplace";
+import {
+  appendChatAppointmentQuery,
+  DEFAULT_CHAT_APPOINTMENT_REMINDER,
+  DEFAULT_CHAT_APPOINTMENT_TIME,
+  formatChatAppointmentCreatedTime,
+  formatChatAppointmentDateLabel,
+  isChatAppointmentReady,
+  type ChatAppointmentDraft,
+} from "@/lib/chat-appointment";
+import { type MarketplaceItem, type SellerProfile } from "@/lib/marketplace";
 
 export function ChatAppointmentScreen({
   seller,
   item,
   backHref,
-  locationHref,
+  locationBaseHref,
+  completeBaseHref,
+  initialDraft,
 }: {
   seller?: SellerProfile | null;
   item?: MarketplaceItem | null;
-  chat?: ChatPreview | null;
   backHref: string;
-  locationHref: string;
+  locationBaseHref: string;
+  completeBaseHref: string;
+  initialDraft: ChatAppointmentDraft;
 }) {
   if (!seller || !item) {
     return (
@@ -28,15 +42,34 @@ export function ChatAppointmentScreen({
     );
   }
 
-  const todayLabel = formatTodayLabel();
+  const [selectedDate, setSelectedDate] = useState<string | null>(initialDraft.date);
+  const [selectedTime, setSelectedTime] = useState<string | null>(initialDraft.time);
+  const [selectedReminder, setSelectedReminder] = useState<string | null>(initialDraft.reminder);
+  const selectedLocation = initialDraft.location;
+
+  const currentDraft: ChatAppointmentDraft = {
+    date: selectedDate,
+    time: selectedTime,
+    reminder: selectedReminder,
+    location: selectedLocation,
+    createdAt: initialDraft.createdAt,
+  };
+  const isReadyToComplete = isChatAppointmentReady(currentDraft);
+  const locationHref = appendChatAppointmentQuery(locationBaseHref, currentDraft);
+  const completeHref = isReadyToComplete
+    ? appendChatAppointmentQuery(completeBaseHref, {
+        ...currentDraft,
+        createdAt: currentDraft.createdAt ?? formatChatAppointmentCreatedTime(),
+      })
+    : null;
 
   return (
     <main className="min-h-screen bg-[#f5f5f5]">
       <div className="mobile-shell flex min-h-screen flex-col bg-white px-4 pb-10 pt-6">
         <header className="flex items-center justify-between">
-          <HistoryBackButton className="flex h-8 w-8 items-center justify-center text-black" fallbackHref={backHref}>
+          <Link className="flex h-8 w-8 items-center justify-center text-black" href={backHref} replace>
             <CloseIcon />
-          </HistoryBackButton>
+          </Link>
           <PendingFeatureLink className="flex h-8 w-8 items-center justify-center text-black" featureLabel="약속 메뉴" returnTo={backHref}>
             <KebabIcon />
           </PendingFeatureLink>
@@ -45,38 +78,53 @@ export function ChatAppointmentScreen({
         <h1 className="mt-8 text-[21px] font-semibold tracking-[-0.03em] text-black">{seller.name}님과 약속</h1>
 
         <section className="mt-8">
-          <AppointmentRow icon="down" label="날짜" trailing={todayLabel} />
-          <AppointmentRow icon="down" label="시간" trailing="오후 6:20" />
-          <AppointmentRow href={locationHref} icon="right" label="장소" trailing="장소 선택" />
-          <AppointmentRow icon="down" label="약속 전 나에게 알림" trailing="없음" />
+          <AppointmentRow
+            icon="down"
+            label="날짜"
+            muted={selectedDate == null}
+            onClick={() => setSelectedDate(formatChatAppointmentDateLabel())}
+            trailing={selectedDate ?? "날짜 선택"}
+          />
+          <AppointmentRow
+            icon="down"
+            label="시간"
+            muted={selectedTime == null}
+            onClick={() => setSelectedTime(DEFAULT_CHAT_APPOINTMENT_TIME)}
+            trailing={selectedTime ?? "시간 선택"}
+          />
+          <AppointmentRow href={locationHref} icon="right" label="장소" muted={selectedLocation == null} trailing={selectedLocation ?? "장소 선택"} />
+          <AppointmentRow
+            icon="down"
+            label="약속 전 나에게 알림"
+            muted={selectedReminder == null}
+            onClick={() => setSelectedReminder(DEFAULT_CHAT_APPOINTMENT_REMINDER)}
+            trailing={selectedReminder ?? "알림 선택"}
+          />
         </section>
 
         <div className="mt-auto pt-16">
-          <HistoryBackButton
-            className="flex h-[52px] w-full items-center justify-center rounded-[8px] bg-[#ff6f0f] text-[15px] font-bold text-white"
-            fallbackHref={backHref}
-          >
-            완료
-          </HistoryBackButton>
+          {completeHref ? (
+            <Link
+              className="flex h-[52px] w-full items-center justify-center rounded-[8px] bg-[#ff6f0f] text-[15px] font-bold text-white"
+              href={completeHref}
+              replace
+            >
+              완료
+            </Link>
+          ) : (
+            <button
+              aria-disabled="true"
+              className="flex h-[52px] w-full cursor-not-allowed items-center justify-center rounded-[8px] bg-[#868b94] text-[15px] font-bold text-[#d1d3d8]"
+              disabled
+              type="button"
+            >
+              완료
+            </button>
+          )}
         </div>
       </div>
     </main>
   );
-}
-
-function formatTodayLabel() {
-  const now = new Date();
-  const monthDayFormatter = new Intl.DateTimeFormat("ko-KR", {
-    month: "long",
-    day: "numeric",
-    timeZone: "Asia/Seoul",
-  });
-  const weekdayFormatter = new Intl.DateTimeFormat("ko-KR", {
-    weekday: "long",
-    timeZone: "Asia/Seoul",
-  });
-
-  return `${monthDayFormatter.format(now)} ${weekdayFormatter.format(now)}`;
 }
 
 function AppointmentRow({
@@ -85,12 +133,14 @@ function AppointmentRow({
   muted = false,
   icon,
   href,
+  onClick,
 }: {
   label: string;
   trailing: string;
   muted?: boolean;
   icon: "down" | "right";
   href?: string;
+  onClick?: () => void;
 }) {
   const content = (
     <>
@@ -107,6 +157,14 @@ function AppointmentRow({
       <Link className="flex h-[54px] items-center justify-between border-b border-black/5" href={href}>
         {content}
       </Link>
+    );
+  }
+
+  if (onClick) {
+    return (
+      <button className="flex h-[54px] w-full items-center justify-between border-b border-black/5 text-left" onClick={onClick} type="button">
+        {content}
+      </button>
     );
   }
 

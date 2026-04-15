@@ -2,20 +2,24 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { AppImage } from "@/components/ui/app-image";
 import { PendingFeatureLink } from "@/components/ui/pending-feature-link";
+import { ChatMessageRow } from "@/features/chat/components/chat-message-row";
 import { HistoryBackButton } from "@/features/chat/components/history-back-button";
+import { appendChatAppointmentQuery, isChatAppointmentReady, type ChatAppointmentDraft } from "@/lib/chat-appointment";
 import { appendNavigationQuery } from "@/lib/tab-navigation";
-import { type ChatMessage, type ChatPreview, type MarketplaceItem, type SellerProfile } from "@/lib/marketplace";
+import { type ChatPreview, type MarketplaceItem, type SellerProfile } from "@/lib/marketplace";
 
 export function ChatScreen({
   item,
   seller,
   chat,
+  appointmentDraft,
   itemId,
   backHref,
 }: {
   item?: MarketplaceItem | null;
   seller?: SellerProfile | null;
   chat?: ChatPreview | null;
+  appointmentDraft?: ChatAppointmentDraft;
   itemId: string;
   backHref: string;
 }) {
@@ -44,6 +48,21 @@ export function ChatScreen({
     tab: "chat",
     returnTo: backHref,
   });
+  const appointmentActionHref = appointmentDraft ? appendChatAppointmentQuery(appointmentHref, appointmentDraft) : appointmentHref;
+  const chatMessages = appointmentDraft && isChatAppointmentReady(appointmentDraft)
+    ? [
+        ...resolvedChat.messages,
+        {
+          id: `appointment-${itemId}`,
+          type: "appointment-card" as const,
+          date: appointmentDraft.date!,
+          time: appointmentDraft.time!,
+          location: appointmentDraft.location!,
+          createdAt: appointmentDraft.createdAt ?? "",
+          viewHref: appointmentActionHref,
+        },
+      ]
+    : resolvedChat.messages;
 
   return (
     <main className="min-h-screen bg-[#eef2f6]">
@@ -91,7 +110,7 @@ export function ChatScreen({
           </div>
 
           <div className="mt-2 flex gap-2">
-            <ChatActionButton backHref={backHref} href={appointmentHref} icon={<CalendarIcon />} label="약속잡기" />
+            <ChatActionButton backHref={backHref} href={appointmentActionHref} icon={<CalendarIcon />} label="약속잡기" />
             <ChatActionButton backHref={backHref} icon={<WonIcon />} label="당근페이" />
             <ChatActionButton backHref={backHref} icon={<PlusCircleIcon />} label="물품추가" />
           </div>
@@ -99,8 +118,8 @@ export function ChatScreen({
 
         <section className="bg-[#f8fafc] pb-24 pt-5">
           <div className="space-y-3 px-4">
-            {resolvedChat.messages.map((message) => (
-              <ChatMessageRow key={message.id} message={message} />
+            {chatMessages.map((message) => (
+              <ChatMessageRow key={message.id} message={message} sellerAvatar={seller.avatar} />
             ))}
           </div>
         </section>
@@ -148,33 +167,6 @@ function ChatActionButton({ icon, label, href, backHref }: { icon: ReactNode; la
       <span className="flex h-4 w-4 items-center justify-center">{icon}</span>
       <span>{label}</span>
     </PendingFeatureLink>
-  );
-}
-
-function ChatMessageRow({ message }: { message: ChatMessage }) {
-  if (message.type === "system-date") {
-    return <p className="pt-1 text-center text-sm text-[#8d8f95]">{message.text}</p>;
-  }
-
-  if (message.type === "system-notice") {
-    return <p className="text-center text-[13px] text-[#a3a7b0]">{message.text}</p>;
-  }
-
-  const isBuyer = message.type === "buyer";
-  const messageTime = "time" in message ? message.time : "";
-
-  return (
-    <div className={`flex items-end gap-2 ${isBuyer ? "justify-end" : "justify-start"}`}>
-      {!isBuyer ? <div className="h-8 w-8 shrink-0 rounded-full bg-[#eef1f4]" /> : null}
-      <div
-        className={`max-w-[78%] rounded-[18px] px-4 py-3 text-sm leading-6 shadow-sm sm:max-w-[65%] ${
-          isBuyer ? "order-2 bg-[#ff6f0f] text-white" : "bg-[#f2f3f6] text-[#111827]"
-        }`}
-      >
-        <p>{message.text}</p>
-      </div>
-      <p className={`text-[11px] text-[#adb1ba] ${isBuyer ? "order-1" : ""}`}>{messageTime}</p>
-    </div>
   );
 }
 
