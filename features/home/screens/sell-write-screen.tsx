@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { AppImage } from "@/components/ui/app-image";
+import { trackEvent } from "@/lib/analytics/amplitude";
 import { useSellFlow } from "@/features/home/components/sell-flow-provider";
 import { savePublishedSellItem } from "@/lib/local-sell-storage";
 import { formatSellPriceText } from "@/lib/sell-flow";
@@ -44,9 +45,24 @@ export function SellWriteScreen() {
 
   useEffect(() => {
     if (hydrated && draft.photos.length === 0) {
+      trackEvent("sell_flow_redirected_missing_photos", {
+        source: "sell_write",
+        target_step: "photos",
+      });
       router.replace("/home/sell/photos");
     }
   }, [draft.photos.length, hydrated, router]);
+
+  useEffect(() => {
+    trackEvent("sell_flow_step_viewed", {
+      has_description: Boolean(draft.description),
+      has_location: Boolean(draft.location),
+      has_price: Boolean(draft.priceText),
+      has_title: Boolean(draft.title),
+      photo_count: draft.photos.length,
+      step_name: "write",
+    });
+  }, [draft.description, draft.location, draft.photos.length, draft.priceText, draft.title]);
 
   const handleAutoFillTitle = () => {
     setTitle(AUTO_FILLED_TITLE);
@@ -57,6 +73,12 @@ export function SellWriteScreen() {
   };
 
   const handleComplete = () => {
+    trackEvent("sell_form_completed", {
+      has_location: Boolean(draft.location),
+      photo_count: draft.photos.length,
+      price_text: draft.priceText || undefined,
+      trade_type: draft.tradeType,
+    });
     const nextItem = buildSellPreviewItem(draft);
     savePublishedSellItem(nextItem);
     router.push("/home/sell/preview");

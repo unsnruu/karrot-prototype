@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { PendingFeatureLink } from "@/components/ui/pending-feature-link";
+import { trackEvent } from "@/lib/analytics/amplitude";
 import {
   appendChatAppointmentQuery,
   DEFAULT_CHAT_APPOINTMENT_REMINDER,
@@ -46,6 +47,23 @@ export function ChatAppointmentScreen({
   const [selectedTime, setSelectedTime] = useState<string | null>(initialDraft.time);
   const [selectedReminder, setSelectedReminder] = useState<string | null>(initialDraft.reminder);
   const selectedLocation = initialDraft.location;
+
+  useEffect(() => {
+    if (!seller || !item) {
+      trackEvent("chat_appointment_invalid_state", {
+        has_item: Boolean(item),
+        has_seller: Boolean(seller),
+        source: "chat_appointment",
+      });
+      return;
+    }
+
+    trackEvent("chat_appointment_started", {
+      item_id: item.id,
+      seller_name: seller.name,
+      thread_id: item.id,
+    });
+  }, [item, seller]);
 
   const currentDraft: ChatAppointmentDraft = {
     date: selectedDate,
@@ -107,6 +125,17 @@ export function ChatAppointmentScreen({
             <Link
               className="flex h-[52px] w-full items-center justify-center rounded-[8px] bg-[#ff6f0f] text-[15px] font-bold text-white"
               href={completeHref}
+              onClick={() => {
+                trackEvent("chat_appointment_completed", {
+                  has_location: Boolean(currentDraft.location),
+                  has_reminder: Boolean(currentDraft.reminder),
+                  item_id: item.id,
+                  scheduled_date: currentDraft.date ?? undefined,
+                  scheduled_time: currentDraft.time ?? undefined,
+                  seller_name: seller.name,
+                  thread_id: item.id,
+                });
+              }}
               replace
             >
               완료

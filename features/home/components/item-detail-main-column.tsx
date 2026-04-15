@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { AppImage } from "@/components/ui/app-image";
 import { PendingFeatureLink } from "@/components/ui/pending-feature-link";
+import { trackEvent } from "@/lib/analytics/amplitude";
 import {
   BellIcon,
   ChevronRightIcon,
@@ -66,7 +67,19 @@ function ItemBodySection({ item }: { item: MarketplaceItem }) {
         <p className="whitespace-pre-line text-[16px] leading-[1.7] text-black sm:text-[17px]">{item.description}</p>
 
         {hasMeetupLocation ? (
-          <Link className="block space-y-3" href={locationHref}>
+          <Link
+            className="block space-y-3"
+            href={locationHref}
+            onClick={() => {
+              trackEvent("item_detail_location_clicked", {
+                has_meetup_address: Boolean(item.meetupAddress),
+                item_id: item.id,
+                item_title: item.title,
+                meetup_hint: item.meetupHint,
+                source: "item_detail",
+              });
+            }}
+          >
             <div className="flex flex-wrap items-center gap-x-[10px] gap-y-2">
               <p className="text-base font-semibold leading-none text-black">거래 희망 장소</p>
               <span className="flex items-center text-base leading-none text-black">

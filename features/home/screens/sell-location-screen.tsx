@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { trackEvent } from "@/lib/analytics/amplitude";
 import { SellLocationPickerMap } from "@/features/home/components/sell-location-picker-map";
 import { useSellFlow } from "@/features/home/components/sell-flow-provider";
 import { LocationSelectionLayout } from "@/features/shared/components/location-selection-layout";
@@ -13,9 +14,21 @@ export function SellLocationScreen() {
 
   useEffect(() => {
     if (hydrated && draft.photos.length === 0) {
+      trackEvent("sell_flow_redirected_missing_photos", {
+        source: "sell_location",
+        target_step: "photos",
+      });
       router.replace("/home/sell/photos");
     }
   }, [draft.photos.length, hydrated, router]);
+
+  useEffect(() => {
+    trackEvent("sell_flow_step_viewed", {
+      has_location: Boolean(draft.location),
+      photo_count: draft.photos.length,
+      step_name: "location",
+    });
+  }, [draft.location, draft.photos.length]);
 
   useEffect(() => {
     setLocation(SELL_FLOW_DEFAULT_LOCATION);

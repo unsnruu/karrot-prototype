@@ -1,5 +1,8 @@
+"use client";
+
 import Link from "next/link";
 import { AppImage } from "@/components/ui/app-image";
+import { trackEvent } from "@/lib/analytics/amplitude";
 import { type ChatThreadPreview } from "@/lib/chat";
 
 export function ChatThreadRow({ thread }: { thread: ChatThreadPreview }) {
@@ -27,7 +30,18 @@ export function ChatThreadRow({ thread }: { thread: ChatThreadPreview }) {
 
   return (
     <article>
-      <Link className="block" href={thread.href}>
+      <Link
+        className="block"
+        href={thread.href}
+        onClick={() => {
+          trackEvent("chat_thread_opened", {
+            counterparty_name: thread.name,
+            source: "chat_list",
+            thread_id: thread.id,
+            town: thread.town,
+          });
+        }}
+      >
         {content}
       </Link>
     </article>

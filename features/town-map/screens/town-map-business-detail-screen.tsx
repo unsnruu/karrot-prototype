@@ -1,8 +1,11 @@
 "use client";
 
+"use client";
+
 import Link from "next/link";
 import { AppImage } from "@/components/ui/app-image";
 import { PendingFeatureLink } from "@/components/ui/pending-feature-link";
+import { trackEvent } from "@/lib/analytics/amplitude";
 import { TownMapBusinessMiniMap } from "@/features/town-map/components/town-map-business-mini-map";
 import { type TownMapBusinessDetail } from "@/lib/town-map-business";
 import { type TownMapBusinessNewsPost } from "@/lib/town-map-business-news";
@@ -83,10 +86,10 @@ export function TownMapBusinessDetailScreen({
 
         <nav className="mt-4 border-b border-[#edeef0] px-4">
           <div className="flex">
-            <TabButton active={activeTab === "home"} href={tabHrefs.home} label="홈" />
-            <TabButton active={activeTab === "news"} href={tabHrefs.news} label="소식" />
-            <TabButton active={activeTab === "reviews"} href={tabHrefs.reviews} label="후기" />
-            <TabButton active={activeTab === "photos"} href={tabHrefs.photos} label="사진" />
+            <TabButton active={activeTab === "home"} currentTab={activeTab} href={tabHrefs.home} label="홈" tabKey="home" />
+            <TabButton active={activeTab === "news"} currentTab={activeTab} href={tabHrefs.news} label="소식" tabKey="news" />
+            <TabButton active={activeTab === "reviews"} currentTab={activeTab} href={tabHrefs.reviews} label="후기" tabKey="reviews" />
+            <TabButton active={activeTab === "photos"} currentTab={activeTab} href={tabHrefs.photos} label="사진" tabKey="photos" />
           </div>
         </nav>
 
@@ -330,10 +333,34 @@ export function TownMapBusinessDetailScreen({
         ) : null}
 
         <div className="fixed bottom-0 left-1/2 z-30 flex w-full max-w-[375px] -translate-x-1/2 gap-2 border-t border-[#edeef0] bg-white px-4 py-3">
-          <PendingFeatureLink className="flex-1 rounded-[8px] bg-[#f3f4f6] py-[13px] text-[15px] font-bold leading-5 text-[#374151]" featureLabel="전화 문의" returnTo={backHref}>
+          <PendingFeatureLink
+            className="flex-1 rounded-[8px] bg-[#f3f4f6] py-[13px] text-[15px] font-bold leading-5 text-[#374151]"
+            featureLabel="전화 문의"
+            onClick={() => {
+              trackEvent("town_map_contact_clicked", {
+                business_id: detail.id,
+                business_name: detail.name,
+                contact_type: "call",
+                source: "town_map_business_detail",
+              });
+            }}
+            returnTo={backHref}
+          >
             전화 문의
           </PendingFeatureLink>
-          <PendingFeatureLink className="flex-1 rounded-[8px] bg-[#ff6f0f] py-[13px] text-[15px] font-bold leading-5 text-white" featureLabel="채팅 문의" returnTo={backHref}>
+          <PendingFeatureLink
+            className="flex-1 rounded-[8px] bg-[#ff6f0f] py-[13px] text-[15px] font-bold leading-5 text-white"
+            featureLabel="채팅 문의"
+            onClick={() => {
+              trackEvent("town_map_contact_clicked", {
+                business_id: detail.id,
+                business_name: detail.name,
+                contact_type: "chat",
+                source: "town_map_business_detail",
+              });
+            }}
+            returnTo={backHref}
+          >
             채팅 문의
           </PendingFeatureLink>
         </div>
@@ -360,13 +387,32 @@ function Section({
   );
 }
 
-function TabButton({ active = false, href, label }: { active?: boolean; href: string; label: string }) {
+function TabButton({
+  active = false,
+  currentTab,
+  href,
+  label,
+  tabKey,
+}: {
+  active?: boolean;
+  currentTab: BusinessDetailTab;
+  href: string;
+  label: string;
+  tabKey: BusinessDetailTab;
+}) {
   return (
     <Link
       className={`flex-1 border-b-2 pb-[14px] pt-3 text-center text-[14px] font-bold leading-5 ${
         active ? "border-[#111827] text-[#111827]" : "border-transparent text-[#6b7280]"
       }`}
       href={href}
+      onClick={() => {
+        trackEvent("town_map_business_tab_selected", {
+          previous_tab: currentTab,
+          source: "town_map_business_detail",
+          tab_key: tabKey,
+        });
+      }}
     >
       {label}
     </Link>

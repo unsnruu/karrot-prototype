@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AppImage } from "@/components/ui/app-image";
+import { trackEvent } from "@/lib/analytics/amplitude";
 import { TownMapPostCard } from "@/features/town-map/components/town-map-post-card";
 import { TownMapQuickActionCard } from "@/features/town-map/components/town-map-quick-action-card";
 import { buildPendingFeatureHref } from "@/lib/tab-navigation";
@@ -75,7 +76,15 @@ export function TownMapBottomSheet() {
         const currentHeight = prev ?? collapsedHeight;
         const collapsedDistance = Math.abs(currentHeight - collapsedHeight);
         const expandedDistance = Math.abs(currentHeight - expandedHeight);
-        return collapsedDistance <= expandedDistance ? collapsedHeight : expandedHeight;
+        const nextHeight = collapsedDistance <= expandedDistance ? collapsedHeight : expandedHeight;
+
+        if (nextHeight === expandedHeight && currentHeight !== expandedHeight) {
+          trackEvent("town_map_bottom_sheet_expanded", {
+            source: "town_map_bottom_sheet",
+          });
+        }
+
+        return nextHeight;
       });
       dragStateRef.current = null;
       setIsDragging(false);
@@ -170,6 +179,11 @@ export function TownMapBottomSheet() {
             aria-label="광고 자세히 보기"
             className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-black/10 bg-white"
             href={buildPendingFeatureHref("/town-map", "동네지도 광고 보기")}
+            onClick={() => {
+              trackEvent("town_map_ad_clicked", {
+                source: "town_map_bottom_sheet",
+              });
+            }}
           >
             <span className="relative h-4 w-4">
               <AppImage alt="" className="object-contain" fill sizes="16px" src={townMapScreenData.ad.arrowIcon} />

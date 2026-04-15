@@ -1,8 +1,10 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { AppImage } from "@/components/ui/app-image";
+import { trackEvent } from "@/lib/analytics/amplitude";
 import { useSellFlow } from "@/features/home/components/sell-flow-provider";
 import { SELL_FLOW_MAX_PHOTOS, SELL_FLOW_SAMPLE_PHOTOS } from "@/lib/sell-flow";
 import { buildPendingFeatureHref } from "@/lib/tab-navigation";
@@ -12,6 +14,13 @@ export function SellPhotoSelectionScreen() {
   const { draft, togglePhoto } = useSellFlow();
 
   const selectedCount = draft.photos.length;
+
+  useEffect(() => {
+    trackEvent("sell_flow_step_viewed", {
+      photo_count: draft.photos.length,
+      step_name: "photos",
+    });
+  }, [draft.photos.length]);
 
   return (
     <main className="min-h-screen bg-white text-[#111827]">
@@ -45,7 +54,17 @@ export function SellPhotoSelectionScreen() {
               <button
                 className="relative aspect-square overflow-hidden bg-[#f5f5f5]"
                 key={photo}
-                onClick={() => togglePhoto(photo)}
+                onClick={() => {
+                  const isSelected = draft.photos.includes(photo);
+
+                  trackEvent("sell_photo_toggled", {
+                    next_selected_count: isSelected ? Math.max(0, draft.photos.length - 1) : draft.photos.length + 1,
+                    photo_id: photo,
+                    selected: !isSelected,
+                    step_name: "photos",
+                  });
+                  togglePhoto(photo);
+                }}
                 type="button"
               >
                 <AppImage

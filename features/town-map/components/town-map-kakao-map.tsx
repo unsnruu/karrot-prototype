@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { trackEvent } from "@/lib/analytics/amplitude";
 import { loadKakaoMapsSdk } from "@/lib/kakao-maps";
 import { type TownMapCoordinate, type TownMapPin } from "@/lib/town-map";
 
@@ -148,6 +149,12 @@ function createPinOverlay(pin: TownMapPin) {
       }
 
       window.location.assign(pin.href!);
+      trackEvent("town_map_pin_clicked", {
+        destination_path: pin.href,
+        pin_id: pin.id,
+        pin_label: pin.label,
+        source: "town_map_map",
+      });
     });
   }
 

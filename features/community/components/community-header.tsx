@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { trackEvent } from "@/lib/analytics/amplitude";
 import { CommunityCategoryRail } from "@/features/community/components/community-category-rail";
 import { CommunityBannerLink } from "@/features/community/components/community-banner-link";
 import { communityFilters, communityTopTabs, type CommunityTabKey, type CommunityTopicFilterKey } from "@/lib/community";
@@ -21,6 +24,13 @@ export function CommunityHeader({
               className={selectedTab === tab.key ? "text-black" : "text-[#858b95]"}
               href={tab.key === "town" ? "/community" : `/community?tab=${tab.key}`}
               key={tab.key}
+              onClick={() => {
+                trackEvent("community_tab_selected", {
+                  previous_tab: selectedTab,
+                  source: "community_header",
+                  tab_key: tab.key,
+                });
+              }}
               scroll={false}
             >
               {tab.label}

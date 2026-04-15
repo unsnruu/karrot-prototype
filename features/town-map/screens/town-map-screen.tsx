@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import { BottomNav } from "@/components/navigation/bottom-nav";
 import { AppImage } from "@/components/ui/app-image";
@@ -5,6 +7,7 @@ import { PendingFeatureLink } from "@/components/ui/pending-feature-link";
 import { TownMapBottomSheet } from "@/features/town-map/components/town-map-bottom-sheet";
 import { TownMapCategoryChip } from "@/features/town-map/components/town-map-category-chip";
 import { TownMapKakaoMap } from "@/features/town-map/components/town-map-kakao-map";
+import { trackEvent } from "@/lib/analytics/amplitude";
 import { appendNavigationQuery } from "@/lib/tab-navigation";
 import {
   townMapCenter,
@@ -26,6 +29,11 @@ export function TownMapScreen({ pins }: { pins: TownMapPin[] }) {
               aria-label="업체 검색 화면 열기"
               className="block rounded-[8px] bg-gradient-to-b from-[#fdfdfe] to-[#f4f6fa] p-2 shadow-[0px_1px_8px_0px_rgba(0,0,0,0.15)]"
               href={appendNavigationQuery("/town-map/search", { returnTo: "/town-map", tab: "town-map" })}
+              onClick={() => {
+                trackEvent("town_map_search_opened", {
+                  source: "town_map_screen",
+                });
+              }}
             >
               <div className="flex h-12 items-center gap-2">
                 <span className="relative h-8 w-8 shrink-0">

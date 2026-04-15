@@ -1,5 +1,8 @@
+"use client";
+
 import { AppImage } from "@/components/ui/app-image";
 import { PendingFeatureLink } from "@/components/ui/pending-feature-link";
+import { trackEvent } from "@/lib/analytics/amplitude";
 import { type TownMapSearchCategory } from "@/lib/town-map";
 import { cn } from "@/lib/utils";
 
@@ -11,6 +14,13 @@ export function TownMapCategoryChip({ category }: { category: TownMapSearchCateg
         category.active ? "bg-gradient-to-b from-white to-[#fff8eb]" : "bg-white",
       )}
       featureLabel={`${category.label} 카테고리 보기`}
+      onClick={() => {
+        trackEvent("town_map_category_selected", {
+          category_id: category.id,
+          category_label: category.label,
+          source: "town_map_screen",
+        });
+      }}
       returnTo="/town-map"
     >
       <span className="relative h-4 w-4 shrink-0">

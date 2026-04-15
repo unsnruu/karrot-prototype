@@ -1,9 +1,24 @@
+"use client";
+
+import { PendingFeatureLink } from "@/components/ui/pending-feature-link";
 import { AppImage } from "@/components/ui/app-image";
+import { trackEvent } from "@/lib/analytics/amplitude";
 import { type TownMapPost } from "@/lib/town-map";
 
 export function TownMapPostCard({ post }: { post: TownMapPost }) {
   return (
-    <article className="flex flex-col gap-2">
+    <PendingFeatureLink
+      className="flex flex-col gap-2"
+      featureLabel={`${post.businessName} 소식 보기`}
+      onClick={() => {
+        trackEvent("town_map_post_clicked", {
+          business_name: post.businessName,
+          post_id: post.id,
+          source: "town_map_bottom_sheet",
+        });
+      }}
+      returnTo="/town-map"
+    >
       <div className="flex items-start gap-2">
         <div className="relative mt-0.5 h-5 w-5 shrink-0 overflow-hidden rounded-full">
           <AppImage alt="" className="object-cover" fill sizes="20px" src={post.avatar} />
@@ -35,6 +50,6 @@ export function TownMapPostCard({ post }: { post: TownMapPost }) {
           </div>
         ))}
       </div>
-    </article>
+    </PendingFeatureLink>
   );
 }

@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { trackEvent } from "@/lib/analytics/amplitude";
 import { ItemDetailHero } from "@/features/home/components/item-detail-hero";
 import { ItemDetailMainColumn } from "@/features/home/components/item-detail-main-column";
 import { SellPreviewBottomBar } from "@/features/home/components/sell-preview-bottom-bar";
@@ -25,6 +26,14 @@ export function SellPreviewScreen() {
       router.replace("/home/sell/write");
     }
   }, [draft, hydrated, publishedItem, router]);
+
+  useEffect(() => {
+    trackEvent("sell_flow_step_viewed", {
+      has_published_item: Boolean(publishedItem),
+      photo_count: draft.photos.length,
+      step_name: "preview",
+    });
+  }, [draft.photos.length, publishedItem]);
 
   const item = publishedItem ?? buildSellPreviewItem(draft);
   const seller = buildSellPreviewSeller();

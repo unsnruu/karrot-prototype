@@ -1,10 +1,14 @@
 "use client";
 
 import { startTransition, useCallback, useEffect, useRef, useState } from "react";
+import { HomeNativeAdBanner } from "@/features/home/components/home-native-ad-banner";
 import { HomeNativeAdCard } from "@/features/home/components/home-native-ad-card";
+import { HomeNativeAdCarousel } from "@/features/home/components/home-native-ad-carousel";
 import { MarketplaceListItem } from "@/features/home/components/marketplace-list-item";
+import { trackEvent } from "@/lib/analytics/amplitude";
 import { buildPublishedSellFeedItem, readPublishedSellItem } from "@/lib/local-sell-storage";
-import { HOME_FEED_PAGE_SIZE, type HomeFeedEntry } from "@/lib/marketplace";
+import { type HomeExperimentVariant } from "@/lib/home-experiment";
+import { HOME_FEED_PAGE_SIZE, type HomeFeedEntry, type HomeFeedNativeAd } from "@/lib/marketplace";
 
 type HomeFeedResponse = {
   items: HomeFeedEntry[];
@@ -17,11 +21,13 @@ export function HomeFeed({
   initialHasMore,
   initialNextOffset,
   category,
+  variant,
 }: {
   initialItems: HomeFeedEntry[];
   initialHasMore: boolean;
   initialNextOffset: number;
   category?: string;
+  variant: HomeExperimentVariant;
 }) {
   const [items, setItems] = useState(initialItems);
   const [hasMore, setHasMore] = useState(initialHasMore);
@@ -91,6 +97,12 @@ export function HomeFeed({
         error: loadError,
         offset: nextOffsetRef.current,
       });
+      trackEvent("home_feed_load_failed", {
+        category: category ?? "all",
+        offset: nextOffsetRef.current,
+        error_message: loadError instanceof Error ? loadError.message : String(loadError),
+        source: "home_feed",
+      });
       setError("상품을 더 불러오지 못했어요.");
     } finally {
       isLoadingRef.current = false;
@@ -124,15 +136,28 @@ export function HomeFeed({
     };
   }, [hasMore, loadMore]);
 
+  const carouselAds = variant === "c"
+    ? items.filter((entry): entry is HomeFeedNativeAd => entry.type === "native-ad")
+    : [];
+  const feedItems = variant === "c"
+    ? items.filter((entry) => entry.type !== "native-ad")
+    : items;
+
   return (
     <div>
-      {items.map((entry) => (
+      {variant === "c" ? <HomeNativeAdCarousel ads={carouselAds} variant={variant} /> : null}
+
+      {feedItems.map((entry, index) => (
         entry.type === "native-ad"
-          ? <HomeNativeAdCard ad={entry} key={entry.id} />
-          : <MarketplaceListItem item={entry} key={entry.id} />
+          ? (
+            variant === "b"
+              ? <HomeNativeAdBanner ad={entry} index={index} key={entry.id} variant={variant} />
+              : <HomeNativeAdCard ad={entry} index={index} key={entry.id} variant={variant} />
+          )
+          : <MarketplaceListItem category={category} item={entry} key={entry.id} position={index} />
       ))}
 
-      {items.length === 0 && !isLoading ? (
+      {feedItems.length === 0 && !isLoading ? (
         <div className="flex min-h-[240px] items-center justify-center px-4 py-12 text-center">
           <p className="text-sm text-[#64748b]">선택한 카테고리에 등록된 상품이 아직 없어요.</p>
         </div>

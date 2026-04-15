@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { PendingFeatureLink } from "@/components/ui/pending-feature-link";
 import { ArrowLeftIcon } from "@/features/home/components/item-detail-icons";
+import { trackEvent } from "@/lib/analytics/amplitude";
 import { buildPendingFeatureHref } from "@/lib/tab-navigation";
 import {
   townMapKeyboardRows,
@@ -45,10 +46,17 @@ export function TownMapSearchScreen({ returnHref }: TownMapSearchScreenProps) {
     const value = term.trim();
 
     if (!value) {
+      trackEvent("town_map_search_empty_submitted", {
+        source: "town_map_search",
+      });
       return;
     }
 
     addRecentSearch(value);
+    trackEvent("town_map_search_submitted", {
+      query: value,
+      source: "town_map_search",
+    });
     router.push(buildPendingFeatureHref(returnHref, "동네지도에서 업체 찾기"));
   };
 
@@ -103,7 +111,12 @@ export function TownMapSearchScreen({ returnHref }: TownMapSearchScreenProps) {
             <button
               className="text-[14px] leading-5 text-[#9ca3af] disabled:opacity-40"
               disabled={!hasRecentSearches}
-              onClick={() => setRecentSearches([])}
+              onClick={() => {
+                trackEvent("town_map_recent_searches_cleared", {
+                  source: "town_map_search",
+                });
+                setRecentSearches([]);
+              }}
               type="button"
             >
               전체 삭제

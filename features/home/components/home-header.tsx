@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { AppImage } from "@/components/ui/app-image";
 import { PendingFeatureLink } from "@/components/ui/pending-feature-link";
+import { trackEvent } from "@/lib/analytics/amplitude";
 import { type HomeCategory } from "@/lib/marketplace";
 
 const iconChevronDown = "/icons/chevron-down.svg";
@@ -50,6 +51,13 @@ export function HomeHeader({
                 }`}
                 href={buildCategoryHref(category.label)}
                 key={category.label}
+                onClick={() => {
+                  trackEvent("home_category_selected", {
+                    category_label: category.label,
+                    previous_category: selectedCategory ?? "전체",
+                    source: "home_header",
+                  });
+                }}
                 scroll={false}
               >
                 {category.label}
