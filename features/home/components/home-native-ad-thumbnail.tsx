@@ -19,10 +19,10 @@ export function HomeNativeAdThumbnail({
   const markImageWidth = size === 60 ? 6 : 10;
 
   return (
-    <div className="relative shrink-0" style={{ height: size, width: size }}>
+    <div className="relative shrink-0 overflow-hidden rounded-[8px]" style={{ height: size, width: size }}>
       <AppImage
         alt={alt}
-        className="rounded-[8px] object-cover"
+        className="block h-full w-full object-cover"
         height={size}
         src={src}
         width={size}
