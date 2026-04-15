@@ -97,21 +97,21 @@ author_id,topic,title,body,town,image_path,views_count,likes_count,sort_order,pu
 
 사진으로는 다 안 담기는데, 익숙한 동네 길이 잠깐 다르게 보이는 순간이 있잖아요.
 오늘이 딱 그랬어요.
-그래서 그냥 지나가기 아쉬워서 동네 풍경 공유해봅니다.",망원동,today-hangang-cherry-blossom/image-01.webp,311,27,3,2026-04-10T20:31:00+09:00
+그래서 그냥 지나가기 아쉬워서 동네 풍경 공유해봅니다.",망원동,https://udazzhluazlmcsbdbhzo.supabase.co/storage/v1/object/public/community-posts/today-hangang-cherry-blossom/image-01.webp,311,27,3,2026-04-10T20:31:00+09:00
 00000000-0000-0000-0000-000000001002,동네풍경,비 온 뒤 망원시장 골목 분위기 좋네요,"비가 그치고 나서 잠깐 장 보러 나갔는데 바닥은 살짝 젖어 있고 간판 불빛은 또렷해서 골목 분위기가 되게 좋았어요.
 
 평소엔 그냥 지나치던 길인데 오늘은 유난히 천천히 걷게 되더라고요.
 가게마다 문 닫기 전 정리하는 소리도 나고, 시장 특유의 냄새도 은근하게 남아 있어서 괜히 저녁 동네 감성이 진하게 느껴졌습니다.
 
 날씨가 맑은 날과는 또 다른 분위기가 있어서 좋았어요.
-이런 날은 일부러 멀리 안 나가도 동네 안에서 충분히 기분 전환이 되는 것 같습니다.",망원동,rainy-mangwon-market-alley/image-01.webp,226,19,3,2026-04-09T19:58:00+09:00
+이런 날은 일부러 멀리 안 나가도 동네 안에서 충분히 기분 전환이 되는 것 같습니다.",망원동,https://udazzhluazlmcsbdbhzo.supabase.co/storage/v1/object/public/community-posts/rainy-mangwon-market-alley/image-01.webp,226,19,3,2026-04-09T19:58:00+09:00
 00000000-0000-0000-0000-000000001001,동네풍경,합정 카페 창가에 앉아 있으니 봄이 온 것 같아요,"햇빛이 잘 드는 카페 창가 자리에 앉아 있는데, 밖으로 지나가는 사람들 옷차림이 확 가벼워졌더라고요.
 
 며칠 전까지만 해도 두꺼운 외투가 많았는데 오늘은 얇은 셔츠나 가디건 입은 분들이 많아서, 그걸 보고 나서야 아 진짜 봄이 왔구나 싶었습니다.
 창문으로 들어오는 빛도 부드럽고 커피 마시는 속도도 괜히 느려졌어요.
 
 동네도 계절 따라 분위기가 달라져서 그런지 익숙한 거리인데도 새롭게 보일 때가 있네요.
-오늘은 그런 날이라 그냥 기록처럼 남겨봅니다.",합정동,hapjeong-cafe-spring-window/image-01.webp,143,13,3,2026-04-08T15:12:00+09:00
+오늘은 그런 날이라 그냥 기록처럼 남겨봅니다.",합정동,https://udazzhluazlmcsbdbhzo.supabase.co/storage/v1/object/public/community-posts/hapjeong-cafe-spring-window/image-01.webp,143,13,3,2026-04-08T15:12:00+09:00
 00000000-0000-0000-0000-000000001002,동네풍경,주말 아침 망원동은 평일이랑 또 다르네요,"평일엔 바쁘게 지나가기만 하던 길인데 오늘은 조금 일찍 나와서 천천히 걸어봤어요.
 
 빵집 앞에 줄 서 있는 사람들, 강아지 산책 나온 분들, 문 열 준비하는 가게들까지 다 여유로워 보여서 좋았어요.
@@ -126,7 +126,7 @@ author_id,topic,title,body,town,image_path,views_count,likes_count,sort_order,pu
 사람들도 다 바쁘게 지나가는데 저만 잠깐 멈춰 있는 느낌이었어요.
 
 크게 특별한 건 없어도 이런 순간 때문에 동네를 좋아하게 되는 것 같아요.
-오늘은 그냥 그 장면이 오래 기억에 남아서 적어봅니다.",서교동,seogyo-alley-sunset/image-01.webp,134,12,4,2026-04-05T18:44:00+09:00
+오늘은 그냥 그 장면이 오래 기억에 남아서 적어봅니다.",서교동,https://udazzhluazlmcsbdbhzo.supabase.co/storage/v1/object/public/community-posts/seogyo-alley-sunset/image-01.webp,134,12,4,2026-04-05T18:44:00+09:00
 00000000-0000-0000-0000-000000001007,동네풍경,"바람 많이 불던 날, 한강 쪽 산책길이 유난히 한산했어요","평소 같으면 사람 많은 시간인데 바람이 꽤 불어서 그런지 산책길이 한산하더라고요.
 
 덕분에 이어폰 없이 그냥 걷기 좋았어요.
@@ -134,4 +134,4 @@ author_id,topic,title,body,town,image_path,views_count,likes_count,sort_order,pu
 날이 완전히 따뜻한 건 아니었지만 그래서인지 사람 수가 적어서 길 자체가 더 넓어 보이기도 했고요.
 
 늘 북적이는 곳도 날씨 하나에 이렇게 다르게 보일 수 있구나 싶었습니다.
-조용한 동네 풍경 좋아하시는 분들은 오늘 같은 날도 꽤 괜찮을 것 같아요.",성산동,windy-hangang-walkway/image-01.webp,77,5,4,2026-04-04T17:26:00+09:00
+조용한 동네 풍경 좋아하시는 분들은 오늘 같은 날도 꽤 괜찮을 것 같아요.",성산동,https://udazzhluazlmcsbdbhzo.supabase.co/storage/v1/object/public/community-posts/windy-hangang-walkway/image-01.webp,77,5,4,2026-04-04T17:26:00+09:00

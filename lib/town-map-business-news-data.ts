@@ -3,7 +3,7 @@ import "server-only";
 import { cache } from "react";
 import { createServerSupabaseClient, hasSupabaseEnv } from "@/lib/supabase/server";
 import { isRecord, logSupabaseFallback, parseRows, readNullableString, readString } from "@/lib/supabase/row-helpers";
-import { townMapBusinessNewsFallbackRows, type TownMapBusinessNewsFallbackRow, type TownMapBusinessNewsPost } from "@/lib/town-map-business-news";
+import { type TownMapBusinessNewsPost } from "@/lib/town-map-business-news";
 
 type BusinessNewsRow = {
   id: string;
@@ -51,11 +51,7 @@ function buildBusinessNewsImageSrc(imagePath: string | null) {
     return undefined;
   }
 
-  if (/^https?:\/\//.test(imagePath)) {
-    return imagePath;
-  }
-
-  return encodeURI(`/api/business-news-images/${imagePath}`);
+  return /^https?:\/\//.test(imagePath) ? imagePath : undefined;
 }
 
 function mapBusinessNewsRow(row: Pick<BusinessNewsRow, "id" | "title" | "body" | "created_at" | "image_path">): TownMapBusinessNewsPost {
@@ -69,18 +65,9 @@ function mapBusinessNewsRow(row: Pick<BusinessNewsRow, "id" | "title" | "body" |
   };
 }
 
-function getFallbackBusinessNewsPosts(businessId: string) {
-  return townMapBusinessNewsFallbackRows
-    .filter((row) => row.business_id === businessId)
-    .sort((left, right) => new Date(right.created_at).getTime() - new Date(left.created_at).getTime())
-    .map((row: TownMapBusinessNewsFallbackRow) => mapBusinessNewsRow(row));
-}
-
 export const getTownMapBusinessNewsPosts = cache(async (businessId: string): Promise<TownMapBusinessNewsPost[]> => {
-  const fallback = getFallbackBusinessNewsPosts(businessId);
-
   if (!hasSupabaseEnv()) {
-    return fallback;
+    return [];
   }
 
   try {
@@ -96,12 +83,12 @@ export const getTownMapBusinessNewsPosts = cache(async (businessId: string): Pro
     }
 
     if (!Array.isArray(data) || data.length === 0) {
-      return fallback;
+      return [];
     }
 
     return parseRows(data, "business-news", parseBusinessNewsRow).map(mapBusinessNewsRow);
   } catch (error) {
     logSupabaseFallback("business-news", error);
-    return fallback;
+    return [];
   }
 });

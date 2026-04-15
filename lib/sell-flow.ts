@@ -40,15 +40,15 @@ export const SELL_FLOW_DEFAULT_LOCATION: SellLocation = {
 };
 
 export const SELL_FLOW_SAMPLE_PHOTOS = [
-  "/api/item-images/perfume-selection/image-01.jpg",
-  "/api/item-images/perfume-selection/image-02.jpg",
-  "/api/item-images/perfume-selection/image-03.jpg",
-  "/api/item-images/perfume-selection/image-04.jpg",
-  "/api/item-images/perfume-selection/image-05.jpg",
-  "/api/item-images/perfume-selection/image-06.jpg",
-  "/api/item-images/perfume-selection/image-07.jpg",
-  "/api/item-images/perfume-selection/image-08.jpg",
-  "/api/item-images/perfume-selection/image-09.jpg",
+  "https://udazzhluazlmcsbdbhzo.supabase.co/storage/v1/object/public/items/perfume-selection/image-01.jpg",
+  "https://udazzhluazlmcsbdbhzo.supabase.co/storage/v1/object/public/items/perfume-selection/image-02.jpg",
+  "https://udazzhluazlmcsbdbhzo.supabase.co/storage/v1/object/public/items/perfume-selection/image-03.jpg",
+  "https://udazzhluazlmcsbdbhzo.supabase.co/storage/v1/object/public/items/perfume-selection/image-04.jpg",
+  "https://udazzhluazlmcsbdbhzo.supabase.co/storage/v1/object/public/items/perfume-selection/image-05.jpg",
+  "https://udazzhluazlmcsbdbhzo.supabase.co/storage/v1/object/public/items/perfume-selection/image-06.jpg",
+  "https://udazzhluazlmcsbdbhzo.supabase.co/storage/v1/object/public/items/perfume-selection/image-07.jpg",
+  "https://udazzhluazlmcsbdbhzo.supabase.co/storage/v1/object/public/items/perfume-selection/image-08.jpg",
+  "https://udazzhluazlmcsbdbhzo.supabase.co/storage/v1/object/public/items/perfume-selection/image-09.jpg",
 ];
 
 export const emptySellFlowDraft = (): SellFlowDraft => ({
