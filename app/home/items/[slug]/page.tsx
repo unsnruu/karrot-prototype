@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { ItemDetailScreen } from "@/features/home/screens/item-detail-screen";
+import { type HomeFeedItem } from "@/lib/marketplace";
 import { getHomeFeedPage, getMarketplaceItemDetail } from "@/lib/marketplace-data";
 import { isSafeLocalHref } from "@/lib/tab-navigation";
 
@@ -25,7 +26,9 @@ export default async function HomeItemPage({
     notFound();
   }
 
-  const relatedItems = feedPage.items.filter((item) => item.id !== detail.item.id);
+  const relatedItems = feedPage.items.filter(
+    (item): item is HomeFeedItem => item.type === "marketplace-item" && item.id !== detail.item.id,
+  );
 
   return <ItemDetailScreen item={detail.item} relatedItems={relatedItems} returnTo={returnTo} seller={detail.seller} />;
 }

@@ -1,0 +1,13 @@
+.next
+node_modules
+docs
+scripts
+.supabase
+README.md
+.gitmessage.txt
+.mcp.json
+.DS_Store
+.env.example
+supabase/**/*.sql
+supabase/**/*.csv
+supabase/**/*.md

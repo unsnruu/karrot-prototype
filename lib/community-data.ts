@@ -18,6 +18,7 @@ import {
   readNumber,
   readString,
 } from "@/lib/supabase/row-helpers";
+import { buildSupabaseBackedImageSrc } from "@/lib/supabase/storage";
 
 // ─── Row types ────────────────────────────────────────────────────────────────
 
@@ -87,11 +88,11 @@ function formatViewsLabel(viewsCount: number) {
 }
 
 function buildCommunityImageSrc(imagePath: string | null) {
-  if (!imagePath) {
-    return undefined;
-  }
-
-  return encodeURI(`/api/community-post-images/${imagePath}`);
+  return buildSupabaseBackedImageSrc(imagePath, {
+    bucket: "community-posts",
+    localRoutePrefix: "/api/community-post-images",
+    preferStorage: true,
+  });
 }
 
 function buildExcerpt(body: string) {
