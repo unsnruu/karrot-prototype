@@ -9,6 +9,7 @@ type SellLocationPickerMapProps = {
   initialLng?: number;
   onCenterChange: (coords: { lat: number; lng: number }) => void;
   interactive?: boolean;
+  showRecenterButton?: boolean;
 };
 
 export function SellLocationPickerMap({
@@ -16,6 +17,7 @@ export function SellLocationPickerMap({
   initialLng = SELL_FLOW_DEFAULT_LOCATION.lng,
   onCenterChange,
   interactive = true,
+  showRecenterButton = interactive,
 }: SellLocationPickerMapProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<{
@@ -98,7 +100,7 @@ export function SellLocationPickerMap({
         <div className="mx-auto -mt-2 h-4 w-4 rotate-45 bg-[#ff6f0f]" />
       </div>
 
-      {interactive ? (
+      {showRecenterButton ? (
         <button
           className="absolute bottom-8 right-5 flex h-14 w-14 items-center justify-center rounded-full bg-white text-[#111827] shadow-[0_10px_24px_rgba(15,23,42,0.18)]"
           onClick={recenter}

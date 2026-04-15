@@ -16,12 +16,21 @@ export default async function ChatAppointmentPage({
     : resolvedSearchParams.returnTo;
   const tab = Array.isArray(resolvedSearchParams.tab) ? resolvedSearchParams.tab[0] : resolvedSearchParams.tab;
   const chatData = await getChatScreenData(id);
+  const backHref = appendNavigationQuery(`/chat/${id}`, {
+    tab: tab === "chat" ? "chat" : undefined,
+    returnTo,
+  });
+  const locationHref = appendNavigationQuery(`/chat/${id}/appointment/location`, {
+    tab: tab === "chat" ? "chat" : undefined,
+    returnTo,
+  });
 
   return (
     <ChatAppointmentScreen
-      backHref={appendNavigationQuery(`/chat/${id}`, { tab: tab === "chat" ? "chat" : undefined, returnTo })}
+      backHref={backHref}
       chat={chatData?.chat}
       item={chatData?.item}
+      locationHref={locationHref}
       seller={chatData?.seller}
     />
   );

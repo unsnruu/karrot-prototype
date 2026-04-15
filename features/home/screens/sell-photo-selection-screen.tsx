@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { AppImage } from "@/components/ui/app-image";
 import { useSellFlow } from "@/features/home/components/sell-flow-provider";
 import { SELL_FLOW_MAX_PHOTOS, SELL_FLOW_SAMPLE_PHOTOS } from "@/lib/sell-flow";
+import { buildPendingFeatureHref } from "@/lib/tab-navigation";
 
 export function SellPhotoSelectionScreen() {
   const router = useRouter();
@@ -19,10 +20,13 @@ export function SellPhotoSelectionScreen() {
           <Link aria-label="홈으로 돌아가기" className="flex h-10 w-10 items-center justify-center" href="/home">
             <CloseIcon />
           </Link>
-          <button className="flex items-center gap-1 text-[15px] font-semibold text-[#111827]" type="button">
+          <Link
+            className="flex items-center gap-1 text-[15px] font-semibold text-[#111827]"
+            href={buildPendingFeatureHref("/home/sell/photos", "최근 항목 정렬 변경")}
+          >
             최근 항목
             <ChevronDownIcon />
-          </button>
+          </Link>
           <div className="h-10 w-10" />
         </header>
 

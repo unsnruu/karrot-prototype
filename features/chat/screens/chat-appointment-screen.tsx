@@ -7,11 +7,13 @@ export function ChatAppointmentScreen({
   seller,
   item,
   backHref,
+  locationHref,
 }: {
   seller?: SellerProfile | null;
   item?: MarketplaceItem | null;
   chat?: ChatPreview | null;
   backHref: string;
+  locationHref: string;
 }) {
   if (!seller || !item) {
     return (
@@ -45,7 +47,7 @@ export function ChatAppointmentScreen({
         <section className="mt-8">
           <AppointmentRow icon="down" label="날짜" trailing={todayLabel} />
           <AppointmentRow icon="down" label="시간" trailing="오후 6:20" />
-          <AppointmentRow icon="right" label="장소" muted trailing="합정역" />
+          <AppointmentRow href={locationHref} icon="right" label="장소" trailing="장소 선택" />
           <AppointmentRow icon="down" label="약속 전 나에게 알림" trailing="없음" />
         </section>
 
@@ -82,21 +84,33 @@ function AppointmentRow({
   trailing,
   muted = false,
   icon,
+  href,
 }: {
   label: string;
   trailing: string;
   muted?: boolean;
   icon: "down" | "right";
+  href?: string;
 }) {
-  return (
-    <div className="flex h-[54px] items-center justify-between border-b border-black/5">
+  const content = (
+    <>
       <p className="text-[16px] font-semibold text-[#25282d]">{label}</p>
       <div className="flex items-center gap-2">
         <p className={`text-[16px] ${muted ? "text-[#c6c9cf]" : "text-[#25282d]"}`}>{trailing}</p>
         {icon === "down" ? <ChevronDownIcon /> : <ChevronRightIcon />}
       </div>
-    </div>
+    </>
   );
+
+  if (href) {
+    return (
+      <Link className="flex h-[54px] items-center justify-between border-b border-black/5" href={href}>
+        {content}
+      </Link>
+    );
+  }
+
+  return <div className="flex h-[54px] items-center justify-between border-b border-black/5">{content}</div>;
 }
 
 function CloseIcon() {

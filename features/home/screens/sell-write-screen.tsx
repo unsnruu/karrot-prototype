@@ -8,6 +8,7 @@ import { useSellFlow } from "@/features/home/components/sell-flow-provider";
 import { savePublishedSellItem } from "@/lib/local-sell-storage";
 import { formatSellPriceText } from "@/lib/sell-flow";
 import { buildSellPreviewItem } from "@/lib/sell-flow";
+import { buildPendingFeatureHref } from "@/lib/tab-navigation";
 import { prototypeViewerUser } from "@/lib/prototype-user";
 
 const AUTO_FILLED_TITLE = "향수 일괄 판매해요";
@@ -69,9 +70,12 @@ export function SellWriteScreen() {
             <CloseIcon />
           </Link>
           <h1 className="text-[20px] font-bold tracking-[-0.03em] text-[#111827]">내 물건 팔기</h1>
-          <button className="text-[14px] font-medium text-[#9ca3af]" type="button">
+          <Link
+            className="text-[14px] font-medium text-[#9ca3af]"
+            href={buildPendingFeatureHref("/home/sell/write", "판매글 임시저장")}
+          >
             임시저장
-          </button>
+          </Link>
         </header>
 
         <section className="flex gap-2 overflow-x-auto border-b border-[#f3f4f6] px-4 py-4">
