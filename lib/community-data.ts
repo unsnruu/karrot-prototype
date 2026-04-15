@@ -1,6 +1,7 @@
 import "server-only";
 
 import { cache } from "react";
+import { LOCAL_FALLBACK_AVATAR_SRC } from "@/lib/fallback-images";
 import {
   communityPosts,
   getFallbackCommunityPostDetail,
@@ -132,7 +133,7 @@ function mapCommunityPostDetail(row: CommunityPostRow): CommunityPostDetail {
     badgeLabel: "동네친구",
     author: {
       name: "당근 이웃",
-      avatar: post.image ?? "/images/figma-migrated/51ea0095-74aa-44be-b847-3ad1e93d2a26.png",
+      avatar: post.image ?? LOCAL_FALLBACK_AVATAR_SRC,
       activityLabel: `${row.town} 인증 · ${post.postedAt}`,
     },
     bodyParagraphs: bodyParagraphs.length ? bodyParagraphs : [post.excerpt],

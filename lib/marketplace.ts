@@ -1,3 +1,5 @@
+import { LOCAL_FALLBACK_AVATAR_SRC, LOCAL_FALLBACK_IMAGE_SRC } from "@/lib/fallback-images";
+
 export type HomeCategory = {
   label: string;
   hasChevron?: boolean;
@@ -81,7 +83,7 @@ export const itemDetailUnifiedAd: HomeFeedItem = {
   slug: "detail-ad-default",
   title: "912 룸 앤 패브릭 멀티 스프레이 섬유향수",
   subtitle: "광고",
-  image: "/images/figma-migrated/item-detail-ad-912-room-fabric-mist.png",
+  image: LOCAL_FALLBACK_IMAGE_SRC,
   town: "온라인",
   distance: "",
   postedAt: "",
@@ -292,7 +294,7 @@ export const sellers: SellerProfile[] = [
   {
     id: "seller-1",
     name: "코워킹랩 합정",
-    avatar: "/images/figma-migrated/4772163f-171c-4ee6-a1ab-63ed1855d1e5.png",
+    avatar: LOCAL_FALLBACK_AVATAR_SRC,
     town: "합정동",
     responseRate: 97,
     mannerScore: 38.9,
@@ -302,7 +304,7 @@ export const sellers: SellerProfile[] = [
   {
     id: "seller-2",
     name: "개발새발",
-    avatar: "/images/figma-migrated/a56f8fe4-4116-4f18-9310-f37c2d97fbac.png",
+    avatar: LOCAL_FALLBACK_AVATAR_SRC,
     town: "합정동",
     responseRate: 92,
     mannerScore: 39.6,
@@ -312,7 +314,7 @@ export const sellers: SellerProfile[] = [
   {
     id: "seller-3",
     name: "향수좋아",
-    avatar: "/images/figma-migrated/df87f611-f817-4b48-9b0a-4fdade26ba01.png",
+    avatar: LOCAL_FALLBACK_AVATAR_SRC,
     town: "합정동",
     responseRate: 88,
     mannerScore: 37.8,
@@ -322,7 +324,7 @@ export const sellers: SellerProfile[] = [
   {
     id: "seller-4",
     name: "브롬톤러버",
-    avatar: "/images/figma-migrated/95090c18-19ef-45f5-8848-11bd9938d9c1.png",
+    avatar: LOCAL_FALLBACK_AVATAR_SRC,
     town: "서교동",
     responseRate: 95,
     mannerScore: 40.2,
@@ -338,7 +340,7 @@ export const marketplaceItems: MarketplaceItem[] = [
     subtitle: "광고 · 합정 코워킹랩",
     description:
       "합정역 도보 3분 거리 공유오피스 체험권입니다. 조용한 좌석, 프리미엄 커피, 회의실 할인 혜택까지 포함되어 있어요.",
-    image: "/images/figma-migrated/4772163f-171c-4ee6-a1ab-63ed1855d1e5.png",
+    image: LOCAL_FALLBACK_IMAGE_SRC,
     town: "합정동",
     distance: "100m",
     postedAt: "오늘",
@@ -357,7 +359,7 @@ export const marketplaceItems: MarketplaceItem[] = [
     title: "맥북 프로 M3 512/24",
     description:
       "실사용 8개월 정도이고 외관 아주 깔끔합니다. 배터리 효율 좋고, 충전기와 박스까지 같이 드려요. 합정역 또는 상수역에서 거래 가능합니다.",
-    image: "/images/figma-migrated/a56f8fe4-4116-4f18-9310-f37c2d97fbac.png",
+    image: LOCAL_FALLBACK_IMAGE_SRC,
     town: "합정동",
     distance: "500m",
     postedAt: "3일 전",
@@ -377,7 +379,7 @@ export const marketplaceItems: MarketplaceItem[] = [
     title: "Lush 바디스프레이 '더티'",
     description:
       "3회 미만 사용했고 향이 저랑 안 맞아 판매합니다. 유통기한 넉넉하고 박스는 없어요. 향수 입문하시는 분께 추천해요.",
-    image: "/images/figma-migrated/df87f611-f817-4b48-9b0a-4fdade26ba01.png",
+    image: LOCAL_FALLBACK_IMAGE_SRC,
     town: "합정동",
     distance: "400m",
     postedAt: "2일 전",
@@ -397,7 +399,7 @@ export const marketplaceItems: MarketplaceItem[] = [
     title: "사랑받는 빵집 Top100 공개\n🏆",
     description:
       "오늘 갓 구운 베이글 라인업 안내입니다. 쪽파 크림치즈, 무화과, 참깨 베이글이 준비되어 있어요.",
-    image: "/images/figma-migrated/51ea0095-74aa-44be-b847-3ad1e93d2a26.png",
+    image: LOCAL_FALLBACK_IMAGE_SRC,
     town: "합정동",
     distance: "200m",
     postedAt: "오늘",
@@ -416,7 +418,7 @@ export const marketplaceItems: MarketplaceItem[] = [
     title: "브롬톤 미니벨로 자전거",
     description:
       "실내 보관했고 최근 정비 완료했습니다. 출퇴근용으로 쓰기 좋고, 접이식이라 차량 이동에도 편합니다.",
-    image: "/images/figma-migrated/95090c18-19ef-45f5-8848-11bd9938d9c1.png",
+    image: LOCAL_FALLBACK_IMAGE_SRC,
     town: "서교동",
     distance: "1km",
     postedAt: "2일 전",
@@ -436,7 +438,7 @@ export const marketplaceItems: MarketplaceItem[] = [
     title: "비건 립밤/틴트 일괄 판매",
     description:
       "색상 테스트만 해보고 보관해둔 제품들입니다. 여러 개 같이 드려서 가볍게 써보시기 좋아요.",
-    image: "/images/figma-migrated/a28496ca-d52f-4547-b551-b1ebe3460458.png",
+    image: LOCAL_FALLBACK_IMAGE_SRC,
     town: "합정동",
     distance: "300m",
     postedAt: "1시간 전",
@@ -456,7 +458,7 @@ export const marketplaceItems: MarketplaceItem[] = [
     title: "니치 향수 소분 판매",
     description:
       "다양한 브랜드 향을 소량으로 체험해보실 수 있게 준비했습니다. 문의 주시면 보유 리스트 보내드릴게요.",
-    image: "/images/figma-migrated/50bddbb3-e095-4d27-9e98-33e09871d5d2.png",
+    image: LOCAL_FALLBACK_IMAGE_SRC,
     town: "합정동",
     distance: "500m",
     postedAt: "1일 전",
@@ -476,7 +478,7 @@ export const marketplaceItems: MarketplaceItem[] = [
     title: "이솝 핸드워시 새상품",
     description:
       "선물 받았는데 같은 제품이 있어 판매합니다. 미개봉이고 선물 포장 상태 그대로입니다.",
-    image: "/images/figma-migrated/8937d748-074e-4574-a051-2dcc1ed0e0f2.png",
+    image: LOCAL_FALLBACK_IMAGE_SRC,
     town: "상수동",
     distance: "900m",
     postedAt: "3일 전",
@@ -496,7 +498,7 @@ export const marketplaceItems: MarketplaceItem[] = [
     title: "플레이스테이션5",
     description:
       "구매 후 사용 빈도가 낮아 판매합니다. 기본 구성품 모두 있고, 컨트롤러 상태도 좋습니다.",
-    image: "/images/figma-migrated/71af11dd-3bed-4da8-8f38-129045fe18c9.png",
+    image: LOCAL_FALLBACK_IMAGE_SRC,
     town: "망원동",
     distance: "700m",
     postedAt: "5시간 전",

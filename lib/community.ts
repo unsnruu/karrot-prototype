@@ -1,3 +1,5 @@
+import { LOCAL_FALLBACK_AVATAR_SRC, LOCAL_FALLBACK_IMAGE_SRC } from "@/lib/fallback-images";
+
 export type CommunityFilter = {
   id: string;
   label: string;
@@ -281,7 +283,7 @@ export const communityPosts: CommunityPost[] = [
     views: "721",
     comments: 4,
     likes: 2,
-    image: "/images/figma-migrated/6e5431bf-e150-42f6-9907-303d997da666.png",
+    image: LOCAL_FALLBACK_IMAGE_SRC,
   },
   {
     id: "who-are-you",
@@ -293,7 +295,7 @@ export const communityPosts: CommunityPost[] = [
     views: "123",
     comments: 8,
     likes: 4,
-    image: "/images/figma-migrated/958a8039-9d69-4141-bb33-d6fa09eb4b83.png",
+    image: LOCAL_FALLBACK_IMAGE_SRC,
   },
   {
     id: "bbq-tonight",
@@ -337,14 +339,14 @@ const communityCommentThreadsByPostId: Record<string, CommunityComment[]> = {
       metaLabel: "망원동 · 9시간 전",
       body: "… 아직 술 덜 깬 거 아님?",
       replyCount: 2,
-      authorAvatar: "/images/figma-migrated/03bf73de-bc81-4555-914d-60b91a91235d.jpg",
+      authorAvatar: LOCAL_FALLBACK_AVATAR_SRC,
       replies: [
         {
           id: "who-are-you-comment-1-reply-1",
           authorName: "네고환영",
           metaLabel: "합정동 · 8시간 전",
           body: "저도 처음엔 그랬는데 창문 쪽에 앉아서 계속 쳐다보더라고요.",
-          authorAvatar: "/images/figma-migrated/958a8039-9d69-4141-bb33-d6fa09eb4b83.png",
+          authorAvatar: LOCAL_FALLBACK_AVATAR_SRC,
         },
       ],
     },
@@ -362,7 +364,7 @@ const communityPostDetailOverrides: Partial<Record<string, Partial<CommunityPost
     badgeLabel: "동네친구",
     author: {
       name: "네고환영",
-      avatar: "/images/figma-migrated/958a8039-9d69-4141-bb33-d6fa09eb4b83.png",
+      avatar: LOCAL_FALLBACK_AVATAR_SRC,
       activityLabel: "합정동 인증 14회 · 11시간 전",
     },
     bodyParagraphs: [
@@ -390,7 +392,7 @@ function buildDefaultCommunityPostDetail(post: CommunityPost): CommunityPostDeta
     badgeLabel: "동네친구",
     author: {
       name: "당근 이웃",
-      avatar: post.image ?? "/images/figma-migrated/51ea0095-74aa-44be-b847-3ad1e93d2a26.png",
+      avatar: post.image ?? LOCAL_FALLBACK_AVATAR_SRC,
       activityLabel: `${post.town} 인증 · ${post.postedAt}`,
     },
     bodyParagraphs: [post.excerpt, "이 글의 상세 내용은 이후 Supabase 데이터와 연결되면 더 풍부하게 보여줄 예정입니다."],
