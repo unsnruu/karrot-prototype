@@ -545,16 +545,18 @@ export async function getHomeFeedPage({
 
   try {
     const supabase = createServerSupabaseClient();
+    const fetchLimit = safeLimit + 1;
     let query = supabase
       .from("items")
       .select("id, title, category, town, posted_at, refreshed_at, price_value, chats_count, likes_count, meetup_distance_meters, sort_order")
       .neq("status", "sold")
       .order("sort_order", { ascending: true })
       .order("posted_at", { ascending: false })
-      .order("created_at", { ascending: false });
+      .order("created_at", { ascending: false })
+      .range(safeOffset, safeOffset + fetchLimit - 1);
 
     if (normalizedCategory) {
-      query = query.eq("category", normalizedCategory).range(safeOffset, safeOffset + safeLimit);
+      query = query.eq("category", normalizedCategory);
     }
 
     const { data: itemsData, error: itemsError } = await query;
@@ -564,8 +566,7 @@ export async function getHomeFeedPage({
     }
 
     const homeFeedItems = parseRows(itemsData, "home-feed.items", parseHomeFeedItemRow);
-    const orderedItems = normalizedCategory ? homeFeedItems : interleaveItemsByGroup(homeFeedItems, (item) => item.category);
-    const pagedItems = orderedItems.slice(safeOffset, safeOffset + safeLimit);
+    const pagedItems = homeFeedItems.slice(0, safeLimit);
     const itemIds = pagedItems.map((item) => item.id);
 
     let imageRows: ItemImageRow[] = [];
@@ -592,7 +593,7 @@ export async function getHomeFeedPage({
 
     return {
       items: pagedItems.map((item) => mapItemRowToHomeFeedItem(item, firstImageByItemId.get(item.id))),
-      hasMore: orderedItems.length > safeOffset + safeLimit,
+      hasMore: homeFeedItems.length > safeLimit,
     };
   } catch (error) {
     logSupabaseFallback("home-feed", error);

@@ -2,17 +2,25 @@ import "server-only";
 
 import { cache } from "react";
 import { getFallbackChatThreadPreviews, type ChatThreadPreview } from "@/lib/chat";
-import { buildGenericChatPreview, getChatByItemId, getItemById, getSellerById, type ChatPreview } from "@/lib/marketplace";
+import {
+  buildGenericChatPreview,
+  formatItemSlug,
+  getChatByItemId,
+  getItemById,
+  getSellerById,
+  type ChatPreview,
+} from "@/lib/marketplace";
 import { createServerSupabaseClient, hasSupabaseEnv } from "@/lib/supabase/server";
 import { appendTabQuery } from "@/lib/tab-navigation";
 import {
   isRecord,
   logSupabaseFallback,
   parseRows,
+  readNumber,
   readNullableString,
   readString,
 } from "@/lib/supabase/row-helpers";
-import { getMarketplaceItemDetail, getMarketplaceItemDetailById } from "@/lib/marketplace-data";
+import { getMarketplaceItemDetail } from "@/lib/marketplace-data";
 import type { MarketplaceItem, SellerProfile } from "@/lib/marketplace";
 
 // ─── Row types ────────────────────────────────────────────────────────────────
@@ -33,6 +41,24 @@ type ChatMessageRow = {
   message_type: "buyer" | "seller" | "system-date" | "system-notice";
   body: string;
   sent_at_label: string | null;
+};
+
+type ChatLandingItemRow = {
+  id: string;
+  seller_id: string;
+  town: string;
+  sort_order: number;
+};
+
+type ChatLandingImageRow = {
+  item_id: string;
+  image_url: string;
+  sort_order: number;
+};
+
+type ChatLandingSellerRow = {
+  id: string;
+  name: string;
 };
 
 // ─── Row parsers ──────────────────────────────────────────────────────────────
@@ -86,6 +112,42 @@ function parseChatMessageRow(value: unknown, scope: string): ChatMessageRow {
   };
 }
 
+function parseChatLandingItemRow(value: unknown, scope: string): ChatLandingItemRow {
+  if (!isRecord(value)) {
+    throw new Error(`[${scope}] Expected chat landing item row object`);
+  }
+
+  return {
+    id: readString(value, "id", scope),
+    seller_id: readString(value, "seller_id", scope),
+    town: readString(value, "town", scope),
+    sort_order: readNumber(value, "sort_order", scope),
+  };
+}
+
+function parseChatLandingImageRow(value: unknown, scope: string): ChatLandingImageRow {
+  if (!isRecord(value)) {
+    throw new Error(`[${scope}] Expected chat landing image row object`);
+  }
+
+  return {
+    item_id: readString(value, "item_id", scope),
+    image_url: readString(value, "image_url", scope),
+    sort_order: readNumber(value, "sort_order", scope),
+  };
+}
+
+function parseChatLandingSellerRow(value: unknown, scope: string): ChatLandingSellerRow {
+  if (!isRecord(value)) {
+    throw new Error(`[${scope}] Expected chat landing seller row object`);
+  }
+
+  return {
+    id: readString(value, "id", scope),
+    name: readString(value, "name", scope),
+  };
+}
+
 // ─── Domain mappers ───────────────────────────────────────────────────────────
 
 function mapChatPreview(thread: ChatThreadRow, messages: ChatMessageRow[]): ChatPreview {
@@ -116,20 +178,22 @@ function mapChatPreview(thread: ChatThreadRow, messages: ChatMessageRow[]): Chat
 
 function mapThreadPreview(
   thread: ChatThreadRow,
-  detail: { item: MarketplaceItem; seller: SellerProfile } | null,
+  item: ChatLandingItemRow | undefined,
+  seller: ChatLandingSellerRow | undefined,
+  avatarImage: string | undefined,
 ): ChatThreadPreview | null {
-  if (!detail) {
+  if (!item || !seller) {
     return null;
   }
 
   return {
     id: thread.id,
-    name: detail.seller.name,
-    town: detail.item.town,
+    name: seller.name,
+    town: item.town,
     updatedAt: thread.updated_at_label,
     lastMessage: thread.last_message_preview,
-    avatarImage: detail.item.image,
-    href: appendTabQuery(`/chat/${detail.item.slug ?? thread.item_id}`, "chat"),
+    avatarImage: avatarImage ?? "",
+    href: appendTabQuery(`/chat/${formatItemSlug(item.sort_order)}`, "chat"),
   };
 }
 
@@ -153,9 +217,63 @@ export const getChatLandingData = cache(async (): Promise<ChatThreadPreview[]> =
     }
 
     const threads = parseRows(data, "chat-landing.threads", parseChatThreadRow);
-    const previews = await Promise.all(
-      threads.map(async (thread) => mapThreadPreview(thread, await getMarketplaceItemDetailById(thread.item_id))),
-    );
+    const itemIds = Array.from(new Set(threads.map((thread) => thread.item_id)));
+
+    let items: ChatLandingItemRow[] = [];
+    let sellers: ChatLandingSellerRow[] = [];
+    let images: ChatLandingImageRow[] = [];
+
+    if (itemIds.length > 0) {
+      const { data: itemsData, error: itemsError } = await supabase
+        .from("items")
+        .select("id, seller_id, town, sort_order")
+        .in("id", itemIds);
+
+      if (itemsError || !itemsData) {
+        throw itemsError ?? new Error("Missing chat landing items");
+      }
+
+      items = parseRows(itemsData, "chat-landing.items", parseChatLandingItemRow);
+
+      const sellerIds = Array.from(new Set(items.map((item) => item.seller_id)));
+      const [{ data: imagesData, error: imagesError }, { data: sellersData, error: sellersError }] = await Promise.all([
+        supabase
+          .from("item_images")
+          .select("item_id, image_url, sort_order")
+          .in("item_id", itemIds)
+          .order("sort_order", { ascending: true }),
+        sellerIds.length > 0
+          ? supabase.from("users").select("id, name").in("id", sellerIds)
+          : Promise.resolve({ data: [], error: null }),
+      ]);
+
+      if (imagesError) {
+        throw imagesError;
+      }
+
+      if (sellersError) {
+        throw sellersError;
+      }
+
+      images = parseRows(imagesData ?? [], "chat-landing.images", parseChatLandingImageRow);
+      sellers = parseRows(sellersData ?? [], "chat-landing.sellers", parseChatLandingSellerRow);
+    }
+
+    const itemById = new Map(items.map((item) => [item.id, item]));
+    const sellerById = new Map(sellers.map((seller) => [seller.id, seller]));
+    const firstImageByItemId = new Map<string, string>();
+    for (const image of images) {
+      if (!firstImageByItemId.has(image.item_id)) {
+        firstImageByItemId.set(image.item_id, image.image_url);
+      }
+    }
+
+    const previews = threads.map((thread) => {
+      const item = itemById.get(thread.item_id);
+      const seller = item ? sellerById.get(item.seller_id) : undefined;
+
+      return mapThreadPreview(thread, item, seller, firstImageByItemId.get(thread.item_id));
+    });
 
     return previews.filter((preview): preview is ChatThreadPreview => preview != null);
   } catch (error) {

@@ -125,6 +125,20 @@ export function parseRows<T>(values: unknown[], scope: string, parser: (value: u
   return values.map((value, index) => parser(value, `${scope}[${index}]`));
 }
 
+function toSupabaseErrorSummary(error: unknown) {
+  if (!isRecord(error)) {
+    return { error };
+  }
+
+  return {
+    message: typeof error.message === "string" ? error.message : "Unknown Supabase error",
+    code: typeof error.code === "string" ? error.code : undefined,
+    details: typeof error.details === "string" ? error.details : undefined,
+    hint: typeof error.hint === "string" ? error.hint : undefined,
+    status: typeof error.status === "number" ? error.status : undefined,
+  };
+}
+
 export function logSupabaseFallback(scope: string, error: unknown) {
-  console.warn(`[supabase-fallback:${scope}]`, error);
+  console.warn(`[supabase-fallback:${scope}]`, toSupabaseErrorSummary(error));
 }
