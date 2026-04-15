@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { trackEvent } from "@/lib/analytics/amplitude";
 import { ensureLocalChatThread } from "@/lib/local-chat-storage";
 
 type ItemDetailChatButtonProps = {
@@ -26,6 +27,14 @@ export function ItemDetailChatButton({
     <button
       className="flex h-[52px] flex-1 items-center justify-center rounded-[8px] bg-[#ff6f0f] text-[18px] font-semibold text-white"
       onClick={() => {
+        trackEvent("item_detail_chat_clicked", {
+          chat_key: chatKey,
+          item_id: itemId,
+          seller_name: sellerName,
+          source: "item_detail",
+          town,
+        });
+
         ensureLocalChatThread({
           chatKey,
           itemId,

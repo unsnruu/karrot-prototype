@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import type { Metadata, Viewport } from "next";
+import { AnalyticsProvider } from "@/components/analytics-provider";
 import { HomeNavigationHistoryProvider } from "@/features/home/components/home-navigation-history-provider";
 import "./globals.css";
 
@@ -23,6 +24,7 @@ export default function RootLayout({
     <html lang="ko">
       <body className="antialiased">
         <Suspense fallback={children}>
+          <AnalyticsProvider />
           <HomeNavigationHistoryProvider>{children}</HomeNavigationHistoryProvider>
         </Suspense>
       </body>

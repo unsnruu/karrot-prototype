@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { trackEvent } from "@/lib/analytics/amplitude";
 import { bottomTabs } from "@/lib/marketplace";
 
 export function BottomNav() {
@@ -18,6 +19,13 @@ export function BottomNav() {
               <Link
                 className="flex flex-1 flex-col items-center gap-0.5 pb-[calc(2rem+env(safe-area-inset-bottom))] pt-1"
                 href={tab.href}
+                onClick={() =>
+                  trackEvent("bottom_nav_clicked", {
+                    current_path: pathname,
+                    destination_path: tab.href,
+                    tab_label: tab.label,
+                  })
+                }
               >
                 <span
                   aria-hidden="true"

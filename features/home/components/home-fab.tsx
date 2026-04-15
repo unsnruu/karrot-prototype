@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { AppImage } from "@/components/ui/app-image";
+import { trackEvent } from "@/lib/analytics/amplitude";
 import { clearSellFlowDraftStorage } from "@/lib/sell-flow";
 import { homeFabActionGroups, type HomeFabAction } from "@/lib/marketplace";
 import { buildPendingFeatureHref } from "@/lib/tab-navigation";
@@ -46,7 +47,19 @@ export function HomeFab() {
                 ? "scale-95 bg-white shadow-[0_10px_30px_rgba(15,23,42,0.18)]"
                 : "bg-[#ff6f0f] shadow-[0_10px_24px_rgba(255,111,15,0.34)]"
             }`}
-            onClick={() => setIsOpen((open) => !open)}
+            onClick={() =>
+              setIsOpen((open) => {
+                const nextOpen = !open;
+
+                if (nextOpen) {
+                  trackEvent("home_fab_opened", {
+                    source: "home_screen",
+                  });
+                }
+
+                return nextOpen;
+              })
+            }
             type="button"
           >
             {isOpen ? (
@@ -86,6 +99,12 @@ export function HomeFab() {
                         href={resolveFabActionHref(action)}
                         key={action.label}
                         onClick={() => {
+                          trackEvent("home_fab_action_clicked", {
+                            action_icon: action.icon,
+                            action_label: action.label,
+                            source: "home_fab",
+                          });
+
                           if (action.icon === "sell") {
                             clearSellFlowDraftStorage();
                           }
