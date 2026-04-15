@@ -9,8 +9,6 @@ import { buildHomeExperimentEventProperties, buildHomeExperimentTownMapHref } fr
 import { type HomeExperimentVariant } from "@/lib/home-experiment";
 import { type HomeFeedNativeAd } from "@/lib/marketplace";
 
-const iconChevronRight = "/icons/my-karrot/chevron-right.svg";
-
 export function HomeNativeAdBanner({
   ad,
   index,
@@ -53,13 +51,20 @@ export function HomeNativeAdBanner({
         </div>
 
         <span className="flex h-[60px] items-center">
-          <AppImage
-            alt=""
-            className="h-6 w-6 opacity-90 invert"
-            height={24}
-            src={iconChevronRight}
-            width={24}
-          />
+          <svg
+            aria-hidden="true"
+            className="h-6 w-6 shrink-0"
+            fill="none"
+            viewBox="0 0 20 20"
+          >
+            <path
+              d="M7.5 15L12.5 10L7.5 5"
+              stroke="#ffffff"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+            />
+          </svg>
         </span>
       </Link>
     </article>
