@@ -2,16 +2,48 @@
 
 import Link from "next/link";
 import { AppImage } from "@/components/ui/app-image";
+import { trackEvent } from "@/lib/analytics/amplitude";
+import { buildHomeExperimentEventProperties, buildHomeExperimentTownMapHref } from "@/lib/analytics/home-experiment";
+import { type HomeExperimentVariant } from "@/lib/home-experiment";
 import { type HomeFeedNativeAd } from "@/lib/marketplace";
+import { useHomeExperimentImpression } from "@/features/home/components/use-home-experiment-impression";
 
 const iconMore = "/icons/more.svg";
 const iconHeart = "/icons/heart.svg";
 const adMarkImage = "https://www.figma.com/api/mcp/asset/65d59106-dae8-4a0d-9173-adb3a3c3dd12";
 
-export function HomeNativeAdCard({ ad }: { ad: HomeFeedNativeAd }) {
+export function HomeNativeAdCard({
+  ad,
+  index,
+  variant,
+}: {
+  ad: HomeFeedNativeAd;
+  index: number;
+  variant: HomeExperimentVariant;
+}) {
+  const eventProperties = buildHomeExperimentEventProperties({
+    ad,
+    index,
+    surface: "inline_card",
+    variant,
+  });
+  const trackedHref = buildHomeExperimentTownMapHref({
+    ad,
+    index,
+    surface: "inline_card",
+    variant,
+  });
+  const impressionRef = useHomeExperimentImpression(eventProperties);
+
   return (
-    <article className="mb-4 border-b border-[#eceef2] pb-4">
-      <Link className="flex items-start gap-[21px]" href={ad.href}>
+    <article className="mb-4 border-b border-[#eceef2] pb-4" ref={impressionRef}>
+      <Link
+        className="flex items-start gap-[21px]"
+        href={trackedHref}
+        onClick={() => {
+          trackEvent("home_experiment_ad_clicked", eventProperties);
+        }}
+      >
         <div className="relative h-[120px] w-[120px] shrink-0">
           <AppImage
             alt={ad.title}

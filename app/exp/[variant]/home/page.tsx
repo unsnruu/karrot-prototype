@@ -2,24 +2,30 @@ import { BottomNav } from "@/components/navigation/bottom-nav";
 import { HomeFeed } from "@/features/home/components/home-feed";
 import { HomeFab } from "@/features/home/components/home-fab";
 import { HomeHeader } from "@/features/home/components/home-header";
-import { resolveHomeExperimentVariant } from "@/lib/home-experiment";
+import { isHomeExperimentVariant } from "@/lib/home-experiment";
 import { getHomeCategories, getHomeFeedPage } from "@/lib/marketplace-data";
+import { notFound } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
-type HomePageProps = {
+type ExperimentHomePageProps = {
+  params: Promise<{ variant: string }>;
   searchParams?: Promise<{
     category?: string | string[];
-    variant?: string | string[];
   }>;
 };
 
-export default async function HomePage({ searchParams }: HomePageProps) {
+export default async function ExperimentHomePage({ params, searchParams }: ExperimentHomePageProps) {
+  const { variant } = await params;
+
+  if (!isHomeExperimentVariant(variant)) {
+    notFound();
+  }
+
   const resolvedSearchParams = (await searchParams) ?? {};
   const selectedCategory = Array.isArray(resolvedSearchParams.category)
     ? resolvedSearchParams.category[0]
     : resolvedSearchParams.category;
-  const experimentVariant = resolveHomeExperimentVariant(resolvedSearchParams.variant);
   const [{ items, hasMore, nextOffset }, categories] = await Promise.all([
     getHomeFeedPage({ category: selectedCategory }),
     getHomeCategories(),
@@ -37,8 +43,8 @@ export default async function HomePage({ searchParams }: HomePageProps) {
               initialHasMore={hasMore}
               initialItems={items}
               initialNextOffset={nextOffset}
-              key={`${selectedCategory ?? "all"}-${experimentVariant}`}
-              variant={experimentVariant}
+              key={`${selectedCategory ?? "all"}-${variant}`}
+              variant={variant}
             />
           </div>
         </section>

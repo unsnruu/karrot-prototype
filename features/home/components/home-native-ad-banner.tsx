@@ -3,16 +3,45 @@
 import Link from "next/link";
 import { AppImage } from "@/components/ui/app-image";
 import { HomeNativeAdThumbnail } from "@/features/home/components/home-native-ad-thumbnail";
+import { useHomeExperimentImpression } from "@/features/home/components/use-home-experiment-impression";
+import { trackEvent } from "@/lib/analytics/amplitude";
+import { buildHomeExperimentEventProperties, buildHomeExperimentTownMapHref } from "@/lib/analytics/home-experiment";
+import { type HomeExperimentVariant } from "@/lib/home-experiment";
 import { type HomeFeedNativeAd } from "@/lib/marketplace";
 
 const iconChevronRight = "/icons/my-karrot/chevron-right.svg";
 
-export function HomeNativeAdBanner({ ad }: { ad: HomeFeedNativeAd }) {
+export function HomeNativeAdBanner({
+  ad,
+  index,
+  variant,
+}: {
+  ad: HomeFeedNativeAd;
+  index: number;
+  variant: HomeExperimentVariant;
+}) {
+  const eventProperties = buildHomeExperimentEventProperties({
+    ad,
+    index,
+    surface: "inline_banner",
+    variant,
+  });
+  const trackedHref = buildHomeExperimentTownMapHref({
+    ad,
+    index,
+    surface: "inline_banner",
+    variant,
+  });
+  const impressionRef = useHomeExperimentImpression(eventProperties);
+
   return (
-    <article className="mb-4">
+    <article className="mb-4" ref={impressionRef}>
       <Link
         className="flex items-start gap-2 overflow-hidden rounded-[8px] bg-[#2a3038] px-3 py-2"
-        href={ad.href}
+        href={trackedHref}
+        onClick={() => {
+          trackEvent("home_experiment_ad_clicked", eventProperties);
+        }}
       >
         <HomeNativeAdThumbnail alt={ad.title} size={60} src={ad.image} />
 
