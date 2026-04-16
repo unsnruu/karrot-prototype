@@ -1,7 +1,9 @@
-import { isHomeExperimentVariant } from "@/lib/home-experiment";
+import { homeExperimentVariants, isHomeExperimentVariant } from "@/lib/home-experiment";
 import { notFound, redirect } from "next/navigation";
 
-export const dynamic = "force-dynamic";
+export function generateStaticParams() {
+  return homeExperimentVariants.map((variant) => ({ variant }));
+}
 
 export default async function ExperimentEntryPage({
   params,
