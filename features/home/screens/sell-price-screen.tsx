@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { trackEvent } from "@/lib/analytics/amplitude";
 import { buildScreenViewedEventProperties } from "@/lib/analytics/screen-view";
 import { useSellFlow } from "@/features/home/components/sell-flow-provider";
@@ -13,7 +13,6 @@ const AUTO_FILLED_PRICE = "75000";
 export function SellPriceScreen() {
   const pathname = usePathname();
   const router = useRouter();
-  const searchParams = useSearchParams();
   const { draft, hydrated, setPriceText } = useSellFlow();
   const hasTrackedScreenView = useRef(false);
 
@@ -37,7 +36,7 @@ export function SellPriceScreen() {
       "screen_viewed",
       buildScreenViewedEventProperties({
         pathname,
-        queryString: searchParams.toString(),
+        queryString: "",
         additionalProperties: {
           flow_name: "sell",
           has_price: Boolean(draft.priceText),
@@ -46,7 +45,7 @@ export function SellPriceScreen() {
         },
       }),
     );
-  }, [draft.photos.length, draft.priceText, hydrated, pathname, searchParams]);
+  }, [draft.photos.length, draft.priceText, hydrated, pathname]);
 
   const formattedPrice = formatSellPriceText(draft.priceText);
   const handleAutoFillPrice = () => {

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { trackEvent } from "@/lib/analytics/amplitude";
 import { buildScreenViewedEventProperties } from "@/lib/analytics/screen-view";
 import { ItemDetailHero } from "@/features/home/components/item-detail-hero";
@@ -20,7 +20,6 @@ import { itemDetailUnifiedAd } from "@/lib/marketplace";
 export function SellPreviewScreen() {
   const pathname = usePathname();
   const router = useRouter();
-  const searchParams = useSearchParams();
   const { draft, hydrated } = useSellFlow();
   const publishedItem = readPublishedSellItem();
   const hasTrackedScreenView = useRef(false);
@@ -41,7 +40,7 @@ export function SellPreviewScreen() {
       "screen_viewed",
       buildScreenViewedEventProperties({
         pathname,
-        queryString: searchParams.toString(),
+        queryString: "",
         additionalProperties: {
           flow_name: "sell",
           has_published_item: Boolean(publishedItem),
@@ -50,7 +49,7 @@ export function SellPreviewScreen() {
         },
       }),
     );
-  }, [draft.photos.length, hydrated, pathname, publishedItem, searchParams]);
+  }, [draft.photos.length, hydrated, pathname, publishedItem]);
 
   const item = publishedItem ?? buildSellPreviewItem(draft);
   const seller = buildSellPreviewSeller();

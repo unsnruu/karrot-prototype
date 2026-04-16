@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { AppImage } from "@/components/ui/app-image";
 import { trackEvent } from "@/lib/analytics/amplitude";
 import { buildScreenViewedEventProperties } from "@/lib/analytics/screen-view";
@@ -13,7 +13,6 @@ import { buildPendingFeatureHref } from "@/lib/tab-navigation";
 export function SellPhotoSelectionScreen() {
   const pathname = usePathname();
   const router = useRouter();
-  const searchParams = useSearchParams();
   const { draft, hydrated, togglePhoto } = useSellFlow();
   const hasTrackedScreenView = useRef(false);
 
@@ -29,7 +28,7 @@ export function SellPhotoSelectionScreen() {
       "screen_viewed",
       buildScreenViewedEventProperties({
         pathname,
-        queryString: searchParams.toString(),
+        queryString: "",
         additionalProperties: {
           flow_name: "sell",
           photo_count: draft.photos.length,
@@ -37,7 +36,7 @@ export function SellPhotoSelectionScreen() {
         },
       }),
     );
-  }, [draft.photos.length, hydrated, pathname, searchParams]);
+  }, [draft.photos.length, hydrated, pathname]);
 
   return (
     <main className="min-h-screen bg-white text-[#111827]">

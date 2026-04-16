@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { AppImage } from "@/components/ui/app-image";
 import { trackEvent } from "@/lib/analytics/amplitude";
 import { buildScreenViewedEventProperties } from "@/lib/analytics/screen-view";
@@ -35,7 +35,6 @@ const AUTO_FILLED_DESCRIPTION = `향수 여러 개 한 번에 정리하려고 �
 export function SellWriteScreen() {
   const pathname = usePathname();
   const router = useRouter();
-  const searchParams = useSearchParams();
   const {
     draft,
     hydrated,
@@ -67,7 +66,7 @@ export function SellWriteScreen() {
       "screen_viewed",
       buildScreenViewedEventProperties({
         pathname,
-        queryString: searchParams.toString(),
+        queryString: "",
         additionalProperties: {
           flow_name: "sell",
           has_description: Boolean(draft.description),
@@ -79,7 +78,7 @@ export function SellWriteScreen() {
         },
       }),
     );
-  }, [draft.description, draft.location, draft.photos.length, draft.priceText, draft.title, hydrated, pathname, searchParams]);
+  }, [draft.description, draft.location, draft.photos.length, draft.priceText, draft.title, hydrated, pathname]);
 
   const handleAutoFillTitle = () => {
     setTitle(AUTO_FILLED_TITLE);

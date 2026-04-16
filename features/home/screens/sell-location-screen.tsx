@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { trackEvent } from "@/lib/analytics/amplitude";
 import { buildScreenViewedEventProperties } from "@/lib/analytics/screen-view";
 import { SellLocationPickerMap } from "@/features/home/components/sell-location-picker-map";
@@ -12,7 +12,6 @@ import { SELL_FLOW_DEFAULT_LOCATION } from "@/lib/sell-flow";
 export function SellLocationScreen() {
   const pathname = usePathname();
   const router = useRouter();
-  const searchParams = useSearchParams();
   const { draft, hydrated, setLocation } = useSellFlow();
   const hasTrackedScreenView = useRef(false);
 
@@ -36,7 +35,7 @@ export function SellLocationScreen() {
       "screen_viewed",
       buildScreenViewedEventProperties({
         pathname,
-        queryString: searchParams.toString(),
+        queryString: "",
         additionalProperties: {
           flow_name: "sell",
           has_location: Boolean(draft.location),
@@ -45,7 +44,7 @@ export function SellLocationScreen() {
         },
       }),
     );
-  }, [draft.location, draft.photos.length, hydrated, pathname, searchParams]);
+  }, [draft.location, draft.photos.length, hydrated, pathname]);
 
   useEffect(() => {
     setLocation(SELL_FLOW_DEFAULT_LOCATION);
