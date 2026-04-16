@@ -4,6 +4,7 @@ import * as amplitude from "@amplitude/unified";
 
 let hasInitializedAmplitude = false;
 const ANONYMOUS_VISITOR_STORAGE_KEY = "karrot_anonymous_visitor_id";
+const AMPLITUDE_API_KEY = "cae4beaac8ce7c7b1fb962423ae32a01";
 
 function createAnonymousVisitorId() {
   if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
@@ -30,7 +31,7 @@ export function initAmplitude() {
     return;
   }
 
-  amplitude.initAll("e7c295575d3deb8cfe579c02a820e507", {
+  amplitude.initAll(AMPLITUDE_API_KEY, {
     analytics: { autocapture: true },
   });
 
@@ -40,5 +41,6 @@ export function initAmplitude() {
 }
 
 export function trackEvent(eventType: string, eventProperties?: Record<string, unknown>) {
+  initAmplitude();
   amplitude.track(eventType, eventProperties);
 }
