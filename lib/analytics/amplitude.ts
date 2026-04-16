@@ -32,7 +32,6 @@ export function initAmplitude() {
 
   amplitude.initAll("e7c295575d3deb8cfe579c02a820e507", {
     analytics: { autocapture: true },
-    sessionReplay: { sampleRate: 1 },
   });
 
   amplitude.setUserId(getAnonymousVisitorId());
