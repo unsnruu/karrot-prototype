@@ -5,6 +5,7 @@ import { AppImage } from "@/components/ui/app-image";
 import { HomeNativeAdThumbnail } from "@/features/home/components/home-native-ad-thumbnail";
 import { useHomeExperimentImpression } from "@/features/home/components/use-home-experiment-impression";
 import { trackEvent } from "@/lib/analytics/amplitude";
+import { buildElementClickedEventProperties } from "@/lib/analytics/element-click";
 import { buildHomeExperimentEventProperties, buildHomeExperimentTownMapHref } from "@/lib/analytics/home-experiment";
 import { type HomeExperimentVariant } from "@/lib/home-experiment";
 import { type HomeFeedNativeAd } from "@/lib/marketplace";
@@ -38,7 +39,26 @@ export function HomeNativeAdBanner({
         className="flex items-start gap-2 overflow-hidden rounded-[8px] bg-[#2a3038] px-3 py-2"
         href={trackedHref}
         onClick={() => {
-          trackEvent("home_experiment_ad_clicked", eventProperties);
+          trackEvent(
+            "element_clicked",
+            buildElementClickedEventProperties({
+              screenName: "home",
+              targetType: "banner",
+              targetName: "home_native_ad",
+              surface: "inline_banner",
+              path: "/home",
+              targetId: ad.id,
+              targetPosition: index,
+              destinationPath: trackedHref,
+              additionalProperties: {
+                ad_destination: ad.destination,
+                ad_feature: ad.feature,
+                experiment_name: eventProperties.experiment_name,
+                experiment_surface: eventProperties.experiment_surface,
+                experiment_variant: eventProperties.experiment_variant,
+              },
+            }),
+          );
         }}
       >
         <HomeNativeAdThumbnail alt={ad.title} size={60} src={ad.image} />

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { AppImage } from "@/components/ui/app-image";
 import { trackEvent } from "@/lib/analytics/amplitude";
+import { buildElementClickedEventProperties } from "@/lib/analytics/element-click";
 import { clearSellFlowDraftStorage } from "@/lib/sell-flow";
 import { homeFabActionGroups, type HomeFabAction } from "@/lib/marketplace";
 import { buildPendingFeatureHref } from "@/lib/tab-navigation";
@@ -52,9 +53,16 @@ export function HomeFab() {
                 const nextOpen = !open;
 
                 if (nextOpen) {
-                  trackEvent("home_fab_opened", {
-                    source: "home_screen",
-                  });
+                  trackEvent(
+                    "element_clicked",
+                    buildElementClickedEventProperties({
+                      screenName: "home",
+                      targetType: "button",
+                      targetName: "home_fab_trigger_open_menu",
+                      surface: "floating_action_button",
+                      path: "/home",
+                    }),
+                  );
                 }
 
                 return nextOpen;
@@ -99,11 +107,20 @@ export function HomeFab() {
                         href={resolveFabActionHref(action)}
                         key={action.label}
                         onClick={() => {
-                          trackEvent("home_fab_action_clicked", {
-                            action_icon: action.icon,
-                            action_label: action.label,
-                            source: "home_fab",
-                          });
+                          trackEvent(
+                            "element_clicked",
+                            buildElementClickedEventProperties({
+                              screenName: "home",
+                              targetType: "button",
+                              targetName: getHomeFabActionTargetName(action),
+                              surface: "fab_menu",
+                              path: "/home",
+                              destinationPath: resolveFabActionHref(action),
+                              additionalProperties: {
+                                action_icon: action.icon,
+                              },
+                            }),
+                          );
 
                           if (action.icon === "sell") {
                             clearSellFlowDraftStorage();
@@ -150,6 +167,27 @@ function resolveFabActionHref(action: HomeFabAction) {
   }
 
   return buildPendingFeatureHref("/home", action.label);
+}
+
+function getHomeFabActionTargetName(action: HomeFabAction) {
+  switch (action.icon) {
+    case "lesson":
+      return "home_lesson_fab_entry";
+    case "home":
+      return "home_real_estate_fab_entry";
+    case "car":
+      return "home_used_car_fab_entry";
+    case "community":
+      return "home_community_fab_entry";
+    case "story":
+      return "home_story_fab_entry";
+    case "bundle":
+      return "home_bundle_sale_fab_entry";
+    case "sell":
+      return "home_sell_fab_start_sell";
+    default:
+      return "home_fab_action";
+  }
 }
 
 function CloseIcon() {

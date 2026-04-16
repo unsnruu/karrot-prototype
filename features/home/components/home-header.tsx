@@ -1,10 +1,13 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname, useSearchParams } from "next/navigation";
 import { AppImage } from "@/components/ui/app-image";
 import { PendingFeatureLink } from "@/components/ui/pending-feature-link";
 import { trackEvent } from "@/lib/analytics/amplitude";
+import { buildElementClickedEventProperties } from "@/lib/analytics/element-click";
 import { type HomeCategory } from "@/lib/marketplace";
+import { buildPendingFeatureHref } from "@/lib/tab-navigation";
 
 const iconChevronDown = "/icons/chevron-down.svg";
 const iconSearch = "/icons/search.svg";
@@ -19,22 +22,97 @@ export function HomeHeader({
   categories: HomeCategory[];
   selectedCategory?: string;
 }) {
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const queryString = searchParams.toString();
+
   return (
     <header className="sticky top-0 z-20 border-b border-black/5 bg-white/95 backdrop-blur">
       <div className="mobile-shell-wide bg-white/95 px-4 pt-5 sm:px-6">
         <div className="flex items-center justify-between py-4">
-          <PendingFeatureLink className="flex items-center gap-0.5" featureLabel="동네 선택" returnTo="/home">
+          <PendingFeatureLink
+            className="flex items-center gap-0.5"
+            featureLabel="동네 선택"
+            onClick={() => {
+              trackEvent(
+                "element_clicked",
+                buildElementClickedEventProperties({
+                  screenName: "home",
+                  targetType: "button",
+                  targetName: "home_town_selector",
+                  surface: "header",
+                  path: pathname,
+                  queryString,
+                  destinationPath: buildPendingFeatureHref("/home", "동네 선택"),
+                }),
+              );
+            }}
+            returnTo="/home"
+          >
             <span className="text-[22px] font-bold tracking-[-0.03em] text-black">합정동</span>
             <AppImage alt="" className="h-6 w-6" height={24} src={iconChevronDown} width={24} />
           </PendingFeatureLink>
           <div className="flex items-center gap-3">
-            <PendingFeatureLink aria-label="검색" featureLabel="홈 검색" returnTo="/home">
+            <PendingFeatureLink
+              aria-label="검색"
+              featureLabel="홈 검색"
+              onClick={() => {
+                trackEvent(
+                  "element_clicked",
+                  buildElementClickedEventProperties({
+                    screenName: "home",
+                    targetType: "button",
+                    targetName: "home_search_input",
+                    surface: "header",
+                    path: pathname,
+                    queryString,
+                    destinationPath: buildPendingFeatureHref("/home", "홈 검색"),
+                  }),
+                );
+              }}
+              returnTo="/home"
+            >
               <AppImage alt="" className="h-8 w-8" height={32} src={iconSearch} width={32} />
             </PendingFeatureLink>
-            <PendingFeatureLink aria-label="알림" featureLabel="알림 확인" returnTo="/home">
+            <PendingFeatureLink
+              aria-label="알림"
+              featureLabel="알림 확인"
+              onClick={() => {
+                trackEvent(
+                  "element_clicked",
+                  buildElementClickedEventProperties({
+                    screenName: "home",
+                    targetType: "button",
+                    targetName: "home_notification_button",
+                    surface: "header",
+                    path: pathname,
+                    queryString,
+                    destinationPath: buildPendingFeatureHref("/home", "알림 확인"),
+                  }),
+                );
+              }}
+              returnTo="/home"
+            >
               <AppImage alt="" className="h-8 w-8" height={32} src={iconBell} width={32} />
             </PendingFeatureLink>
-            <Link aria-label="메뉴" href="/home/services">
+            <Link
+              aria-label="메뉴"
+              href="/home/services"
+              onClick={() => {
+                trackEvent(
+                  "element_clicked",
+                  buildElementClickedEventProperties({
+                    screenName: "home",
+                    targetType: "button",
+                    targetName: "home_menu_button",
+                    surface: "header",
+                    path: pathname,
+                    queryString,
+                    destinationPath: "/home/services",
+                  }),
+                );
+              }}
+            >
               <AppImage alt="" className="h-8 w-8" height={32} src={iconMenu} width={32} />
             </Link>
           </div>
@@ -52,11 +130,22 @@ export function HomeHeader({
                 href={buildCategoryHref(category.label)}
                 key={category.label}
                 onClick={() => {
-                  trackEvent("home_category_selected", {
-                    category_label: category.label,
-                    previous_category: selectedCategory ?? "전체",
-                    source: "home_header",
-                  });
+                  trackEvent(
+                    "element_clicked",
+                    buildElementClickedEventProperties({
+                      screenName: "home",
+                      targetType: "chip",
+                      targetName: "home_category_chip",
+                      surface: "header",
+                      path: pathname,
+                      queryString,
+                      destinationPath: buildCategoryHref(category.label),
+                      additionalProperties: {
+                        category: category.label,
+                        previous_category: selectedCategory ?? "전체",
+                      },
+                    }),
+                  );
                 }}
                 scroll={false}
               >

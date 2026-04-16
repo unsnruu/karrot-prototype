@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { AppImage } from "@/components/ui/app-image";
 import { trackEvent } from "@/lib/analytics/amplitude";
+import { buildElementClickedEventProperties } from "@/lib/analytics/element-click";
 import { type HomeFeedItem } from "@/lib/marketplace";
 
 const iconMore = "/icons/more.svg";
@@ -30,15 +31,23 @@ export function MarketplaceListItem({
         className="flex items-start gap-[21px]"
         href={detailHref}
         onClick={() => {
-          trackEvent("home_item_clicked", {
-            category: category ?? "all",
-            destination_path: detailHref,
-            is_promoted: isPromoted,
-            item_id: item.id,
-            item_title: item.title,
-            position,
-            source: "home_feed",
-          });
+          trackEvent(
+            "element_clicked",
+            buildElementClickedEventProperties({
+              screenName: "home",
+              targetType: "card",
+              targetName: "home_item_card",
+              surface: "feed",
+              path: "/home",
+              targetId: item.id,
+              targetPosition: position,
+              destinationPath: detailHref,
+              additionalProperties: {
+                category: category ?? "all",
+                is_promoted: isPromoted,
+              },
+            }),
+          );
         }}
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}

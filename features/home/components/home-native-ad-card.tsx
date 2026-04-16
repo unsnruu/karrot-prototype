@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { AppImage } from "@/components/ui/app-image";
 import { trackEvent } from "@/lib/analytics/amplitude";
+import { buildElementClickedEventProperties } from "@/lib/analytics/element-click";
 import { buildHomeExperimentEventProperties, buildHomeExperimentTownMapHref } from "@/lib/analytics/home-experiment";
 import { type HomeExperimentVariant } from "@/lib/home-experiment";
 import { type HomeFeedNativeAd } from "@/lib/marketplace";
@@ -41,7 +42,26 @@ export function HomeNativeAdCard({
         className="flex items-start gap-[21px]"
         href={trackedHref}
         onClick={() => {
-          trackEvent("home_experiment_ad_clicked", eventProperties);
+          trackEvent(
+            "element_clicked",
+            buildElementClickedEventProperties({
+              screenName: "home",
+              targetType: "card",
+              targetName: "home_native_ad",
+              surface: "inline_card",
+              path: "/home",
+              targetId: ad.id,
+              targetPosition: index,
+              destinationPath: trackedHref,
+              additionalProperties: {
+                ad_destination: ad.destination,
+                ad_feature: ad.feature,
+                experiment_name: eventProperties.experiment_name,
+                experiment_surface: eventProperties.experiment_surface,
+                experiment_variant: eventProperties.experiment_variant,
+              },
+            }),
+          );
         }}
       >
         <div className="relative h-[120px] w-[120px] shrink-0">
