@@ -26,7 +26,7 @@ export function useHomeExperimentImpression(eventProperties: Record<string, unkn
         }
 
         hasTracked = true;
-        trackEvent("home_experiment_ad_viewed", eventProperties);
+        trackEvent("element_exposed", eventProperties);
         observer.disconnect();
       },
       { threshold: 0.6 },

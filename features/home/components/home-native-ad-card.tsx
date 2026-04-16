@@ -4,7 +4,11 @@ import Link from "next/link";
 import { AppImage } from "@/components/ui/app-image";
 import { trackEvent } from "@/lib/analytics/amplitude";
 import { buildElementClickedEventProperties } from "@/lib/analytics/element-click";
-import { buildHomeExperimentEventProperties, buildHomeExperimentTownMapHref } from "@/lib/analytics/home-experiment";
+import {
+  buildHomeExperimentElementExposedProperties,
+  buildHomeExperimentEventProperties,
+  buildHomeExperimentTownMapHref,
+} from "@/lib/analytics/home-experiment";
 import { type HomeExperimentVariant } from "@/lib/home-experiment";
 import { type HomeFeedNativeAd } from "@/lib/marketplace";
 import { useHomeExperimentImpression } from "@/features/home/components/use-home-experiment-impression";
@@ -34,7 +38,14 @@ export function HomeNativeAdCard({
     surface: "inline_card",
     variant,
   });
-  const impressionRef = useHomeExperimentImpression(eventProperties);
+  const impressionRef = useHomeExperimentImpression(
+    buildHomeExperimentElementExposedProperties({
+      ad,
+      index,
+      surface: "inline_card",
+      variant,
+    }),
+  );
 
   return (
     <article className="mb-4 border-b border-[#eceef2] pb-4" ref={impressionRef}>

@@ -36,6 +36,7 @@
 
 - `screen_viewed`
 - `screen_exited`
+- `element_exposed`
 - `search_submitted`
 - `element_clicked`
 - `form_completed`
@@ -355,6 +356,46 @@ Amplitude Browser SDK는 page view tracking이 켜져 있으면 `[Amplitude] Pag
 
 즉, `target_name`은 가능한 짧고 안정적으로 유지하되, suffix action이 있어야 구분이 되는 경우에만 확장합니다.
 
+## 노출 이벤트 표준
+화면 안 특정 요소의 노출은 `element_exposed`로 표현합니다.
+
+### 왜 `exposed`를 쓰는가
+이 이벤트는 사용자가 클릭해서 본 것이 아니라, 화면에 요소가 노출된 상태를 의미하기 때문입니다.
+
+따라서 `viewed`보다 `exposed`가 오해가 적습니다.
+
+- `screen_viewed`: 화면 진입
+- `element_exposed`: 화면 안 특정 요소 노출
+- `element_clicked`: 화면 안 특정 요소 클릭
+
+예를 들어 홈 광고는 아래처럼 해석합니다.
+
+- 홈 화면에 진입했다: `screen_viewed`
+- 홈 광고가 화면에 노출됐다: `element_exposed`
+- 홈 광고를 눌렀다: `element_clicked`
+
+### `element_exposed` 권장 속성
+필수:
+
+- `screen_name`
+- `target_type`
+- `target_name`
+
+권장:
+
+- `surface`
+- `path`
+
+선택:
+
+- `query_string`
+- `target_id`
+- `target_position`
+- `experiment_name`
+- `experiment_variant`
+
+현재 홈 실험 광고 노출은 `element_exposed`로 수집하며, `target_type=ad`, `target_name=home_native_ad`를 사용합니다.
+
 ## 현재 구현된 `screen_viewed`
 현재 코드 기준 `screen_viewed`는 두 방식으로 전송합니다.
 
@@ -469,7 +510,7 @@ trackEvent("screen_viewed", {
 
 ### 홈 / 실험
 
-- `home_experiment_ad_viewed`
+- `element_exposed`
 - `home_experiment_ad_clicked`
 - `home_experiment_carousel_interacted`
 - `home_experiment_scroll_depth_reached`
@@ -518,7 +559,7 @@ trackEvent("screen_viewed", {
 대표 예시는 아래와 같습니다.
 
 - `home_experiment_ad_clicked`
-  향후 `element_clicked` 또는 `ad_clicked` 같은 공통 이벤트로 일반화할 수 있습니다.
+  향후 `element_clicked` 같은 공통 이벤트로 일반화할 수 있습니다.
 - `bottom_nav_clicked`, `community_banner_clicked`, `home_category_selected`
   장기적으로는 클릭 이벤트 계층을 어떻게 통합할지 검토할 수 있습니다.
 

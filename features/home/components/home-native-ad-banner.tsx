@@ -6,7 +6,11 @@ import { HomeNativeAdThumbnail } from "@/features/home/components/home-native-ad
 import { useHomeExperimentImpression } from "@/features/home/components/use-home-experiment-impression";
 import { trackEvent } from "@/lib/analytics/amplitude";
 import { buildElementClickedEventProperties } from "@/lib/analytics/element-click";
-import { buildHomeExperimentEventProperties, buildHomeExperimentTownMapHref } from "@/lib/analytics/home-experiment";
+import {
+  buildHomeExperimentElementExposedProperties,
+  buildHomeExperimentEventProperties,
+  buildHomeExperimentTownMapHref,
+} from "@/lib/analytics/home-experiment";
 import { type HomeExperimentVariant } from "@/lib/home-experiment";
 import { type HomeFeedNativeAd } from "@/lib/marketplace";
 
@@ -31,7 +35,14 @@ export function HomeNativeAdBanner({
     surface: "inline_banner",
     variant,
   });
-  const impressionRef = useHomeExperimentImpression(eventProperties);
+  const impressionRef = useHomeExperimentImpression(
+    buildHomeExperimentElementExposedProperties({
+      ad,
+      index,
+      surface: "inline_banner",
+      variant,
+    }),
+  );
 
   return (
     <article className="mb-4" ref={impressionRef}>
