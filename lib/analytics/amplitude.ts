@@ -4,7 +4,7 @@ import * as amplitude from "@amplitude/unified";
 
 let hasInitializedAmplitude = false;
 const ANONYMOUS_VISITOR_STORAGE_KEY = "karrot_anonymous_visitor_id";
-const AMPLITUDE_API_KEY = "cae4beaac8ce7c7b1fb962423ae32a01";
+const AMPLITUDE_API_KEY = "290e6f4f90b9e7274301e2954fccc25f";
 
 function createAnonymousVisitorId() {
   if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
