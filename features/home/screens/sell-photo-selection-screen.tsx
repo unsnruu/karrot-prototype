@@ -1,26 +1,43 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useRef } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { AppImage } from "@/components/ui/app-image";
 import { trackEvent } from "@/lib/analytics/amplitude";
+import { buildScreenViewedEventProperties } from "@/lib/analytics/screen-view";
 import { useSellFlow } from "@/features/home/components/sell-flow-provider";
 import { SELL_FLOW_MAX_PHOTOS, SELL_FLOW_SAMPLE_PHOTOS } from "@/lib/sell-flow";
 import { buildPendingFeatureHref } from "@/lib/tab-navigation";
 
 export function SellPhotoSelectionScreen() {
+  const pathname = usePathname();
   const router = useRouter();
-  const { draft, togglePhoto } = useSellFlow();
+  const searchParams = useSearchParams();
+  const { draft, hydrated, togglePhoto } = useSellFlow();
+  const hasTrackedScreenView = useRef(false);
 
   const selectedCount = draft.photos.length;
 
   useEffect(() => {
-    trackEvent("sell_flow_step_viewed", {
-      photo_count: draft.photos.length,
-      step_name: "photos",
-    });
-  }, [draft.photos.length]);
+    if (!hydrated || hasTrackedScreenView.current) {
+      return;
+    }
+
+    hasTrackedScreenView.current = true;
+    trackEvent(
+      "screen_viewed",
+      buildScreenViewedEventProperties({
+        pathname,
+        queryString: searchParams.toString(),
+        additionalProperties: {
+          flow_name: "sell",
+          photo_count: draft.photos.length,
+          step_name: "photos",
+        },
+      }),
+    );
+  }, [draft.photos.length, hydrated, pathname, searchParams]);
 
   return (
     <main className="min-h-screen bg-white text-[#111827]">

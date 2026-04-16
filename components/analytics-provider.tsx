@@ -4,12 +4,15 @@ import { useMemo } from "react";
 import { useEffect } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import { initAmplitude, trackEvent } from "@/lib/analytics/amplitude";
+import { setHomeExperimentUserProperties } from "@/lib/analytics/home-experiment-user-properties";
+import { buildScreenViewedEventProperties, getScreenName, isScreenViewedTrackedLocally } from "@/lib/analytics/screen-view";
 import { readHomeExperimentVariantFromPathname, resolveHomeExperimentVariant } from "@/lib/home-experiment";
 
 export function AnalyticsProvider() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const search = searchParams.toString();
+  const screenName = useMemo(() => getScreenName(pathname), [pathname]);
   const homeExperimentVariant = useMemo(() => {
     const experimentVariantFromPath = readHomeExperimentVariantFromPathname(pathname);
 
@@ -29,26 +32,38 @@ export function AnalyticsProvider() {
   }, []);
 
   useEffect(() => {
-    trackEvent("screen_viewed", {
-      path: pathname,
-      query_string: search || undefined,
-    });
-  }, [pathname, search]);
+    if (!homeExperimentVariant) {
+      return;
+    }
+
+    setHomeExperimentUserProperties(homeExperimentVariant);
+  }, [homeExperimentVariant]);
 
   useEffect(() => {
     const isHomeExperimentScreen = pathname === "/home" || /^\/exp\/(a|b|c)\/home$/.test(pathname);
 
-    if (!isHomeExperimentScreen || !homeExperimentVariant) {
+    if (isScreenViewedTrackedLocally(pathname)) {
       return;
     }
 
-    trackEvent("home_experiment_screen_viewed", {
-      category: searchParams.get("category") ?? "전체",
-      experiment_name: "home_to_town_map_entry",
-      experiment_variant: homeExperimentVariant,
-      path: pathname,
-    });
-  }, [homeExperimentVariant, pathname, searchParams]);
+    const additionalProperties =
+      isHomeExperimentScreen && homeExperimentVariant
+        ? {
+            category: searchParams.get("category") ?? "전체",
+            experiment_name: "home_to_town_map_entry",
+            experiment_variant: homeExperimentVariant,
+          }
+        : undefined;
+
+    trackEvent(
+      "screen_viewed",
+      buildScreenViewedEventProperties({
+        pathname,
+        queryString: search,
+        additionalProperties,
+      }),
+    );
+  }, [homeExperimentVariant, pathname, search, searchParams]);
 
   useEffect(() => {
     const source = searchParams.get("exp_source");
@@ -72,8 +87,9 @@ export function AnalyticsProvider() {
       experiment_surface: surface ?? undefined,
       experiment_variant: variant ?? undefined,
       path: pathname,
+      screen_name: screenName,
     });
-  }, [pathname, searchParams]);
+  }, [pathname, screenName, searchParams]);
 
   useEffect(() => {
     const isHomeExperimentScreen = pathname === "/home" || /^\/exp\/(a|b|c)\/home$/.test(pathname);
@@ -103,6 +119,7 @@ export function AnalyticsProvider() {
           experiment_name: "home_to_town_map_entry",
           experiment_variant: homeExperimentVariant,
           path: pathname,
+          screen_name: screenName,
         });
       });
     };
@@ -115,7 +132,7 @@ export function AnalyticsProvider() {
       window.removeEventListener("scroll", handleScroll);
       window.removeEventListener("resize", handleScroll);
     };
-  }, [homeExperimentVariant, pathname]);
+  }, [homeExperimentVariant, pathname, screenName]);
 
   useEffect(() => {
     const source = searchParams.get("exp_source");
@@ -140,6 +157,7 @@ export function AnalyticsProvider() {
         experiment_surface: surface ?? undefined,
         experiment_variant: variant ?? undefined,
         path: pathname,
+        screen_name: screenName,
       });
       window.removeEventListener("scroll", handleScroll);
       window.removeEventListener("pointerdown", handlePointerDown);
@@ -165,7 +183,7 @@ export function AnalyticsProvider() {
       window.removeEventListener("scroll", handleScroll);
       window.removeEventListener("pointerdown", handlePointerDown);
     };
-  }, [pathname, searchParams]);
+  }, [pathname, screenName, searchParams]);
 
   return null;
 }

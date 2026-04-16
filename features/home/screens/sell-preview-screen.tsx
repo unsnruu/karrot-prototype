@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useRef } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { trackEvent } from "@/lib/analytics/amplitude";
+import { buildScreenViewedEventProperties } from "@/lib/analytics/screen-view";
 import { ItemDetailHero } from "@/features/home/components/item-detail-hero";
 import { ItemDetailMainColumn } from "@/features/home/components/item-detail-main-column";
 import { SellPreviewBottomBar } from "@/features/home/components/sell-preview-bottom-bar";
@@ -17,9 +18,12 @@ import {
 import { itemDetailUnifiedAd } from "@/lib/marketplace";
 
 export function SellPreviewScreen() {
+  const pathname = usePathname();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { draft, hydrated } = useSellFlow();
   const publishedItem = readPublishedSellItem();
+  const hasTrackedScreenView = useRef(false);
 
   useEffect(() => {
     if (hydrated && !publishedItem && !isSellFlowReady(draft)) {
@@ -28,12 +32,25 @@ export function SellPreviewScreen() {
   }, [draft, hydrated, publishedItem, router]);
 
   useEffect(() => {
-    trackEvent("sell_flow_step_viewed", {
-      has_published_item: Boolean(publishedItem),
-      photo_count: draft.photos.length,
-      step_name: "preview",
-    });
-  }, [draft.photos.length, publishedItem]);
+    if (!hydrated || hasTrackedScreenView.current) {
+      return;
+    }
+
+    hasTrackedScreenView.current = true;
+    trackEvent(
+      "screen_viewed",
+      buildScreenViewedEventProperties({
+        pathname,
+        queryString: searchParams.toString(),
+        additionalProperties: {
+          flow_name: "sell",
+          has_published_item: Boolean(publishedItem),
+          photo_count: draft.photos.length,
+          step_name: "preview",
+        },
+      }),
+    );
+  }, [draft.photos.length, hydrated, pathname, publishedItem, searchParams]);
 
   const item = publishedItem ?? buildSellPreviewItem(draft);
   const seller = buildSellPreviewSeller();

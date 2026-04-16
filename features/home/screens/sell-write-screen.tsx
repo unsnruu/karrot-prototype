@@ -1,10 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useRef } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { AppImage } from "@/components/ui/app-image";
 import { trackEvent } from "@/lib/analytics/amplitude";
+import { buildScreenViewedEventProperties } from "@/lib/analytics/screen-view";
 import { useSellFlow } from "@/features/home/components/sell-flow-provider";
 import { savePublishedSellItem } from "@/lib/local-sell-storage";
 import { formatSellPriceText } from "@/lib/sell-flow";
@@ -32,7 +33,9 @@ const AUTO_FILLED_DESCRIPTION = `향수 여러 개 한 번에 정리하려고 �
 필요하시면 추가 사진도 보내드릴게요.`;
 
 export function SellWriteScreen() {
+  const pathname = usePathname();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const {
     draft,
     hydrated,
@@ -42,6 +45,7 @@ export function SellWriteScreen() {
     setTitle,
     setTradeType,
   } = useSellFlow();
+  const hasTrackedScreenView = useRef(false);
 
   useEffect(() => {
     if (hydrated && draft.photos.length === 0) {
@@ -54,15 +58,28 @@ export function SellWriteScreen() {
   }, [draft.photos.length, hydrated, router]);
 
   useEffect(() => {
-    trackEvent("sell_flow_step_viewed", {
-      has_description: Boolean(draft.description),
-      has_location: Boolean(draft.location),
-      has_price: Boolean(draft.priceText),
-      has_title: Boolean(draft.title),
-      photo_count: draft.photos.length,
-      step_name: "write",
-    });
-  }, [draft.description, draft.location, draft.photos.length, draft.priceText, draft.title]);
+    if (!hydrated || hasTrackedScreenView.current) {
+      return;
+    }
+
+    hasTrackedScreenView.current = true;
+    trackEvent(
+      "screen_viewed",
+      buildScreenViewedEventProperties({
+        pathname,
+        queryString: searchParams.toString(),
+        additionalProperties: {
+          flow_name: "sell",
+          has_description: Boolean(draft.description),
+          has_location: Boolean(draft.location),
+          has_price: Boolean(draft.priceText),
+          has_title: Boolean(draft.title),
+          photo_count: draft.photos.length,
+          step_name: "write",
+        },
+      }),
+    );
+  }, [draft.description, draft.location, draft.photos.length, draft.priceText, draft.title, hydrated, pathname, searchParams]);
 
   const handleAutoFillTitle = () => {
     setTitle(AUTO_FILLED_TITLE);

@@ -1,17 +1,21 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { trackEvent } from "@/lib/analytics/amplitude";
+import { buildScreenViewedEventProperties } from "@/lib/analytics/screen-view";
 import { useSellFlow } from "@/features/home/components/sell-flow-provider";
 import { formatSellPriceText } from "@/lib/sell-flow";
 
 const AUTO_FILLED_PRICE = "75000";
 
 export function SellPriceScreen() {
+  const pathname = usePathname();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { draft, hydrated, setPriceText } = useSellFlow();
+  const hasTrackedScreenView = useRef(false);
 
   useEffect(() => {
     if (hydrated && draft.photos.length === 0) {
@@ -24,12 +28,25 @@ export function SellPriceScreen() {
   }, [draft.photos.length, hydrated, router]);
 
   useEffect(() => {
-    trackEvent("sell_flow_step_viewed", {
-      has_price: Boolean(draft.priceText),
-      photo_count: draft.photos.length,
-      step_name: "price",
-    });
-  }, [draft.photos.length, draft.priceText]);
+    if (!hydrated || hasTrackedScreenView.current) {
+      return;
+    }
+
+    hasTrackedScreenView.current = true;
+    trackEvent(
+      "screen_viewed",
+      buildScreenViewedEventProperties({
+        pathname,
+        queryString: searchParams.toString(),
+        additionalProperties: {
+          flow_name: "sell",
+          has_price: Boolean(draft.priceText),
+          photo_count: draft.photos.length,
+          step_name: "price",
+        },
+      }),
+    );
+  }, [draft.photos.length, draft.priceText, hydrated, pathname, searchParams]);
 
   const formattedPrice = formatSellPriceText(draft.priceText);
   const handleAutoFillPrice = () => {

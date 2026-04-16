@@ -1,16 +1,20 @@
 "use client";
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useRef } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { trackEvent } from "@/lib/analytics/amplitude";
+import { buildScreenViewedEventProperties } from "@/lib/analytics/screen-view";
 import { SellLocationPickerMap } from "@/features/home/components/sell-location-picker-map";
 import { useSellFlow } from "@/features/home/components/sell-flow-provider";
 import { LocationSelectionLayout } from "@/features/shared/components/location-selection-layout";
 import { SELL_FLOW_DEFAULT_LOCATION } from "@/lib/sell-flow";
 
 export function SellLocationScreen() {
+  const pathname = usePathname();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { draft, hydrated, setLocation } = useSellFlow();
+  const hasTrackedScreenView = useRef(false);
 
   useEffect(() => {
     if (hydrated && draft.photos.length === 0) {
@@ -23,12 +27,25 @@ export function SellLocationScreen() {
   }, [draft.photos.length, hydrated, router]);
 
   useEffect(() => {
-    trackEvent("sell_flow_step_viewed", {
-      has_location: Boolean(draft.location),
-      photo_count: draft.photos.length,
-      step_name: "location",
-    });
-  }, [draft.location, draft.photos.length]);
+    if (!hydrated || hasTrackedScreenView.current) {
+      return;
+    }
+
+    hasTrackedScreenView.current = true;
+    trackEvent(
+      "screen_viewed",
+      buildScreenViewedEventProperties({
+        pathname,
+        queryString: searchParams.toString(),
+        additionalProperties: {
+          flow_name: "sell",
+          has_location: Boolean(draft.location),
+          photo_count: draft.photos.length,
+          step_name: "location",
+        },
+      }),
+    );
+  }, [draft.location, draft.photos.length, hydrated, pathname, searchParams]);
 
   useEffect(() => {
     setLocation(SELL_FLOW_DEFAULT_LOCATION);
