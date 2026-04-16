@@ -50,4 +50,22 @@ describe("AnalyticsProvider", () => {
       });
     });
   });
+
+  it("sends screen_viewed with pending feature context for developing screens", async () => {
+    navigationState.pathname = "/developing";
+    navigationState.searchParams = new URLSearchParams("feature=%EC%83%81%ED%92%88%20%EA%B3%B5%EC%9C%A0%ED%95%98%EA%B8%B0&returnTo=%2Fhome");
+
+    render(React.createElement(AnalyticsProvider));
+
+    await waitFor(() => {
+      expect(amplitudeMocks.track).toHaveBeenCalledWith("screen_viewed", {
+        feature_label: "상품 공유하기",
+        path: "/developing",
+        query_string: "feature=%EC%83%81%ED%92%88+%EA%B3%B5%EC%9C%A0%ED%95%98%EA%B8%B0&returnTo=%2Fhome",
+        return_to: "/home",
+        screen_name: "developing",
+        screen_type: "pending_feature",
+      });
+    });
+  });
 });

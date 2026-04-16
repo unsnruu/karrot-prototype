@@ -41,26 +41,35 @@ export function AnalyticsProvider() {
 
   useEffect(() => {
     const isHomeExperimentScreen = pathname === "/home" || /^\/exp\/(a|b|c)\/home$/.test(pathname);
+    const isDevelopingScreen = pathname === "/developing";
 
     if (isScreenViewedTrackedLocally(pathname)) {
       return;
     }
 
-    const additionalProperties =
-      isHomeExperimentScreen && homeExperimentVariant
+    const additionalProperties = {
+      ...(isHomeExperimentScreen && homeExperimentVariant
         ? {
             category: searchParams.get("category") ?? "전체",
             experiment_name: "home_to_town_map_entry",
             experiment_variant: homeExperimentVariant,
           }
-        : undefined;
+        : undefined),
+      ...(isDevelopingScreen
+        ? {
+            feature_label: searchParams.get("feature") ?? "이 기능",
+            return_to: searchParams.get("returnTo") ?? undefined,
+            screen_type: "pending_feature",
+          }
+        : undefined),
+    };
 
     trackEvent(
       "screen_viewed",
       buildScreenViewedEventProperties({
         pathname,
         queryString: search,
-        additionalProperties,
+        additionalProperties: Object.keys(additionalProperties).length > 0 ? additionalProperties : undefined,
       }),
     );
   }, [homeExperimentVariant, pathname, search, searchParams]);
