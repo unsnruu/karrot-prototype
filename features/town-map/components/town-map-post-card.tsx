@@ -1,21 +1,34 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { PendingFeatureLink } from "@/components/ui/pending-feature-link";
 import { AppImage } from "@/components/ui/app-image";
 import { trackEvent } from "@/lib/analytics/amplitude";
+import { buildElementClickedEventProperties } from "@/lib/analytics/element-click";
 import { type TownMapPost } from "@/lib/town-map";
 
 export function TownMapPostCard({ post }: { post: TownMapPost }) {
+  const pathname = usePathname();
+
   return (
     <PendingFeatureLink
       className="flex flex-col gap-2"
       featureLabel={`${post.businessName} 소식 보기`}
       onClick={() => {
-        trackEvent("town_map_post_clicked", {
-          business_name: post.businessName,
-          post_id: post.id,
-          source: "town_map_bottom_sheet",
-        });
+        trackEvent(
+          "element_clicked",
+          buildElementClickedEventProperties({
+            screenName: "town_map",
+            targetType: "card",
+            targetName: "town_map_post_card",
+            surface: "bottom_sheet",
+            path: pathname,
+            targetId: post.id,
+            additionalProperties: {
+              business_name: post.businessName,
+            },
+          }),
+        );
       }}
       returnTo="/town-map"
     >

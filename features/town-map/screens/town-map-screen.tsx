@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { BottomNav } from "@/components/navigation/bottom-nav";
 import { AppImage } from "@/components/ui/app-image";
 import { PendingFeatureLink } from "@/components/ui/pending-feature-link";
@@ -8,6 +9,7 @@ import { TownMapBottomSheet } from "@/features/town-map/components/town-map-bott
 import { TownMapCategoryChip } from "@/features/town-map/components/town-map-category-chip";
 import { TownMapKakaoMap } from "@/features/town-map/components/town-map-kakao-map";
 import { trackEvent } from "@/lib/analytics/amplitude";
+import { buildSearchEventProperties } from "@/lib/analytics/search";
 import { appendNavigationQuery } from "@/lib/tab-navigation";
 import {
   townMapCenter,
@@ -18,6 +20,9 @@ import {
 } from "@/lib/town-map";
 
 export function TownMapScreen({ pins }: { pins: TownMapPin[] }) {
+  const pathname = usePathname();
+  const searchHref = appendNavigationQuery("/town-map/search", { returnTo: "/town-map", tab: "town-map" });
+
   return (
     <main className="min-h-screen bg-[#f2f4f7] text-[#111827]">
       <div className="mobile-shell flex min-h-screen flex-col overflow-hidden bg-white shadow-none">
@@ -28,11 +33,18 @@ export function TownMapScreen({ pins }: { pins: TownMapPin[] }) {
             <Link
               aria-label="업체 검색 화면 열기"
               className="block rounded-[8px] bg-gradient-to-b from-[#fdfdfe] to-[#f4f6fa] p-2 shadow-[0px_1px_8px_0px_rgba(0,0,0,0.15)]"
-              href={appendNavigationQuery("/town-map/search", { returnTo: "/town-map", tab: "town-map" })}
+              href={searchHref}
               onClick={() => {
-                trackEvent("town_map_search_opened", {
-                  source: "town_map_screen",
-                });
+                trackEvent(
+                  "search_opened",
+                  buildSearchEventProperties({
+                    screenName: "town_map",
+                    path: pathname,
+                    searchName: "town_map_search_input",
+                    surface: "header",
+                    destinationPath: searchHref,
+                  }),
+                );
               }}
             >
               <div className="flex h-12 items-center gap-2">

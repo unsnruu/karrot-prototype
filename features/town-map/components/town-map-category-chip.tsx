@@ -1,12 +1,16 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { AppImage } from "@/components/ui/app-image";
 import { PendingFeatureLink } from "@/components/ui/pending-feature-link";
 import { trackEvent } from "@/lib/analytics/amplitude";
+import { buildElementClickedEventProperties } from "@/lib/analytics/element-click";
 import { type TownMapSearchCategory } from "@/lib/town-map";
 import { cn } from "@/lib/utils";
 
 export function TownMapCategoryChip({ category }: { category: TownMapSearchCategory }) {
+  const pathname = usePathname();
+
   return (
     <PendingFeatureLink
       className={cn(
@@ -15,11 +19,20 @@ export function TownMapCategoryChip({ category }: { category: TownMapSearchCateg
       )}
       featureLabel={`${category.label} 카테고리 보기`}
       onClick={() => {
-        trackEvent("town_map_category_selected", {
-          category_id: category.id,
-          category_label: category.label,
-          source: "town_map_screen",
-        });
+        trackEvent(
+          "element_clicked",
+          buildElementClickedEventProperties({
+            screenName: "town_map",
+            targetType: "chip",
+            targetName: "town_map_category_chip",
+            surface: "header",
+            path: pathname,
+            targetId: category.id,
+            additionalProperties: {
+              category_label: category.label,
+            },
+          }),
+        );
       }}
       returnTo="/town-map"
     >

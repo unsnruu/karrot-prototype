@@ -1,11 +1,14 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { AppImage } from "@/components/ui/app-image";
 import { trackEvent } from "@/lib/analytics/amplitude";
+import { buildElementClickedEventProperties } from "@/lib/analytics/element-click";
 import { type ChatThreadPreview } from "@/lib/chat";
 
 export function ChatThreadRow({ thread }: { thread: ChatThreadPreview }) {
+  const pathname = usePathname();
   const content = (
     <div className="flex items-center gap-[6px]">
       <div className="relative h-[52px] w-[52px] shrink-0 overflow-hidden rounded-full bg-[#e5e7eb]">
@@ -34,12 +37,22 @@ export function ChatThreadRow({ thread }: { thread: ChatThreadPreview }) {
         className="block"
         href={thread.href}
         onClick={() => {
-          trackEvent("chat_thread_opened", {
-            counterparty_name: thread.name,
-            source: "chat_list",
-            thread_id: thread.id,
-            town: thread.town,
-          });
+          trackEvent(
+            "element_clicked",
+            buildElementClickedEventProperties({
+              screenName: "chat",
+              targetType: "list_item",
+              targetName: "chat_thread_row",
+              surface: "thread_list",
+              path: pathname,
+              destinationPath: thread.href,
+              targetId: thread.id,
+              additionalProperties: {
+                counterparty_name: thread.name,
+                town: thread.town,
+              },
+            }),
+          );
         }}
       >
         {content}

@@ -1,9 +1,11 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { AppImage } from "@/components/ui/app-image";
 import { PendingFeatureLink } from "@/components/ui/pending-feature-link";
 import { trackEvent } from "@/lib/analytics/amplitude";
+import { buildElementClickedEventProperties } from "@/lib/analytics/element-click";
 import {
   BellIcon,
   ChevronRightIcon,
@@ -46,6 +48,7 @@ function SellerSection({ seller }: { seller: SellerProfile }) {
 }
 
 function ItemBodySection({ item }: { item: MarketplaceItem }) {
+  const pathname = usePathname();
   const categoryLabel = item.sellingPoints[0] ?? item.condition;
   const locationHref = item.slug ? `/home/items/${item.slug}/location` : `/home/items/${item.id}/location`;
   const hasMeetupLocation = item.meetupLat != null && item.meetupLng != null && Boolean(item.meetupHint.trim());
@@ -68,18 +71,28 @@ function ItemBodySection({ item }: { item: MarketplaceItem }) {
 
         {hasMeetupLocation ? (
           <Link
-            className="block space-y-3"
-            href={locationHref}
-            onClick={() => {
-              trackEvent("item_detail_location_clicked", {
-                has_meetup_address: Boolean(item.meetupAddress),
-                item_id: item.id,
-                item_title: item.title,
-                meetup_hint: item.meetupHint,
-                source: "item_detail",
-              });
-            }}
-          >
+          className="block space-y-3"
+          href={locationHref}
+          onClick={() => {
+            trackEvent(
+              "element_clicked",
+              buildElementClickedEventProperties({
+                screenName: "item_detail",
+                targetType: "link",
+                targetName: "item_detail_location_link",
+                surface: "content",
+                path: pathname,
+                targetId: item.id,
+                destinationPath: locationHref,
+                additionalProperties: {
+                  has_meetup_address: Boolean(item.meetupAddress),
+                  item_title: item.title,
+                  meetup_hint: item.meetupHint,
+                },
+              }),
+            );
+          }}
+        >
             <div className="flex flex-wrap items-center gap-x-[10px] gap-y-2">
               <p className="text-base font-semibold leading-none text-black">거래 희망 장소</p>
               <span className="flex items-center text-base leading-none text-black">

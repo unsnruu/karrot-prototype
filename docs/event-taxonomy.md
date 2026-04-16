@@ -37,7 +37,9 @@
 - `screen_viewed`
 - `screen_exited`
 - `element_exposed`
+- `search_opened`
 - `search_submitted`
+- `search_history_cleared`
 - `element_clicked`
 - `form_completed`
 
@@ -56,6 +58,7 @@
 
 - 같은 화면 진입이면 `screen_viewed`
 - 같은 클릭이면 `element_clicked`
+- 같은 검색 진입이면 `search_opened`
 - 같은 검색 제출이면 `search_submitted`
 
 그리고 차이는 아래 속성으로 분리합니다.
@@ -236,7 +239,9 @@ Amplitude Browser SDK는 page view tracking이 켜져 있으면 `[Amplitude] Pag
 
 - `screen_viewed`
 - `element_clicked`
+- `search_opened`
 - `search_submitted`
+- `search_history_cleared`
 - `form_completed`
 - `appointment_completed`
 
@@ -270,7 +275,7 @@ Amplitude Browser SDK는 page view tracking이 켜져 있으면 `[Amplitude] Pag
 ### 왜 `element_clicked`를 쓰는가
 홈, 동네지도, 커뮤니티처럼 같은 "클릭" 행동이 여러 화면에서 반복되기 때문입니다.
 
-예를 들어 아래 이벤트는 현재는 이름이 다르지만, 장기적으로는 같은 클릭 계층으로 묶을 수 있습니다.
+예를 들어 아래와 같은 개별 이벤트들은 현재 `element_clicked` 계층으로 통합해 관리합니다.
 
 - `home_item_clicked`
 - `home_fab_action_clicked`
@@ -396,6 +401,53 @@ Amplitude Browser SDK는 page view tracking이 켜져 있으면 `[Amplitude] Pag
 
 현재 홈 실험 광고 노출은 `element_exposed`로 수집하며, `target_type=ad`, `target_name=home_native_ad`를 사용합니다.
 
+## 검색 이벤트 표준
+검색 진입과 제출은 클릭 이벤트와 별도로 해석합니다.
+
+### 왜 검색 이벤트를 분리하는가
+검색 입력창을 누르는 행위는 구현상 클릭이지만, 분석 질문은 보통 "검색 플로우에 진입했는가"와 "어떤 검색어를 제출했는가"에 가깝습니다.
+
+따라서 검색 관련 이벤트는 아래처럼 해석합니다.
+
+- `search_opened`: 검색 경험에 진입했다
+- `search_submitted`: 검색어를 제출했다
+- `search_history_cleared`: 최근 검색 기록을 비웠다
+
+예를 들어 동네지도의 검색창 진입은 `element_clicked`보다 `search_opened`로 보는 편이 더 자연스럽습니다.
+
+### 검색 이벤트 권장 속성
+필수:
+
+- `screen_name`
+
+권장:
+
+- `path`
+- `query_string`
+- `search_name`
+- `surface`
+
+선택:
+
+- `query`
+- `has_query`
+- `destination_path`
+
+예:
+
+- `search_opened`
+  - `screen_name=town_map`
+  - `search_name=town_map_search_input`
+  - `surface=header`
+- `search_submitted`
+  - `screen_name=town_map_search`
+  - `search_name=town_map_search_input`
+  - `query=합정 카페`
+  - `has_query=true`
+- `search_submitted`
+  - `screen_name=town_map_search`
+  - `has_query=false`
+
 ## 현재 구현된 `screen_viewed`
 현재 코드 기준 `screen_viewed`는 두 방식으로 전송합니다.
 
@@ -466,7 +518,7 @@ trackEvent("screen_viewed", {
 ### 검색/클릭 이벤트 해석 원칙
 클릭으로 시작하더라도 분석 질문이 "어떤 플로우에 진입했는가"라면 단순 클릭 이벤트가 아니라 기능 진입 이벤트로 볼 수 있습니다.
 
-예를 들어 `town_map_search_opened`는 구현상 검색 바 클릭에서 발생하지만, 해석상으로는 동네지도 검색 플로우 진입 이벤트로 보는 것이 더 적절합니다.
+예를 들어 동네지도 검색창 진입은 구현상 검색 바 클릭에서 발생하지만, 해석상으로는 동네지도 검색 플로우 진입 이벤트로 보는 것이 더 적절합니다.
 
 따라서 향후 공통화할 때도 아래 기준을 따릅니다.
 
@@ -511,41 +563,27 @@ trackEvent("screen_viewed", {
 ### 홈 / 실험
 
 - `element_exposed`
-- `home_experiment_ad_clicked`
+- `element_clicked`
 - `home_experiment_carousel_interacted`
 - `home_experiment_scroll_depth_reached`
 - `home_experiment_town_map_entered`
-- `home_category_selected`
 - `home_feed_load_failed`
-- `home_fab_opened`
-- `home_fab_action_clicked`
-- `home_item_clicked`
 
 ### 동네지도
 
 - `town_map_landing_engaged`
-- `town_map_search_opened`
-- `town_map_search_submitted`
-- `town_map_search_empty_submitted`
-- `town_map_recent_searches_cleared`
-- `town_map_category_selected`
-- `town_map_pin_clicked`
-- `town_map_post_clicked`
-- `town_map_quick_action_clicked`
+- `search_opened`
+- `search_submitted`
+- `search_history_cleared`
+- `element_clicked`
 - `town_map_bottom_sheet_expanded`
-- `town_map_ad_clicked`
-- `town_map_contact_clicked`
-- `town_map_business_tab_selected`
 
 ### 채팅 / 커뮤니티 / 내비게이션
 
-- `chat_thread_opened`
+- `element_clicked`
 - `chat_appointment_started`
 - `chat_appointment_invalid_state`
 - `chat_appointment_completed`
-- `community_banner_clicked`
-- `community_tab_selected`
-- `bottom_nav_clicked`
 
 ### 판매 플로우
 
@@ -556,14 +594,7 @@ trackEvent("screen_viewed", {
 ## 정리 대상 후보
 현재 이벤트 중 일부는 향후 통합 검토가 필요합니다.
 
-대표 예시는 아래와 같습니다.
-
-- `home_experiment_ad_clicked`
-  향후 `element_clicked` 같은 공통 이벤트로 일반화할 수 있습니다.
-- `bottom_nav_clicked`, `community_banner_clicked`, `home_category_selected`
-  장기적으로는 클릭 이벤트 계층을 어떻게 통합할지 검토할 수 있습니다.
-
-단, 이 문서의 목적은 현재 즉시 모든 이벤트를 개편하는 것이 아니라, 이후 개편의 판단 기준을 먼저 정하는 데 있습니다.
+대표적으로 화면 내부 상호작용은 `element_clicked`, 검색 흐름은 `search_opened`/`search_submitted` 계층으로 우선 통합합니다.
 
 ## 새 이벤트 추가 체크리스트
 새 이벤트를 만들기 전에 아래 질문을 먼저 확인합니다.

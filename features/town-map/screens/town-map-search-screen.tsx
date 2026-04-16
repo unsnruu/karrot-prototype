@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { PendingFeatureLink } from "@/components/ui/pending-feature-link";
 import { ArrowLeftIcon } from "@/features/home/components/item-detail-icons";
 import { trackEvent } from "@/lib/analytics/amplitude";
+import { buildSearchEventProperties } from "@/lib/analytics/search";
 import { buildPendingFeatureHref } from "@/lib/tab-navigation";
 import {
   townMapKeyboardRows,
@@ -20,6 +21,7 @@ type TownMapSearchScreenProps = {
 
 export function TownMapSearchScreen({ returnHref }: TownMapSearchScreenProps) {
   const router = useRouter();
+  const pathname = usePathname();
   const [query, setQuery] = useState("");
   const [recentSearches, setRecentSearches] = useState(townMapRecentSearches);
 
@@ -44,20 +46,27 @@ export function TownMapSearchScreen({ returnHref }: TownMapSearchScreenProps) {
 
   const handleSearchSubmit = (term: string) => {
     const value = term.trim();
+    const destinationPath = buildPendingFeatureHref(returnHref, "동네지도에서 업체 찾기");
+
+    trackEvent(
+      "search_submitted",
+      buildSearchEventProperties({
+        screenName: "town_map_search",
+        path: pathname,
+        searchName: "town_map_search_input",
+        surface: "search_screen",
+        destinationPath,
+        query: value || undefined,
+        hasQuery: Boolean(value),
+      }),
+    );
 
     if (!value) {
-      trackEvent("town_map_search_empty_submitted", {
-        source: "town_map_search",
-      });
       return;
     }
 
     addRecentSearch(value);
-    trackEvent("town_map_search_submitted", {
-      query: value,
-      source: "town_map_search",
-    });
-    router.push(buildPendingFeatureHref(returnHref, "동네지도에서 업체 찾기"));
+    router.push(destinationPath);
   };
 
   const handleKeyboardPress = (key: TownMapKeyboardKey) => {
@@ -112,9 +121,15 @@ export function TownMapSearchScreen({ returnHref }: TownMapSearchScreenProps) {
               className="text-[14px] leading-5 text-[#9ca3af] disabled:opacity-40"
               disabled={!hasRecentSearches}
               onClick={() => {
-                trackEvent("town_map_recent_searches_cleared", {
-                  source: "town_map_search",
-                });
+                trackEvent(
+                  "search_history_cleared",
+                  buildSearchEventProperties({
+                    screenName: "town_map_search",
+                    path: pathname,
+                    searchName: "town_map_search_input",
+                    surface: "recent_searches",
+                  }),
+                );
                 setRecentSearches([]);
               }}
               type="button"

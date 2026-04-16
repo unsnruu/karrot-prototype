@@ -1,20 +1,31 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { AppImage } from "@/components/ui/app-image";
 import { trackEvent } from "@/lib/analytics/amplitude";
+import { buildElementClickedEventProperties } from "@/lib/analytics/element-click";
 import { communityBanner } from "@/lib/community";
 
 export function CommunityBannerLink() {
+  const pathname = usePathname();
+
   return (
     <Link
       className="flex items-center gap-[7px] rounded-[12px] bg-[#eff6ff] px-4 py-5"
       href="/town-map"
       onClick={() => {
-        trackEvent("community_banner_clicked", {
-          destination_path: "/town-map",
-          source: "community_banner",
-        });
+        trackEvent(
+          "element_clicked",
+          buildElementClickedEventProperties({
+            screenName: "community",
+            targetType: "banner",
+            targetName: "community_town_map_banner",
+            surface: "meetup_banner",
+            path: pathname,
+            destinationPath: "/town-map",
+          }),
+        );
       }}
     >
       <div className="min-w-0 flex-1">

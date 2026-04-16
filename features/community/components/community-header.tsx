@@ -1,7 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { trackEvent } from "@/lib/analytics/amplitude";
+import { buildElementClickedEventProperties } from "@/lib/analytics/element-click";
 import { CommunityCategoryRail } from "@/features/community/components/community-category-rail";
 import { CommunityBannerLink } from "@/features/community/components/community-banner-link";
 import { communityFilters, communityTopTabs, type CommunityTabKey, type CommunityTopicFilterKey } from "@/lib/community";
@@ -13,6 +15,8 @@ export function CommunityHeader({
   selectedTab: CommunityTabKey;
   selectedTopic: CommunityTopicFilterKey;
 }) {
+  const pathname = usePathname();
+
   return (
     <header className="sticky top-0 z-20 bg-white">
       <div className="w-full px-4 pb-1 pt-5">
@@ -25,11 +29,21 @@ export function CommunityHeader({
               href={tab.key === "town" ? "/community" : `/community?tab=${tab.key}`}
               key={tab.key}
               onClick={() => {
-                trackEvent("community_tab_selected", {
-                  previous_tab: selectedTab,
-                  source: "community_header",
-                  tab_key: tab.key,
-                });
+                trackEvent(
+                  "element_clicked",
+                  buildElementClickedEventProperties({
+                    screenName: "community",
+                    targetType: "tab",
+                    targetName: "community_top_tab",
+                    surface: "header",
+                    path: pathname,
+                    destinationPath: tab.key === "town" ? "/community" : `/community?tab=${tab.key}`,
+                    targetId: tab.key,
+                    additionalProperties: {
+                      previous_tab: selectedTab,
+                    },
+                  }),
+                );
               }}
               scroll={false}
             >

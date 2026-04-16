@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { trackEvent } from "@/lib/analytics/amplitude";
+import { buildElementClickedEventProperties } from "@/lib/analytics/element-click";
+import { getScreenName } from "@/lib/analytics/screen-view";
 import { buildExperimentHref, readHomeExperimentVariantFromPathname } from "@/lib/home-experiment";
 import { bottomTabs } from "@/lib/marketplace";
 
@@ -23,11 +25,21 @@ export function BottomNav() {
                 className="flex flex-1 flex-col items-center gap-0.5 pb-[calc(2rem+env(safe-area-inset-bottom))] pt-1"
                 href={tabHref}
                 onClick={() =>
-                  trackEvent("bottom_nav_clicked", {
-                    current_path: pathname,
-                    destination_path: tabHref,
-                    tab_label: tab.label,
-                  })
+                  trackEvent(
+                    "element_clicked",
+                    buildElementClickedEventProperties({
+                      screenName: getScreenName(pathname),
+                      targetType: "tab",
+                      targetName: "bottom_nav_tab",
+                      surface: "bottom_navigation",
+                      path: pathname,
+                      destinationPath: tabHref,
+                      targetId: tab.href.replace(/^\//, "").replaceAll("/", "_") || "home",
+                      additionalProperties: {
+                        tab_label: tab.label,
+                      },
+                    }),
+                  )
                 }
               >
                 <span

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AppImage } from "@/components/ui/app-image";
 import { trackEvent } from "@/lib/analytics/amplitude";
+import { buildElementClickedEventProperties } from "@/lib/analytics/element-click";
 import { TownMapPostCard } from "@/features/town-map/components/town-map-post-card";
 import { TownMapQuickActionCard } from "@/features/town-map/components/town-map-quick-action-card";
 import { buildPendingFeatureHref } from "@/lib/tab-navigation";
@@ -180,9 +181,17 @@ export function TownMapBottomSheet() {
             className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-black/10 bg-white"
             href={buildPendingFeatureHref("/town-map", "동네지도 광고 보기")}
             onClick={() => {
-              trackEvent("town_map_ad_clicked", {
-                source: "town_map_bottom_sheet",
-              });
+              trackEvent(
+                "element_clicked",
+                buildElementClickedEventProperties({
+                  screenName: "town_map",
+                  targetType: "button",
+                  targetName: "town_map_bottom_sheet_ad_button",
+                  surface: "bottom_sheet",
+                  path: "/town-map",
+                  destinationPath: buildPendingFeatureHref("/town-map", "동네지도 광고 보기"),
+                }),
+              );
             }}
           >
             <span className="relative h-4 w-4">

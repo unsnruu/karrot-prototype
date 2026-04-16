@@ -1,11 +1,11 @@
 "use client";
 
-"use client";
-
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { AppImage } from "@/components/ui/app-image";
 import { PendingFeatureLink } from "@/components/ui/pending-feature-link";
 import { trackEvent } from "@/lib/analytics/amplitude";
+import { buildElementClickedEventProperties } from "@/lib/analytics/element-click";
 import { TownMapBusinessMiniMap } from "@/features/town-map/components/town-map-business-mini-map";
 import { type TownMapBusinessDetail } from "@/lib/town-map-business";
 import { type TownMapBusinessNewsPost } from "@/lib/town-map-business-news";
@@ -23,6 +23,8 @@ export function TownMapBusinessDetailScreen({
   newsPosts: TownMapBusinessNewsPost[];
   tabHrefs: Record<BusinessDetailTab, string>;
 }) {
+  const pathname = usePathname();
+
   return (
     <main className="min-h-screen bg-white text-[#111827]">
       <div className="mobile-shell-compact min-h-screen bg-white pb-28">
@@ -86,10 +88,10 @@ export function TownMapBusinessDetailScreen({
 
         <nav className="mt-4 border-b border-[#edeef0] px-4">
           <div className="flex">
-            <TabButton active={activeTab === "home"} currentTab={activeTab} href={tabHrefs.home} label="홈" tabKey="home" />
-            <TabButton active={activeTab === "news"} currentTab={activeTab} href={tabHrefs.news} label="소식" tabKey="news" />
-            <TabButton active={activeTab === "reviews"} currentTab={activeTab} href={tabHrefs.reviews} label="후기" tabKey="reviews" />
-            <TabButton active={activeTab === "photos"} currentTab={activeTab} href={tabHrefs.photos} label="사진" tabKey="photos" />
+            <TabButton active={activeTab === "home"} currentPath={pathname} currentTab={activeTab} href={tabHrefs.home} label="홈" tabKey="home" />
+            <TabButton active={activeTab === "news"} currentPath={pathname} currentTab={activeTab} href={tabHrefs.news} label="소식" tabKey="news" />
+            <TabButton active={activeTab === "reviews"} currentPath={pathname} currentTab={activeTab} href={tabHrefs.reviews} label="후기" tabKey="reviews" />
+            <TabButton active={activeTab === "photos"} currentPath={pathname} currentTab={activeTab} href={tabHrefs.photos} label="사진" tabKey="photos" />
           </div>
         </nav>
 
@@ -337,12 +339,21 @@ export function TownMapBusinessDetailScreen({
             className="flex-1 rounded-[8px] bg-[#f3f4f6] py-[13px] text-[15px] font-bold leading-5 text-[#374151]"
             featureLabel="전화 문의"
             onClick={() => {
-              trackEvent("town_map_contact_clicked", {
-                business_id: detail.id,
-                business_name: detail.name,
-                contact_type: "call",
-                source: "town_map_business_detail",
-              });
+              trackEvent(
+                "element_clicked",
+                buildElementClickedEventProperties({
+                  screenName: "town_map_business_detail",
+                  targetType: "button",
+                  targetName: "town_map_business_call_button",
+                  surface: "sticky_footer",
+                  path: pathname,
+                  targetId: detail.id,
+                  additionalProperties: {
+                    business_name: detail.name,
+                    contact_type: "call",
+                  },
+                }),
+              );
             }}
             returnTo={backHref}
           >
@@ -352,12 +363,21 @@ export function TownMapBusinessDetailScreen({
             className="flex-1 rounded-[8px] bg-[#ff6f0f] py-[13px] text-[15px] font-bold leading-5 text-white"
             featureLabel="채팅 문의"
             onClick={() => {
-              trackEvent("town_map_contact_clicked", {
-                business_id: detail.id,
-                business_name: detail.name,
-                contact_type: "chat",
-                source: "town_map_business_detail",
-              });
+              trackEvent(
+                "element_clicked",
+                buildElementClickedEventProperties({
+                  screenName: "town_map_business_detail",
+                  targetType: "button",
+                  targetName: "town_map_business_chat_button",
+                  surface: "sticky_footer",
+                  path: pathname,
+                  targetId: detail.id,
+                  additionalProperties: {
+                    business_name: detail.name,
+                    contact_type: "chat",
+                  },
+                }),
+              );
             }}
             returnTo={backHref}
           >
@@ -390,12 +410,14 @@ function Section({
 function TabButton({
   active = false,
   currentTab,
+  currentPath,
   href,
   label,
   tabKey,
 }: {
   active?: boolean;
   currentTab: BusinessDetailTab;
+  currentPath: string;
   href: string;
   label: string;
   tabKey: BusinessDetailTab;
@@ -407,11 +429,21 @@ function TabButton({
       }`}
       href={href}
       onClick={() => {
-        trackEvent("town_map_business_tab_selected", {
-          previous_tab: currentTab,
-          source: "town_map_business_detail",
-          tab_key: tabKey,
-        });
+        trackEvent(
+          "element_clicked",
+          buildElementClickedEventProperties({
+            screenName: "town_map_business_detail",
+            targetType: "tab",
+            targetName: "town_map_business_tab",
+            surface: "tab_bar",
+            path: currentPath,
+            targetId: tabKey,
+            destinationPath: href,
+            additionalProperties: {
+              previous_tab: currentTab,
+            },
+          }),
+        );
       }}
     >
       {label}
