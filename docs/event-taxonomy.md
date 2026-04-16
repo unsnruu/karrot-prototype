@@ -77,6 +77,24 @@
 
 이벤트 이름만 봐도 제품적으로 별도의 완료 행동을 의미하기 때문입니다.
 
+### 4. 분석 질문이 병목이면 상태를 우선 본다
+모든 UI 조작을 클릭 이벤트로 먼저 수집하지 않습니다.
+
+특히 입력 플로우에서는 "무엇을 몇 번 눌렀는가"보다 "어느 단계에서 무엇이 비어 있는가"가 더 직접적인 제품 질문일 수 있습니다.
+
+예를 들면 판매 플로우에서는 아래 질문을 우선 봅니다.
+
+- 어떤 step까지 진입했는가
+- 해당 step에서 제목, 설명, 가격, 위치가 채워져 있었는가
+- 사진 수가 전환에 어떤 영향을 주는가
+
+이 경우에는 `screen_viewed`에 `flow_name`, `step_name`, `has_*`, `photo_count`를 붙여 먼저 해석하고, 특정 기능 자체의 효용을 판단해야 할 때만 추가 클릭 이벤트를 검토합니다.
+
+### 5. fallback 화면도 같은 행동이면 같은 이벤트로 본다
+미구현 기능 안내 화면도 제품 안의 하나의 화면으로 취급합니다.
+
+즉, `/developing` 진입은 별도 이벤트를 새로 만들기보다 `screen_viewed`로 수집하고, 미구현 기능이라는 맥락은 속성으로 구분합니다.
+
 ## `page_viewed`와 `screen_viewed`
 
 ### 결론
@@ -148,6 +166,7 @@ Amplitude Browser SDK는 page view tracking이 켜져 있으면 `[Amplitude] Pag
 - `component_name`
 - `slot`
 - `tab_name`
+- `screen_type`
 
 ### 3. 액션 대상 속성
 사용자가 무엇과 상호작용했는지 설명합니다.
@@ -166,6 +185,8 @@ Amplitude Browser SDK는 page view tracking이 켜져 있으면 `[Amplitude] Pag
 - `business_id`
 - `trade_type`
 - `photo_count`
+- `feature_label`
+- `return_to`
 
 ### 5. 실험 속성
 실험 이벤트를 별도 이름으로 과하게 분리하지 않기 위해 쓰는 속성입니다.
@@ -260,6 +281,45 @@ trackEvent("screen_viewed", {
   - `has_price`
   - `has_location`
   - `has_published_item`
+- 미구현 fallback 화면
+  - `feature_label`
+  - `return_to`
+  - `screen_type`
+
+### 판매 플로우 해석 원칙
+판매 플로우의 기본 해석 단위는 기능 클릭 수보다 step 상태입니다.
+
+- `flow_name`은 어떤 플로우에 속한 화면인지 나타냅니다. 현재는 `sell`을 사용합니다.
+- `step_name`은 플로우 안의 현재 단계 이름입니다. 예: `photos`, `write`, `price`, `location`, `preview`
+- `photo_count`는 현재 선택되거나 첨부된 사진 수입니다.
+- `has_title`, `has_description`, `has_price`, `has_location`은 해당 시점에 핵심 입력값이 채워져 있는지를 나타냅니다.
+
+이 속성들만으로도 "어느 단계에서 어떤 값이 비어 있어 이탈하는가"를 먼저 볼 수 있으므로, 판매 플로우에서는 모든 기능에 대해 별도 클릭 이벤트를 추가하지 않는 것을 기본 원칙으로 합니다.
+
+특정 기능 자체의 효용을 판단해야 할 때만 최소한의 클릭 이벤트를 추가로 검토합니다.
+
+### 검색/클릭 이벤트 해석 원칙
+클릭으로 시작하더라도 분석 질문이 "어떤 플로우에 진입했는가"라면 단순 클릭 이벤트가 아니라 기능 진입 이벤트로 볼 수 있습니다.
+
+예를 들어 `town_map_search_opened`는 구현상 검색 바 클릭에서 발생하지만, 해석상으로는 동네지도 검색 플로우 진입 이벤트로 보는 것이 더 적절합니다.
+
+따라서 향후 공통화할 때도 아래 기준을 따릅니다.
+
+- 단순 대상 클릭이면 `element_clicked`
+- 검색 진입처럼 기능 시작 의미가 더 크면 `search_opened`
+- 명확한 완료 행동이면 도메인 완료 이벤트 유지
+
+### 미구현 기능 화면 해석 원칙
+`/developing` 화면은 별도 예외 이벤트를 만들지 않고 `screen_viewed`로 해석합니다.
+
+즉, 아래처럼 동일한 화면 진입 이벤트 안에서 미구현 기능 맥락을 속성으로 구분합니다.
+
+- `screen_name=developing`
+- `feature_label`
+- `return_to`
+- `screen_type=pending_feature`
+
+이 방식으로 이벤트 수를 늘리지 않으면서도 어떤 미구현 기능 수요가 높은지 파악할 수 있습니다.
 
 ## 현재 이벤트 inventory 요약
 현재 코드에 존재하는 주요 커스텀 이벤트는 아래와 같습니다.
