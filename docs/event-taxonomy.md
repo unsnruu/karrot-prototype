@@ -61,7 +61,7 @@
 
 - 어느 화면인가: `screen_name`
 - 어느 UI surface인가: `surface`
-- 무엇을 눌렀는가: `target_type`, `target_id`, `target_label`
+- 무엇을 눌렀는가: `target_type`, `target_name`, `target_id`
 - 어떤 실험인가: `experiment_name`, `experiment_variant`
 
 ### 3. 새 이벤트는 행동 의미가 달라질 때만 만든다
@@ -163,19 +163,45 @@ Amplitude Browser SDK는 page view tracking이 켜져 있으면 `[Amplitude] Pag
 같은 행동이 화면 안 어디에서 일어났는지를 설명합니다.
 
 - `surface`
-- `section`
-- `component_name`
-- `slot`
-- `tab_name`
 - `screen_type`
+
+이 문서에서 `surface`는 화면 내부의 UI 영역을 뜻합니다.
+
+예:
+
+- `screen_name=home`
+- `surface=header`
+
+이 조합은 "홈 화면의 헤더 영역에서 발생한 행동"을 의미합니다.
+
+반대로 `screen_name`은 제품이 정의한 화면 자체를 의미합니다.
+
+예:
+
+- `screen_name=home`
+- `screen_name=town_map`
+- `screen_name=item_detail`
+
+즉, `screen_name`은 바깥 컨텍스트, `surface`는 화면 안 위치입니다.
 
 ### 3. 액션 대상 속성
 사용자가 무엇과 상호작용했는지 설명합니다.
 
 - `target_type`
+- `target_name`
 - `target_id`
-- `target_label`
 - `target_position`
+
+이 문서에서는 `target_role`과 `target_label`을 분리하지 않고, 더 분명한 정규화 이름인 `target_name` 하나를 사용합니다.
+
+예:
+
+- `target_name=home_search_input`
+- `target_name=home_category_chip`
+- `target_name=home_item_card`
+- `target_name=home_sell_fab_action`
+
+`target_name`은 사람이 읽는 자유 텍스트가 아니라, 팀이 고정해서 쓰는 taxonomy 이름입니다.
 
 ### 4. 도메인 속성
 도메인별 분석에 필요한 속성입니다.
@@ -224,6 +250,8 @@ Amplitude Browser SDK는 page view tracking이 켜져 있으면 `[Amplitude] Pag
 - 전부 `snake_case`를 사용합니다.
 - Boolean은 `has_*` 형태를 우선 사용합니다.
 - 개수는 `*_count`, 순서는 `*_index`, 비율은 `*_percent` 형식을 우선 사용합니다.
+- 클릭 대상 이름은 기본적으로 `[screen]_[ui_name]` 형태의 정규화 이름을 사용합니다.
+- 단, 행동이 없으면 의미가 모호한 경우에만 마지막에 action suffix를 추가합니다.
 
 예시:
 
@@ -231,6 +259,101 @@ Amplitude Browser SDK는 page view tracking이 켜져 있으면 `[Amplitude] Pag
 - `photo_count`
 - `ad_index`
 - `depth_percent`
+- `home_search_input`
+- `home_item_card`
+- `home_sell_fab_start_sell`
+
+## 클릭 이벤트 표준
+클릭 계열 이벤트를 통합할 때의 기본 이벤트 이름은 `element_clicked`입니다.
+
+### 왜 `element_clicked`를 쓰는가
+홈, 동네지도, 커뮤니티처럼 같은 "클릭" 행동이 여러 화면에서 반복되기 때문입니다.
+
+예를 들어 아래 이벤트는 현재는 이름이 다르지만, 장기적으로는 같은 클릭 계층으로 묶을 수 있습니다.
+
+- `home_item_clicked`
+- `home_fab_action_clicked`
+- `town_map_category_selected`
+- `bottom_nav_clicked`
+
+이벤트 이름을 분리하는 대신 아래 속성으로 차이를 설명합니다.
+
+- `screen_name`: 어느 화면에서 눌렀는가
+- `surface`: 화면 안 어디에서 눌렀는가
+- `target_type`: UI 형태가 무엇인가
+- `target_name`: 어떤 역할의 요소를 눌렀는가
+- `target_id`: 식별 가능한 대상이 있으면 무엇인가
+- `target_position`: 목록이나 캐러셀 안에서 몇 번째인가
+
+### `element_clicked` 권장 속성
+필수:
+
+- `screen_name`
+- `target_type`
+- `target_name`
+
+권장:
+
+- `surface`
+- `path`
+
+선택:
+
+- `query_string`
+- `target_id`
+- `target_position`
+- `experiment_name`
+- `experiment_variant`
+- `destination_path`
+
+### `target_type`와 `target_name`의 차이
+- `target_type`은 UI 형태입니다. 예: `button`, `card`, `chip`, `tab`, `link`
+- `target_name`은 그 요소의 제품 역할을 설명하는 정규화 이름입니다. 기본은 `screen + ui_name`이고, 필요할 때만 action suffix를 붙입니다.
+
+예:
+
+- `home_search_input`
+- `home_item_card`
+- `home_sell_fab_start_sell`
+- `item_detail_chat_button_open_chat`
+
+예를 들어 홈 검색창 클릭은 아래처럼 표현합니다.
+
+- `screen_name=home`
+- `surface=header`
+- `target_type=button`
+- `target_name=home_search_input`
+
+예를 들어 홈 상품 카드 클릭은 아래처럼 표현합니다.
+
+- `screen_name=home`
+- `surface=feed`
+- `target_type=card`
+- `target_name=home_item_card`
+- `target_id=<item_id>`
+
+### `target_name` 네이밍 원칙
+기본:
+
+- `screen + ui_name`
+
+예:
+
+- `home_search_input`
+- `home_item_card`
+- `home_category_chip`
+- `item_detail_chat_button`
+
+예외:
+
+- 행동이 없으면 의미가 모호한 경우에만 마지막에 action suffix를 붙입니다.
+
+예:
+
+- `home_sell_fab_start_sell`
+- `item_detail_chat_button_open_chat`
+
+즉, `target_name`은 가능한 짧고 안정적으로 유지하되, suffix action이 있어야 구분이 되는 경우에만 확장합니다.
 
 ## 현재 구현된 `screen_viewed`
 현재 코드 기준 `screen_viewed`는 두 방식으로 전송합니다.
