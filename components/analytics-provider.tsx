@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import { useRef } from "react";
 import { useEffect } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import { initAmplitude, trackEvent } from "@/lib/analytics/amplitude";
@@ -13,6 +14,11 @@ export function AnalyticsProvider() {
   const searchParams = useSearchParams();
   const search = searchParams.toString();
   const screenName = useMemo(() => getScreenName(pathname), [pathname]);
+  const currentScreenSessionRef = useRef<{
+    hasTrackedExit: boolean;
+    properties: Record<string, unknown>;
+    startedAt: number;
+  } | null>(null);
   const homeExperimentVariant = useMemo(() => {
     const experimentVariantFromPath = readHomeExperimentVariantFromPathname(pathname);
 
@@ -27,8 +33,36 @@ export function AnalyticsProvider() {
     return undefined;
   }, [pathname, searchParams]);
 
+  const trackCurrentScreenExit = (exitReason: "pagehide" | "route_change") => {
+    const currentScreenSession = currentScreenSessionRef.current;
+
+    if (!currentScreenSession || currentScreenSession.hasTrackedExit) {
+      return;
+    }
+
+    currentScreenSession.hasTrackedExit = true;
+
+    trackEvent("screen_exited", {
+      ...currentScreenSession.properties,
+      duration_ms: Math.max(0, Date.now() - currentScreenSession.startedAt),
+      exit_reason: exitReason,
+    });
+  };
+
   useEffect(() => {
     initAmplitude();
+  }, []);
+
+  useEffect(() => {
+    const handlePageHide = () => {
+      trackCurrentScreenExit("pagehide");
+    };
+
+    window.addEventListener("pagehide", handlePageHide);
+
+    return () => {
+      window.removeEventListener("pagehide", handlePageHide);
+    };
   }, []);
 
   useEffect(() => {
@@ -42,10 +76,6 @@ export function AnalyticsProvider() {
   useEffect(() => {
     const isHomeExperimentScreen = pathname === "/home" || /^\/exp\/(a|b|c)\/home$/.test(pathname);
     const isDevelopingScreen = pathname === "/developing";
-
-    if (isScreenViewedTrackedLocally(pathname)) {
-      return;
-    }
 
     const additionalProperties = {
       ...(isHomeExperimentScreen && homeExperimentVariant
@@ -64,14 +94,31 @@ export function AnalyticsProvider() {
         : undefined),
     };
 
-    trackEvent(
-      "screen_viewed",
-      buildScreenViewedEventProperties({
-        pathname,
-        queryString: search,
-        additionalProperties: Object.keys(additionalProperties).length > 0 ? additionalProperties : undefined,
-      }),
-    );
+    const screenViewedProperties = buildScreenViewedEventProperties({
+      pathname,
+      queryString: search,
+      additionalProperties: Object.keys(additionalProperties).length > 0 ? additionalProperties : undefined,
+    });
+
+    const screenSession = {
+      hasTrackedExit: false,
+      properties: screenViewedProperties,
+      startedAt: Date.now(),
+    };
+
+    currentScreenSessionRef.current = screenSession;
+
+    if (!isScreenViewedTrackedLocally(pathname)) {
+      trackEvent("screen_viewed", screenViewedProperties);
+    }
+
+    return () => {
+      if (currentScreenSessionRef.current !== screenSession) {
+        return;
+      }
+
+      trackCurrentScreenExit("route_change");
+    };
   }, [homeExperimentVariant, pathname, search, searchParams]);
 
   useEffect(() => {

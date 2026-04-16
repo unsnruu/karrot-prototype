@@ -35,6 +35,7 @@
 좋은 예시는 아래와 같습니다.
 
 - `screen_viewed`
+- `screen_exited`
 - `search_submitted`
 - `element_clicked`
 - `form_completed`
@@ -327,6 +328,21 @@ trackEvent("screen_viewed", {
 ### 공통
 
 - `screen_viewed`
+- `screen_exited`
+
+### 화면 체류 시간 추적 원칙
+화면 체류 시간은 별도의 page time 집계가 아니라 `screen_exited` 이벤트로 수집합니다.
+
+- 화면 진입 시점은 `screen_viewed`
+- 화면 이탈 시점은 `screen_exited`
+- 이탈 이벤트에는 `duration_ms`를 포함합니다.
+
+현재 구현은 아래 두 경우에 `screen_exited`를 전송합니다.
+
+- 라우트가 다른 화면으로 바뀔 때 `exit_reason=route_change`
+- 브라우저 탭이나 페이지가 닫힐 때 `exit_reason=pagehide`
+
+이 방식으로 화면별 평균 체류 시간, 중간값, 이탈 전 머문 시간 분포를 `screen_name` 기준으로 해석할 수 있습니다.
 
 ### 홈 / 실험
 

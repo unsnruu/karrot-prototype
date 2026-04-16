@@ -1,6 +1,6 @@
 import React from "react";
 import { render, waitFor } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { AnalyticsProvider } from "@/components/analytics-provider";
 
 const navigationState = vi.hoisted(() => ({
@@ -29,11 +29,19 @@ vi.mock("next/navigation", () => ({
 vi.mock("@amplitude/unified", () => amplitudeMocks);
 
 describe("AnalyticsProvider", () => {
+  let currentNow = 0;
+
   beforeEach(() => {
+    currentNow = new Date("2026-04-16T00:00:00.000Z").getTime();
+    vi.spyOn(Date, "now").mockImplementation(() => currentNow);
     localStorage.clear();
     vi.clearAllMocks();
     navigationState.pathname = "/home";
     navigationState.searchParams = new URLSearchParams("category=%EB%94%94%EC%A7%80%ED%84%B8%EA%B8%B0%EA%B8%B0&variant=b");
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   it("sends screen_viewed with experiment context for home experiment screens", async () => {
@@ -65,6 +73,34 @@ describe("AnalyticsProvider", () => {
         return_to: "/home",
         screen_name: "developing",
         screen_type: "pending_feature",
+      });
+    });
+  });
+
+  it("sends screen_exited with duration when the route changes", async () => {
+    navigationState.pathname = "/community";
+    navigationState.searchParams = new URLSearchParams();
+
+    const { rerender } = render(React.createElement(AnalyticsProvider));
+
+    await waitFor(() => {
+      expect(amplitudeMocks.track).toHaveBeenCalledWith("screen_viewed", {
+        path: "/community",
+        screen_name: "community",
+      });
+    });
+
+    currentNow = new Date("2026-04-16T00:00:01.500Z").getTime();
+    navigationState.pathname = "/chat";
+    navigationState.searchParams = new URLSearchParams();
+    rerender(React.createElement(AnalyticsProvider));
+
+    await waitFor(() => {
+      expect(amplitudeMocks.track).toHaveBeenCalledWith("screen_exited", {
+        duration_ms: 1500,
+        exit_reason: "route_change",
+        path: "/community",
+        screen_name: "community",
       });
     });
   });
