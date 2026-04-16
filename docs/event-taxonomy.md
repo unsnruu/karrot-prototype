@@ -263,7 +263,6 @@ Amplitude Browser SDK는 page view tracking이 켜져 있으면 `[Amplitude] Pag
 
 - `has_title`
 - `photo_count`
-- `ad_index`
 - `depth_percent`
 - `home_search_input`
 - `home_item_card`
@@ -400,6 +399,25 @@ Amplitude Browser SDK는 page view tracking이 켜져 있으면 `[Amplitude] Pag
 - `experiment_variant`
 
 현재 홈 실험 광고 노출은 `element_exposed`로 수집하며, `target_type=ad`, `target_name=home_native_ad`를 사용합니다.
+
+### 광고 퍼널 연결 원칙
+홈 광고 퍼널은 아래 흐름으로 해석합니다.
+
+- `element_exposed`
+- `element_clicked`
+- `home_experiment_town_map_entered`
+
+이 세 단계는 같은 광고를 가리키는 공통 속성으로 연결합니다.
+
+- `target_type=ad`
+- `target_name=home_native_ad`
+- `target_id`
+- `target_position`
+- `surface`
+- `experiment_name`
+- `experiment_variant`
+
+즉, 광고 분석에서는 클릭 수만 보지 않고 노출 대비 클릭과 클릭 이후 목적 화면 진입까지 같은 `target_*` 키로 이어서 봅니다.
 
 ## 검색 이벤트 표준
 검색 진입과 제출은 클릭 이벤트와 별도로 해석합니다.
@@ -559,6 +577,22 @@ trackEvent("screen_viewed", {
 - 브라우저 탭이나 페이지가 닫힐 때 `exit_reason=pagehide`
 
 이 방식으로 화면별 평균 체류 시간, 중간값, 이탈 전 머문 시간 분포를 `screen_name` 기준으로 해석할 수 있습니다.
+
+### town-map 핵심 해석 기준
+현재 town-map 페이지에서는 아래 두 지표를 우선 봅니다.
+
+- 체류 시간: `screen_viewed`와 `screen_exited`를 이용해 `screen_name=town_map` 기준으로 해석합니다.
+- 동네 업체 클릭률: `screen_name=town_map`에서 발생한 업체 관련 `element_clicked`를 기준으로 해석합니다.
+
+업체 클릭은 현재 아래와 같은 `target_name` 계층으로 수집합니다.
+
+- `town_map_business_pin`
+- `town_map_post_card`
+- `town_map_business_tab`
+- `town_map_business_call_button`
+- `town_map_business_chat_button`
+
+홈 광고에서 town-map으로 유입된 경우에는 `home_experiment_town_map_entered`와 `town_map_landing_engaged`에도 동일한 `target_*` 속성을 유지해 광고별 체류와 클릭 성과를 이어서 볼 수 있습니다.
 
 ### 홈 / 실험
 

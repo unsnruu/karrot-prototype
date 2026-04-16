@@ -125,8 +125,10 @@ export function AnalyticsProvider() {
     const source = searchParams.get("exp_source");
     const variant = searchParams.get("exp_variant");
     const surface = searchParams.get("exp_surface");
-    const adId = searchParams.get("exp_ad_id");
-    const adIndex = searchParams.get("exp_index");
+    const targetId = searchParams.get("exp_target_id") ?? searchParams.get("exp_ad_id");
+    const targetPosition = searchParams.get("exp_target_position") ?? searchParams.get("exp_index");
+    const targetName = searchParams.get("exp_target_name") ?? "home_native_ad";
+    const targetType = searchParams.get("exp_target_type") ?? "ad";
 
     if (source !== "home_experiment") {
       return;
@@ -137,13 +139,15 @@ export function AnalyticsProvider() {
     }
 
     trackEvent("home_experiment_town_map_entered", {
-      ad_id: adId ?? undefined,
-      ad_index: adIndex != null ? Number(adIndex) : undefined,
       experiment_name: "home_to_town_map_entry",
       experiment_surface: surface ?? undefined,
       experiment_variant: variant ?? undefined,
       path: pathname,
       screen_name: screenName,
+      target_id: targetId ?? undefined,
+      target_name: targetName,
+      target_position: targetPosition != null ? Number(targetPosition) : undefined,
+      target_type: targetType,
     });
   }, [pathname, screenName, searchParams]);
 
@@ -194,6 +198,10 @@ export function AnalyticsProvider() {
     const source = searchParams.get("exp_source");
     const variant = searchParams.get("exp_variant");
     const surface = searchParams.get("exp_surface");
+    const targetId = searchParams.get("exp_target_id") ?? searchParams.get("exp_ad_id");
+    const targetPosition = searchParams.get("exp_target_position") ?? searchParams.get("exp_index");
+    const targetName = searchParams.get("exp_target_name") ?? "home_native_ad";
+    const targetType = searchParams.get("exp_target_type") ?? "ad";
 
     if (source !== "home_experiment" || !pathname.includes("/town-map")) {
       return;
@@ -214,6 +222,10 @@ export function AnalyticsProvider() {
         experiment_variant: variant ?? undefined,
         path: pathname,
         screen_name: screenName,
+        target_id: targetId ?? undefined,
+        target_name: targetName,
+        target_position: targetPosition != null ? Number(targetPosition) : undefined,
+        target_type: targetType,
       });
       window.removeEventListener("scroll", handleScroll);
       window.removeEventListener("pointerdown", handlePointerDown);

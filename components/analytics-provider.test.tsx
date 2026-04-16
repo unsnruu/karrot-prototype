@@ -104,4 +104,27 @@ describe("AnalyticsProvider", () => {
       });
     });
   });
+
+  it("keeps target context when home experiment traffic enters town map", async () => {
+    navigationState.pathname = "/town-map";
+    navigationState.searchParams = new URLSearchParams(
+      "exp_source=home_experiment&exp_variant=b&exp_surface=top_carousel&exp_target_id=ad-1&exp_target_position=2&exp_target_name=home_native_ad&exp_target_type=ad",
+    );
+
+    render(React.createElement(AnalyticsProvider));
+
+    await waitFor(() => {
+      expect(amplitudeMocks.track).toHaveBeenCalledWith("home_experiment_town_map_entered", {
+        experiment_name: "home_to_town_map_entry",
+        experiment_surface: "top_carousel",
+        experiment_variant: "b",
+        path: "/town-map",
+        screen_name: "town_map",
+        target_id: "ad-1",
+        target_name: "home_native_ad",
+        target_position: 2,
+        target_type: "ad",
+      });
+    });
+  });
 });
