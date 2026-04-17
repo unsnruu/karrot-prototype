@@ -35,7 +35,6 @@
 좋은 예시는 아래와 같습니다.
 
 - `screen_viewed`
-- `screen_exited`
 - `element_exposed`
 - `search_opened`
 - `search_submitted`
@@ -562,26 +561,18 @@ trackEvent("screen_viewed", {
 ### 공통
 
 - `screen_viewed`
-- `screen_exited`
 
 ### 화면 체류 시간 추적 원칙
-화면 체류 시간은 별도의 page time 집계가 아니라 `screen_exited` 이벤트로 수집합니다.
+화면 체류 시간은 Amplitude Data Table의 Time Spent Analysis에서 `screen_viewed` 기준으로 해석합니다.
 
 - 화면 진입 시점은 `screen_viewed`
-- 화면 이탈 시점은 `screen_exited`
-- 이탈 이벤트에는 `duration_ms`를 포함합니다.
-
-현재 구현은 아래 두 경우에 `screen_exited`를 전송합니다.
-
-- 라우트가 다른 화면으로 바뀔 때 `exit_reason=route_change`
-- 브라우저 탭이나 페이지가 닫힐 때 `exit_reason=pagehide`
-
-이 방식으로 화면별 평균 체류 시간, 중간값, 이탈 전 머문 시간 분포를 `screen_name` 기준으로 해석할 수 있습니다.
+- 화면 체류 시간 집계는 `Time Spent(screen_viewed)`를 사용합니다.
+- 화면별 체류 시간은 `screen_name` 기준으로 해석합니다.
 
 ### town-map 핵심 해석 기준
 현재 town-map 페이지에서는 아래 두 지표를 우선 봅니다.
 
-- 체류 시간: `screen_viewed`와 `screen_exited`를 이용해 `screen_name=town_map` 기준으로 해석합니다.
+- 체류 시간: `Time Spent(screen_viewed)`를 `screen_name=town_map` 기준으로 해석합니다.
 - 동네 업체 클릭률: `screen_name=town_map`에서 발생한 업체 관련 `element_clicked`를 기준으로 해석합니다.
 
 업체 클릭은 현재 아래와 같은 `target_name` 계층으로 수집합니다.
