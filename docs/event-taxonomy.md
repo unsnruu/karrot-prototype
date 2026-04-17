@@ -1,161 +1,197 @@
 # 이벤트 택소노미
 
 ## 문서 목적
-이 문서는 현재 프로토타입에서 사용하는 Amplitude 이벤트를 어떤 기준으로 설계하고 해석할지 정의하기 위한 문서입니다.
+이 문서는 현재 코드베이스에서 실제로 호출되는 Amplitude 이벤트를 기준으로, 이벤트를 어떤 원칙으로 설계하고 해석할지 함께 정의한 운영 문서다.
 
-이 문서는 아래 내용을 설명하기 위해 존재합니다.
+- 기준 시점: 현재 저장소 코드
+- 범위: `components/`, `features/`, `lib/analytics/`
+- 제외: 테스트 코드
+
+이 문서는 아래 내용을 설명한다.
 
 - 이벤트 이름을 언제 새로 만들고 언제 기존 이벤트를 재사용할지
 - `screen_viewed`를 어떤 기준 이벤트로 사용할지
-- 이벤트를 속성으로 어떻게 구분할지
-- Amplitude 자동 수집 이벤트와 제품 이벤트를 어떻게 구분해서 볼지
+- 이벤트를 어떤 속성 구조로 해석할지
+- 현재 코드에서 실제로 어떤 이벤트가 수집되는지
 
-이 문서는 아래 성격의 문서가 아닙니다.
+이 문서는 아래 성격의 문서는 아니다.
 
 - Amplitude SDK 설정 가이드 전체
 - 모든 이벤트 payload의 최종 확정 사전
 - SQL, 차트, 대시보드 작성법 문서
 
 ## 현재 상태 요약
-현재 저장소에는 Amplitude 연동 코드가 존재하지만, 이벤트 택소노미 자체를 설명하는 전용 문서는 없습니다.
+현재 저장소에는 Amplitude 연동 코드가 존재하며, 구조는 이미 아래 패턴으로 수렴해 있다.
 
-- Amplitude 초기화와 `trackEvent()` 유틸은 `lib/analytics/amplitude.ts`에 존재합니다.
-- 화면 진입 이벤트는 기본적으로 `screen_viewed`로 전송합니다.
-- 공통 화면은 `components/analytics-provider.tsx`에서 전송하고, 추가 상태 속성이 필요한 일부 화면은 로컬 화면 컴포넌트에서 직접 전송합니다.
-- 일부 실험 전용 이벤트와 도메인 이벤트는 화면/컴포넌트 단위에서 개별적으로 호출합니다.
-- `autocapture: true` 설정으로 인해 Amplitude Browser SDK의 자동 수집 이벤트도 함께 들어올 수 있습니다.
+- 화면 진입은 `screen_viewed`
+- 화면 내 클릭은 `element_clicked`
+- 화면 내 노출은 `element_exposed`
+- 검색 플로우는 `search_*`
+- 완료, 실패, 검증처럼 의미가 분명히 다른 행동만 개별 이벤트
 
-즉, 현재는 명시 문서보다 코드 패턴이 사실상의 규칙 역할을 하고 있습니다.
+Amplitude 초기화는 `lib/analytics/amplitude.ts`에 있으며, SDK는 `@amplitude/unified`를 사용한다. 설정에는 `autocapture: true`가 켜져 있으므로 아래 두 계층이 함께 존재한다.
+
+1. 팀이 명시적으로 보내는 제품 이벤트
+2. Amplitude autocapture가 보내는 자동 이벤트
+
+제품 분석의 기준은 1번이다.
+
+홈 실험 variant는 identify로 함께 세팅한다.
+
+- `home_experiment_name`
+- `home_experiment_variant`
+
+코드 위치: `lib/analytics/home-experiment-user-properties.ts`
 
 ## 핵심 원칙
 
 ### 1. 이벤트 이름은 행동을 표현한다
-이벤트 이름은 사용자가 무엇을 했는지 표현해야 합니다.
+이벤트 이름은 사용자가 무엇을 했는지 표현해야 한다.
 
-좋은 예시는 아래와 같습니다.
+권장 예시:
 
 - `screen_viewed`
+- `element_clicked`
 - `element_exposed`
 - `search_opened`
 - `search_submitted`
 - `search_history_cleared`
-- `element_clicked`
-- `form_completed`
+- `sell_form_completed`
+- `chat_appointment_completed`
 
-반대로 아래처럼 행동과 맥락을 한 번에 모두 이름에 넣기 시작하면 이벤트 수가 빠르게 늘어나고, 비슷한 이벤트가 여러 개 생기기 쉽습니다.
+비권장 예시:
 
 - `home_experiment_screen_viewed`
-- `town_map_search_screen_viewed`
-- `home_header_category_clicked`
-
-맥락은 가능하면 이벤트 이름이 아니라 속성으로 구분합니다.
+- `town_map_search_header_clicked`
+- `sell_write_price_chip_click`
 
 ### 2. 맥락 차이는 속성으로 표현한다
-같은 행동이지만 발생한 위치나 실험 조건이 다를 때는 이벤트를 새로 만들기보다 속성으로 구분합니다.
+같은 행동이지만 발생 위치, 실험 조건, 대상이 다를 때는 이벤트를 새로 만들기보다 속성으로 구분한다.
 
-예를 들면 아래와 같습니다.
+예:
 
 - 같은 화면 진입이면 `screen_viewed`
 - 같은 클릭이면 `element_clicked`
+- 같은 노출이면 `element_exposed`
 - 같은 검색 진입이면 `search_opened`
-- 같은 검색 제출이면 `search_submitted`
 
-그리고 차이는 아래 속성으로 분리합니다.
+그리고 차이는 아래 속성으로 분리한다.
 
 - 어느 화면인가: `screen_name`
-- 어느 UI surface인가: `surface`
-- 무엇을 눌렀는가: `target_type`, `target_name`, `target_id`
+- 어느 UI 영역인가: `surface`
+- 무엇과 상호작용했는가: `target_type`, `target_name`, `target_id`
 - 어떤 실험인가: `experiment_name`, `experiment_variant`
 
 ### 3. 새 이벤트는 행동 의미가 달라질 때만 만든다
-새 이벤트는 아래 조건일 때만 만드는 것을 원칙으로 합니다.
+새 이벤트는 아래 조건일 때만 만든다.
 
 - 사용자의 행동 의미가 기존 이벤트와 명확히 다르다
-- 분석 질문이 기존 이벤트와 속성 조합만으로는 깔끔하게 답되지 않는다
-- 같은 행동으로 묶으면 오히려 해석이 왜곡된다
+- 기존 이벤트와 속성 조합만으로는 분석 질문에 답하기 어렵다
+- 같은 행동으로 묶으면 해석이 왜곡된다
 
-예를 들면 아래는 별도 이벤트가 타당합니다.
+예:
 
-- `chat_appointment_completed`
 - `sell_form_completed`
+- `chat_appointment_completed`
+- `home_feed_load_failed`
 
-이벤트 이름만 봐도 제품적으로 별도의 완료 행동을 의미하기 때문입니다.
+### 4. 분석 질문이 병목이면 상태를 먼저 본다
+모든 UI 조작을 클릭 이벤트로 먼저 수집하지 않는다.
 
-### 4. 분석 질문이 병목이면 상태를 우선 본다
-모든 UI 조작을 클릭 이벤트로 먼저 수집하지 않습니다.
+특히 입력 플로우에서는 "무엇을 몇 번 눌렀는가"보다 "어느 단계에서 무엇이 비어 있는가"가 더 직접적인 제품 질문일 수 있다.
 
-특히 입력 플로우에서는 "무엇을 몇 번 눌렀는가"보다 "어느 단계에서 무엇이 비어 있는가"가 더 직접적인 제품 질문일 수 있습니다.
-
-예를 들면 판매 플로우에서는 아래 질문을 우선 봅니다.
+판매 플로우에서는 우선 아래 질문을 본다.
 
 - 어떤 step까지 진입했는가
-- 해당 step에서 제목, 설명, 가격, 위치가 채워져 있었는가
+- 제목, 설명, 가격, 위치가 채워져 있었는가
 - 사진 수가 전환에 어떤 영향을 주는가
 
-이 경우에는 `screen_viewed`에 `flow_name`, `step_name`, `has_*`, `photo_count`를 붙여 먼저 해석하고, 특정 기능 자체의 효용을 판단해야 할 때만 추가 클릭 이벤트를 검토합니다.
+그래서 sell flow는 `screen_viewed`에 `flow_name`, `step_name`, `has_*`, `photo_count`를 함께 붙여 해석한다.
 
 ### 5. fallback 화면도 같은 행동이면 같은 이벤트로 본다
-미구현 기능 안내 화면도 제품 안의 하나의 화면으로 취급합니다.
+미구현 기능 안내 화면도 제품 안의 하나의 화면으로 취급한다.
 
-즉, `/developing` 진입은 별도 이벤트를 새로 만들기보다 `screen_viewed`로 수집하고, 미구현 기능이라는 맥락은 속성으로 구분합니다.
+즉, `/developing` 진입은 별도 이벤트를 새로 만들지 않고 `screen_viewed`로 수집하며, 맥락은 속성으로 구분한다.
 
 ## `page_viewed`와 `screen_viewed`
 
 ### 결론
-이 프로젝트의 제품 분석 기준 이벤트는 `screen_viewed`로 정의합니다.
+이 프로젝트의 제품 분석 기준 이벤트는 `screen_viewed`다.
 
-Amplitude Browser SDK의 자동 수집 page view 이벤트는 보조 이벤트로 취급합니다.
+Amplitude Browser SDK의 자동 수집 page view 이벤트는 보조 이벤트로 취급한다.
 
 ### 왜 `screen_viewed`를 기준으로 삼는가
-현재 프로토타입에서 분석하고 싶은 질문은 대부분 URL 자체보다 제품 화면 흐름에 가깝습니다.
+현재 프로토타입에서 분석하고 싶은 질문은 대부분 URL 자체보다 제품 화면 흐름에 가깝다.
 
-예시는 아래와 같습니다.
+예:
 
 - 사용자가 홈에 진입했는가
 - 사용자가 동네지도 검색 화면까지 갔는가
 - 사용자가 상품 상세를 봤는가
 - 사용자가 판매 작성 플로우 어느 단계까지 갔는가
 
-이 질문은 페이지 URL보다는 제품이 정의한 화면 이름으로 보는 것이 더 자연스럽습니다.
+이 질문은 URL보다 제품이 정의한 `screen_name`으로 보는 편이 더 자연스럽다.
 
-또한 동적 경로가 있는 경우에도 여러 URL을 하나의 제품 화면으로 묶을 수 있습니다.
+또한 동적 경로가 있는 경우에도 여러 URL을 하나의 제품 화면으로 묶을 수 있다.
 
-예를 들면 아래 두 경로는 URL은 다르지만 같은 화면으로 해석할 수 있습니다.
+예:
 
 - `/community/123`
 - `/community/456`
 
-둘 다 제품 관점에서는 `community_post_detail`입니다.
+둘 다 제품 관점에서는 `community_post_detail`이다.
 
 ### `page_viewed`의 역할
-Amplitude Browser SDK는 page view tracking이 켜져 있으면 `[Amplitude] Page Viewed` 이벤트를 자동으로 수집할 수 있습니다.
-
-이 이벤트는 아래와 같은 웹 기술 관점의 질문에는 유용합니다.
+Amplitude autocapture의 page view 이벤트는 아래 질문에는 유용하다.
 
 - 특정 URL path가 실제로 몇 번 열렸는가
 - referrer, page title, page URL 기준으로 어떤 유입이 있었는가
 - SPA navigation이 URL 단위로 어떻게 움직였는가
 
-하지만 현재 프로토타입의 주요 분석 질문은 대부분 제품 화면 기준이므로, 팀의 표준 화면 진입 이벤트는 `screen_viewed`로 통일하는 것이 더 적합합니다.
+하지만 팀의 표준 화면 진입 이벤트는 `screen_viewed`로 통일한다.
 
 ### 문서상 취급 원칙
 
-- `screen_viewed`는 제품 표준 이벤트다.
-- `[Amplitude] Page Viewed`는 SDK 자동 수집 이벤트다.
-- 대시보드, 퍼널, 실험 해석에서 화면 기준 지표는 `screen_viewed`를 우선 사용한다.
-- `[Amplitude] Page Viewed`는 디버깅, URL 검증, 보조 분석 용도로만 사용한다.
+- `screen_viewed`는 제품 표준 이벤트다
+- `[Amplitude] Page Viewed`는 SDK 자동 수집 이벤트다
+- 대시보드, 퍼널, 실험 해석에서는 `screen_viewed`를 우선 사용한다
+- `[Amplitude] Page Viewed`는 디버깅, URL 검증, 보조 분석 용도로만 사용한다
+
+## 네이밍 규칙
+
+### 이벤트 이름
+
+- 전부 `snake_case`를 사용한다
+- 이벤트 이름은 행동 중심으로 작성한다
+- 가능하면 과거형 동사를 사용한다
+
+### 속성 이름
+
+- 전부 `snake_case`를 사용한다
+- Boolean은 `has_*` 형태를 우선 사용한다
+- 개수는 `*_count`, 순서는 `*_index` 또는 `*_position`, 비율은 `*_percent`를 우선 사용한다
+- 클릭 대상 이름은 기본적으로 `[screen]_[ui_name]` 형태의 정규화 이름을 사용한다
+- 행동이 없으면 의미가 모호한 경우에만 action suffix를 추가한다
+
+예:
+
+- `has_title`
+- `photo_count`
+- `depth_percent`
+- `home_search_input`
+- `home_item_card`
+- `home_sell_fab_start_sell`
 
 ## 표준 속성 구조
-이벤트를 통합적으로 운영하려면 속성도 역할별로 나누어야 합니다.
 
 ### 1. 공통 컨텍스트 속성
-화면과 위치를 설명하는 기본 속성입니다.
+화면과 위치를 설명하는 기본 속성이다.
 
 - `screen_name`
 - `path`
 - `query_string`
 
-향후 필요하면 아래도 추가 검토할 수 있습니다.
+향후 필요하면 아래도 검토할 수 있다.
 
 - `previous_screen_name`
 - `session_id`
@@ -163,51 +199,30 @@ Amplitude Browser SDK는 page view tracking이 켜져 있으면 `[Amplitude] Pag
 - `platform`
 
 ### 2. UI 맥락 속성
-같은 행동이 화면 안 어디에서 일어났는지를 설명합니다.
+같은 행동이 화면 안 어디에서 일어났는지 설명한다.
 
 - `surface`
 - `screen_type`
 
-이 문서에서 `surface`는 화면 내부의 UI 영역을 뜻합니다.
+`screen_name`은 제품이 정의한 화면 자체이고, `surface`는 그 화면 안의 UI 영역이다.
 
 예:
 
 - `screen_name=home`
 - `surface=header`
 
-이 조합은 "홈 화면의 헤더 영역에서 발생한 행동"을 의미합니다.
-
-반대로 `screen_name`은 제품이 정의한 화면 자체를 의미합니다.
-
-예:
-
-- `screen_name=home`
-- `screen_name=town_map`
-- `screen_name=item_detail`
-
-즉, `screen_name`은 바깥 컨텍스트, `surface`는 화면 안 위치입니다.
-
 ### 3. 액션 대상 속성
-사용자가 무엇과 상호작용했는지 설명합니다.
+사용자가 무엇과 상호작용했는지 설명한다.
 
 - `target_type`
 - `target_name`
 - `target_id`
 - `target_position`
 
-이 문서에서는 `target_role`과 `target_label`을 분리하지 않고, 더 분명한 정규화 이름인 `target_name` 하나를 사용합니다.
-
-예:
-
-- `target_name=home_search_input`
-- `target_name=home_category_chip`
-- `target_name=home_item_card`
-- `target_name=home_sell_fab_action`
-
-`target_name`은 사람이 읽는 자유 텍스트가 아니라, 팀이 고정해서 쓰는 taxonomy 이름입니다.
+`target_name`은 사람이 읽는 자유 텍스트가 아니라 팀이 고정해서 쓰는 taxonomy 이름이다.
 
 ### 4. 도메인 속성
-도메인별 분석에 필요한 속성입니다.
+도메인별 분석에 필요한 속성이다.
 
 - `category`
 - `query`
@@ -219,77 +234,117 @@ Amplitude Browser SDK는 page view tracking이 켜져 있으면 `[Amplitude] Pag
 - `return_to`
 
 ### 5. 실험 속성
-실험 이벤트를 별도 이름으로 과하게 분리하지 않기 위해 쓰는 속성입니다.
+실험 이벤트를 별도 이름으로 과하게 분리하지 않기 위해 쓰는 속성이다.
 
 - `experiment_name`
 - `experiment_variant`
 - `experiment_surface`
 - `experiment_source`
 
-## 네이밍 규칙
+## 현재 실제 이벤트 목록
 
-### 이벤트 이름
+현재 코드에서 명시적으로 호출되는 이벤트는 총 18개다.
 
-- 전부 `snake_case`를 사용합니다.
-- 이벤트 이름은 행동 중심으로 작성합니다.
-- 가능하면 과거형 동사를 사용합니다.
-
-권장 예시:
+### 공통 이벤트
 
 - `screen_viewed`
 - `element_clicked`
+- `element_exposed`
 - `search_opened`
 - `search_submitted`
 - `search_history_cleared`
-- `form_completed`
-- `appointment_completed`
 
-비권장 예시:
+### 실험/퍼널 이벤트
 
-- `home_experiment_screen_viewed`
-- `town_map_search_header_clicked`
-- `sell_write_price_chip_click`
+- `home_experiment_town_map_entered`
+- `home_experiment_scroll_depth_reached`
+- `home_experiment_carousel_interacted`
+- `town_map_landing_engaged`
 
-### 속성 이름
+### 도메인 이벤트
 
-- 전부 `snake_case`를 사용합니다.
-- Boolean은 `has_*` 형태를 우선 사용합니다.
-- 개수는 `*_count`, 순서는 `*_index`, 비율은 `*_percent` 형식을 우선 사용합니다.
-- 클릭 대상 이름은 기본적으로 `[screen]_[ui_name]` 형태의 정규화 이름을 사용합니다.
-- 단, 행동이 없으면 의미가 모호한 경우에만 마지막에 action suffix를 추가합니다.
+- `town_map_bottom_sheet_expanded`
+- `home_feed_load_failed`
+- `sell_flow_redirected_missing_photos`
+- `sell_photo_toggled`
+- `sell_form_completed`
+- `chat_appointment_invalid_state`
+- `chat_appointment_started`
+- `chat_appointment_completed`
 
-예시:
+## 공통 이벤트 표준
 
-- `has_title`
-- `photo_count`
-- `depth_percent`
-- `home_search_input`
-- `home_item_card`
-- `home_sell_fab_start_sell`
+### `screen_viewed`
 
-## 클릭 이벤트 표준
-클릭 계열 이벤트를 통합할 때의 기본 이벤트 이름은 `element_clicked`입니다.
+#### 기본 속성
 
-### 왜 `element_clicked`를 쓰는가
-홈, 동네지도, 커뮤니티처럼 같은 "클릭" 행동이 여러 화면에서 반복되기 때문입니다.
+- `screen_name`
+- `path`
+- `query_string`
 
-예를 들어 아래와 같은 개별 이벤트들은 현재 `element_clicked` 계층으로 통합해 관리합니다.
+#### 전송 위치
 
-- `home_item_clicked`
-- `home_fab_action_clicked`
-- `town_map_category_selected`
-- `bottom_nav_clicked`
+- 공통 화면: `components/analytics-provider.tsx`
+- 로컬 화면 상태가 필요한 sell flow 화면: 각 화면 컴포넌트에서 직접 전송
 
-이벤트 이름을 분리하는 대신 아래 속성으로 차이를 설명합니다.
+#### 기본 `screen_name` 매핑
+정의: `lib/analytics/screen-view.ts`
 
-- `screen_name`: 어느 화면에서 눌렀는가
-- `surface`: 화면 안 어디에서 눌렀는가
-- `target_type`: UI 형태가 무엇인가
-- `target_name`: 어떤 역할의 요소를 눌렀는가
-- `target_id`: 식별 가능한 대상이 있으면 무엇인가
-- `target_position`: 목록이나 캐러셀 안에서 몇 번째인가
+- `/` -> `root`
+- `/home` -> `home`
+- `/community` -> `community`
+- `/community/[id]` -> `community_post_detail`
+- `/town-map` -> `town_map`
+- `/town-map/search` -> `town_map_search`
+- `/town-map/businesses/[id]` -> `town_map_business_detail`
+- `/chat` -> `chat`
+- `/chat/[id]` -> `chat_detail`
+- `/chat/[id]/appointment` -> `chat_appointment`
+- `/chat/[id]/appointment/location` -> `chat_appointment_location`
+- `/my-karrot` -> `my_karrot`
+- `/home/services` -> `home_services`
+- `/home/sell` -> `sell_entry`
+- `/home/sell/photos` -> `sell_photos`
+- `/home/sell/write` -> `sell_write`
+- `/home/sell/price` -> `sell_price`
+- `/home/sell/location` -> `sell_location`
+- `/home/sell/preview` -> `sell_preview`
+- `/home/items/[id]` -> `item_detail`
+- `/home/items/[id]/location` -> `item_location`
+- `/exp/[variant]/*` -> `exp_{variant}_{screen}`
 
-### `element_clicked` 권장 속성
+#### 로컬 tracked screen
+아래 5개는 provider가 아니라 각 화면에서 직접 `screen_viewed`를 보낸다.
+
+- `sell_photos`
+  - 추가 속성: `flow_name=sell`, `step_name=photos`, `photo_count`
+- `sell_write`
+  - 추가 속성: `flow_name=sell`, `step_name=write`, `photo_count`, `has_title`, `has_description`, `has_price`, `has_location`
+- `sell_price`
+  - 추가 속성: `flow_name=sell`, `step_name=price`, `photo_count`, `has_price`
+- `sell_location`
+  - 추가 속성: `flow_name=sell`, `step_name=location`, `photo_count`, `has_location`
+- `sell_preview`
+  - 추가 속성: `flow_name=sell`, `step_name=preview`, `photo_count`, `has_published_item`
+
+#### provider가 붙이는 추가 속성
+`components/analytics-provider.tsx`
+
+- 홈 실험 화면
+  - `category`
+  - `experiment_name=home_to_town_map_entry`
+  - `experiment_variant`
+- `/developing` 화면
+  - `feature_label`
+  - `return_to`
+  - `screen_type=pending_feature`
+
+### `element_clicked`
+
+클릭 계열 이벤트의 기본 이벤트 이름은 `element_clicked`다.
+
+#### 권장 속성
+
 필수:
 
 - `screen_name`
@@ -310,9 +365,10 @@ Amplitude Browser SDK는 page view tracking이 켜져 있으면 `[Amplitude] Pag
 - `experiment_variant`
 - `destination_path`
 
-### `target_type`와 `target_name`의 차이
-- `target_type`은 UI 형태입니다. 예: `button`, `card`, `chip`, `tab`, `link`
-- `target_name`은 그 요소의 제품 역할을 설명하는 정규화 이름입니다. 기본은 `screen + ui_name`이고, 필요할 때만 action suffix를 붙입니다.
+#### `target_type`와 `target_name`
+
+- `target_type`은 UI 형태다. 예: `button`, `card`, `chip`, `tab`, `link`
+- `target_name`은 요소의 제품 역할을 설명하는 정규화 이름이다
 
 예:
 
@@ -321,63 +377,141 @@ Amplitude Browser SDK는 page view tracking이 켜져 있으면 `[Amplitude] Pag
 - `home_sell_fab_start_sell`
 - `item_detail_chat_button_open_chat`
 
-예를 들어 홈 검색창 클릭은 아래처럼 표현합니다.
+#### 현재 `target_name` taxonomy
+현재 `target_name` 기준 taxonomy는 아래 22개다.
 
-- `screen_name=home`
-- `surface=header`
-- `target_type=button`
-- `target_name=home_search_input`
+Navigation:
 
-예를 들어 홈 상품 카드 클릭은 아래처럼 표현합니다.
+- `bottom_nav_tab`
+  - `target_type=tab`
+  - `surface=bottom_navigation`
+  - 추가 속성: `tab_label`
 
-- `screen_name=home`
-- `surface=feed`
-- `target_type=card`
-- `target_name=home_item_card`
-- `target_id=<item_id>`
+Home:
 
-### `target_name` 네이밍 원칙
-기본:
-
-- `screen + ui_name`
-
-예:
-
+- `home_town_selector`
+  - `target_type=button`
+  - `surface=header`
 - `home_search_input`
-- `home_item_card`
+  - `target_type=button`
+  - `surface=header`
+- `home_notification_button`
+  - `target_type=button`
+  - `surface=header`
+- `home_menu_button`
+  - `target_type=button`
+  - `surface=header`
 - `home_category_chip`
-- `item_detail_chat_button`
-
-예외:
-
-- 행동이 없으면 의미가 모호한 경우에만 마지막에 action suffix를 붙입니다.
-
-예:
-
+  - `target_type=chip`
+  - `surface=header`
+  - 추가 속성: `category`, `previous_category`
+- `home_fab_trigger_open_menu`
+  - `target_type=button`
+  - `surface=floating_action_button`
+- `home_lesson_fab_entry`
+  - `target_type=button`
+  - `surface=fab_menu`
+  - 추가 속성: `action_icon=lesson`
+- `home_real_estate_fab_entry`
+  - `target_type=button`
+  - `surface=fab_menu`
+  - 추가 속성: `action_icon=home`
+- `home_used_car_fab_entry`
+  - `target_type=button`
+  - `surface=fab_menu`
+  - 추가 속성: `action_icon=car`
+- `home_community_fab_entry`
+  - `target_type=button`
+  - `surface=fab_menu`
+  - 추가 속성: `action_icon=community`
+- `home_story_fab_entry`
+  - `target_type=button`
+  - `surface=fab_menu`
+  - 추가 속성: `action_icon=story`
+- `home_bundle_sale_fab_entry`
+  - `target_type=button`
+  - `surface=fab_menu`
+  - 추가 속성: `action_icon=bundle`
 - `home_sell_fab_start_sell`
+  - `target_type=button`
+  - `surface=fab_menu`
+  - 추가 속성: `action_icon=sell`
+- `home_item_card`
+  - `target_type=card`
+  - `surface=feed`
+  - 추가 속성: `category`, `is_promoted`
+- `home_native_ad`
+  - 사용 surface: `inline_card`, `inline_banner`, `top_carousel`
+  - 추가 속성: `ad_destination`, `ad_feature`, `experiment_name`, `experiment_surface`, `experiment_variant`
+
+Item Detail:
+
+- `item_detail_location_link`
+  - `target_type=link`
+  - `surface=content`
+  - 추가 속성: `has_meetup_address`, `item_title`, `meetup_hint`
 - `item_detail_chat_button_open_chat`
+  - `target_type=button`
+  - `surface=sticky_footer`
+  - 추가 속성: `chat_key`, `seller_name`, `town`
 
-즉, `target_name`은 가능한 짧고 안정적으로 유지하되, suffix action이 있어야 구분이 되는 경우에만 확장합니다.
+Community:
 
-## 노출 이벤트 표준
-화면 안 특정 요소의 노출은 `element_exposed`로 표현합니다.
+- `community_top_tab`
+  - `target_type=tab`
+  - `surface=header`
+  - 추가 속성: `previous_tab`
+- `community_town_map_banner`
+  - `target_type=banner`
+  - `surface=meetup_banner`
 
-### 왜 `exposed`를 쓰는가
-이 이벤트는 사용자가 클릭해서 본 것이 아니라, 화면에 요소가 노출된 상태를 의미하기 때문입니다.
+Chat:
 
-따라서 `viewed`보다 `exposed`가 오해가 적습니다.
+- `chat_thread_row`
+  - `target_type=list_item`
+  - `surface=thread_list`
+  - 추가 속성: `counterparty_name`, `town`
 
-- `screen_viewed`: 화면 진입
-- `element_exposed`: 화면 안 특정 요소 노출
-- `element_clicked`: 화면 안 특정 요소 클릭
+Town Map:
 
-예를 들어 홈 광고는 아래처럼 해석합니다.
+- `town_map_category_chip`
+  - `target_type=chip`
+  - `surface=header`
+  - 추가 속성: `category_label`
+- `town_map_business_pin`
+  - `target_type=pin`
+  - `surface=map`
+  - 추가 속성: `pin_label`
+- `town_map_quick_action_card`
+  - `target_type=card`
+  - `surface=bottom_sheet`
+  - 추가 속성: `action_label`
+- `town_map_bottom_sheet_ad_button`
+  - `target_type=button`
+  - `surface=bottom_sheet`
+- `town_map_post_card`
+  - `target_type=card`
+  - `surface=bottom_sheet`
+  - 추가 속성: `business_name`
+- `town_map_business_tab`
+  - `target_type=tab`
+  - `surface=tab_bar`
+  - 추가 속성: `previous_tab`
+- `town_map_business_call_button`
+  - `target_type=button`
+  - `surface=sticky_footer`
+  - 추가 속성: `business_name`, `contact_type=call`
+- `town_map_business_chat_button`
+  - `target_type=button`
+  - `surface=sticky_footer`
+  - 추가 속성: `business_name`, `contact_type=chat`
 
-- 홈 화면에 진입했다: `screen_viewed`
-- 홈 광고가 화면에 노출됐다: `element_exposed`
-- 홈 광고를 눌렀다: `element_clicked`
+### `element_exposed`
 
-### `element_exposed` 권장 속성
+화면 안 특정 요소의 노출은 `element_exposed`로 표현한다.
+
+#### 권장 속성
+
 필수:
 
 - `screen_name`
@@ -397,16 +531,25 @@ Amplitude Browser SDK는 page view tracking이 켜져 있으면 `[Amplitude] Pag
 - `experiment_name`
 - `experiment_variant`
 
-현재 홈 실험 광고 노출은 `element_exposed`로 수집하며, `target_type=ad`, `target_name=home_native_ad`를 사용합니다.
+#### 현재 구현
+현재 `element_exposed`는 홈 실험 광고 노출에만 쓰인다.
 
-### 광고 퍼널 연결 원칙
-홈 광고 퍼널은 아래 흐름으로 해석합니다.
+- `target_name=home_native_ad`
+- `target_type=ad`
+- `screen_name=home`
+- 사용 surface: `inline_card`, `inline_banner`, `top_carousel`
+- 추가 속성: `ad_destination`, `ad_feature`, `experiment_name`, `experiment_surface`, `experiment_variant`
+
+전송 훅: `features/home/components/use-home-experiment-impression.ts`
+
+#### 광고 퍼널 연결 원칙
+홈 광고 퍼널은 아래 흐름으로 해석한다.
 
 - `element_exposed`
 - `element_clicked`
 - `home_experiment_town_map_entered`
 
-이 세 단계는 같은 광고를 가리키는 공통 속성으로 연결합니다.
+이 세 단계는 같은 광고를 가리키는 아래 공통 속성으로 연결한다.
 
 - `target_type=ad`
 - `target_name=home_native_ad`
@@ -416,221 +559,175 @@ Amplitude Browser SDK는 page view tracking이 켜져 있으면 `[Amplitude] Pag
 - `experiment_name`
 - `experiment_variant`
 
-즉, 광고 분석에서는 클릭 수만 보지 않고 노출 대비 클릭과 클릭 이후 목적 화면 진입까지 같은 `target_*` 키로 이어서 봅니다.
+### 검색 이벤트
 
-## 검색 이벤트 표준
-검색 진입과 제출은 클릭 이벤트와 별도로 해석합니다.
+검색 진입과 제출은 클릭 이벤트와 별도로 해석한다.
 
-### 왜 검색 이벤트를 분리하는가
-검색 입력창을 누르는 행위는 구현상 클릭이지만, 분석 질문은 보통 "검색 플로우에 진입했는가"와 "어떤 검색어를 제출했는가"에 가깝습니다.
-
-따라서 검색 관련 이벤트는 아래처럼 해석합니다.
-
-- `search_opened`: 검색 경험에 진입했다
-- `search_submitted`: 검색어를 제출했다
-- `search_history_cleared`: 최근 검색 기록을 비웠다
-
-예를 들어 동네지도의 검색창 진입은 `element_clicked`보다 `search_opened`로 보는 편이 더 자연스럽습니다.
-
-### 검색 이벤트 권장 속성
-필수:
+#### 기본 속성
 
 - `screen_name`
-
-권장:
-
 - `path`
 - `query_string`
 - `search_name`
 - `surface`
-
-선택:
-
+- `destination_path`
 - `query`
 - `has_query`
-- `destination_path`
 
-예:
+#### 현재 구현
 
-- `search_opened`
-  - `screen_name=town_map`
-  - `search_name=town_map_search_input`
-  - `surface=header`
-- `search_submitted`
-  - `screen_name=town_map_search`
-  - `search_name=town_map_search_input`
-  - `query=합정 카페`
-  - `has_query=true`
-- `search_submitted`
-  - `screen_name=town_map_search`
-  - `has_query=false`
+`search_opened`
 
-## 현재 구현된 `screen_viewed`
-현재 코드 기준 `screen_viewed`는 두 방식으로 전송합니다.
+- 위치: town map 메인 검색 진입
+- `screen_name=town_map`
+- `search_name=town_map_search_input`
+- `surface=header`
 
-- 공통 화면은 `components/analytics-provider.tsx`에서 라우트 변경 시점에 전송합니다.
-- 판매 플로우처럼 추가 상태 속성이 필요한 화면은 각 화면 컴포넌트에서 직접 전송합니다.
+`search_submitted`
 
-공통 기본 속성은 아래 3개입니다.
+- 위치: town map 검색 화면
+- `screen_name=town_map_search`
+- `search_name=town_map_search_input`
+- `surface=search_screen`
+- 추가 속성: `query`, `has_query`
 
-- `path`
+`search_history_cleared`
+
+- 위치: town map 검색 화면 최근 검색 삭제
+- `screen_name=town_map_search`
+- `search_name=town_map_search_input`
+- `surface=recent_searches`
+
+## 실험 이벤트
+
+실험명은 모두 `home_to_town_map_entry`로 수렴한다.
+
+### `home_experiment_town_map_entered`
+홈 실험 광고를 통해 town map에 진입했을 때 전송된다.
+
+주요 속성:
+
+- `experiment_name`
+- `experiment_surface`
+- `experiment_variant`
 - `screen_name`
-- `query_string`
+- `path`
+- `target_id`
+- `target_name`
+- `target_position`
+- `target_type`
 
-전송 형태는 아래와 같습니다.
+### `home_experiment_scroll_depth_reached`
+홈 실험 화면에서 스크롤 milestone에 도달했을 때 전송된다.
 
-```ts
-trackEvent("screen_viewed", {
-  path: pathname,
-  screen_name: screenName,
-  query_string: search || undefined,
-});
-```
+주요 속성:
 
-### 현재 `screen_name` 매핑 예시
+- `depth_percent`
+- `experiment_name`
+- `experiment_variant`
+- `screen_name`
+- `path`
 
-- `/` -> `root`
-- `/home` -> `home`
-- `/community` -> `community`
-- `/community/[id]` -> `community_post_detail`
-- `/town-map` -> `town_map`
-- `/town-map/search` -> `town_map_search`
-- `/chat/[id]` -> `chat_detail`
-- `/home/items/[id]` -> `item_detail`
-- `/exp/a/home` -> `exp_a_home`
+milestone:
 
-### 현재 추가로 붙는 대표 속성 예시
-일부 화면은 `screen_viewed`에 화면별 상태 속성을 함께 전달합니다.
+- `25`
+- `50`
+- `75`
+- `100`
 
-- 홈 실험 홈 화면
-  - `experiment_name`
-  - `experiment_variant`
-  - `category`
-- 판매 플로우 화면
-  - `flow_name`
-  - `step_name`
-  - `photo_count`
-  - `has_title`
-  - `has_description`
-  - `has_price`
-  - `has_location`
-  - `has_published_item`
-- 미구현 fallback 화면
-  - `feature_label`
-  - `return_to`
-  - `screen_type`
+### `home_experiment_carousel_interacted`
+홈 상단 carousel이 실제로 스크롤되면 한 번 전송된다.
 
-### 판매 플로우 해석 원칙
-판매 플로우의 기본 해석 단위는 기능 클릭 수보다 step 상태입니다.
+주요 속성:
 
-- `flow_name`은 어떤 플로우에 속한 화면인지 나타냅니다. 현재는 `sell`을 사용합니다.
-- `step_name`은 플로우 안의 현재 단계 이름입니다. 예: `photos`, `write`, `price`, `location`, `preview`
-- `photo_count`는 현재 선택되거나 첨부된 사진 수입니다.
-- `has_title`, `has_description`, `has_price`, `has_location`은 해당 시점에 핵심 입력값이 채워져 있는지를 나타냅니다.
+- `ad_count`
+- `experiment_name`
+- `experiment_surface=top_carousel`
+- `experiment_variant`
 
-이 속성들만으로도 "어느 단계에서 어떤 값이 비어 있어 이탈하는가"를 먼저 볼 수 있으므로, 판매 플로우에서는 모든 기능에 대해 별도 클릭 이벤트를 추가하지 않는 것을 기본 원칙으로 합니다.
+### `town_map_landing_engaged`
+실험 광고를 타고 들어온 town map 랜딩에서 첫 engagement가 발생하면 한 번 전송된다.
 
-특정 기능 자체의 효용을 판단해야 할 때만 최소한의 클릭 이벤트를 추가로 검토합니다.
+주요 속성:
 
-### 검색/클릭 이벤트 해석 원칙
-클릭으로 시작하더라도 분석 질문이 "어떤 플로우에 진입했는가"라면 단순 클릭 이벤트가 아니라 기능 진입 이벤트로 볼 수 있습니다.
+- `engagement_type`
+- `experiment_name`
+- `experiment_surface`
+- `experiment_variant`
+- `screen_name`
+- `path`
+- `target_id`
+- `target_name`
+- `target_position`
+- `target_type`
 
-예를 들어 동네지도 검색창 진입은 구현상 검색 바 클릭에서 발생하지만, 해석상으로는 동네지도 검색 플로우 진입 이벤트로 보는 것이 더 적절합니다.
+`engagement_type` 값:
 
-따라서 향후 공통화할 때도 아래 기준을 따릅니다.
+- `dwell`
+- `scroll`
+- `tap`
 
-- 단순 대상 클릭이면 `element_clicked`
-- 검색 진입처럼 기능 시작 의미가 더 크면 `search_opened`
-- 명확한 완료 행동이면 도메인 완료 이벤트 유지
+## 도메인 특화 이벤트
 
-### 미구현 기능 화면 해석 원칙
-`/developing` 화면은 별도 예외 이벤트를 만들지 않고 `screen_viewed`로 해석합니다.
+### Home
 
-즉, 아래처럼 동일한 화면 진입 이벤트 안에서 미구현 기능 맥락을 속성으로 구분합니다.
-
-- `screen_name=developing`
-- `feature_label`
-- `return_to`
-- `screen_type=pending_feature`
-
-이 방식으로 이벤트 수를 늘리지 않으면서도 어떤 미구현 기능 수요가 높은지 파악할 수 있습니다.
-
-## 현재 이벤트 inventory 요약
-현재 코드에 존재하는 주요 커스텀 이벤트는 아래와 같습니다.
-
-### 공통
-
-- `screen_viewed`
-
-### 화면 체류 시간 추적 원칙
-화면 체류 시간은 Amplitude Data Table의 Time Spent Analysis에서 `screen_viewed` 기준으로 해석합니다.
-
-- 화면 진입 시점은 `screen_viewed`
-- 화면 체류 시간 집계는 `Time Spent(screen_viewed)`를 사용합니다.
-- 화면별 체류 시간은 `screen_name` 기준으로 해석합니다.
-
-### town-map 핵심 해석 기준
-현재 town-map 페이지에서는 아래 두 지표를 우선 봅니다.
-
-- 체류 시간: `Time Spent(screen_viewed)`를 `screen_name=town_map` 기준으로 해석합니다.
-- 동네 업체 클릭률: `screen_name=town_map`에서 발생한 업체 관련 `element_clicked`를 기준으로 해석합니다.
-
-업체 클릭은 현재 아래와 같은 `target_name` 계층으로 수집합니다.
-
-- `town_map_business_pin`
-- `town_map_post_card`
-- `town_map_business_tab`
-- `town_map_business_call_button`
-- `town_map_business_chat_button`
-
-홈 광고에서 town-map으로 유입된 경우에는 `home_experiment_town_map_entered`와 `town_map_landing_engaged`에도 동일한 `target_*` 속성을 유지해 광고별 체류와 클릭 성과를 이어서 볼 수 있습니다.
-
-### 홈 / 실험
-
-- `element_exposed`
-- `element_clicked`
-- `home_experiment_carousel_interacted`
-- `home_experiment_scroll_depth_reached`
-- `home_experiment_town_map_entered`
 - `home_feed_load_failed`
+  - 속성: `category`, `offset`, `error_message`
 
-### 동네지도
-
-- `town_map_landing_engaged`
-- `search_opened`
-- `search_submitted`
-- `search_history_cleared`
-- `element_clicked`
-- `town_map_bottom_sheet_expanded`
-
-### 채팅 / 커뮤니티 / 내비게이션
-
-- `element_clicked`
-- `chat_appointment_started`
-- `chat_appointment_invalid_state`
-- `chat_appointment_completed`
-
-### 판매 플로우
+### Sell flow
 
 - `sell_flow_redirected_missing_photos`
+  - 발생 화면: `sell_write`, `sell_price`, `sell_location`
+  - 속성: `source`, `target_step=photos`
 - `sell_photo_toggled`
+  - 속성: `photo_id`, `selected`, `next_selected_count`, `step_name=photos`
 - `sell_form_completed`
+  - 속성: `has_location`, `photo_count`, `price_text`, `trade_type`
 
-## 정리 대상 후보
-현재 이벤트 중 일부는 향후 통합 검토가 필요합니다.
+### Chat appointment
 
-대표적으로 화면 내부 상호작용은 `element_clicked`, 검색 흐름은 `search_opened`/`search_submitted` 계층으로 우선 통합합니다.
+- `chat_appointment_invalid_state`
+  - 속성: `has_item`, `has_seller`, `source=chat_appointment`
+- `chat_appointment_started`
+  - 속성: `item_id`, `seller_name`, `thread_id`
+- `chat_appointment_completed`
+  - 속성: `has_location`, `has_reminder`, `item_id`, `scheduled_date`, `scheduled_time`, `seller_name`, `thread_id`
 
-## 새 이벤트 추가 체크리스트
-새 이벤트를 만들기 전에 아래 질문을 먼저 확인합니다.
+### Town Map
 
-- 이 이벤트는 기존 이벤트에 속성만 추가해도 표현 가능한가?
-- 이벤트 이름이 행동 자체를 설명하는가?
-- 화면, 실험, 위치 정보가 이벤트 이름에 과도하게 들어가 있지 않은가?
-- 이 이벤트가 없으면 실제 분석 질문에 답할 수 없는가?
-- 같은 계열 이벤트와 속성 구조가 일관적인가?
+- `town_map_bottom_sheet_expanded`
+  - 속성: `source=town_map_bottom_sheet`
 
-위 질문에 대부분 `아니오`라면 새 이벤트보다 기존 이벤트 재사용을 우선 검토합니다.
+## 실제 surface 목록
 
-## 현재 기준의 한 줄 원칙
-이 프로젝트의 이벤트 택소노미는 `행동은 이벤트 이름으로, 맥락은 속성으로` 표현하며, 화면 진입 분석의 표준 이벤트는 `screen_viewed`로 정의합니다.
+- `bottom_navigation`
+- `bottom_sheet`
+- `content`
+- `fab_menu`
+- `feed`
+- `floating_action_button`
+- `header`
+- `inline_banner`
+- `inline_card`
+- `map`
+- `meetup_banner`
+- `recent_searches`
+- `search_screen`
+- `sticky_footer`
+- `tab_bar`
+- `thread_list`
+- `top_carousel`
+
+## 정리
+현재 코드는 아래 원칙으로 이해하면 된다.
+
+1. 화면은 `screen_viewed`
+2. 클릭은 `element_clicked`
+3. 노출은 `element_exposed`
+4. 검색은 `search_*`
+5. 진짜 별도 의미가 있는 퍼널, 완료, 실패만 개별 이벤트
+
+앞으로 taxonomy 복잡도를 줄이려면 새 이벤트를 계속 만들기보다 아래 두 축을 먼저 관리하는 것이 맞다.
+
+- `target_name` 추가 규칙
+- `surface` 추가 규칙
