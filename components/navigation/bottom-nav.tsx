@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { trackEvent } from "@/lib/analytics/amplitude";
 import { buildElementClickedEventProperties } from "@/lib/analytics/element-click";
 import { getScreenName } from "@/lib/analytics/screen-view";
-import { buildExperimentHref, readHomeExperimentVariantFromPathname } from "@/lib/home-experiment";
+import { resolveExperimentHomeHref, readHomeExperimentVariantFromPathname } from "@/lib/home-experiment";
 import { bottomTabs } from "@/lib/marketplace";
 
 export function BottomNav() {
@@ -16,7 +16,7 @@ export function BottomNav() {
     <nav className="fixed inset-x-0 bottom-0 z-20 border-t border-black/10 bg-white/95 backdrop-blur">
       <ul className="mobile-shell grid grid-cols-5 px-2 sm:px-4">
         {bottomTabs.map((tab) => {
-          const tabHref = buildExperimentHref(tab.href, experimentVariant);
+          const tabHref = tab.href === "/home" ? resolveExperimentHomeHref(experimentVariant) : tab.href;
           const active = isActiveTab(pathname, tab.href);
 
           return (

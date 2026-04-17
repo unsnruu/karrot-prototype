@@ -3,7 +3,13 @@ import { ArrowLeftIcon } from "@/features/home/components/item-detail-icons";
 import { ItemDetailKakaoMap } from "@/features/home/components/item-detail-kakao-map";
 import { type MarketplaceItem } from "@/lib/marketplace";
 
-export function ItemLocationScreen({ item }: { item: MarketplaceItem }) {
+export function ItemLocationScreen({
+  backHref,
+  item,
+}: {
+  backHref: string;
+  item: MarketplaceItem;
+}) {
   return (
     <main className="min-h-screen bg-white text-black">
       <div className="mobile-shell flex min-h-screen flex-col bg-white">
@@ -11,7 +17,7 @@ export function ItemLocationScreen({ item }: { item: MarketplaceItem }) {
           <Link
             aria-label="뒤로 가기"
             className="flex h-10 w-10 items-center justify-center text-[#212529]"
-            href={item.slug ? `/home/items/${item.slug}` : "/home"}
+            href={backHref}
           >
             <ArrowLeftIcon />
           </Link>

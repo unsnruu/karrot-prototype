@@ -5,6 +5,8 @@ import { IconButton } from "@/components/ui/icon-button";
 import { buildPendingFeatureHref } from "@/lib/tab-navigation";
 import { useRouter } from "next/navigation";
 import { useHomeNavigationHistory } from "@/features/home/components/home-navigation-history-provider";
+import { usePathname } from "next/navigation";
+import { resolveHomeHrefFromPathname } from "@/lib/home-experiment";
 import {
   ArrowLeftIcon,
   HomeIcon,
@@ -22,7 +24,9 @@ export function ItemDetailHero({
   returnTo?: string;
 }) {
   const router = useRouter();
+  const pathname = usePathname();
   const { getPreviousPath } = useHomeNavigationHistory();
+  const homeHref = returnTo ?? resolveHomeHrefFromPathname(pathname);
 
   const handleBack = () => {
     if (returnTo) {
@@ -42,7 +46,7 @@ export function ItemDetailHero({
       return;
     }
 
-    router.push("/home");
+    router.push(resolveHomeHrefFromPathname(pathname));
   };
 
   return (
@@ -62,15 +66,15 @@ export function ItemDetailHero({
           <IconButton ariaLabel="뒤로가기" onClick={handleBack}>
             <ArrowLeftIcon />
           </IconButton>
-          <IconButton ariaLabel="홈으로" href="/home">
+          <IconButton ariaLabel="홈으로" href={homeHref}>
             <HomeIcon />
           </IconButton>
         </div>
         <div className="flex items-center gap-[7px]">
-          <IconButton ariaLabel="공유하기" href={buildPendingFeatureHref(returnTo ?? "/home", "상품 공유하기")}>
+          <IconButton ariaLabel="공유하기" href={buildPendingFeatureHref(homeHref, "상품 공유하기")}>
             <ShareIcon />
           </IconButton>
-          <IconButton ariaLabel="더보기" href={buildPendingFeatureHref(returnTo ?? "/home", "상품 상세 메뉴")}>
+          <IconButton ariaLabel="더보기" href={buildPendingFeatureHref(homeHref, "상품 상세 메뉴")}>
             <MoreVerticalIcon />
           </IconButton>
         </div>

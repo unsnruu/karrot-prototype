@@ -7,6 +7,7 @@ import { AppImage } from "@/components/ui/app-image";
 import { trackEvent } from "@/lib/analytics/amplitude";
 import { buildScreenViewedEventProperties } from "@/lib/analytics/screen-view";
 import { useSellFlow } from "@/features/home/components/sell-flow-provider";
+import { resolveHomeHrefFromPathname } from "@/lib/home-experiment";
 import { savePublishedSellItem } from "@/lib/local-sell-storage";
 import { formatSellPriceText } from "@/lib/sell-flow";
 import { buildSellPreviewItem } from "@/lib/sell-flow";
@@ -45,6 +46,7 @@ export function SellWriteScreen() {
     setTradeType,
   } = useSellFlow();
   const hasTrackedScreenView = useRef(false);
+  const homeHref = resolveHomeHrefFromPathname(pathname);
 
   useEffect(() => {
     if (hydrated && draft.photos.length === 0) {
@@ -104,7 +106,7 @@ export function SellWriteScreen() {
     <main className="min-h-screen bg-white text-[#111827]">
       <div className="mobile-shell min-h-screen bg-white pb-[108px]">
         <header className="sticky top-0 z-10 flex h-14 items-center justify-between border-b border-[#f3f4f6] bg-white px-4">
-          <Link aria-label="홈으로 닫기" className="flex h-10 w-10 items-center justify-center" href="/home">
+          <Link aria-label="홈으로 닫기" className="flex h-10 w-10 items-center justify-center" href={homeHref}>
             <CloseIcon />
           </Link>
           <h1 className="text-[20px] font-bold tracking-[-0.03em] text-[#111827]">내 물건 팔기</h1>

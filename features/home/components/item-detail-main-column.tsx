@@ -12,6 +12,7 @@ import {
   InfoIcon,
 } from "@/features/home/components/item-detail-icons";
 import { ItemDetailKakaoMap } from "@/features/home/components/item-detail-kakao-map";
+import { appendNavigationQuery } from "@/lib/tab-navigation";
 import { formatPrice, type HomeFeedItem, type MarketplaceItem, type SellerProfile } from "@/lib/marketplace";
 
 function SellerSection({ seller }: { seller: SellerProfile }) {
@@ -47,10 +48,11 @@ function SellerSection({ seller }: { seller: SellerProfile }) {
   );
 }
 
-function ItemBodySection({ item }: { item: MarketplaceItem }) {
+function ItemBodySection({ item, returnTo }: { item: MarketplaceItem; returnTo?: string }) {
   const pathname = usePathname();
+  const homeHref = returnTo ?? "/home";
   const categoryLabel = item.sellingPoints[0] ?? item.condition;
-  const locationHref = item.slug ? `/home/items/${item.slug}/location` : `/home/items/${item.id}/location`;
+  const locationHref = createItemLocationHref(item.slug ?? item.id, returnTo);
   const hasMeetupLocation = item.meetupLat != null && item.meetupLng != null && Boolean(item.meetupHint.trim());
   return (
     <section className="py-6">
@@ -125,7 +127,7 @@ function ItemBodySection({ item }: { item: MarketplaceItem }) {
       <PendingFeatureLink
         className="mt-5 inline-flex text-sm leading-none text-[#8b8c91] underline underline-offset-2"
         featureLabel="게시글 신고하기"
-        returnTo="/home"
+        returnTo={homeHref}
       >
         이 게시글 신고하기
       </PendingFeatureLink>
@@ -133,9 +135,9 @@ function ItemBodySection({ item }: { item: MarketplaceItem }) {
   );
 }
 
-function RecommendationsSection({ items }: { items: HomeFeedItem[] }) {
+function RecommendationsSection({ items, returnTo }: { items: HomeFeedItem[]; returnTo?: string }) {
   if (items.length === 0) return null;
-  const firstRecommendationHref = `/home/items/${items[0].slug}`;
+  const firstRecommendationHref = createItemDetailHref(items[0].slug, returnTo);
 
   return (
     <section className="py-7">
@@ -146,7 +148,7 @@ function RecommendationsSection({ items }: { items: HomeFeedItem[] }) {
 
       <div className="mt-6 grid grid-cols-2 gap-x-3 gap-y-5">
         {items.map((relatedItem) => (
-          <Link className="space-y-3" href={`/home/items/${relatedItem.slug}`} key={relatedItem.id}>
+          <Link className="space-y-3" href={createItemDetailHref(relatedItem.slug, returnTo)} key={relatedItem.id}>
             <AppImage
               alt={relatedItem.title}
               className="aspect-[1.32/1] w-full rounded-[12px] object-cover"
@@ -170,24 +172,26 @@ export function ItemDetailMainColumn({
   seller,
   adItem,
   recommendationItems,
+  returnTo,
 }: {
   item: MarketplaceItem;
   seller: SellerProfile;
   adItem?: HomeFeedItem;
   recommendationItems: HomeFeedItem[];
+  returnTo?: string;
 }) {
   return (
     <div className="min-w-0">
       <SellerSection seller={seller} />
-      <ItemBodySection item={item} />
+      <ItemBodySection item={item} returnTo={returnTo} />
       {adItem ? (
         <section className="py-3">
           <ItemDetailAdCard item={adItem} />
         </section>
       ) : null}
-      <RecommendationsSection items={recommendationItems} />
+      <RecommendationsSection items={recommendationItems} returnTo={returnTo} />
       <section className="flex items-start gap-5 pb-[134px] pt-2">
-        <KeywordAlert itemTitle={item.title} />
+        <KeywordAlert itemTitle={item.title} returnTo={returnTo} />
       </section>
     </div>
   );
@@ -223,7 +227,7 @@ export function ItemDetailAdCard({ item }: { item: HomeFeedItem }) {
   );
 }
 
-export function KeywordAlert({ itemTitle }: { itemTitle: string }) {
+export function KeywordAlert({ itemTitle, returnTo }: { itemTitle: string; returnTo?: string }) {
   return (
     <>
       <p className="flex-1 text-sm leading-[1.5] text-black">
@@ -232,11 +236,31 @@ export function KeywordAlert({ itemTitle }: { itemTitle: string }) {
       <PendingFeatureLink
         className="inline-flex shrink-0 items-center gap-1 rounded-full bg-[#f2f4f5] px-4 py-2 text-sm font-semibold text-black"
         featureLabel="키워드 알림 받기"
-        returnTo="/home"
+        returnTo={returnTo ?? "/home"}
       >
         <BellIcon />
         <span>알림 받기</span>
       </PendingFeatureLink>
     </>
   );
+}
+
+function createItemDetailHref(slug: string, returnTo?: string) {
+  const baseHref = `/home/items/${slug}`;
+
+  if (!returnTo) {
+    return baseHref;
+  }
+
+  return appendNavigationQuery(baseHref, { returnTo });
+}
+
+function createItemLocationHref(slug: string, returnTo?: string) {
+  const baseHref = `/home/items/${slug}/location`;
+
+  if (!returnTo) {
+    return baseHref;
+  }
+
+  return appendNavigationQuery(baseHref, { returnTo });
 }

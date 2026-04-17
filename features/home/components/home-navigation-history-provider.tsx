@@ -10,6 +10,7 @@ import {
   type ReactNode,
 } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
+import { readHomeExperimentVariantFromPathname } from "@/lib/home-experiment";
 
 const STORAGE_KEY = "karrot:home-navigation-history";
 
@@ -117,7 +118,14 @@ function buildPath(pathname: string, searchParams: URLSearchParams) {
 }
 
 function isHomeTabPath(pathname: string) {
-  return pathname === "/home" || pathname === "/home/services" || /^\/home\/items\/[^/]+$/.test(pathname);
+  const normalizedPathname = pathname.replace(/^\/exp\/(a|b|c)/, "");
+  const experimentVariant = readHomeExperimentVariantFromPathname(pathname);
+
+  if (experimentVariant) {
+    return normalizedPathname === "/home" || normalizedPathname === "/home/services";
+  }
+
+  return normalizedPathname === "/home" || normalizedPathname === "/home/services" || /^\/home\/items\/[^/]+$/.test(normalizedPathname);
 }
 
 function isOtherTabPath(pathname: string) {

@@ -6,6 +6,7 @@ import { AppImage } from "@/components/ui/app-image";
 import { PendingFeatureLink } from "@/components/ui/pending-feature-link";
 import { trackEvent } from "@/lib/analytics/amplitude";
 import { buildElementClickedEventProperties } from "@/lib/analytics/element-click";
+import { readHomeExperimentVariantFromPathname, resolveHomeHrefFromPathname, resolveExperimentHomeHref } from "@/lib/home-experiment";
 import { type HomeCategory } from "@/lib/marketplace";
 import { buildPendingFeatureHref } from "@/lib/tab-navigation";
 
@@ -25,6 +26,9 @@ export function HomeHeader({
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const queryString = searchParams.toString();
+  const homeHref = resolveHomeHrefFromPathname(pathname);
+  const variant = readHomeExperimentVariantFromPathname(pathname);
+  const homeServicesHref = "/home/services";
 
   return (
     <header className="sticky top-0 z-20 border-b border-black/5 bg-white/95 backdrop-blur">
@@ -43,11 +47,11 @@ export function HomeHeader({
                   surface: "header",
                   path: pathname,
                   queryString,
-                  destinationPath: buildPendingFeatureHref("/home", "동네 선택"),
+                  destinationPath: buildPendingFeatureHref(homeHref, "동네 선택"),
                 }),
               );
             }}
-            returnTo="/home"
+            returnTo={homeHref}
           >
             <span className="text-[22px] font-bold tracking-[-0.03em] text-black">합정동</span>
             <AppImage alt="" className="h-6 w-6" height={24} src={iconChevronDown} width={24} />
@@ -66,11 +70,11 @@ export function HomeHeader({
                     surface: "header",
                     path: pathname,
                     queryString,
-                    destinationPath: buildPendingFeatureHref("/home", "홈 검색"),
+                    destinationPath: buildPendingFeatureHref(homeHref, "홈 검색"),
                   }),
                 );
               }}
-              returnTo="/home"
+              returnTo={homeHref}
             >
               <AppImage alt="" className="h-8 w-8" height={32} src={iconSearch} width={32} />
             </PendingFeatureLink>
@@ -87,17 +91,17 @@ export function HomeHeader({
                     surface: "header",
                     path: pathname,
                     queryString,
-                    destinationPath: buildPendingFeatureHref("/home", "알림 확인"),
+                    destinationPath: buildPendingFeatureHref(homeHref, "알림 확인"),
                   }),
                 );
               }}
-              returnTo="/home"
+              returnTo={homeHref}
             >
               <AppImage alt="" className="h-8 w-8" height={32} src={iconBell} width={32} />
             </PendingFeatureLink>
             <Link
               aria-label="메뉴"
-              href="/home/services"
+              href={homeServicesHref}
               onClick={() => {
                 trackEvent(
                   "element_clicked",
@@ -108,7 +112,7 @@ export function HomeHeader({
                     surface: "header",
                     path: pathname,
                     queryString,
-                    destinationPath: "/home/services",
+                    destinationPath: homeServicesHref,
                   }),
                 );
               }}
@@ -127,7 +131,7 @@ export function HomeHeader({
                 className={`flex h-10 shrink-0 items-center justify-center rounded-full px-4 text-[14px] font-medium leading-none ${
                   isActive ? "bg-[#2a3038] text-white" : "bg-[#f3f4f5] text-[#1a1c20]"
                 }`}
-                href={buildCategoryHref(category.label)}
+                href={buildCategoryHref(category.label, variant)}
                 key={category.label}
                 onClick={() => {
                   trackEvent(
@@ -139,7 +143,7 @@ export function HomeHeader({
                       surface: "header",
                       path: pathname,
                       queryString,
-                      destinationPath: buildCategoryHref(category.label),
+                      destinationPath: buildCategoryHref(category.label, variant),
                       additionalProperties: {
                         category: category.label,
                         previous_category: selectedCategory ?? "전체",
@@ -162,12 +166,14 @@ export function HomeHeader({
   );
 }
 
-function buildCategoryHref(label: string) {
+function buildCategoryHref(label: string, variant?: "a" | "b" | "c") {
+  const homeHref = resolveExperimentHomeHref(variant);
+
   if (label === "전체") {
-    return "/home";
+    return homeHref;
   } else {
     const nextParams = new URLSearchParams();
     nextParams.set("category", label);
-    return `/home?${nextParams.toString()}`;
+    return `${homeHref}?${nextParams.toString()}`;
   }
 }

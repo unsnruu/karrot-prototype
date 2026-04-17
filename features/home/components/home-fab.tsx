@@ -2,10 +2,12 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import { AppImage } from "@/components/ui/app-image";
 import { trackEvent } from "@/lib/analytics/amplitude";
 import { buildElementClickedEventProperties } from "@/lib/analytics/element-click";
 import { clearSellFlowDraftStorage } from "@/lib/sell-flow";
+import { resolveHomeHrefFromPathname } from "@/lib/home-experiment";
 import { homeFabActionGroups, type HomeFabAction } from "@/lib/marketplace";
 import { buildPendingFeatureHref } from "@/lib/tab-navigation";
 
@@ -13,6 +15,8 @@ const iconPlus = "/icons/plus.svg";
 
 export function HomeFab() {
   const [isOpen, setIsOpen] = useState(false);
+  const pathname = usePathname();
+  const homeHref = resolveHomeHrefFromPathname(pathname);
 
   useEffect(() => {
     if (!isOpen) {
@@ -104,7 +108,7 @@ export function HomeFab() {
                     {group.map((action) => (
                       <Link
                         className="flex w-full items-center gap-3 text-left"
-                        href={resolveFabActionHref(action)}
+                        href={resolveFabActionHref(action, homeHref)}
                         key={action.label}
                         onClick={() => {
                           trackEvent(
@@ -115,7 +119,7 @@ export function HomeFab() {
                               targetName: getHomeFabActionTargetName(action),
                               surface: "fab_menu",
                               path: "/home",
-                              destinationPath: resolveFabActionHref(action),
+                              destinationPath: resolveFabActionHref(action, homeHref),
                               additionalProperties: {
                                 action_icon: action.icon,
                               },
@@ -161,12 +165,12 @@ export function HomeFab() {
   );
 }
 
-function resolveFabActionHref(action: HomeFabAction) {
+function resolveFabActionHref(action: HomeFabAction, homeHref: string) {
   if (action.icon === "sell") {
     return "/home/sell/photos";
   }
 
-  return buildPendingFeatureHref("/home", action.label);
+  return buildPendingFeatureHref(homeHref, action.label);
 }
 
 function getHomeFabActionTargetName(action: HomeFabAction) {

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname, useSearchParams } from "next/navigation";
 import { AppImage } from "@/components/ui/app-image";
 import { trackEvent } from "@/lib/analytics/amplitude";
 import { buildElementClickedEventProperties } from "@/lib/analytics/element-click";
@@ -22,8 +23,10 @@ export function MarketplaceListItem({
   category?: string;
   position?: number;
 }) {
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const isPromoted = Boolean(item.promoted);
-  const detailHref = item.href ?? `/home/items/${item.slug}`;
+  const detailHref = buildDetailHref(item.href ?? `/home/items/${item.slug}`, pathname, searchParams);
 
   return (
     <article className="mb-4 border-b border-[#eceef2] pb-4">
@@ -38,7 +41,7 @@ export function MarketplaceListItem({
               targetType: "card",
               targetName: "home_item_card",
               surface: "feed",
-              path: "/home",
+              path: pathname,
               targetId: item.id,
               targetPosition: position,
               destinationPath: detailHref,
@@ -139,4 +142,12 @@ export function MarketplaceListItem({
       </Link>
     </article>
   );
+}
+
+function buildDetailHref(baseHref: string, pathname: string, searchParams: URLSearchParams) {
+  const currentQuery = searchParams.toString();
+  const returnTo = currentQuery ? `${pathname}?${currentQuery}` : pathname;
+  const separator = baseHref.includes("?") ? "&" : "?";
+
+  return `${baseHref}${separator}returnTo=${encodeURIComponent(returnTo)}`;
 }

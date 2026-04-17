@@ -19,7 +19,11 @@ import {
   type TownMapPin,
 } from "@/lib/town-map";
 
-export function TownMapScreen({ pins }: { pins: TownMapPin[] }) {
+export function TownMapScreen({
+  pins,
+}: {
+  pins: TownMapPin[];
+}) {
   const pathname = usePathname();
   const searchHref = appendNavigationQuery("/town-map/search", { returnTo: "/town-map", tab: "town-map" });
 

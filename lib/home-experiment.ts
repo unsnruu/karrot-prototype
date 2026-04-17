@@ -32,3 +32,11 @@ export function buildExperimentHref(href: string, variant?: HomeExperimentVarian
 
   return `/exp/${variant}${href}`;
 }
+
+export function resolveExperimentHomeHref(variant?: HomeExperimentVariant) {
+  return buildExperimentHref("/home", variant);
+}
+
+export function resolveHomeHrefFromPathname(pathname: string) {
+  return resolveExperimentHomeHref(readHomeExperimentVariantFromPathname(pathname));
+}

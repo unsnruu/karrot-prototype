@@ -54,7 +54,7 @@ describe("home click tracking", () => {
 
     expect(amplitudeMocks.trackEvent).toHaveBeenCalledWith("element_clicked", {
       category: "디지털기기",
-      destination_path: "/home/items/item-1",
+      destination_path: "/home/items/item-1?returnTo=%2Fhome%3Fcategory%3D%25EB%2594%2594%25EC%25A7%2580%25ED%2584%25B8%25EA%25B8%25B0%25EA%25B8%25B0",
       is_promoted: false,
       path: "/home",
       screen_name: "home",
@@ -64,6 +64,39 @@ describe("home click tracking", () => {
       target_position: 2,
       target_type: "card",
     });
+  });
+
+  it("preserves experiment home as returnTo when opening item detail", () => {
+    navigationState.pathname = "/exp/b/home";
+    navigationState.searchParams = new URLSearchParams("category=%EB%94%94%EC%A7%80%ED%84%B8%EA%B8%B0%EA%B8%B0");
+
+    render(
+      React.createElement(MarketplaceListItem, {
+        category: "디지털기기",
+        item: {
+          chats: 3,
+          distance: "도보 3분",
+          href: "/home/items/item-1",
+          id: "item-1",
+          image: "/test-item.webp",
+          likes: 5,
+          postedAt: "방금",
+          priceLabel: "10,000원",
+          slug: "item-1",
+          title: "테스트 상품",
+          town: "합정동",
+          type: "marketplace-item",
+        },
+        position: 2,
+      }),
+    );
+
+    const itemLinks = screen.getAllByRole("link", { name: /테스트 상품/ });
+
+    expect(itemLinks[itemLinks.length - 1]).toHaveAttribute(
+      "href",
+      "/home/items/item-1?returnTo=%2Fexp%2Fb%2Fhome%3Fcategory%3D%25EB%2594%2594%25EC%25A7%2580%25ED%2584%25B8%25EA%25B8%25B0%25EA%25B8%25B0",
+    );
   });
 
   it("tracks home category clicks as element_clicked", () => {

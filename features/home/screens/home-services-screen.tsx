@@ -6,12 +6,15 @@ import { IconButton } from "@/components/ui/icon-button";
 import { PendingFeatureLink } from "@/components/ui/pending-feature-link";
 import { useHomeNavigationHistory } from "@/features/home/components/home-navigation-history-provider";
 import { ArrowLeftIcon } from "@/features/home/components/item-detail-icons";
+import { resolveHomeHrefFromPathname } from "@/lib/home-experiment";
 import { homeServiceSections } from "@/lib/home-services";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 export function HomeServicesScreen() {
   const router = useRouter();
+  const pathname = usePathname();
   const { getPreviousPath } = useHomeNavigationHistory();
+  const homeHref = resolveHomeHrefFromPathname(pathname);
 
   const handleBack = () => {
     const previousPath = getPreviousPath();
@@ -26,7 +29,7 @@ export function HomeServicesScreen() {
       return;
     }
 
-    router.push("/home");
+    router.push(homeHref);
   };
 
   return (
@@ -62,7 +65,7 @@ export function HomeServicesScreen() {
                         className="flex items-center gap-3 rounded-[10px] pl-3 text-left"
                         featureLabel={item.label}
                         key={item.label}
-                        returnTo="/home/services"
+                        returnTo={pathname}
                       >
                         <ServiceIcon icon={item.icon} label={item.label} />
                         <span className="text-[16px] font-medium leading-6 text-[#101828]">{item.label}</span>

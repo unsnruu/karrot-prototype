@@ -7,6 +7,7 @@ import { AppImage } from "@/components/ui/app-image";
 import { trackEvent } from "@/lib/analytics/amplitude";
 import { buildScreenViewedEventProperties } from "@/lib/analytics/screen-view";
 import { useSellFlow } from "@/features/home/components/sell-flow-provider";
+import { resolveHomeHrefFromPathname } from "@/lib/home-experiment";
 import { SELL_FLOW_MAX_PHOTOS, SELL_FLOW_SAMPLE_PHOTOS } from "@/lib/sell-flow";
 import { buildPendingFeatureHref } from "@/lib/tab-navigation";
 
@@ -15,6 +16,7 @@ export function SellPhotoSelectionScreen() {
   const router = useRouter();
   const { draft, hydrated, togglePhoto } = useSellFlow();
   const hasTrackedScreenView = useRef(false);
+  const homeHref = resolveHomeHrefFromPathname(pathname);
 
   const selectedCount = draft.photos.length;
 
@@ -42,7 +44,7 @@ export function SellPhotoSelectionScreen() {
     <main className="min-h-screen bg-white text-[#111827]">
       <div className="mobile-shell min-h-screen bg-white pb-[168px]">
         <header className="flex h-14 items-center justify-between px-4">
-          <Link aria-label="홈으로 돌아가기" className="flex h-10 w-10 items-center justify-center" href="/home">
+          <Link aria-label="홈으로 돌아가기" className="flex h-10 w-10 items-center justify-center" href={homeHref}>
             <CloseIcon />
           </Link>
           <Link

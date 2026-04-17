@@ -18,7 +18,7 @@ type ItemDetailScreenProps = {
 
 export function ItemDetailScreen({ item, seller, relatedItems, returnTo }: ItemDetailScreenProps) {
   const recommendationItems = relatedItems.slice(0, 6);
-  const detailHref = `/home/items/${item.slug ?? item.id}`;
+  const detailHref = createDetailHref(item.slug ?? item.id, returnTo);
 
   return (
     <main className="min-h-screen bg-white text-black">
@@ -30,6 +30,7 @@ export function ItemDetailScreen({ item, seller, relatedItems, returnTo }: ItemD
             adItem={itemDetailUnifiedAd}
             item={item}
             recommendationItems={recommendationItems}
+            returnTo={returnTo}
             seller={seller}
           />
         </div>
@@ -43,9 +44,20 @@ export function ItemDetailScreen({ item, seller, relatedItems, returnTo }: ItemD
           returnTo: detailHref,
         })}
         itemId={item.id}
+        returnTo={returnTo}
         sellerName={seller.name}
         town={item.town}
       />
     </main>
   );
+}
+
+function createDetailHref(slug: string, returnTo?: string) {
+  const baseHref = `/home/items/${slug}`;
+
+  if (!returnTo) {
+    return baseHref;
+  }
+
+  return appendNavigationQuery(baseHref, { returnTo });
 }

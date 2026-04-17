@@ -1,5 +1,3 @@
-"use client";
-
 import { buildElementExposedEventProperties } from "@/lib/analytics/element-exposed";
 import { type HomeExperimentVariant } from "@/lib/home-experiment";
 import { type HomeFeedNativeAd } from "@/lib/marketplace";
