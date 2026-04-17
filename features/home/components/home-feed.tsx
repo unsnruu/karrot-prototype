@@ -18,6 +18,11 @@ type HomeFeedResponse = {
   nextOffset: number;
 };
 
+type DFeedSection = {
+  entries: HomeFeedEntry[];
+  heroAds: HomeFeedNativeAd[];
+};
+
 export function HomeFeed({
   initialItems,
   initialHasMore,
@@ -139,33 +144,39 @@ export function HomeFeed({
   }, [hasMore, loadMore]);
 
   const allAds = items.filter((entry): entry is HomeFeedNativeAd => entry.type === "native-ad");
-  const dHeroAdIds = new Set((variant === "d" ? allAds.slice(0, 2) : []).map((ad) => ad.id));
   const carouselAds = variant === "c"
     ? allAds
     : [];
-  const dHeroAds = variant === "d"
-    ? allAds.slice(0, 2)
-    : [];
   const feedItems = variant === "c"
     ? items.filter((entry) => entry.type !== "native-ad")
-    : items.filter((entry) => entry.type !== "native-ad" || !dHeroAdIds.has(entry.id));
+    : items;
+  const dSections = variant === "d"
+    ? buildDFeedSections(items)
+    : [];
 
   return (
     <div>
       {variant === "c" ? <HomeNativeAdCarousel ads={carouselAds} variant={variant} /> : null}
-      {variant === "d" ? <HomeNativeAdHeroCarousel ads={dHeroAds} variant={variant} /> : null}
-
-      {feedItems.map((entry, index) => (
-        entry.type === "native-ad"
-          ? (
-            variant === "b"
-              ? <HomeNativeAdBanner ad={entry} index={index} key={entry.id} variant={variant} />
-              : variant === "d"
+      {variant === "d"
+        ? dSections.map((section, sectionIndex) => (
+          <div key={`d-section-${sectionIndex}`}>
+            {section.heroAds.length > 0 ? <HomeNativeAdHeroCarousel ads={section.heroAds} variant={variant} /> : null}
+            {section.entries.map((entry, index) => (
+              entry.type === "native-ad"
                 ? <HomeNativeAdHighlightCard ad={entry} index={index} key={entry.id} variant={variant} />
+                : <MarketplaceListItem category={category} item={entry} key={entry.id} position={index} />
+            ))}
+          </div>
+        ))
+        : feedItems.map((entry, index) => (
+          entry.type === "native-ad"
+            ? (
+              variant === "b"
+                ? <HomeNativeAdBanner ad={entry} index={index} key={entry.id} variant={variant} />
                 : <HomeNativeAdCard ad={entry} index={index} key={entry.id} variant={variant} />
-          )
-          : <MarketplaceListItem category={category} item={entry} key={entry.id} position={index} />
-      ))}
+            )
+            : <MarketplaceListItem category={category} item={entry} key={entry.id} position={index} />
+        ))}
 
       {feedItems.length === 0 && !isLoading ? (
         <div className="flex min-h-[240px] items-center justify-center px-4 py-12 text-center">
@@ -209,4 +220,34 @@ export function HomeFeed({
       ) : null}
     </div>
   );
+}
+
+function buildDFeedSections(items: HomeFeedEntry[]) {
+  const sections: DFeedSection[] = [];
+  let currentEntries: HomeFeedEntry[] = [];
+  let currentHeroAds: HomeFeedNativeAd[] = [];
+  let marketplaceCount = 0;
+
+  items.forEach((entry) => {
+    if (entry.type === "marketplace-item" && marketplaceCount === HOME_FEED_PAGE_SIZE) {
+      sections.push({ entries: currentEntries, heroAds: currentHeroAds });
+      currentEntries = [];
+      currentHeroAds = [];
+      marketplaceCount = 0;
+    }
+
+    if (entry.type === "native-ad") {
+      currentHeroAds.push(entry);
+      return;
+    }
+
+    currentEntries.push(entry);
+    marketplaceCount += 1;
+  });
+
+  if (currentEntries.length > 0 || currentHeroAds.length > 0) {
+    sections.push({ entries: currentEntries, heroAds: currentHeroAds });
+  }
+
+  return sections;
 }

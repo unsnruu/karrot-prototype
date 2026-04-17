@@ -15,7 +15,7 @@ import { type HomeExperimentVariant } from "@/lib/home-experiment";
 import { type HomeFeedNativeAd } from "@/lib/marketplace";
 
 const iconMore = "/icons/more.svg";
-const heroCardBackgrounds = ["#ff6f0f", "#2a3038"] as const;
+const heroCardBackgrounds = ["#ffe8db", "#f3f4f5", "#fdefb9"] as const;
 
 function HomeNativeAdHeroCarouselItem({
   ad,
@@ -49,9 +49,12 @@ function HomeNativeAdHeroCarouselItem({
 
   return (
     <article
-      className="w-[304px] shrink-0 rounded-[8px] p-3"
+      className="shrink-0 rounded-[8px] p-3"
       ref={impressionRef}
-      style={{ backgroundColor: heroCardBackgrounds[index % heroCardBackgrounds.length] }}
+      style={{
+        backgroundColor: heroCardBackgrounds[index % heroCardBackgrounds.length],
+        width: "80vw",
+      }}
     >
       <Link
         className="flex items-start gap-3"
@@ -87,16 +90,16 @@ function HomeNativeAdHeroCarouselItem({
           width={80}
         />
 
-        <div className="flex min-w-0 flex-1 flex-col gap-3 self-stretch">
-          <div className="flex items-start gap-2">
+        <div className="flex min-w-0 flex-1 flex-col gap-2 self-stretch">
+          <div className="flex items-center gap-2">
             <div className="min-w-0 flex-1">
-              <p className="text-[13px] font-medium leading-none text-[#f3f4f5]">{ad.feature}</p>
+              <p className="text-[13px] font-medium leading-none text-[#6b7280]">{ad.feature}</p>
             </div>
 
-            <AppImage alt="" className="h-6 w-6 shrink-0 brightness-0 invert" height={24} src={iconMore} width={24} />
+            <AppImage alt="" className="h-6 w-6 shrink-0" height={24} src={iconMore} width={24} />
           </div>
 
-          <h2 className="line-clamp-2 break-keep text-[14px] font-semibold leading-[1.4] tracking-[-0.02em] text-white">
+          <h2 className="line-clamp-2 break-keep text-[14px] font-semibold leading-[1.4] tracking-[-0.02em] text-[#1a1c20]">
             {ad.title}
           </h2>
         </div>
@@ -120,7 +123,7 @@ export function HomeNativeAdHeroCarousel({
 
   return (
     <section
-      className="mb-4 overflow-x-auto px-4 pb-2 pt-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:px-6"
+      className="-mx-4 mb-4 overflow-x-auto px-4 pb-2 pt-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:-mx-6 sm:px-6"
       onScroll={(event) => {
         if (hasTrackedInteraction.current || event.currentTarget.scrollLeft <= 8) {
           return;
@@ -139,6 +142,7 @@ export function HomeNativeAdHeroCarousel({
         {ads.map((ad, index) => (
           <HomeNativeAdHeroCarouselItem ad={ad} index={index} key={ad.id} variant={variant} />
         ))}
+        <div aria-hidden="true" className="h-px w-4 shrink-0" />
       </div>
     </section>
   );
