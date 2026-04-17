@@ -289,6 +289,126 @@ SEED 최소 도입을 위해 가장 먼저 영향을 받는 파일은 아래와 
 7. `seed-design/`
    - snippet 추가 시 생성될 디렉토리
 
+## Component Mapping
+
+현재 프로젝트의 공용 프리미티브를 기준으로, SEED 컴포넌트와의 대응 관계를 아래처럼 정리한다.
+
+이 매핑표는 “바로 교체 가능한가”, “SEED를 참고해 adapter로 유지해야 하는가”, “당분간 로컬 유지가 필요한가”를 판단하는 기준 문서로 사용한다.
+
+### Mapping Table
+
+| Local primitive | SEED counterpart | 현재 판단 | 이유 |
+| --- | --- | --- | --- |
+| `ActionButton` | `Action Button` | 직접 교체 가능 | variant naming이 이미 `brandSolid`, `neutralWeak`, `ghost` 등 SEED와 거의 일치하고, 버튼/링크 래핑만 정리하면 snippet 또는 package 기반 전환이 자연스럽다. |
+| `FieldButton` | `Field Button` | 직접 교체 가능 | label, description, placeholder, value 구조가 SEED `Field Button`과 매우 가깝고, 현재 구현도 “입력 필드 모양의 버튼” 개념에 맞춰져 있다. |
+| `UserAvatar` | `Avatar` | 직접 교체 가능 | 이미지/대체 표시/사이즈 개념이 그대로 대응된다. 현재는 badge, mask 같은 확장 기능만 빠져 있다. |
+| `SelectionChipButton` / `SelectionChipLink` | `Chip.Button`, `Chip.Toggle`, `Chip.RadioItem` | 직접 교체 가능 | 현재 rounded selection chip 패턴이 SEED `Chip` 개념과 거의 동일하다. 다만 지금은 button/link 중심이고, 실제 선택 상태 모델은 SEED의 toggle/radio 쪽으로 더 수렴할 수 있다. |
+| `TabsList` / `TextTabLink` / `UnderlineTabLink` | `Tabs` | 직접 교체 가능 | 탭 라벨 전환이라는 개념은 정확히 대응된다. 다만 현재는 링크 기반 탭이고, SEED는 stateful tabs primitive라 URL 상태와 연결하는 adapter가 필요하다. |
+| `ListSection` / `ListEmptyState` | `List`, `ListHeader` | SEED 참고형 | 현재 구현은 “섹션 + 헤더 + 빈 상태”를 묶은 상위 조합체이고, SEED `List`는 row/item 구조 중심이다. 헤더는 `ListHeader`와 맞지만 전체 구조는 그대로 1:1 치환되진 않는다. |
+| `PageHeader` | `Top Navigation` | SEED 참고형 | 역할은 매우 비슷하지만 현재 구현은 sticky header shell에 가깝고, SEED 쪽은 top navigation anatomy와 title/action 구조가 더 정교하다. 직접 import 교체보다는 구조 참고 후 수렴이 맞다. |
+| `AppToolbar` | `Top Navigation` 일부 패턴 | SEED 참고형 | leading/center/trailing 배치는 SEED top navigation과 닮았지만, 독립 toolbar layout으로 더 얇다. 현재 앱 헤더 문맥에 맞춰 로컬 유지 후 점진 수렴이 적절하다. |
+| `IconButton` | `Action Button` (`layout=\"iconOnly\"`) 또는 top navigation action slot | SEED 참고형 | 아이콘 단독 액션이라는 의미는 대응되지만, 현재는 link/pending route 동작까지 포함한 앱 전용 래퍼다. 바로 치환하기보다 button 계열 정리 후 흡수하는 편이 안전하다. |
+
+### Direct Adoption Candidates
+
+아래 항목은 실제 snippet 또는 package 기반 도입 우선순위가 높다.
+
+1. `ActionButton` -> `Action Button`
+2. `UserAvatar` -> `Avatar`
+3. `FieldButton` -> `Field Button`
+4. `SelectionChip*` -> `Chip`
+5. `Tabs*` -> `Tabs`
+
+공통 특징:
+- 현재 API나 variant 개념이 이미 SEED와 가깝다
+- 구조 차이보다 styling/system 차이가 더 크다
+- wrapper -> adapter -> direct adoption 경로로 옮기기 쉽다
+
+### Reference-First Components
+
+아래 항목은 SEED를 바로 import해서 대체하기보다, **SEED 구조를 참고하면서 로컬 조합체로 유지**하는 편이 더 적절하다.
+
+1. `ListSection` / `ListEmptyState`
+2. `PageHeader`
+3. `AppToolbar`
+4. `IconButton`
+
+이 그룹의 공통 특징:
+- 현재 로컬 컴포넌트가 단일 primitive라기보다 화면 조합에 더 가깝다
+- SEED 쪽은 더 세분화된 primitive 또는 다른 레벨의 컴포넌트다
+- 직접 치환하면 오히려 호출부 수정 범위가 커질 수 있다
+
+### Local-Only For Now
+
+아래 영역은 이번 매핑 범위 밖이며, 당분간 로컬 유지가 맞다.
+
+- `HomeFab`
+- 상세 카드 계열
+- 피드 카드 계열
+- 지도/비즈니스 상세 복합 블록
+- 커뮤니티 상세 복합 섹션
+
+이들은 SEED 개념 일부를 참고할 수는 있지만, 현재 프로젝트의 도메인 조합이 훨씬 강하다.
+
+### Mapping Notes
+
+#### `ActionButton`
+
+- 현재 variant 이름이 SEED와 거의 동일하다.
+- size는 `small`, `medium`, `large`만 있지만, 구조상 SEED `xsmall` 확장도 가능하다.
+- `href`, `pendingFeatureLabel`은 앱 전용 adapter 책임으로 볼 수 있다.
+
+판단:
+- **가장 먼저 direct adoption 검토 가능**
+
+#### `FieldButton`
+
+- 현재도 “선택창이나 피커를 여는 field-like button” 개념을 정확히 따르고 있다.
+- 향후에는 `FieldButtonValue`, `FieldButtonPlaceholder`처럼 내부 슬롯 구조를 SEED 쪽에 더 가깝게 맞출 수 있다.
+
+판단:
+- **direct adoption 후보**
+
+#### `UserAvatar`
+
+- 현재는 최소 구현이지만, 오히려 그래서 SEED `Avatar`로 옮기기 쉽다.
+- badge, stack, identity placeholder 같은 기능을 나중에 SEED에서 그대로 흡수할 수 있다.
+
+판단:
+- **direct adoption 후보**
+
+#### `SelectionChip`
+
+- 지금은 button/link 래퍼 위주다.
+- 필터, 선택, 카테고리 패턴을 더 정리하면 `Chip.Button`, `Chip.Toggle`, `Chip.RadioItem`으로 나눌 수 있다.
+
+판단:
+- **직접 대응되지만, 상태 모델 정리가 먼저 필요**
+
+#### `Tabs`
+
+- 현재는 링크 기반 탭이어서 URL과 결합돼 있다.
+- SEED `Tabs`는 primitive/state 중심이라, URL query 또는 pathname과 연결하는 adapter 층이 필요하다.
+
+판단:
+- **직접 대응되지만 adapter 경유가 적절**
+
+#### `ListSection`
+
+- 현재 컴포넌트는 `ListHeader + Section wrapper + Empty state`를 합친 상위 조합이다.
+- SEED `List`는 row/list primitive에 더 가깝기 때문에, 지금 구조를 통째로 치환하면 오히려 과하게 세분화될 수 있다.
+
+판단:
+- **SEED 참고형**
+
+#### `PageHeader` / `AppToolbar`
+
+- 두 컴포넌트 모두 SEED `Top Navigation` 디자인 개념과 닿아 있다.
+- 다만 현 단계에서는 header shell, action slot, title alignment 정도만 공통이고 실제 API 레벨 대응은 약하다.
+
+판단:
+- **Top Navigation 참고형**
+
 ## Working Order
 
 실행 순서는 아래와 같이 고정한다.
