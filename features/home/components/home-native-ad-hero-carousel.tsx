@@ -15,7 +15,7 @@ import { type HomeExperimentVariant } from "@/lib/home-experiment";
 import { type HomeFeedNativeAd } from "@/lib/marketplace";
 
 const iconMore = "/icons/more.svg";
-const heroCardBackgrounds = ["#ffe8db", "#f3f4f5", "#fdefb9"] as const;
+const heroCardBackgrounds = ["#fff2ec", "#fff7de", "#f7f8f9"] as const;
 
 function HomeNativeAdHeroCarouselItem({
   ad,
@@ -93,7 +93,7 @@ function HomeNativeAdHeroCarouselItem({
         <div className="flex min-w-0 flex-1 flex-col gap-2 self-stretch">
           <div className="flex items-center gap-2">
             <div className="min-w-0 flex-1">
-              <p className="text-[13px] font-medium leading-none text-[#6b7280]">{ad.feature}</p>
+              <p className="text-[13px] font-medium leading-none text-[#555d6d]">{ad.feature}</p>
             </div>
 
             <AppImage alt="" className="h-6 w-6 shrink-0" height={24} src={iconMore} width={24} />
