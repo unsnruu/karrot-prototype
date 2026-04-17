@@ -4,6 +4,8 @@ import { startTransition, useCallback, useEffect, useRef, useState } from "react
 import { HomeNativeAdBanner } from "@/features/home/components/home-native-ad-banner";
 import { HomeNativeAdCard } from "@/features/home/components/home-native-ad-card";
 import { HomeNativeAdCarousel } from "@/features/home/components/home-native-ad-carousel";
+import { HomeNativeAdHeroCarousel } from "@/features/home/components/home-native-ad-hero-carousel";
+import { HomeNativeAdHighlightCard } from "@/features/home/components/home-native-ad-highlight-card";
 import { MarketplaceListItem } from "@/features/home/components/marketplace-list-item";
 import { trackEvent } from "@/lib/analytics/amplitude";
 import { buildPublishedSellFeedItem, readPublishedSellItem } from "@/lib/local-sell-storage";
@@ -136,23 +138,31 @@ export function HomeFeed({
     };
   }, [hasMore, loadMore]);
 
+  const allAds = items.filter((entry): entry is HomeFeedNativeAd => entry.type === "native-ad");
+  const dHeroAdIds = new Set((variant === "d" ? allAds.slice(0, 2) : []).map((ad) => ad.id));
   const carouselAds = variant === "c"
-    ? items.filter((entry): entry is HomeFeedNativeAd => entry.type === "native-ad")
+    ? allAds
+    : [];
+  const dHeroAds = variant === "d"
+    ? allAds.slice(0, 2)
     : [];
   const feedItems = variant === "c"
     ? items.filter((entry) => entry.type !== "native-ad")
-    : items;
+    : items.filter((entry) => entry.type !== "native-ad" || !dHeroAdIds.has(entry.id));
 
   return (
     <div>
       {variant === "c" ? <HomeNativeAdCarousel ads={carouselAds} variant={variant} /> : null}
+      {variant === "d" ? <HomeNativeAdHeroCarousel ads={dHeroAds} variant={variant} /> : null}
 
       {feedItems.map((entry, index) => (
         entry.type === "native-ad"
           ? (
             variant === "b"
               ? <HomeNativeAdBanner ad={entry} index={index} key={entry.id} variant={variant} />
-              : <HomeNativeAdCard ad={entry} index={index} key={entry.id} variant={variant} />
+              : variant === "d"
+                ? <HomeNativeAdHighlightCard ad={entry} index={index} key={entry.id} variant={variant} />
+                : <HomeNativeAdCard ad={entry} index={index} key={entry.id} variant={variant} />
           )
           : <MarketplaceListItem category={category} item={entry} key={entry.id} position={index} />
       ))}

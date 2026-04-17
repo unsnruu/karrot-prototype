@@ -1,9 +1,9 @@
-export const homeExperimentVariants = ["a", "b", "c"] as const;
+export const homeExperimentVariants = ["a", "b", "c", "d"] as const;
 
 export type HomeExperimentVariant = typeof homeExperimentVariants[number];
 
 export function isHomeExperimentVariant(value: string | undefined): value is HomeExperimentVariant {
-  return value === "a" || value === "b" || value === "c";
+  return value === "a" || value === "b" || value === "c" || value === "d";
 }
 
 export function resolveHomeExperimentVariant(value: string | string[] | undefined): HomeExperimentVariant {
@@ -17,7 +17,7 @@ export function resolveHomeExperimentVariant(value: string | string[] | undefine
 }
 
 export function readHomeExperimentVariantFromPathname(pathname: string) {
-  const match = pathname.match(/^\/exp\/(a|b|c)(?:\/|$)/);
+  const match = pathname.match(/^\/exp\/(a|b|c|d)(?:\/|$)/);
   return match?.[1] as HomeExperimentVariant | undefined;
 }
 

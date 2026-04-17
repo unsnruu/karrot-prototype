@@ -67,7 +67,7 @@ export function BottomNav() {
 }
 
 function isActiveTab(pathname: string, href: string) {
-  const normalizedPathname = pathname.replace(/^\/exp\/(a|b|c)/, "");
+  const normalizedPathname = pathname.replace(/^\/exp\/(a|b|c|d)/, "");
 
   if (href === "/home") {
     return normalizedPathname === "/" || normalizedPathname === "/home" || normalizedPathname.startsWith("/home/");

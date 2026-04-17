@@ -74,7 +74,7 @@ export function AnalyticsProvider() {
   }, [homeExperimentVariant]);
 
   useEffect(() => {
-    const isHomeExperimentScreen = pathname === "/home" || /^\/exp\/(a|b|c)\/home$/.test(pathname);
+    const isHomeExperimentScreen = pathname === "/home" || /^\/exp\/(a|b|c|d)\/home$/.test(pathname);
     const isDevelopingScreen = pathname === "/developing";
 
     const additionalProperties = {
@@ -152,7 +152,7 @@ export function AnalyticsProvider() {
   }, [pathname, screenName, searchParams]);
 
   useEffect(() => {
-    const isHomeExperimentScreen = pathname === "/home" || /^\/exp\/(a|b|c)\/home$/.test(pathname);
+    const isHomeExperimentScreen = pathname === "/home" || /^\/exp\/(a|b|c|d)\/home$/.test(pathname);
 
     if (!isHomeExperimentScreen || !homeExperimentVariant) {
       return;

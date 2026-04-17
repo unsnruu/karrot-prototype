@@ -118,7 +118,7 @@ function buildPath(pathname: string, searchParams: URLSearchParams) {
 }
 
 function isHomeTabPath(pathname: string) {
-  const normalizedPathname = pathname.replace(/^\/exp\/(a|b|c)/, "");
+  const normalizedPathname = pathname.replace(/^\/exp\/(a|b|c|d)/, "");
   const experimentVariant = readHomeExperimentVariantFromPathname(pathname);
 
   if (experimentVariant) {

@@ -41,7 +41,7 @@ describe("buildHomeExperimentTownMapHref", () => {
         },
         index: 1,
         surface: "inline_banner",
-        variant: "c",
+        variant: "d",
       }),
     ).toBe("/community");
   });

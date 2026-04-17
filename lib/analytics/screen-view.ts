@@ -97,7 +97,7 @@ export function getScreenName(pathname: string) {
     return "item_detail";
   }
 
-  const experimentMatch = pathname.match(/^\/exp\/(a|b|c)\/(.+)$/);
+  const experimentMatch = pathname.match(/^\/exp\/(a|b|c|d)\/(.+)$/);
   if (experimentMatch) {
     const [, variant, screen] = experimentMatch;
     return `exp_${variant}_${screen.replaceAll("/", "_")}`;

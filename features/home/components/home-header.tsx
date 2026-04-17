@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { AppImage } from "@/components/ui/app-image";
 import { PendingFeatureLink } from "@/components/ui/pending-feature-link";
+import { type HomeExperimentVariant } from "@/lib/home-experiment";
 import { trackEvent } from "@/lib/analytics/amplitude";
 import { buildElementClickedEventProperties } from "@/lib/analytics/element-click";
 import { readHomeExperimentVariantFromPathname, resolveHomeHrefFromPathname, resolveExperimentHomeHref } from "@/lib/home-experiment";
@@ -166,7 +167,7 @@ export function HomeHeader({
   );
 }
 
-function buildCategoryHref(label: string, variant?: "a" | "b" | "c") {
+function buildCategoryHref(label: string, variant?: HomeExperimentVariant) {
   const homeHref = resolveExperimentHomeHref(variant);
 
   if (label === "전체") {
