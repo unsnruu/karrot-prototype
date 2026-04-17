@@ -1,5 +1,5 @@
-import { AppImage } from "@/components/ui/app-image";
 import { PendingFeatureLink } from "@/components/ui/pending-feature-link";
+import { UserAvatar } from "@/components/ui/user-avatar";
 import { cn } from "@/lib/utils";
 import { type CommunityComment } from "@/lib/community";
 
@@ -12,17 +12,13 @@ export function CommunityCommentThread({
 }) {
   return (
     <div className={cn("flex gap-3", isReply ? "pl-4" : "")}>
-      <div className={cn("relative overflow-hidden rounded-full bg-[#e5e7eb]", isReply ? "h-8 w-8" : "h-10 w-10")}>
-        {comment.authorAvatar ? (
-          <AppImage
-            alt={comment.authorName}
-            className="object-cover"
-            fill
-            sizes={isReply ? "32px" : "40px"}
-            src={comment.authorAvatar}
-          />
-        ) : null}
-      </div>
+      <UserAvatar
+        alt={comment.authorName}
+        className={isReply ? "h-8 w-8" : "h-10 w-10"}
+        fallback={comment.authorName.slice(0, 1)}
+        size={isReply ? "sm" : "md"}
+        src={comment.authorAvatar}
+      />
 
       <div className="min-w-0 flex-1">
         <div className="flex items-center justify-between gap-3">

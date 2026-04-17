@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { AppImage } from "@/components/ui/app-image";
+import { ActionButton } from "@/components/ui/action-button";
 import { PendingFeatureLink } from "@/components/ui/pending-feature-link";
+import { UserAvatar } from "@/components/ui/user-avatar";
 import { CommunityCommentThread } from "@/features/community/components/community-comment-thread";
 import { CommunityRecommendedPostRow } from "@/features/community/components/community-recommended-post-row";
 import { type CommunityPost, type CommunityPostDetail } from "@/lib/community";
@@ -56,9 +58,7 @@ export function CommunityPostDetailScreen({
           </div>
 
           <div className="mt-6 flex items-center gap-3">
-            <div className="relative h-11 w-11 overflow-hidden rounded-full bg-[#e5e7eb]">
-              <AppImage alt={detail.author.name} className="object-cover" fill sizes="44px" src={detail.author.avatar} />
-            </div>
+            <UserAvatar alt={detail.author.name} fallback={detail.author.name.slice(0, 1)} size="lg" src={detail.author.avatar} />
             <div>
               <p className="text-sm font-medium tracking-[-0.02em] text-[#0a0a0a]">{detail.author.name}</p>
               <p className="mt-1 text-xs text-[#99a1af]">{detail.author.activityLabel}</p>
@@ -87,13 +87,25 @@ export function CommunityPostDetailScreen({
           </div>
 
           <div className="mt-4 flex items-center justify-between gap-3">
-            <PendingFeatureLink className="inline-flex items-center gap-3 rounded-full border border-[#e5e7eb] px-4 py-2.5 text-sm font-medium text-[#0a0a0a]" featureLabel="커뮤니티 글 공감하기" returnTo="/community">
-              <ThumbOutlineIcon />
+            <ActionButton
+              className="rounded-full text-sm font-medium"
+              leading={<ThumbOutlineIcon />}
+              pendingFeatureLabel="커뮤니티 글 공감하기"
+              returnTo="/community"
+              size="small"
+              variant="neutralOutline"
+            >
               공감하기
-            </PendingFeatureLink>
-            <PendingFeatureLink className="rounded-full border border-[#e5e7eb] px-4 py-2.5 text-sm font-medium text-[#0a0a0a]" featureLabel="커뮤니티 글 저장하기" returnTo="/community">
+            </ActionButton>
+            <ActionButton
+              className="rounded-full text-sm font-medium"
+              pendingFeatureLabel="커뮤니티 글 저장하기"
+              returnTo="/community"
+              size="small"
+              variant="neutralOutline"
+            >
               저장
-            </PendingFeatureLink>
+            </ActionButton>
           </div>
         </section>
 

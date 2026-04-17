@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
+import { PageHeader } from "@/components/ui/page-header";
 
 type LocationSelectionLayoutProps = {
   backHref: string;
@@ -25,12 +26,14 @@ export function LocationSelectionLayout({
   return (
     <main className="min-h-screen bg-white text-[#111827]">
       <div className="mobile-shell flex min-h-screen flex-col overflow-hidden bg-white">
-        <header className="sticky top-0 z-10 flex h-14 items-center border-b border-[#f3f4f6] bg-white px-4">
-          <Link aria-label={backLabel} className="flex h-10 w-10 items-center justify-center" href={backHref} replace={replaceBack}>
-            <CloseIcon />
-          </Link>
-          {headerTitle ? <h1 className="flex-1 pr-10 text-center text-[20px] font-bold tracking-[-0.03em] text-[#111827]">{headerTitle}</h1> : null}
-        </header>
+        <PageHeader
+          leading={
+            <Link aria-label={backLabel} className="flex h-10 w-10 items-center justify-center" href={backHref} replace={replaceBack}>
+              <CloseIcon />
+            </Link>
+          }
+          title={headerTitle}
+        />
 
         <section className="relative z-10 bg-white px-4 pb-4 pt-6">
           <h2 className="text-[20px] font-bold leading-[1.35] tracking-[-0.03em] text-[#111827]">{title}</h2>

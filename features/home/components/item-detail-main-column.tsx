@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AppImage } from "@/components/ui/app-image";
 import { PendingFeatureLink } from "@/components/ui/pending-feature-link";
+import { UserAvatar } from "@/components/ui/user-avatar";
 import { trackEvent } from "@/lib/analytics/amplitude";
 import { buildElementClickedEventProperties } from "@/lib/analytics/element-click";
 import {
@@ -21,13 +22,7 @@ function SellerSection({ seller }: { seller: SellerProfile }) {
     <section className="border-b border-black/10 py-4">
       <div className="flex items-center justify-between gap-3">
         <div className="flex min-w-0 items-center gap-[6px]">
-          <AppImage
-            alt={seller.name}
-            className="h-[42px] w-[42px] rounded-full border border-black/10 object-cover"
-            height={42}
-            src={seller.avatar}
-            width={42}
-          />
+          <UserAvatar alt={seller.name} className="border border-black/10" size="xl" src={seller.avatar} />
           <div className="min-w-0">
             <p className="truncate text-base font-medium leading-none text-black">{seller.name}</p>
             <p className="mt-1 text-[13px] leading-none text-[#898991]">{seller.town}</p>

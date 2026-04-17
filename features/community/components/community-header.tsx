@@ -1,7 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { SelectionChipLink } from "@/components/ui/selection-chip";
+import { TabsList, TextTabLink } from "@/components/ui/tabs";
 import { trackEvent } from "@/lib/analytics/amplitude";
 import { buildElementClickedEventProperties } from "@/lib/analytics/element-click";
 import { CommunityCategoryRail } from "@/features/community/components/community-category-rail";
@@ -22,10 +23,11 @@ export function CommunityHeader({
       <div className="w-full px-4 pb-1 pt-5">
         <p className="text-[22px] font-bold tracking-[-0.03em] text-black">커뮤니티</p>
 
-        <div className="mt-5 flex items-center gap-5 text-[20px] font-semibold leading-none">
+        <TabsList className="mt-5 flex items-center gap-5 text-[20px] font-semibold leading-none">
           {communityTopTabs.map((tab) => (
-            <Link
-              className={selectedTab === tab.key ? "text-black" : "text-[#858b95]"}
+            <TextTabLink
+              active={selectedTab === tab.key}
+              className="text-[20px] font-semibold leading-none"
               href={tab.key === "town" ? "/community" : `/community?tab=${tab.key}`}
               key={tab.key}
               onClick={() => {
@@ -45,25 +47,22 @@ export function CommunityHeader({
                   }),
                 );
               }}
-              scroll={false}
             >
               {tab.label}
-            </Link>
+            </TextTabLink>
           ))}
-        </div>
+        </TabsList>
 
         {selectedTab === "town" ? (
           <div className="mt-4 flex gap-2 overflow-x-auto py-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {communityFilters.map((filter) => (
-              <Link
-                className={`flex h-10 shrink-0 items-center justify-center rounded-full px-4 text-sm font-medium ${
-                  selectedTopic === filter.id ? "bg-[#2a3038] text-white" : "bg-[#f3f4f5] text-[#1a1c20]"
-                }`}
+              <SelectionChipLink
+                active={selectedTopic === filter.id}
                 href={filter.id === "all" ? "/community" : `/community?topic=${filter.id}`}
                 key={filter.id}
               >
                 {filter.label}
-              </Link>
+              </SelectionChipLink>
             ))}
           </div>
         ) : null}

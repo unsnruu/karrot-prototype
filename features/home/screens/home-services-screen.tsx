@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { AppImage } from "@/components/ui/app-image";
 import { IconButton } from "@/components/ui/icon-button";
+import { PageHeader } from "@/components/ui/page-header";
 import { PendingFeatureLink } from "@/components/ui/pending-feature-link";
 import { useHomeNavigationHistory } from "@/features/home/components/home-navigation-history-provider";
 import { ArrowLeftIcon } from "@/features/home/components/item-detail-icons";
@@ -35,18 +36,18 @@ export function HomeServicesScreen() {
   return (
     <main className="min-h-screen bg-white text-[#101828]">
       <div className="mobile-shell-wide min-h-screen bg-white">
-        <header className="sticky top-0 z-20 border-b border-[#f3f4f6] bg-white">
-          <div className="relative flex h-[60px] items-center px-5">
+        <PageHeader
+          className="z-20"
+          innerClassName="h-[60px] px-5"
+          leading={
             <IconButton ariaLabel="뒤로가기" onClick={handleBack}>
               <span className="text-[#0a0a0a]">
                 <ArrowLeftIcon />
               </span>
             </IconButton>
-            <h1 className="absolute left-1/2 -translate-x-1/2 text-[18px] font-medium leading-7 text-[#0a0a0a]">
-              전체 서비스
-            </h1>
-          </div>
-        </header>
+          }
+          title={<span className="text-[18px] font-medium leading-7 text-[#0a0a0a]">전체 서비스</span>}
+        />
 
         <div className="px-5 pb-12 pt-6">
           <div className="space-y-8">

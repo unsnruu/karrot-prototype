@@ -1,12 +1,11 @@
 import { PendingFeatureLink } from "@/components/ui/pending-feature-link";
+import { selectionChipClassName } from "@/components/ui/selection-chip";
 import { type ChatCategory } from "@/lib/chat";
 
 export function ChatCategoryChip({ category }: { category: ChatCategory }) {
-  const className = category.active ? "bg-[#2a3038] text-white" : "bg-[#f3f4f5] text-[#1a1c20]";
-
   return (
     <PendingFeatureLink
-      className={`flex h-10 shrink-0 items-center justify-center gap-1 rounded-full px-4 text-sm font-medium ${className}`}
+      className={selectionChipClassName({ active: category.active })}
       featureLabel={category.label || "채팅 필터"}
       returnTo="/chat"
     >

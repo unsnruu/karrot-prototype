@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { AppImage } from "@/components/ui/app-image";
 import { PendingFeatureLink } from "@/components/ui/pending-feature-link";
+import { SelectionChipLink } from "@/components/ui/selection-chip";
 import { type HomeExperimentVariant } from "@/lib/home-experiment";
 import { trackEvent } from "@/lib/analytics/amplitude";
 import { buildElementClickedEventProperties } from "@/lib/analytics/element-click";
@@ -128,10 +129,8 @@ export function HomeHeader({
             const isActive = (selectedCategory ?? "전체") === category.label;
 
             return (
-              <Link
-                className={`flex h-10 shrink-0 items-center justify-center rounded-full px-4 text-[14px] font-medium leading-none ${
-                  isActive ? "bg-[#2a3038] text-white" : "bg-[#f3f4f5] text-[#1a1c20]"
-                }`}
+              <SelectionChipLink
+                active={isActive}
                 href={buildCategoryHref(category.label, variant)}
                 key={category.label}
                 onClick={() => {
@@ -158,7 +157,7 @@ export function HomeHeader({
                 {category.hasChevron ? (
                   <AppImage alt="" className="ml-1 h-3 w-3" height={12} src={iconCategoryChevron} width={12} />
                 ) : null}
-              </Link>
+              </SelectionChipLink>
             );
           })}
         </div>

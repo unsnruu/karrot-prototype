@@ -1,7 +1,7 @@
 "use client";
 
-import Link from "next/link";
-import { AppImage } from "@/components/ui/app-image";
+import { ActionButton } from "@/components/ui/action-button";
+import { UserAvatar } from "@/components/ui/user-avatar";
 import { type ChatMessage } from "@/lib/marketplace";
 
 export function ChatMessageRow({
@@ -30,12 +30,9 @@ export function ChatMessageRow({
             <p>시간: {message.time}</p>
             <p>장소: {message.location}</p>
           </div>
-          <Link
-            className="mt-2 flex h-9 items-center justify-center rounded-[4px] bg-[#f2f4f5] text-[16px] font-medium text-black"
-            href={message.viewHref}
-          >
+          <ActionButton className="mt-2 rounded-[4px] text-[16px] font-medium" href={message.viewHref} size="small" variant="neutralWeak">
             약속 보기
-          </Link>
+          </ActionButton>
         </div>
       </div>
     );
@@ -50,11 +47,7 @@ export function ChatMessageRow({
   return (
     <div className={`flex items-end gap-2 ${isBuyer ? "justify-end" : "justify-start"}`}>
       {!isBuyer ? (
-        sellerAvatar ? (
-          <AppImage alt="" className="h-8 w-8 shrink-0 rounded-full object-cover" height={32} src={sellerAvatar} width={32} />
-        ) : (
-          <div className="h-8 w-8 shrink-0 rounded-full bg-[#eef1f4]" />
-        )
+        <UserAvatar alt="판매자 프로필" className="shrink-0 bg-[#eef1f4]" size="sm" src={sellerAvatar} />
       ) : null}
       <div
         className={`max-w-[78%] rounded-[18px] px-4 py-3 text-sm leading-6 shadow-sm sm:max-w-[65%] ${

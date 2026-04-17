@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { AppImage } from "@/components/ui/app-image";
+import { UserAvatar } from "@/components/ui/user-avatar";
 import { trackEvent } from "@/lib/analytics/amplitude";
 import { buildElementClickedEventProperties } from "@/lib/analytics/element-click";
 import { type ChatThreadPreview } from "@/lib/chat";
@@ -11,9 +11,12 @@ export function ChatThreadRow({ thread }: { thread: ChatThreadPreview }) {
   const pathname = usePathname();
   const content = (
     <div className="flex items-center gap-[6px]">
-      <div className="relative h-[52px] w-[52px] shrink-0 overflow-hidden rounded-full bg-[#e5e7eb]">
-        {thread.avatarImage ? <AppImage alt="" className="object-cover" fill sizes="52px" src={thread.avatarImage} /> : null}
-      </div>
+      <UserAvatar
+        alt={thread.name}
+        className="h-[52px] w-[52px] shrink-0 text-[14px]"
+        fallback={thread.name.slice(0, 1)}
+        src={thread.avatarImage}
+      />
 
       <div className="min-w-0 max-w-[calc(100%-58px)] flex-1">
         <div className="flex items-center gap-1 whitespace-nowrap leading-none">

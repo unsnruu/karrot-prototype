@@ -1,3 +1,4 @@
+import { ListEmptyState, ListSection } from "@/components/ui/list-section";
 import { CommunityPostCard } from "@/features/community/components/community-post-card";
 import { type CommunityPost } from "@/lib/community";
 
@@ -12,17 +13,17 @@ export function CommunityPostList({
 }: CommunityPostListProps) {
   if (posts.length === 0) {
     return (
-      <div className="flex min-h-[240px] items-center justify-center px-4 py-12 text-center">
+      <ListEmptyState>
         <p className="text-sm text-[#64748b]">{emptyMessage}</p>
-      </div>
+      </ListEmptyState>
     );
   }
 
   return (
-    <div className="border-t border-[#eceef2]">
+    <ListSection itemsClassName="border-t border-[#eceef2]">
       {posts.map((post) => (
         <CommunityPostCard key={post.id} post={post} />
       ))}
-    </div>
+    </ListSection>
   );
 }

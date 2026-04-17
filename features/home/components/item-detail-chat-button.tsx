@@ -1,5 +1,6 @@
 "use client";
 
+import { ActionButton } from "@/components/ui/action-button";
 import { usePathname, useRouter } from "next/navigation";
 import { trackEvent } from "@/lib/analytics/amplitude";
 import { buildElementClickedEventProperties } from "@/lib/analytics/element-click";
@@ -26,8 +27,9 @@ export function ItemDetailChatButton({
   const pathname = usePathname();
 
   return (
-    <button
-      className="flex h-[52px] flex-1 items-center justify-center rounded-[8px] bg-[#ff6f0f] text-[18px] font-semibold text-white"
+    <ActionButton
+      className="flex-1 text-[18px] font-semibold"
+      fullWidth
       onClick={() => {
         trackEvent(
           "element_clicked",
@@ -56,9 +58,10 @@ export function ItemDetailChatButton({
         });
         router.push(chatHref);
       }}
-      type="button"
+      size="medium"
+      variant="brandSolid"
     >
       채팅하기
-    </button>
+    </ActionButton>
   );
 }

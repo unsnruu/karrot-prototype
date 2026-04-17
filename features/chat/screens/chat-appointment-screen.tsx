@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { ActionButton } from "@/components/ui/action-button";
+import { FieldButton } from "@/components/ui/field-button";
 import { PendingFeatureLink } from "@/components/ui/pending-feature-link";
 import { trackEvent } from "@/lib/analytics/amplitude";
 import {
@@ -97,22 +99,19 @@ export function ChatAppointmentScreen({
 
         <section className="mt-8">
           <AppointmentRow
-            icon="down"
             label="날짜"
             muted={selectedDate == null}
             onClick={() => setSelectedDate(formatChatAppointmentDateLabel())}
             trailing={selectedDate ?? "날짜 선택"}
           />
           <AppointmentRow
-            icon="down"
             label="시간"
             muted={selectedTime == null}
             onClick={() => setSelectedTime(DEFAULT_CHAT_APPOINTMENT_TIME)}
             trailing={selectedTime ?? "시간 선택"}
           />
-          <AppointmentRow href={locationHref} icon="right" label="장소" muted={selectedLocation == null} trailing={selectedLocation ?? "장소 선택"} />
+          <AppointmentRow href={locationHref} label="장소" muted={selectedLocation == null} trailing={selectedLocation ?? "장소 선택"} />
           <AppointmentRow
-            icon="down"
             label="약속 전 나에게 알림"
             muted={selectedReminder == null}
             onClick={() => setSelectedReminder(DEFAULT_CHAT_APPOINTMENT_REMINDER)}
@@ -122,8 +121,8 @@ export function ChatAppointmentScreen({
 
         <div className="mt-auto pt-16">
           {completeHref ? (
-            <Link
-              className="flex h-[52px] w-full items-center justify-center rounded-[8px] bg-[#ff6f0f] text-[15px] font-bold text-white"
+            <ActionButton
+              fullWidth
               href={completeHref}
               onClick={() => {
                 trackEvent("chat_appointment_completed", {
@@ -137,18 +136,22 @@ export function ChatAppointmentScreen({
                 });
               }}
               replace
+              size="medium"
+              variant="brandSolid"
             >
               완료
-            </Link>
+            </ActionButton>
           ) : (
-            <button
+            <ActionButton
               aria-disabled="true"
-              className="flex h-[52px] w-full cursor-not-allowed items-center justify-center rounded-[8px] bg-[#868b94] text-[15px] font-bold text-[#d1d3d8]"
+              className="cursor-not-allowed bg-[#868b94] text-[#d1d3d8]"
               disabled
-              type="button"
+              fullWidth
+              size="medium"
+              variant="neutralSolid"
             >
               완료
-            </button>
+            </ActionButton>
           )}
         </div>
       </div>
@@ -160,44 +163,24 @@ function AppointmentRow({
   label,
   trailing,
   muted = false,
-  icon,
   href,
   onClick,
 }: {
   label: string;
   trailing: string;
   muted?: boolean;
-  icon: "down" | "right";
   href?: string;
   onClick?: () => void;
 }) {
-  const content = (
-    <>
-      <p className="text-[16px] font-semibold text-[#25282d]">{label}</p>
-      <div className="flex items-center gap-2">
-        <p className={`text-[16px] ${muted ? "text-[#c6c9cf]" : "text-[#25282d]"}`}>{trailing}</p>
-        {icon === "down" ? <ChevronDownIcon /> : <ChevronRightIcon />}
-      </div>
-    </>
-  );
-
   if (href) {
-    return (
-      <Link className="flex h-[54px] items-center justify-between border-b border-black/5" href={href}>
-        {content}
-      </Link>
-    );
+    return <FieldButton href={href} label={label} placeholder={trailing} tone="line" value={muted ? undefined : trailing} />;
   }
 
   if (onClick) {
-    return (
-      <button className="flex h-[54px] w-full items-center justify-between border-b border-black/5 text-left" onClick={onClick} type="button">
-        {content}
-      </button>
-    );
+    return <FieldButton label={label} onClick={onClick} placeholder={trailing} tone="line" value={muted ? undefined : trailing} />;
   }
 
-  return <div className="flex h-[54px] items-center justify-between border-b border-black/5">{content}</div>;
+  return <FieldButton label={label} placeholder={trailing} tone="line" value={muted ? undefined : trailing} />;
 }
 
 function CloseIcon() {
@@ -214,22 +197,6 @@ function KebabIcon() {
       <circle cx="12" cy="6.5" r="1.4" />
       <circle cx="12" cy="12" r="1.4" />
       <circle cx="12" cy="17.5" r="1.4" />
-    </svg>
-  );
-}
-
-function ChevronDownIcon() {
-  return (
-    <svg aria-hidden="true" fill="none" height="20" viewBox="0 0 20 20" width="20">
-      <path d="M5.5 7.5L10 12L14.5 7.5" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" />
-    </svg>
-  );
-}
-
-function ChevronRightIcon() {
-  return (
-    <svg aria-hidden="true" fill="none" height="20" viewBox="0 0 20 20" width="20">
-      <path d="M7.5 5.5L12 10L7.5 14.5" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" />
     </svg>
   );
 }

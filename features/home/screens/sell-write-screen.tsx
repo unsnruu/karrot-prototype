@@ -3,7 +3,11 @@
 import Link from "next/link";
 import { useEffect, useRef } from "react";
 import { usePathname, useRouter } from "next/navigation";
+import { ActionButton } from "@/components/ui/action-button";
 import { AppImage } from "@/components/ui/app-image";
+import { FieldButton } from "@/components/ui/field-button";
+import { PageHeader } from "@/components/ui/page-header";
+import { SelectionChipButton } from "@/components/ui/selection-chip";
 import { trackEvent } from "@/lib/analytics/amplitude";
 import { buildScreenViewedEventProperties } from "@/lib/analytics/screen-view";
 import { useSellFlow } from "@/features/home/components/sell-flow-provider";
@@ -105,18 +109,22 @@ export function SellWriteScreen() {
   return (
     <main className="min-h-screen bg-white text-[#111827]">
       <div className="mobile-shell min-h-screen bg-white pb-[108px]">
-        <header className="sticky top-0 z-10 flex h-14 items-center justify-between border-b border-[#f3f4f6] bg-white px-4">
-          <Link aria-label="홈으로 닫기" className="flex h-10 w-10 items-center justify-center" href={homeHref}>
-            <CloseIcon />
-          </Link>
-          <h1 className="text-[20px] font-bold tracking-[-0.03em] text-[#111827]">내 물건 팔기</h1>
-          <Link
-            className="text-[14px] font-medium text-[#9ca3af]"
-            href={buildPendingFeatureHref("/home/sell/write", "판매글 임시저장")}
-          >
-            임시저장
-          </Link>
-        </header>
+        <PageHeader
+          leading={
+            <Link aria-label="홈으로 닫기" className="flex h-10 w-10 items-center justify-center" href={homeHref}>
+              <CloseIcon />
+            </Link>
+          }
+          title="내 물건 팔기"
+          trailing={
+            <Link
+              className="text-[14px] font-medium text-[#9ca3af]"
+              href={buildPendingFeatureHref("/home/sell/write", "판매글 임시저장")}
+            >
+              임시저장
+            </Link>
+          }
+        />
 
         <section className="flex gap-2 overflow-x-auto border-b border-[#f3f4f6] px-4 py-4">
           <Link
@@ -207,31 +215,28 @@ export function SellWriteScreen() {
         <section className="border-b border-[#f3f4f6] px-4 py-4">
           <p className="text-[14px] font-semibold text-[#111827]">거래 정보</p>
 
-          <Link
-            className="mt-3 flex min-h-[52px] items-center justify-between rounded-[14px] border border-[#e5e7eb] px-4 py-3"
+          <FieldButton
+            className="mt-3"
             href="/home/sell/location"
-          >
-            <span className="text-[15px] font-medium text-[#374151]">거래 희망 장소</span>
-            <span className="flex items-center gap-1 text-[14px] font-medium text-[#9ca3af]">
-              {draft.location?.label ?? "위치 추가"}
-              <ChevronRightIcon />
-            </span>
-          </Link>
+            label="거래 희망 장소"
+            placeholder="위치 추가"
+            value={draft.location?.label}
+          />
         </section>
       </div>
 
       <div className="fixed inset-x-0 bottom-0 z-20 border-t border-[#f3f4f6] bg-white px-4 pb-[calc(13px+env(safe-area-inset-bottom))] pt-3">
         <div className="mobile-shell">
-          <button
-            className={`flex h-[54px] w-full items-center justify-center rounded-[14px] text-[16px] font-bold ${
-              isReadyToSubmit ? "bg-[#ff6f0f] text-white" : "bg-[#9ca3af] text-[#d1d3d8]"
-            }`}
+          <ActionButton
+            className={isReadyToSubmit ? "rounded-[14px] text-[16px]" : "rounded-[14px] bg-[#9ca3af] text-[16px] text-[#d1d3d8]"}
             disabled={!isReadyToSubmit}
+            fullWidth
             onClick={handleComplete}
-            type="button"
+            size="large"
+            variant={isReadyToSubmit ? "brandSolid" : "neutralSolid"}
           >
             작성 완료
-          </button>
+          </ActionButton>
         </div>
       </div>
     </main>
@@ -248,15 +253,18 @@ function TradeChip({
   onClick: () => void;
 }) {
   return (
-    <button
-      className={`inline-flex h-[37px] items-center justify-center rounded-full border px-4 text-[14px] font-medium ${
-        active ? "border-[#ff6f0f] bg-[#ff6f0f] text-white" : "border-[#d1d5db] bg-white text-[#4b5563]"
-      }`}
+    <SelectionChipButton
+      active={active}
+      className={
+        active
+          ? "border border-[#ff6f0f] bg-[#ff6f0f] text-white"
+          : "border border-[#d1d5db] bg-white text-[#4b5563]"
+      }
       onClick={onClick}
-      type="button"
+      size="sm"
     >
       {label}
-    </button>
+    </SelectionChipButton>
   );
 }
 
@@ -281,9 +289,9 @@ function CameraMiniIcon() {
   );
 }
 
-function ChevronRightIcon({ small = false }: { small?: boolean }) {
+function ChevronRightIcon() {
   return (
-    <svg aria-hidden="true" className={small ? "h-3 w-3" : "h-[14px] w-[14px]"} fill="none" viewBox="0 0 24 24">
+    <svg aria-hidden="true" className="h-[14px] w-[14px]" fill="none" viewBox="0 0 24 24">
       <path d="M9 6l6 6-6 6" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" />
     </svg>
   );

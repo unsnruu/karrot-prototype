@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AppImage } from "@/components/ui/app-image";
+import { UnderlineTabLink } from "@/components/ui/tabs";
 import { PendingFeatureLink } from "@/components/ui/pending-feature-link";
 import { trackEvent } from "@/lib/analytics/amplitude";
 import { buildElementClickedEventProperties } from "@/lib/analytics/element-click";
@@ -423,10 +424,8 @@ function TabButton({
   tabKey: BusinessDetailTab;
 }) {
   return (
-    <Link
-      className={`flex-1 border-b-2 pb-[14px] pt-3 text-center text-[14px] font-bold leading-5 ${
-        active ? "border-[#111827] text-[#111827]" : "border-transparent text-[#6b7280]"
-      }`}
+    <UnderlineTabLink
+      active={active}
       href={href}
       onClick={() => {
         trackEvent(
@@ -447,7 +446,7 @@ function TabButton({
       }}
     >
       {label}
-    </Link>
+    </UnderlineTabLink>
   );
 }
 

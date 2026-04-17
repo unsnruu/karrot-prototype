@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { ActionButton } from "@/components/ui/action-button";
 import { trackEvent } from "@/lib/analytics/amplitude";
 import { buildScreenViewedEventProperties } from "@/lib/analytics/screen-view";
 import { useSellFlow } from "@/features/home/components/sell-flow-provider";
@@ -78,17 +79,17 @@ export function SellPriceScreen() {
         </section>
 
         <div className="mt-auto bg-[#868b94]">
-          <button
-            className={`h-[62px] w-full text-[17px] font-bold ${
-              draft.priceText ? "bg-[#ff6f0f] text-white" : "bg-[#868b94] text-[#d1d3d8]"
-            }`}
+          <ActionButton
+            className={draft.priceText ? "rounded-none text-[17px]" : "rounded-none bg-[#868b94] text-[17px] text-[#d1d3d8]"}
             disabled={!draft.priceText}
+            fullWidth
             onClick={() => router.push("/home/sell/write")}
-            type="button"
-            >
-              완료
-            </button>
-          </div>
+            size="large"
+            variant={draft.priceText ? "brandSolid" : "neutralSolid"}
+          >
+            완료
+          </ActionButton>
+        </div>
       </div>
     </main>
   );
