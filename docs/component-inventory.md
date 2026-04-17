@@ -28,9 +28,10 @@ This inventory focuses on the components that currently shape the UI layer of th
 | Component | File | Role |
 | --- | --- | --- |
 | `ActionButton` | `components/ui/action-button.tsx` | Seed `Action Button` 개념에 맞춘 CTA/outline/ghost 버튼 프리미티브 |
+| `AppToolbar` | `components/ui/app-toolbar.tsx` | 액션 아이콘이 있는 상단 툴바 레이아웃 프리미티브 |
 | `AppImage` | `components/ui/app-image.tsx` | Unified image wrapper around Next Image |
 | `FieldButton` | `components/ui/field-button.tsx` | Seed `Field Button` 개념에 맞춘 picker/link field 프리미티브 |
-| `IconButton` | `components/ui/icon-button.tsx` | Minimal icon-only button/link wrapper |
+| `IconButton` | `components/ui/icon-button.tsx` | 아이콘 전용 button/link/pending-action 프리미티브 |
 | `ListSection` / `ListEmptyState` | `components/ui/list-section.tsx` | Seed `List` 개념에 맞춘 섹션/빈 상태 프리미티브 |
 | `PageHeader` | `components/ui/page-header.tsx` | Shared sticky top header with centered title layout |
 | `PendingFeatureLink` | `components/ui/pending-feature-link.tsx` | Routes interactions to pending-feature placeholders |
@@ -50,6 +51,7 @@ The project now has a small set of shared primitives extracted around concepts t
 | `Chip` | `SelectionChipButton` / `SelectionChipLink` | home category chips, community topic chips, chat filter chips, sell trade chips |
 | `List` | `ListSection` / `ListEmptyState` | community post list, cafe post list, meetup list, chat thread list |
 | `Page Header` | `PageHeader` | sell write, home services, shared location selection layout |
+| `Toolbar/Header Actions` | `AppToolbar` + `IconButton` | chat header, community detail header, town-map business detail header |
 | `Tabs` | `TextTabLink` / `UnderlineTabLink` | community top tabs, town-map business detail tabs |
 
 Reviewed against SEED React component docs:
@@ -203,6 +205,7 @@ These areas still rely heavily on one-off classes or inline SVG/UI composition a
 - Added `SelectionChipButton` and `SelectionChipLink` to centralize the repeated rounded chip pattern.
 - Added `ActionButton`, `FieldButton`, and `UserAvatar` around SEED-equivalent component concepts.
 - Added `ListSection` / `ListEmptyState` and `TextTabLink` / `UnderlineTabLink` around SEED `List` and `Tabs` concepts.
+- Added `AppToolbar` and expanded `IconButton` to absorb repeated header/action chrome.
 - Migrated the following callers to shared UI primitives:
   - `features/home/components/home-header.tsx`
   - `features/community/components/community-header.tsx`
@@ -225,3 +228,5 @@ These areas still rely heavily on one-off classes or inline SVG/UI composition a
   - `features/chat/components/chat-thread-list-client.tsx`
   - `features/community/components/community-header.tsx`
   - `features/town-map/screens/town-map-business-detail-screen.tsx`
+  - `features/chat/screens/chat-screen.tsx`
+  - `features/community/screens/community-post-detail-screen.tsx`

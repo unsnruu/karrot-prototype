@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { AppImage } from "@/components/ui/app-image";
+import { AppToolbar } from "@/components/ui/app-toolbar";
 import { ActionButton } from "@/components/ui/action-button";
+import { IconButton } from "@/components/ui/icon-button";
 import { PendingFeatureLink } from "@/components/ui/pending-feature-link";
 import { UserAvatar } from "@/components/ui/user-avatar";
 import { CommunityCommentThread } from "@/features/community/components/community-comment-thread";
@@ -22,31 +24,28 @@ export function CommunityPostDetailScreen({
   return (
     <main className="min-h-screen bg-[#f3f4f6] text-[#0a0a0a]">
       <div className="min-h-screen w-full bg-[#f3f4f6] pb-28">
-        <header className="sticky top-0 z-20 border-b border-black/5 bg-white/95 backdrop-blur">
-          <div className="mobile-shell-wide flex items-center justify-between px-4 pb-2 pt-5 sm:px-6">
-            <div className="flex items-center gap-2">
-              <Link
-                aria-label="뒤로 가기"
-                className="flex h-8 w-8 items-center justify-center text-black"
-                href="/community"
-              >
+        <AppToolbar
+          className="sticky top-0 z-20 border-b border-black/5 bg-white/95 px-4 pb-2 pt-5 backdrop-blur sm:px-6"
+          innerClassName="mobile-shell-wide"
+          leading={
+            <Link aria-label="뒤로 가기" className="flex h-8 w-8 items-center justify-center text-black" href="/community">
                 <BackIcon />
-              </Link>
-            </div>
-
-            <div className="flex items-center gap-2 text-black">
-              <PendingFeatureLink aria-label="알림" className="flex h-8 w-8 items-center justify-center" featureLabel="커뮤니티 알림 확인" returnTo="/community">
+            </Link>
+          }
+          trailing={
+            <>
+              <IconButton ariaLabel="알림" pendingFeatureLabel="커뮤니티 알림 확인" returnTo="/community">
                 <AppImage alt="" className="h-8 w-8" height={32} src={iconBell} width={32} />
-              </PendingFeatureLink>
-              <PendingFeatureLink aria-label="공유" className="flex h-8 w-8 items-center justify-center" featureLabel="커뮤니티 글 공유하기" returnTo="/community">
+              </IconButton>
+              <IconButton ariaLabel="공유" pendingFeatureLabel="커뮤니티 글 공유하기" returnTo="/community">
                 <ShareIcon />
-              </PendingFeatureLink>
-              <PendingFeatureLink aria-label="더보기" className="flex h-8 w-8 items-center justify-center" featureLabel="커뮤니티 글 메뉴" returnTo="/community">
+              </IconButton>
+              <IconButton ariaLabel="더보기" pendingFeatureLabel="커뮤니티 글 메뉴" returnTo="/community">
                 <KebabIcon />
-              </PendingFeatureLink>
-            </div>
-          </div>
-        </header>
+              </IconButton>
+            </>
+          }
+        />
 
         <section className="mobile-shell-wide mt-0 bg-white px-5 pb-8 pt-8 sm:px-6">
           <div className="inline-flex items-center gap-1 rounded-full bg-[#f3f4f6] px-3 py-2 text-[13px] font-medium tracking-[-0.02em] text-[#0a0a0a]">
@@ -148,9 +147,9 @@ export function CommunityPostDetailScreen({
 
       <div className="fixed inset-x-0 bottom-0 z-20 border-t border-black/5 bg-white/95 backdrop-blur">
         <div className="mobile-shell-wide flex items-center gap-3 px-2 py-2 pb-10 sm:px-4">
-          <PendingFeatureLink aria-label="댓글 추가" className="flex h-8 w-8 items-center justify-center text-[#6b7280]" featureLabel="댓글 작성하기" returnTo="/community">
+          <IconButton ariaLabel="댓글 추가" className="text-[#6b7280]" pendingFeatureLabel="댓글 작성하기" returnTo="/community">
             <AppImage alt="" className="h-8 w-8" height={32} src={iconPlus} width={32} />
-          </PendingFeatureLink>
+          </IconButton>
           <div className="flex h-10 flex-1 items-center justify-between rounded-full bg-[#f2f4f5] px-4 text-base text-[#aeb2b5]">
             <span>댓글을 입력해주세요.</span>
             <SmileIcon />

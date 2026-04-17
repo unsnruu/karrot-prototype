@@ -1,6 +1,9 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { AppImage } from "@/components/ui/app-image";
+import { AppToolbar } from "@/components/ui/app-toolbar";
+import { ActionButton } from "@/components/ui/action-button";
+import { IconButton } from "@/components/ui/icon-button";
 import { PendingFeatureLink } from "@/components/ui/pending-feature-link";
 import { ChatMessageRow } from "@/features/chat/components/chat-message-row";
 import { HistoryBackButton } from "@/features/chat/components/history-back-button";
@@ -67,16 +70,10 @@ export function ChatScreen({
   return (
     <main className="min-h-screen bg-[#eef2f6]">
       <div className="mobile-shell min-h-screen bg-white">
-        <header className="border-b border-black/5 bg-white px-4 pb-2 pt-5">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <HistoryBackButton className="flex h-8 w-8 items-center justify-center text-black" fallbackHref={backHref}>
-                <BackIcon />
-              </HistoryBackButton>
-              <div className="flex h-8 w-8 items-center justify-center" />
-            </div>
-
-            <div className="flex flex-1 flex-col items-center gap-1">
+        <AppToolbar
+          className="border-b border-black/5 bg-white px-4 pb-2 pt-5"
+          center={
+            <div className="flex flex-col items-center gap-1">
               <div className="flex items-start gap-[5px]">
                 <p className="text-[16px] font-bold leading-none text-black">{seller.name}</p>
                 <div className="rounded-full bg-[#fff2e2] px-[4px] py-[2px]">
@@ -85,17 +82,26 @@ export function ChatScreen({
               </div>
               <p className="text-[12px] leading-none text-black">{resolvedChat.responseLabel ?? `${seller.town} · 마지막 접속 ${resolvedChat.lastSeen}`}</p>
             </div>
-
-            <div className="flex items-center gap-2">
-              <PendingFeatureLink className="flex h-8 w-8 items-center justify-center text-black" featureLabel="전화하기" returnTo={backHref}>
+          }
+          leading={
+            <>
+              <HistoryBackButton className="flex h-8 w-8 items-center justify-center text-black" fallbackHref={backHref}>
+                <BackIcon />
+              </HistoryBackButton>
+              <div className="flex h-8 w-8 items-center justify-center" />
+            </>
+          }
+          trailing={
+            <>
+              <IconButton ariaLabel="전화하기" className="text-black" pendingFeatureLabel="전화하기" returnTo={backHref}>
                 <CallIcon />
-              </PendingFeatureLink>
-              <PendingFeatureLink className="flex h-8 w-8 items-center justify-center text-black" featureLabel="채팅 메뉴" returnTo={backHref}>
+              </IconButton>
+              <IconButton ariaLabel="채팅 메뉴" className="text-black" pendingFeatureLabel="채팅 메뉴" returnTo={backHref}>
                 <KebabIcon />
-              </PendingFeatureLink>
-            </div>
-          </div>
-        </header>
+              </IconButton>
+            </>
+          }
+        />
 
         <section className="border-b border-black/5 bg-white px-4 py-4">
           <div className="flex items-center gap-3">
@@ -126,9 +132,9 @@ export function ChatScreen({
 
         <footer className="fixed inset-x-0 bottom-0 z-10 bg-white">
           <div className="mobile-shell flex items-center gap-3 px-2 pb-10 pt-2">
-            <PendingFeatureLink className="flex h-8 w-8 items-center justify-center text-[#8f95a3]" featureLabel="채팅에 항목 추가하기" returnTo={backHref}>
+            <IconButton ariaLabel="채팅에 항목 추가하기" className="text-[#8f95a3]" pendingFeatureLabel="채팅에 항목 추가하기" returnTo={backHref}>
               <PlusIcon />
-            </PendingFeatureLink>
+            </IconButton>
             <div className="flex h-10 flex-1 items-center gap-1 rounded-full bg-[#f2f4f5] px-3">
               <p className="flex-1 text-[16px] font-medium text-[#aeb2b5]">메시지 보내기</p>
               <PendingFeatureLink className="flex h-6 w-6 items-center justify-center text-[#9aa1ac]" featureLabel="이모지 보내기" returnTo={backHref}>
@@ -148,25 +154,27 @@ export function ChatScreen({
 function ChatActionButton({ icon, label, href, backHref }: { icon: ReactNode; label: string; href?: string; backHref: string }) {
   if (href) {
     return (
-      <Link
-        className="flex h-[36px] items-center gap-1 rounded border border-black/10 bg-white px-3 text-[13px] font-semibold text-black"
+      <ActionButton
         href={href}
+        leading={icon}
+        size="small"
+        variant="neutralOutline"
       >
-        <span className="flex h-4 w-4 items-center justify-center">{icon}</span>
-        <span>{label}</span>
-      </Link>
+        {label}
+      </ActionButton>
     );
   }
 
   return (
-    <PendingFeatureLink
-      className="flex h-[36px] items-center gap-1 rounded border border-black/10 bg-white px-3 text-[13px] font-semibold text-black"
-      featureLabel={label}
+    <ActionButton
+      leading={icon}
+      pendingFeatureLabel={label}
       returnTo={backHref}
+      size="small"
+      variant="neutralOutline"
     >
-      <span className="flex h-4 w-4 items-center justify-center">{icon}</span>
-      <span>{label}</span>
-    </PendingFeatureLink>
+      {label}
+    </ActionButton>
   );
 }
 

@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AppImage } from "@/components/ui/app-image";
+import { AppToolbar } from "@/components/ui/app-toolbar";
+import { IconButton } from "@/components/ui/icon-button";
 import { UnderlineTabLink } from "@/components/ui/tabs";
 import { PendingFeatureLink } from "@/components/ui/pending-feature-link";
 import { trackEvent } from "@/lib/analytics/amplitude";
@@ -29,25 +31,28 @@ export function TownMapBusinessDetailScreen({
   return (
     <main className="min-h-screen bg-white text-[#111827]">
       <div className="mobile-shell-compact min-h-screen bg-white pb-28">
-        <header className="sticky top-0 z-20 bg-white/95 backdrop-blur">
-          <div className="flex items-center justify-between px-2 py-3">
-            <Link
-              aria-label="동네지도로 돌아가기"
-              className="flex h-10 w-10 items-center justify-center rounded-full text-[#111827]"
+        <AppToolbar
+          className="sticky top-0 z-20 bg-white/95 px-2 py-3 backdrop-blur"
+          leading={
+            <IconButton
+              ariaLabel="동네지도로 돌아가기"
+              className="h-10 w-10 rounded-full text-[#111827]"
               href={backHref}
             >
               <BackIcon />
-            </Link>
-            <div className="flex items-center gap-1">
-              <PendingFeatureLink aria-label="찜하기" className="flex h-10 w-10 items-center justify-center rounded-full text-[#111827]" featureLabel="업체 찜하기" returnTo={backHref}>
+            </IconButton>
+          }
+          trailing={
+            <>
+              <IconButton ariaLabel="찜하기" className="h-10 w-10 rounded-full text-[#111827]" pendingFeatureLabel="업체 찜하기" returnTo={backHref}>
                 <HeartIcon />
-              </PendingFeatureLink>
-              <PendingFeatureLink aria-label="공유하기" className="flex h-10 w-10 items-center justify-center rounded-full text-[#111827]" featureLabel="업체 공유하기" returnTo={backHref}>
+              </IconButton>
+              <IconButton ariaLabel="공유하기" className="h-10 w-10 rounded-full text-[#111827]" pendingFeatureLabel="업체 공유하기" returnTo={backHref}>
                 <ShareIcon />
-              </PendingFeatureLink>
-            </div>
-          </div>
-        </header>
+              </IconButton>
+            </>
+          }
+        />
 
         <section className="px-4 pt-2">
           <h1 className="text-[24px] font-bold leading-8 tracking-[-0.03em] text-[#111827]">{detail.name}</h1>
