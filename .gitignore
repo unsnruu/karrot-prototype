@@ -46,6 +46,7 @@ yarn-error.log*
 # local archive
 supabase/archived/
 docs/archived/
+docs/experiment-log/
 
 # typescript
 *.tsbuildinfo
