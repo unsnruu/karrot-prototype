@@ -41,12 +41,6 @@ export function SellPreviewScreen() {
       buildScreenViewedEventProperties({
         pathname,
         queryString: "",
-        additionalProperties: {
-          flow_name: "sell",
-          has_published_item: Boolean(publishedItem),
-          photo_count: draft.photos.length,
-          step_name: "preview",
-        },
       }),
     );
   }, [draft.photos.length, hydrated, pathname, publishedItem]);

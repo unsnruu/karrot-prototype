@@ -4,14 +4,9 @@ import Link from "next/link";
 import { useRef } from "react";
 import { AppImage } from "@/components/ui/app-image";
 import { HomeNativeAdThumbnail } from "@/features/home/components/home-native-ad-thumbnail";
-import { useHomeExperimentImpression } from "@/features/home/components/use-home-experiment-impression";
 import { trackEvent } from "@/lib/analytics/amplitude";
 import { buildElementClickedEventProperties } from "@/lib/analytics/element-click";
-import {
-  buildHomeExperimentElementExposedProperties,
-  buildHomeExperimentEventProperties,
-  buildHomeExperimentTownMapHref,
-} from "@/lib/analytics/home-experiment";
+import { buildHomeExperimentTownMapHref } from "@/lib/analytics/home-experiment";
 import { type HomeExperimentVariant } from "@/lib/home-experiment";
 import { type HomeFeedNativeAd } from "@/lib/marketplace";
 
@@ -27,29 +22,15 @@ function HomeNativeAdCarouselItem({
   index: number;
   variant: HomeExperimentVariant;
 }) {
-  const eventProperties = buildHomeExperimentEventProperties({
-    ad,
-    index,
-    surface: "top_carousel",
-    variant,
-  });
   const trackedHref = buildHomeExperimentTownMapHref({
     ad,
     index,
     surface: "top_carousel",
     variant,
   });
-  const impressionRef = useHomeExperimentImpression(
-    buildHomeExperimentElementExposedProperties({
-      ad,
-      index,
-      surface: "top_carousel",
-      variant,
-    }),
-  );
 
   return (
-    <article className="w-[320px] shrink-0 rounded-[8px] bg-[#eeeff1] p-2" ref={impressionRef}>
+    <article className="w-[320px] shrink-0 rounded-[8px] bg-[#eeeff1] p-2">
       <Link
         className="flex items-start gap-[21px]"
         href={trackedHref}
@@ -65,13 +46,6 @@ function HomeNativeAdCarouselItem({
               targetId: ad.id,
               targetPosition: index,
               destinationPath: trackedHref,
-              additionalProperties: {
-                ad_destination: ad.destination,
-                ad_feature: ad.feature,
-                experiment_name: eventProperties.experiment_name,
-                experiment_surface: eventProperties.experiment_surface,
-                experiment_variant: eventProperties.experiment_variant,
-              },
             }),
           );
         }}

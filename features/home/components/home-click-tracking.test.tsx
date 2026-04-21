@@ -53,16 +53,10 @@ describe("home click tracking", () => {
     fireEvent.click(screen.getByRole("link", { name: /테스트 상품/ }));
 
     expect(amplitudeMocks.trackEvent).toHaveBeenCalledWith("element_clicked", {
-      category: "디지털기기",
       destination_path: "/home/items/item-1?returnTo=%2Fhome%3Fcategory%3D%25EB%2594%2594%25EC%25A7%2580%25ED%2584%25B8%25EA%25B8%25B0%25EA%25B8%25B0",
-      is_promoted: false,
       path: "/home",
       screen_name: "home",
-      surface: "feed",
-      target_id: "item-1",
       target_name: "home_item_card",
-      target_position: 2,
-      target_type: "card",
     });
   });
 
@@ -110,15 +104,10 @@ describe("home click tracking", () => {
     fireEvent.click(screen.getByRole("link", { name: "디지털기기" }));
 
     expect(amplitudeMocks.trackEvent).toHaveBeenCalledWith("element_clicked", {
-      category: "디지털기기",
       destination_path: "/home?category=%EB%94%94%EC%A7%80%ED%84%B8%EA%B8%B0%EA%B8%B0",
       path: "/home",
-      previous_category: "전체",
-      query_string: "category=%EB%94%94%EC%A7%80%ED%84%B8%EA%B8%B0%EA%B8%B0",
       screen_name: "home",
-      surface: "header",
       target_name: "home_category_chip",
-      target_type: "chip",
     });
   });
 
@@ -130,21 +119,16 @@ describe("home click tracking", () => {
     expect(amplitudeMocks.trackEvent).toHaveBeenCalledWith("element_clicked", {
       path: "/home",
       screen_name: "home",
-      surface: "floating_action_button",
       target_name: "home_fab_trigger_open_menu",
-      target_type: "button",
     });
 
     fireEvent.click(screen.getByRole("menuitem", { name: /내 물건 팔기/i }));
 
     expect(amplitudeMocks.trackEvent).toHaveBeenCalledWith("element_clicked", {
-      action_icon: "sell",
       destination_path: "/home/sell/photos",
       path: "/home",
       screen_name: "home",
-      surface: "fab_menu",
       target_name: "home_sell_fab_start_sell",
-      target_type: "button",
     });
   });
 });

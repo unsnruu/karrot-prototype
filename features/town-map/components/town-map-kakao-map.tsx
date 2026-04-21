@@ -160,9 +160,6 @@ function createPinOverlay(pin: TownMapPin) {
           path: "/town-map",
           targetId: pin.id,
           destinationPath: pin.href,
-          additionalProperties: {
-            pin_label: pin.label,
-          },
         }),
       );
     });

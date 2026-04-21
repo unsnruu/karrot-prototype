@@ -1,4 +1,3 @@
-import { buildElementExposedEventProperties } from "@/lib/analytics/element-exposed";
 import { type HomeExperimentVariant } from "@/lib/home-experiment";
 import { type HomeFeedNativeAd } from "@/lib/marketplace";
 
@@ -27,42 +26,6 @@ export function buildHomeExperimentEventProperties({
     target_position: index,
     target_type: "ad",
   };
-}
-
-export function buildHomeExperimentElementExposedProperties({
-  ad,
-  index,
-  surface,
-  variant,
-}: {
-  ad: HomeFeedNativeAd;
-  index: number;
-  surface: HomeExperimentSurface;
-  variant: HomeExperimentVariant;
-}) {
-  const experimentProperties = buildHomeExperimentEventProperties({
-    ad,
-    index,
-    surface,
-    variant,
-  });
-
-  return buildElementExposedEventProperties({
-    screenName: "home",
-    targetType: "ad",
-    targetName: "home_native_ad",
-    surface,
-    path: "/home",
-    targetId: ad.id,
-    targetPosition: index,
-    additionalProperties: {
-      ad_destination: ad.destination,
-      ad_feature: ad.feature,
-      experiment_name: experimentProperties.experiment_name,
-      experiment_surface: experimentProperties.experiment_surface,
-      experiment_variant: experimentProperties.experiment_variant,
-    },
-  });
 }
 
 export function buildHomeExperimentTownMapHref({

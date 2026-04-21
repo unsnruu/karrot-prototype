@@ -17,10 +17,6 @@ export function SellLocationScreen() {
 
   useEffect(() => {
     if (hydrated && draft.photos.length === 0) {
-      trackEvent("sell_flow_redirected_missing_photos", {
-        source: "sell_location",
-        target_step: "photos",
-      });
       router.replace("/home/sell/photos");
     }
   }, [draft.photos.length, hydrated, router]);
@@ -36,12 +32,6 @@ export function SellLocationScreen() {
       buildScreenViewedEventProperties({
         pathname,
         queryString: "",
-        additionalProperties: {
-          flow_name: "sell",
-          has_location: Boolean(draft.location),
-          photo_count: draft.photos.length,
-          step_name: "location",
-        },
       }),
     );
   }, [draft.location, draft.photos.length, hydrated, pathname]);

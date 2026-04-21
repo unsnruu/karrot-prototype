@@ -61,10 +61,6 @@ export function TownMapSearchScreen({ returnHref }: TownMapSearchScreenProps) {
         surface: "search_screen",
         path: pathname,
         destinationPath,
-        additionalProperties: {
-          query: value,
-          has_query: true,
-        },
       }),
     );
 

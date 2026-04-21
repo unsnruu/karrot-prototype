@@ -50,10 +50,6 @@ export function ChatThreadRow({ thread }: { thread: ChatThreadPreview }) {
               path: pathname,
               destinationPath: thread.href,
               targetId: thread.id,
-              additionalProperties: {
-                counterparty_name: thread.name,
-                town: thread.town,
-              },
             }),
           );
         }}

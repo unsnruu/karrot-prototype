@@ -31,11 +31,6 @@ export function SellPhotoSelectionScreen() {
       buildScreenViewedEventProperties({
         pathname,
         queryString: "",
-        additionalProperties: {
-          flow_name: "sell",
-          photo_count: draft.photos.length,
-          step_name: "photos",
-        },
       }),
     );
   }, [draft.photos.length, hydrated, pathname]);

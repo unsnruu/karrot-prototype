@@ -35,9 +35,6 @@ export function BottomNav() {
                       path: pathname,
                       destinationPath: tabHref,
                       targetId: tab.href.replace(/^\//, "").replaceAll("/", "_") || "home",
-                      additionalProperties: {
-                        tab_label: tab.label,
-                      },
                     }),
                   )
                 }

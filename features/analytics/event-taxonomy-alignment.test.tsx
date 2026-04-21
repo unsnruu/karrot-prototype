@@ -73,11 +73,7 @@ describe("event taxonomy alignment", () => {
       destination_path: "/community",
       path: "/home",
       screen_name: "home",
-      surface: "bottom_navigation",
-      tab_label: "커뮤니티",
-      target_id: "community",
       target_name: "bottom_nav_tab",
-      target_type: "tab",
     });
   });
 
@@ -109,12 +105,8 @@ describe("event taxonomy alignment", () => {
     expect(amplitudeMocks.trackEvent).toHaveBeenCalledWith("element_clicked", {
       destination_path: "/community?tab=meetup",
       path: "/community",
-      previous_tab: "town",
       screen_name: "community",
-      surface: "header",
-      target_id: "meetup",
       target_name: "community_top_tab",
-      target_type: "tab",
     });
   });
 
@@ -138,15 +130,10 @@ describe("event taxonomy alignment", () => {
     fireEvent.click(screen.getByRole("link", { name: /당근이/ }));
 
     expect(amplitudeMocks.trackEvent).toHaveBeenCalledWith("element_clicked", {
-      counterparty_name: "당근이",
       destination_path: "/chat/thread-1",
       path: "/chat",
       screen_name: "chat",
-      surface: "thread_list",
-      target_id: "thread-1",
       target_name: "chat_thread_row",
-      target_type: "list_item",
-      town: "합정동",
     });
   });
 
@@ -167,16 +154,10 @@ describe("event taxonomy alignment", () => {
     fireEvent.click(screen.getByRole("button", { name: "채팅하기" }));
 
     expect(amplitudeMocks.trackEvent).toHaveBeenCalledWith("element_clicked", {
-      chat_key: "chat-item-1",
       destination_path: "/chat/item-1",
       path: "/home/items/item-1",
       screen_name: "item_detail",
-      seller_name: "당근이",
-      surface: "sticky_footer",
-      target_id: "item-1",
       target_name: "item_detail_chat_button_open_chat",
-      target_type: "button",
-      town: "합정동",
     });
     expect(chatStorageMocks.ensureLocalChatThread).toHaveBeenCalled();
     expect(navigationState.push).toHaveBeenCalledWith("/chat/item-1");
@@ -194,9 +175,7 @@ describe("event taxonomy alignment", () => {
       destination_path: "/town-map/search?tab=town-map&returnTo=%2Ftown-map",
       path: "/town-map",
       screen_name: "town_map",
-      surface: "header",
       target_name: "town_map_search_input",
-      target_type: "input",
     });
   });
 
@@ -211,9 +190,7 @@ describe("event taxonomy alignment", () => {
     expect(amplitudeMocks.trackEvent).toHaveBeenCalledWith("element_clicked", {
       path: "/town-map/search",
       screen_name: "town_map_search",
-      surface: "recent_searches",
       target_name: "town_map_search_history_clear",
-      target_type: "button",
     });
   });
 });

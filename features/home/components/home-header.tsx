@@ -144,10 +144,6 @@ export function HomeHeader({
                       path: pathname,
                       queryString,
                       destinationPath: buildCategoryHref(category.label, variant),
-                      additionalProperties: {
-                        category: category.label,
-                        previous_category: selectedCategory ?? "전체",
-                      },
                     }),
                   );
                 }}

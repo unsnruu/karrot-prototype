@@ -59,14 +59,9 @@ export function ChatAppointmentScreen({
       buildScreenViewedEventProperties({
         pathname: appointmentPath,
         queryString: "",
-        additionalProperties: {
-          item_id: item.id,
-          seller_name: seller.name,
-          thread_id: item.id,
-        },
       }),
     );
-  }, [appointmentPath, item.id, seller.name]);
+  }, [appointmentPath]);
 
   const currentDraft: ChatAppointmentDraft = {
     date: selectedDate,
@@ -135,15 +130,6 @@ export function ChatAppointmentScreen({
                     surface: "sticky_footer",
                     path: appointmentPath,
                     destinationPath: completeHref,
-                    additionalProperties: {
-                      has_location: Boolean(currentDraft.location),
-                      has_reminder: Boolean(currentDraft.reminder),
-                      item_id: item.id,
-                      scheduled_date: currentDraft.date ?? undefined,
-                      scheduled_time: currentDraft.time ?? undefined,
-                      seller_name: seller.name,
-                      thread_id: item.id,
-                    },
                   }),
                 );
               }}

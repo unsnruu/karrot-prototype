@@ -19,10 +19,6 @@ export function SellPriceScreen() {
 
   useEffect(() => {
     if (hydrated && draft.photos.length === 0) {
-      trackEvent("sell_flow_redirected_missing_photos", {
-        source: "sell_price",
-        target_step: "photos",
-      });
       router.replace("/home/sell/photos");
     }
   }, [draft.photos.length, hydrated, router]);
@@ -38,12 +34,6 @@ export function SellPriceScreen() {
       buildScreenViewedEventProperties({
         pathname,
         queryString: "",
-        additionalProperties: {
-          flow_name: "sell",
-          has_price: Boolean(draft.priceText),
-          photo_count: draft.photos.length,
-          step_name: "price",
-        },
       }),
     );
   }, [draft.photos.length, draft.priceText, hydrated, pathname]);

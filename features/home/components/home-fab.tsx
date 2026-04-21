@@ -120,9 +120,6 @@ export function HomeFab() {
                               surface: "fab_menu",
                               path: "/home",
                               destinationPath: resolveFabActionHref(action, homeHref),
-                              additionalProperties: {
-                                action_icon: action.icon,
-                              },
                             }),
                           );
 

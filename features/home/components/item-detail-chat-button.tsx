@@ -41,11 +41,6 @@ export function ItemDetailChatButton({
             path: pathname,
             targetId: itemId,
             destinationPath: chatHref,
-            additionalProperties: {
-              chat_key: chatKey,
-              seller_name: sellerName,
-              town,
-            },
           }),
         );
 

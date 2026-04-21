@@ -354,10 +354,6 @@ export function TownMapBusinessDetailScreen({
                   surface: "sticky_footer",
                   path: pathname,
                   targetId: detail.id,
-                  additionalProperties: {
-                    business_name: detail.name,
-                    contact_type: "call",
-                  },
                 }),
               );
             }}
@@ -378,10 +374,6 @@ export function TownMapBusinessDetailScreen({
                   surface: "sticky_footer",
                   path: pathname,
                   targetId: detail.id,
-                  additionalProperties: {
-                    business_name: detail.name,
-                    contact_type: "chat",
-                  },
                 }),
               );
             }}
@@ -443,9 +435,6 @@ function TabButton({
             path: currentPath,
             targetId: tabKey,
             destinationPath: href,
-            additionalProperties: {
-              previous_tab: currentTab,
-            },
           }),
         );
       }}

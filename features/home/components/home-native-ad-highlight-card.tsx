@@ -2,14 +2,9 @@
 
 import Link from "next/link";
 import { AppImage } from "@/components/ui/app-image";
-import { useHomeExperimentImpression } from "@/features/home/components/use-home-experiment-impression";
 import { trackEvent } from "@/lib/analytics/amplitude";
 import { buildElementClickedEventProperties } from "@/lib/analytics/element-click";
-import {
-  buildHomeExperimentElementExposedProperties,
-  buildHomeExperimentEventProperties,
-  buildHomeExperimentTownMapHref,
-} from "@/lib/analytics/home-experiment";
+import { buildHomeExperimentTownMapHref } from "@/lib/analytics/home-experiment";
 import { type HomeExperimentVariant } from "@/lib/home-experiment";
 import { type HomeFeedNativeAd } from "@/lib/marketplace";
 
@@ -25,29 +20,15 @@ export function HomeNativeAdHighlightCard({
   index: number;
   variant: HomeExperimentVariant;
 }) {
-  const eventProperties = buildHomeExperimentEventProperties({
-    ad,
-    index,
-    surface: "inline_card",
-    variant,
-  });
   const trackedHref = buildHomeExperimentTownMapHref({
     ad,
     index,
     surface: "inline_card",
     variant,
   });
-  const impressionRef = useHomeExperimentImpression(
-    buildHomeExperimentElementExposedProperties({
-      ad,
-      index,
-      surface: "inline_card",
-      variant,
-    }),
-  );
 
   return (
-    <article className="mb-4 rounded-[8px] bg-[#ffe8db] p-2" ref={impressionRef}>
+    <article className="mb-4 rounded-[8px] bg-[#ffe8db] p-2">
       <Link
         className="flex items-start gap-[21px]"
         href={trackedHref}
@@ -63,13 +44,6 @@ export function HomeNativeAdHighlightCard({
               targetId: ad.id,
               targetPosition: index,
               destinationPath: trackedHref,
-              additionalProperties: {
-                ad_destination: ad.destination,
-                ad_feature: ad.feature,
-                experiment_name: eventProperties.experiment_name,
-                experiment_surface: eventProperties.experiment_surface,
-                experiment_variant: eventProperties.experiment_variant,
-              },
             }),
           );
         }}

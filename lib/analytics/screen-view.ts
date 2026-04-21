@@ -109,17 +109,14 @@ export function getScreenName(pathname: string) {
 export function buildScreenViewedEventProperties({
   pathname,
   queryString,
-  additionalProperties,
 }: {
   pathname: string;
   queryString: string;
-  additionalProperties?: Record<string, unknown>;
 }) {
   return compactProperties({
     path: pathname,
     query_string: queryString || undefined,
     screen_name: getScreenName(pathname),
-    ...additionalProperties,
   });
 }
 

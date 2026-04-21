@@ -45,10 +45,6 @@ export function MarketplaceListItem({
               targetId: item.id,
               targetPosition: position,
               destinationPath: detailHref,
-              additionalProperties: {
-                category: category ?? "all",
-                is_promoted: isPromoted,
-              },
             }),
           );
         }}

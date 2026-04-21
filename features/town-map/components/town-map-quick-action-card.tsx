@@ -24,9 +24,6 @@ export function TownMapQuickActionCard({ action }: { action: TownMapQuickAction 
             surface: "bottom_sheet",
             path: pathname,
             targetId: action.id,
-            additionalProperties: {
-              action_label: action.label,
-            },
           }),
         );
       }}

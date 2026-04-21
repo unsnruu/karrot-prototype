@@ -24,9 +24,6 @@ export function TownMapPostCard({ post }: { post: TownMapPost }) {
             surface: "bottom_sheet",
             path: pathname,
             targetId: post.id,
-            additionalProperties: {
-              business_name: post.businessName,
-            },
           }),
         );
       }}

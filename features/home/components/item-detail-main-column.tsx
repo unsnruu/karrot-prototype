@@ -73,11 +73,6 @@ function ItemBodySection({
         path: pathname,
         targetId: item.id,
         destinationPath: locationHref,
-        additionalProperties: {
-          has_meetup_address: Boolean(item.meetupAddress),
-          item_title: item.title,
-          meetup_hint: item.meetupHint,
-        },
       }),
     );
   };
@@ -121,16 +116,16 @@ function ItemBodySection({
               />
             </Link>
 
+            <Link className="block" href={locationHref} onClick={trackMeetupLocationClick}>
+              <p className="text-[13px] leading-none text-[#1d1c21]">{item.distance} 근처에서 거래할 수 있어요</p>
+            </Link>
+
             <ItemDetailNearbyBusinessStrip
               businesses={nearbyBusinesses}
               detailHref={detailHref}
               itemTitle={item.title}
               meetupHint={item.meetupHint}
             />
-
-            <Link className="block" href={locationHref} onClick={trackMeetupLocationClick}>
-              <p className="text-[13px] leading-none text-[#1d1c21]">{item.distance} 근처에서 거래할 수 있어요</p>
-            </Link>
           </div>
         ) : null}
       </div>

@@ -72,20 +72,13 @@ describe("SellWriteScreen", () => {
     navigationState.searchParams = new URLSearchParams();
   });
 
-  it("sends screen_viewed with sell flow properties", async () => {
+  it("sends screen_viewed with common properties", async () => {
     render(React.createElement(SellWriteScreen));
 
     await waitFor(() => {
       expect(amplitudeMocks.track).toHaveBeenCalledWith("screen_viewed", {
-        flow_name: "sell",
-        has_description: true,
-        has_location: true,
-        has_price: true,
-        has_title: true,
         path: "/home/sell/write",
-        photo_count: 2,
         screen_name: "sell_write",
-        step_name: "write",
       });
     });
   });

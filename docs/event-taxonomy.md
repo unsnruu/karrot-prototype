@@ -25,7 +25,6 @@
 
 - 화면 진입은 `screen_viewed`
 - 화면 내 클릭은 `element_clicked`
-- 화면 내 노출은 `element_exposed`
 - 검색 플로우는 `search_*`
 - 완료, 실패, 검증처럼 의미가 분명히 다른 행동만 개별 이벤트
 
@@ -60,7 +59,6 @@ Amplitude 초기화는 `lib/analytics/amplitude.ts`에 있으며, SDK는 `@ampli
 
 - `screen_viewed`
 - `element_clicked`
-- `element_exposed`
 - `component_interacted`
 - `chat_appointment_completed`
 
@@ -77,7 +75,6 @@ Amplitude 초기화는 `lib/analytics/amplitude.ts`에 있으며, SDK는 `@ampli
 
 - 같은 화면 진입이면 `screen_viewed`
 - 같은 클릭이면 `element_clicked`
-- 같은 노출이면 `element_exposed`
 - 같은 드래그/확장/스크롤이면 `component_interacted`
 
 그리고 차이는 아래 속성으로 분리한다.
@@ -97,7 +94,6 @@ Amplitude 초기화는 `lib/analytics/amplitude.ts`에 있으며, SDK는 `@ampli
 예:
 
 - `chat_appointment_completed`
-- `sell_flow_redirected_missing_photos`
 
 ### 4. 분석 질문이 병목이면 상태를 먼저 본다
 모든 UI 조작을 클릭 이벤트로 먼저 수집하지 않는다.
@@ -247,7 +243,7 @@ Amplitude autocapture의 page view 이벤트는 아래 질문에는 유용하다
 
 ## 현재 실제 이벤트 목록
 
-현재 코드에서 명시적으로 호출되는 이벤트는 총 18개다.
+현재 코드에서 명시적으로 호출되는 이벤트는 총 14개다.
 
 `screen_exited`는 이 목록에 포함되지 않으며, 현재 미사용 상태다.
 
@@ -255,7 +251,6 @@ Amplitude autocapture의 page view 이벤트는 아래 질문에는 유용하다
 
 - `screen_viewed`
 - `element_clicked`
-- `element_exposed`
 - `search_opened`
 - `search_submitted`
 - `search_history_cleared`
@@ -263,7 +258,6 @@ Amplitude autocapture의 page view 이벤트는 아래 질문에는 유용하다
 ### 실험/퍼널 이벤트
 
 - `home_experiment_town_map_entered`
-- `home_experiment_scroll_depth_reached`
 - `home_experiment_carousel_interacted`
 - `town_map_landing_engaged`
 
@@ -271,7 +265,6 @@ Amplitude autocapture의 page view 이벤트는 아래 질문에는 유용하다
 
 - `town_map_bottom_sheet_expanded`
 - `home_feed_load_failed`
-- `sell_flow_redirected_missing_photos`
 - `sell_photo_toggled`
 - `sell_form_completed`
 - `chat_appointment_invalid_state`
@@ -354,29 +347,22 @@ Amplitude autocapture의 page view 이벤트는 아래 질문에는 유용하다
 필수:
 
 - `screen_name`
-- `target_type`
 - `target_name`
 
 권장:
 
-- `surface`
 - `path`
 
 선택:
 
-- `query_string`
-- `target_id`
-- `target_position`
 - `experiment_name`
 - `experiment_variant`
-- `scroll_depth_percent`
-- `scroll_depth_bucket`
 - `destination_path`
 
-#### `target_type`와 `target_name`
+#### `target_name`
 
-- `target_type`은 UI 형태다. 예: `button`, `card`, `chip`, `tab`, `link`
 - `target_name`은 요소의 제품 역할을 설명하는 정규화 이름이다
+- UI 형태나 위치보다 "무엇을 눌렀는가"가 더 직접적인 분석 기준이면 `target_name` 중심으로 충분하다
 
 예:
 
@@ -514,59 +500,6 @@ Town Map:
   - `surface=sticky_footer`
   - 추가 속성: `business_name`, `contact_type=chat`
 
-### `element_exposed`
-
-화면 안 특정 요소의 노출은 `element_exposed`로 표현한다.
-
-#### 권장 속성
-
-필수:
-
-- `screen_name`
-- `target_type`
-- `target_name`
-
-권장:
-
-- `surface`
-- `path`
-
-선택:
-
-- `query_string`
-- `target_id`
-- `target_position`
-- `experiment_name`
-- `experiment_variant`
-
-#### 현재 구현
-현재 `element_exposed`는 홈 실험 광고 노출에만 쓰인다.
-
-- `target_name=home_native_ad`
-- `target_type=ad`
-- `screen_name=home`
-- 사용 surface: `inline_card`, `inline_banner`, `top_carousel`
-- 추가 속성: `ad_destination`, `ad_feature`, `experiment_name`, `experiment_surface`, `experiment_variant`, `scroll_depth_percent`, `scroll_depth_bucket`
-
-전송 훅: `features/home/components/use-home-experiment-impression.ts`
-
-#### 광고 퍼널 연결 원칙
-홈 광고 퍼널은 아래 흐름으로 해석한다.
-
-- `element_exposed`
-- `element_clicked`
-- `home_experiment_town_map_entered`
-
-이 세 단계는 같은 광고를 가리키는 아래 공통 속성으로 연결한다.
-
-- `target_type=ad`
-- `target_name=home_native_ad`
-- `target_id`
-- `target_position`
-- `surface`
-- `experiment_name`
-- `experiment_variant`
-
 ### 검색 이벤트
 
 검색 진입과 제출은 클릭 이벤트와 별도로 해석한다.
@@ -625,24 +558,6 @@ Town Map:
 - `target_position`
 - `target_type`
 
-### `home_experiment_scroll_depth_reached`
-홈 실험 화면에서 스크롤 milestone에 도달했을 때 전송된다.
-
-주요 속성:
-
-- `depth_percent`
-- `experiment_name`
-- `experiment_variant`
-- `screen_name`
-- `path`
-
-milestone:
-
-- `25`
-- `50`
-- `75`
-- `100`
-
 ### `home_experiment_carousel_interacted`
 홈 상단 carousel이 실제로 스크롤되면 한 번 전송된다.
 
@@ -684,9 +599,6 @@ milestone:
 
 ### Sell flow
 
-- `sell_flow_redirected_missing_photos`
-  - 발생 화면: `sell_write`, `sell_price`, `sell_location`
-  - 속성: `source`, `target_step=photos`
 - `sell_photo_toggled`
   - 속성: `photo_id`, `selected`, `next_selected_count`, `step_name=photos`
 - `sell_form_completed`
@@ -731,9 +643,8 @@ milestone:
 
 1. 화면은 `screen_viewed`
 2. 클릭은 `element_clicked`
-3. 노출은 `element_exposed`
-4. 검색은 `search_*`
-5. 진짜 별도 의미가 있는 퍼널, 완료, 실패만 개별 이벤트
+3. 검색은 `search_*`
+4. 진짜 별도 의미가 있는 퍼널, 완료, 실패만 개별 이벤트
 
 앞으로 taxonomy 복잡도를 줄이려면 새 이벤트를 계속 만들기보다 아래 두 축을 먼저 관리하는 것이 맞다.
 

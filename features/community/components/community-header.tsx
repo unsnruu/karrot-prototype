@@ -41,9 +41,6 @@ export function CommunityHeader({
                     path: pathname,
                     destinationPath: tab.key === "town" ? "/community" : `/community?tab=${tab.key}`,
                     targetId: tab.key,
-                    additionalProperties: {
-                      previous_tab: selectedTab,
-                    },
                   }),
                 );
               }}

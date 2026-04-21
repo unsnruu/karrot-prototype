@@ -28,9 +28,6 @@ export function TownMapCategoryChip({ category }: { category: TownMapSearchCateg
             surface: "header",
             path: pathname,
             targetId: category.id,
-            additionalProperties: {
-              category_label: category.label,
-            },
           }),
         );
       }}
