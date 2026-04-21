@@ -1,30 +1,10 @@
 "use client";
 
 import * as amplitude from "@amplitude/unified";
+import { ensureVisitorExperimentContext, getEventExperimentProperties } from "@/lib/analytics/visitor-experiment";
 
 let hasInitializedAmplitude = false;
-const ANONYMOUS_VISITOR_STORAGE_KEY = "karrot_anonymous_visitor_id";
 const AMPLITUDE_API_KEY = "290e6f4f90b9e7274301e2954fccc25f";
-
-function createAnonymousVisitorId() {
-  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
-    return crypto.randomUUID();
-  }
-
-  return `anon_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
-}
-
-function getAnonymousVisitorId() {
-  const existingVisitorId = window.localStorage.getItem(ANONYMOUS_VISITOR_STORAGE_KEY);
-
-  if (existingVisitorId) {
-    return existingVisitorId;
-  }
-
-  const nextVisitorId = createAnonymousVisitorId();
-  window.localStorage.setItem(ANONYMOUS_VISITOR_STORAGE_KEY, nextVisitorId);
-  return nextVisitorId;
-}
 
 export function initAmplitude() {
   if (hasInitializedAmplitude) {
@@ -35,12 +15,26 @@ export function initAmplitude() {
     analytics: { autocapture: true },
   });
 
-  amplitude.setUserId(getAnonymousVisitorId());
+  const visitorExperimentContext = ensureVisitorExperimentContext();
+
+  if (visitorExperimentContext) {
+    amplitude.setUserId(visitorExperimentContext.userId);
+
+    const identify = new amplitude.Identify();
+    identify.set("app_version", visitorExperimentContext.appVersion);
+    identify.set("experiment_id", visitorExperimentContext.experiment.id);
+    identify.set("iteration", visitorExperimentContext.experiment.iteration);
+    identify.set("variant", visitorExperimentContext.experiment.variant);
+    amplitude.identify(identify);
+  }
 
   hasInitializedAmplitude = true;
 }
 
 export function trackEvent(eventType: string, eventProperties?: Record<string, unknown>) {
   initAmplitude();
-  amplitude.track(eventType, eventProperties);
+  amplitude.track(eventType, {
+    ...eventProperties,
+    ...getEventExperimentProperties(),
+  });
 }

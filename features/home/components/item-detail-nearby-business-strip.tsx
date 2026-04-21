@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRef } from "react";
 import { usePathname } from "next/navigation";
 import { AppImage } from "@/components/ui/app-image";
 import { trackEvent } from "@/lib/analytics/amplitude";
@@ -20,13 +21,30 @@ export function ItemDetailNearbyBusinessStrip({
   meetupHint: string;
 }) {
   const pathname = usePathname();
+  const hasTrackedInteraction = useRef(false);
 
   if (businesses.length === 0) {
     return null;
   }
 
   return (
-    <div className="overflow-x-auto snap-x snap-mandatory [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+    <div
+      className="overflow-x-auto snap-x snap-mandatory [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      onScroll={(event) => {
+        if (hasTrackedInteraction.current || event.currentTarget.scrollLeft <= 8) {
+          return;
+        }
+
+        hasTrackedInteraction.current = true;
+        trackEvent("component_interacted", {
+          component_name: "item_detail_nearby_business_carousel",
+          interaction_type: "scroll",
+          item_count: businesses.length,
+          screen_name: "item_detail",
+          surface: "content",
+        });
+      }}
+    >
       <div className="flex min-w-max gap-5 pr-4">
         {businesses.map((business, index) => {
           const href = appendNavigationQuery(`/town-map/businesses/${business.id}`, {

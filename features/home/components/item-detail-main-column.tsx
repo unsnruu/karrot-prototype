@@ -1,11 +1,13 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { AppImage } from "@/components/ui/app-image";
 import { SeedUserAvatarExperiment } from "@/components/ui/experiments/seed-user-avatar";
 import { PendingFeatureLink } from "@/components/ui/pending-feature-link";
 import { trackEvent } from "@/lib/analytics/amplitude";
+import { getItemDetailNearbyBusinessVariant, type ItemDetailNearbyBusinessVariant } from "@/lib/analytics/visitor-experiment";
 import { buildElementClickedEventProperties } from "@/lib/analytics/element-click";
 import {
   BellIcon,
@@ -50,11 +52,13 @@ function ItemBodySection({
   returnTo,
   detailHref,
   nearbyBusinesses,
+  showNearbyBusinesses,
 }: {
   item: MarketplaceItem;
   returnTo?: string;
   detailHref: string;
   nearbyBusinesses: NearbyTownMapBusinessCard[];
+  showNearbyBusinesses: boolean;
 }) {
   const pathname = usePathname();
   const homeHref = returnTo ?? "/home";
@@ -120,12 +124,14 @@ function ItemBodySection({
               <p className="text-[13px] leading-none text-[#1d1c21]">{item.distance} 근처에서 거래할 수 있어요</p>
             </Link>
 
-            <ItemDetailNearbyBusinessStrip
-              businesses={nearbyBusinesses}
-              detailHref={detailHref}
-              itemTitle={item.title}
-              meetupHint={item.meetupHint}
-            />
+            {showNearbyBusinesses ? (
+              <ItemDetailNearbyBusinessStrip
+                businesses={nearbyBusinesses}
+                detailHref={detailHref}
+                itemTitle={item.title}
+                meetupHint={item.meetupHint}
+              />
+            ) : null}
           </div>
         ) : null}
       </div>
@@ -198,10 +204,22 @@ export function ItemDetailMainColumn({
   detailHref: string;
   nearbyBusinesses: NearbyTownMapBusinessCard[];
 }) {
+  const [variant, setVariant] = useState<ItemDetailNearbyBusinessVariant | null>(null);
+
+  useEffect(() => {
+    setVariant(getItemDetailNearbyBusinessVariant() ?? "as_is");
+  }, []);
+
   return (
     <div className="min-w-0">
       <SellerSection seller={seller} />
-      <ItemBodySection detailHref={detailHref} item={item} nearbyBusinesses={nearbyBusinesses} returnTo={returnTo} />
+      <ItemBodySection
+        detailHref={detailHref}
+        item={item}
+        nearbyBusinesses={nearbyBusinesses}
+        returnTo={returnTo}
+        showNearbyBusinesses={variant === "nearby_business_carousel"}
+      />
       {adItem ? (
         <section className="py-3">
           <ItemDetailAdCard item={adItem} />

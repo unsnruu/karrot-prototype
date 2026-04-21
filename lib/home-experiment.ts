@@ -10,6 +10,7 @@ export function resolveExperimentHomeHref() {
   return "/home";
 }
 
-export function resolveHomeHrefFromPathname() {
+export function resolveHomeHrefFromPathname(pathname?: string) {
+  void pathname;
   return "/home";
 }

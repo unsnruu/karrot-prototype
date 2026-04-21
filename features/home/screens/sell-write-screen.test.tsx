@@ -2,6 +2,7 @@ import React from "react";
 import { render, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { SellWriteScreen } from "@/features/home/screens/sell-write-screen";
+import { resetVisitorExperimentContextForTests } from "@/lib/analytics/visitor-experiment";
 
 const navigationState = vi.hoisted(() => ({
   pathname: "/home/sell/write",
@@ -68,18 +69,28 @@ vi.mock("@/features/home/components/sell-flow-provider", () => ({
 describe("SellWriteScreen", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    localStorage.clear();
+    resetVisitorExperimentContextForTests();
     navigationState.pathname = "/home/sell/write";
     navigationState.searchParams = new URLSearchParams();
+    vi.spyOn(Math, "random").mockReturnValue(0.2);
   });
 
   it("sends screen_viewed with common properties", async () => {
     render(React.createElement(SellWriteScreen));
 
     await waitFor(() => {
-      expect(amplitudeMocks.track).toHaveBeenCalledWith("screen_viewed", {
-        path: "/home/sell/write",
-        screen_name: "sell_write",
-      });
+      expect(amplitudeMocks.track).toHaveBeenCalledWith(
+        "screen_viewed",
+        expect.objectContaining({
+          path: "/home/sell/write",
+          screen_name: "sell_write",
+          app_version: "0.1.0",
+          experiment_id: "item_detail_nearby_business_entry",
+          iteration: "v1",
+          variant: "as_is",
+        }),
+      );
     });
   });
 });
