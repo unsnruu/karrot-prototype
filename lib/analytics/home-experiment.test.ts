@@ -18,10 +18,9 @@ describe("buildHomeExperimentTownMapHref", () => {
         },
         index: 0,
         surface: "inline_card",
-        variant: "b",
       }),
     ).toBe(
-      "/town-map?exp_source=home_experiment&exp_variant=b&exp_surface=inline_card&exp_target_id=home-native-ad-01&exp_target_position=0&exp_target_name=home_native_ad&exp_target_type=ad",
+      "/town-map?entry_source=home_native_ad&entry_surface=inline_card&entry_target_id=home-native-ad-01&entry_target_position=0&entry_target_name=home_native_ad&entry_target_type=ad",
     );
   });
 
@@ -41,7 +40,6 @@ describe("buildHomeExperimentTownMapHref", () => {
         },
         index: 1,
         surface: "inline_banner",
-        variant: "d",
       }),
     ).toBe("/community");
   });

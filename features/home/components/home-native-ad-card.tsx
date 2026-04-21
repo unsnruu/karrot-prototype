@@ -5,7 +5,6 @@ import { AppImage } from "@/components/ui/app-image";
 import { trackEvent } from "@/lib/analytics/amplitude";
 import { buildElementClickedEventProperties } from "@/lib/analytics/element-click";
 import { buildHomeExperimentTownMapHref } from "@/lib/analytics/home-experiment";
-import { type HomeExperimentVariant } from "@/lib/home-experiment";
 import { type HomeFeedNativeAd } from "@/lib/marketplace";
 
 const iconMore = "/icons/more.svg";
@@ -15,17 +14,14 @@ const adMarkImage = "https://www.figma.com/api/mcp/asset/65d59106-dae8-4a0d-9173
 export function HomeNativeAdCard({
   ad,
   index,
-  variant,
 }: {
   ad: HomeFeedNativeAd;
   index: number;
-  variant: HomeExperimentVariant;
 }) {
   const trackedHref = buildHomeExperimentTownMapHref({
     ad,
     index,
     surface: "inline_card",
-    variant,
   });
 
   return (

@@ -7,7 +7,6 @@ import { HomeNativeAdThumbnail } from "@/features/home/components/home-native-ad
 import { trackEvent } from "@/lib/analytics/amplitude";
 import { buildElementClickedEventProperties } from "@/lib/analytics/element-click";
 import { buildHomeExperimentTownMapHref } from "@/lib/analytics/home-experiment";
-import { type HomeExperimentVariant } from "@/lib/home-experiment";
 import { type HomeFeedNativeAd } from "@/lib/marketplace";
 
 const iconMore = "/icons/more.svg";
@@ -16,17 +15,14 @@ const iconHeart = "/icons/heart.svg";
 function HomeNativeAdCarouselItem({
   ad,
   index,
-  variant,
 }: {
   ad: HomeFeedNativeAd;
   index: number;
-  variant: HomeExperimentVariant;
 }) {
   const trackedHref = buildHomeExperimentTownMapHref({
     ad,
     index,
     surface: "top_carousel",
-    variant,
   });
 
   return (
@@ -92,10 +88,8 @@ function HomeNativeAdCarouselItem({
 
 export function HomeNativeAdCarousel({
   ads,
-  variant,
 }: {
   ads: HomeFeedNativeAd[];
-  variant: HomeExperimentVariant;
 }) {
   const hasTrackedInteraction = useRef(false);
 
@@ -118,14 +112,12 @@ export function HomeNativeAdCarousel({
           item_count: ads.length,
           screen_name: "home",
           surface: "top_carousel",
-          experiment_name: "home_to_town_map_entry",
-          experiment_variant: variant,
         });
       }}
     >
       <div className="flex gap-2">
         {ads.map((ad, index) => (
-          <HomeNativeAdCarouselItem ad={ad} index={index} key={ad.id} variant={variant} />
+          <HomeNativeAdCarouselItem ad={ad} index={index} key={ad.id} />
         ))}
       </div>
     </section>

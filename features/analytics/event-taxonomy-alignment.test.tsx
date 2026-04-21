@@ -77,15 +77,15 @@ describe("event taxonomy alignment", () => {
     });
   });
 
-  it("keeps only the home tab variant-aware inside experiment home", () => {
-    navigationState.pathname = "/exp/d/home";
+  it("keeps the home tab linked to the shared home route", () => {
+    navigationState.pathname = "/home";
 
     render(React.createElement(BottomNav));
 
     const homeLinks = screen.getAllByRole("link", { name: "홈" });
     const townMapLinks = screen.getAllByRole("link", { name: "동네지도" });
 
-    expect(homeLinks[homeLinks.length - 1]).toHaveAttribute("href", "/exp/d/home");
+    expect(homeLinks[homeLinks.length - 1]).toHaveAttribute("href", "/home");
     expect(townMapLinks[townMapLinks.length - 1]).toHaveAttribute("href", "/town-map");
   });
 

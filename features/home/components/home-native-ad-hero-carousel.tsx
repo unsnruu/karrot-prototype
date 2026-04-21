@@ -6,7 +6,6 @@ import { AppImage } from "@/components/ui/app-image";
 import { trackEvent } from "@/lib/analytics/amplitude";
 import { buildElementClickedEventProperties } from "@/lib/analytics/element-click";
 import { buildHomeExperimentTownMapHref } from "@/lib/analytics/home-experiment";
-import { type HomeExperimentVariant } from "@/lib/home-experiment";
 import { type HomeFeedNativeAd } from "@/lib/marketplace";
 
 const iconMore = "/icons/more.svg";
@@ -15,17 +14,14 @@ const heroCardBackgrounds = ["#fff2ec", "#fff7de", "#f7f8f9"] as const;
 function HomeNativeAdHeroCarouselItem({
   ad,
   index,
-  variant,
 }: {
   ad: HomeFeedNativeAd;
   index: number;
-  variant: HomeExperimentVariant;
 }) {
   const trackedHref = buildHomeExperimentTownMapHref({
     ad,
     index,
     surface: "top_carousel",
-    variant,
   });
 
   return (
@@ -83,10 +79,8 @@ function HomeNativeAdHeroCarouselItem({
 
 export function HomeNativeAdHeroCarousel({
   ads,
-  variant,
 }: {
   ads: HomeFeedNativeAd[];
-  variant: HomeExperimentVariant;
 }) {
   const hasTrackedInteraction = useRef(false);
 
@@ -109,14 +103,12 @@ export function HomeNativeAdHeroCarousel({
           item_count: ads.length,
           screen_name: "home",
           surface: "top_carousel",
-          experiment_name: "home_to_town_map_entry",
-          experiment_variant: variant,
         });
       }}
     >
       <div className="flex gap-2">
         {ads.map((ad, index) => (
-          <HomeNativeAdHeroCarouselItem ad={ad} index={index} key={ad.id} variant={variant} />
+          <HomeNativeAdHeroCarouselItem ad={ad} index={index} key={ad.id} />
         ))}
         <div aria-hidden="true" className="h-px w-4 shrink-0" />
       </div>

@@ -5,25 +5,22 @@ import { usePathname } from "next/navigation";
 import { trackEvent } from "@/lib/analytics/amplitude";
 import { buildElementClickedEventProperties } from "@/lib/analytics/element-click";
 import { getScreenName } from "@/lib/analytics/screen-view";
-import { resolveExperimentHomeHref, readHomeExperimentVariantFromPathname } from "@/lib/home-experiment";
 import { bottomTabs } from "@/lib/marketplace";
 
 export function BottomNav() {
   const pathname = usePathname();
-  const experimentVariant = readHomeExperimentVariantFromPathname(pathname);
 
   return (
     <nav className="fixed inset-x-0 bottom-0 z-20 border-t border-black/10 bg-white/95 backdrop-blur">
       <ul className="mobile-shell grid grid-cols-5 px-2 sm:px-4">
         {bottomTabs.map((tab) => {
-          const tabHref = tab.href === "/home" ? resolveExperimentHomeHref(experimentVariant) : tab.href;
           const active = isActiveTab(pathname, tab.href);
 
           return (
             <li className="flex" key={tab.label}>
               <Link
                 className="flex flex-1 flex-col items-center gap-0.5 pb-[calc(2rem+env(safe-area-inset-bottom))] pt-1"
-                href={tabHref}
+                href={tab.href}
                 onClick={() =>
                   trackEvent(
                     "element_clicked",
@@ -33,7 +30,7 @@ export function BottomNav() {
                       targetName: "bottom_nav_tab",
                       surface: "bottom_navigation",
                       path: pathname,
-                      destinationPath: tabHref,
+                      destinationPath: tab.href,
                       targetId: tab.href.replace(/^\//, "").replaceAll("/", "_") || "home",
                     }),
                   )
@@ -64,11 +61,9 @@ export function BottomNav() {
 }
 
 function isActiveTab(pathname: string, href: string) {
-  const normalizedPathname = pathname.replace(/^\/exp\/(a|b|c|d)/, "");
-
   if (href === "/home") {
-    return normalizedPathname === "/" || normalizedPathname === "/home" || normalizedPathname.startsWith("/home/");
+    return pathname === "/" || pathname === "/home" || pathname.startsWith("/home/");
   }
 
-  return normalizedPathname === href || normalizedPathname.startsWith(`${href}/`);
+  return pathname === href || pathname.startsWith(`${href}/`);
 }

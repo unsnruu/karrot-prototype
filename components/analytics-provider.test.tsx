@@ -5,20 +5,14 @@ import { AnalyticsProvider } from "@/components/analytics-provider";
 
 const navigationState = vi.hoisted(() => ({
   pathname: "/home",
-  searchParams: new URLSearchParams("category=%EB%94%94%EC%A7%80%ED%84%B8%EA%B8%B0%EA%B8%B0&variant=b"),
+  searchParams: new URLSearchParams("category=%EB%94%94%EC%A7%80%ED%84%B8%EA%B8%B0%EA%B8%B0"),
 }));
 
 const amplitudeMocks = vi.hoisted(() => {
   const track = vi.fn();
   const initAll = vi.fn();
   const setUserId = vi.fn();
-  const identify = vi.fn();
-
-  class Identify {
-    set = vi.fn().mockReturnThis();
-  }
-
-  return { Identify, identify, initAll, setUserId, track };
+  return { initAll, setUserId, track };
 });
 
 vi.mock("next/navigation", () => ({
@@ -33,7 +27,7 @@ describe("AnalyticsProvider", () => {
     localStorage.clear();
     vi.clearAllMocks();
     navigationState.pathname = "/home";
-    navigationState.searchParams = new URLSearchParams("category=%EB%94%94%EC%A7%80%ED%84%B8%EA%B8%B0%EA%B8%B0&variant=b");
+    navigationState.searchParams = new URLSearchParams("category=%EB%94%94%EC%A7%80%ED%84%B8%EA%B8%B0%EA%B8%B0");
   });
 
   afterEach(() => {
@@ -46,7 +40,7 @@ describe("AnalyticsProvider", () => {
     await waitFor(() => {
       expect(amplitudeMocks.track).toHaveBeenCalledWith("screen_viewed", {
         path: "/home",
-        query_string: "category=%EB%94%94%EC%A7%80%ED%84%B8%EA%B8%B0%EA%B8%B0&variant=b",
+        query_string: "category=%EB%94%94%EC%A7%80%ED%84%B8%EA%B8%B0%EA%B8%B0",
         screen_name: "home",
       });
     });
@@ -70,7 +64,7 @@ describe("AnalyticsProvider", () => {
   it("keeps only common properties on screen_viewed when home experiment traffic enters town map", async () => {
     navigationState.pathname = "/town-map";
     navigationState.searchParams = new URLSearchParams(
-      "exp_source=home_experiment&exp_variant=b&exp_surface=top_carousel&exp_target_id=ad-1&exp_target_position=2&exp_target_name=home_native_ad&exp_target_type=ad",
+      "entry_source=home_native_ad&entry_surface=top_carousel&entry_target_id=ad-1&entry_target_position=2&entry_target_name=home_native_ad&entry_target_type=ad",
     );
 
     render(React.createElement(AnalyticsProvider));
@@ -79,7 +73,7 @@ describe("AnalyticsProvider", () => {
       expect(amplitudeMocks.track).toHaveBeenCalledWith("screen_viewed", {
         path: "/town-map",
         query_string:
-          "exp_source=home_experiment&exp_variant=b&exp_surface=top_carousel&exp_target_id=ad-1&exp_target_position=2&exp_target_name=home_native_ad&exp_target_type=ad",
+          "entry_source=home_native_ad&entry_surface=top_carousel&entry_target_id=ad-1&entry_target_position=2&entry_target_name=home_native_ad&entry_target_type=ad",
         screen_name: "town_map",
       });
     });

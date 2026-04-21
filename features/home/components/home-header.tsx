@@ -5,10 +5,9 @@ import { usePathname, useSearchParams } from "next/navigation";
 import { AppImage } from "@/components/ui/app-image";
 import { PendingFeatureLink } from "@/components/ui/pending-feature-link";
 import { SelectionChipLink } from "@/components/ui/selection-chip";
-import { type HomeExperimentVariant } from "@/lib/home-experiment";
 import { trackEvent } from "@/lib/analytics/amplitude";
 import { buildElementClickedEventProperties } from "@/lib/analytics/element-click";
-import { readHomeExperimentVariantFromPathname, resolveHomeHrefFromPathname, resolveExperimentHomeHref } from "@/lib/home-experiment";
+import { resolveHomeHrefFromPathname } from "@/lib/home-experiment";
 import { type HomeCategory } from "@/lib/marketplace";
 import { buildPendingFeatureHref } from "@/lib/tab-navigation";
 
@@ -29,7 +28,6 @@ export function HomeHeader({
   const searchParams = useSearchParams();
   const queryString = searchParams.toString();
   const homeHref = resolveHomeHrefFromPathname(pathname);
-  const variant = readHomeExperimentVariantFromPathname(pathname);
   const homeServicesHref = "/home/services";
 
   return (
@@ -131,7 +129,7 @@ export function HomeHeader({
             return (
               <SelectionChipLink
                 active={isActive}
-                href={buildCategoryHref(category.label, variant)}
+                href={buildCategoryHref(category.label)}
                 key={category.label}
                 onClick={() => {
                   trackEvent(
@@ -143,7 +141,7 @@ export function HomeHeader({
                       surface: "header",
                       path: pathname,
                       queryString,
-                      destinationPath: buildCategoryHref(category.label, variant),
+                      destinationPath: buildCategoryHref(category.label),
                     }),
                   );
                 }}
@@ -162,9 +160,8 @@ export function HomeHeader({
   );
 }
 
-function buildCategoryHref(label: string, variant?: HomeExperimentVariant) {
-  const homeHref = resolveExperimentHomeHref(variant);
-
+function buildCategoryHref(label: string) {
+  const homeHref = "/home";
   if (label === "전체") {
     return homeHref;
   } else {

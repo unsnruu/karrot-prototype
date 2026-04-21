@@ -1,15 +1,10 @@
 "use client";
 
 import { startTransition, useCallback, useEffect, useRef, useState } from "react";
-import { HomeNativeAdBanner } from "@/features/home/components/home-native-ad-banner";
 import { HomeNativeAdCard } from "@/features/home/components/home-native-ad-card";
-import { HomeNativeAdCarousel } from "@/features/home/components/home-native-ad-carousel";
-import { HomeNativeAdHeroCarousel } from "@/features/home/components/home-native-ad-hero-carousel";
-import { HomeNativeAdHighlightCard } from "@/features/home/components/home-native-ad-highlight-card";
 import { MarketplaceListItem } from "@/features/home/components/marketplace-list-item";
 import { buildPublishedSellFeedItem, readPublishedSellItem } from "@/lib/local-sell-storage";
-import { type HomeExperimentVariant } from "@/lib/home-experiment";
-import { HOME_FEED_PAGE_SIZE, type HomeFeedEntry, type HomeFeedNativeAd } from "@/lib/marketplace";
+import { HOME_FEED_PAGE_SIZE, type HomeFeedEntry } from "@/lib/marketplace";
 
 type HomeFeedResponse = {
   items: HomeFeedEntry[];
@@ -17,23 +12,16 @@ type HomeFeedResponse = {
   nextOffset: number;
 };
 
-type DFeedSection = {
-  entries: HomeFeedEntry[];
-  heroAds: HomeFeedNativeAd[];
-};
-
 export function HomeFeed({
   initialItems,
   initialHasMore,
   initialNextOffset,
   category,
-  variant,
 }: {
   initialItems: HomeFeedEntry[];
   initialHasMore: boolean;
   initialNextOffset: number;
   category?: string;
-  variant: HomeExperimentVariant;
 }) {
   const [items, setItems] = useState(initialItems);
   const [hasMore, setHasMore] = useState(initialHasMore);
@@ -136,42 +124,15 @@ export function HomeFeed({
     };
   }, [hasMore, loadMore]);
 
-  const allAds = items.filter((entry): entry is HomeFeedNativeAd => entry.type === "native-ad");
-  const carouselAds = variant === "c"
-    ? allAds
-    : [];
-  const feedItems = variant === "c"
-    ? items.filter((entry) => entry.type !== "native-ad")
-    : items;
-  const dSections = variant === "d"
-    ? buildDFeedSections(items)
-    : [];
-
   return (
     <div>
-      {variant === "c" ? <HomeNativeAdCarousel ads={carouselAds} variant={variant} /> : null}
-      {variant === "d"
-        ? dSections.map((section, sectionIndex) => (
-          <div key={`d-section-${sectionIndex}`}>
-            {section.heroAds.length > 0 ? <HomeNativeAdHeroCarousel ads={section.heroAds} variant={variant} /> : null}
-            {section.entries.map((entry, index) => (
-              entry.type === "native-ad"
-                ? <HomeNativeAdHighlightCard ad={entry} index={index} key={entry.id} variant={variant} />
-                : <MarketplaceListItem category={category} item={entry} key={entry.id} position={index} />
-            ))}
-          </div>
-        ))
-        : feedItems.map((entry, index) => (
-          entry.type === "native-ad"
-            ? (
-              variant === "b"
-                ? <HomeNativeAdBanner ad={entry} index={index} key={entry.id} variant={variant} />
-                : <HomeNativeAdCard ad={entry} index={index} key={entry.id} variant={variant} />
-            )
-            : <MarketplaceListItem category={category} item={entry} key={entry.id} position={index} />
-        ))}
+      {items.map((entry, index) => (
+        entry.type === "native-ad"
+          ? <HomeNativeAdCard ad={entry} index={index} key={entry.id} />
+          : <MarketplaceListItem category={category} item={entry} key={entry.id} position={index} />
+      ))}
 
-      {feedItems.length === 0 && !isLoading ? (
+      {items.length === 0 && !isLoading ? (
         <div className="flex min-h-[240px] items-center justify-center px-4 py-12 text-center">
           <p className="text-sm text-[#64748b]">선택한 카테고리에 등록된 상품이 아직 없어요.</p>
         </div>
@@ -213,34 +174,4 @@ export function HomeFeed({
       ) : null}
     </div>
   );
-}
-
-function buildDFeedSections(items: HomeFeedEntry[]) {
-  const sections: DFeedSection[] = [];
-  let currentEntries: HomeFeedEntry[] = [];
-  let currentHeroAds: HomeFeedNativeAd[] = [];
-  let marketplaceCount = 0;
-
-  items.forEach((entry) => {
-    if (entry.type === "marketplace-item" && marketplaceCount === HOME_FEED_PAGE_SIZE) {
-      sections.push({ entries: currentEntries, heroAds: currentHeroAds });
-      currentEntries = [];
-      currentHeroAds = [];
-      marketplaceCount = 0;
-    }
-
-    if (entry.type === "native-ad") {
-      currentHeroAds.push(entry);
-      return;
-    }
-
-    currentEntries.push(entry);
-    marketplaceCount += 1;
-  });
-
-  if (currentEntries.length > 0 || currentHeroAds.length > 0) {
-    sections.push({ entries: currentEntries, heroAds: currentHeroAds });
-  }
-
-  return sections;
 }

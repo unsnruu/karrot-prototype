@@ -6,23 +6,19 @@ import { HomeNativeAdThumbnail } from "@/features/home/components/home-native-ad
 import { trackEvent } from "@/lib/analytics/amplitude";
 import { buildElementClickedEventProperties } from "@/lib/analytics/element-click";
 import { buildHomeExperimentTownMapHref } from "@/lib/analytics/home-experiment";
-import { type HomeExperimentVariant } from "@/lib/home-experiment";
 import { type HomeFeedNativeAd } from "@/lib/marketplace";
 
 export function HomeNativeAdBanner({
   ad,
   index,
-  variant,
 }: {
   ad: HomeFeedNativeAd;
   index: number;
-  variant: HomeExperimentVariant;
 }) {
   const trackedHref = buildHomeExperimentTownMapHref({
     ad,
     index,
     surface: "inline_banner",
-    variant,
   });
 
   return (

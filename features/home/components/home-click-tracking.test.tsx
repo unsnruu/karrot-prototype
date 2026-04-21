@@ -60,8 +60,8 @@ describe("home click tracking", () => {
     });
   });
 
-  it("preserves experiment home as returnTo when opening item detail", () => {
-    navigationState.pathname = "/exp/b/home";
+  it("keeps the current home path as returnTo when opening item detail", () => {
+    navigationState.pathname = "/home";
     navigationState.searchParams = new URLSearchParams("category=%EB%94%94%EC%A7%80%ED%84%B8%EA%B8%B0%EA%B8%B0");
 
     render(
@@ -89,7 +89,7 @@ describe("home click tracking", () => {
 
     expect(itemLinks[itemLinks.length - 1]).toHaveAttribute(
       "href",
-      "/home/items/item-1?returnTo=%2Fexp%2Fb%2Fhome%3Fcategory%3D%25EB%2594%2594%25EC%25A7%2580%25ED%2584%25B8%25EA%25B8%25B0%25EA%25B8%25B0",
+      "/home/items/item-1?returnTo=%2Fhome%3Fcategory%3D%25EB%2594%2594%25EC%25A7%2580%25ED%2584%25B8%25EA%25B8%25B0%25EA%25B8%25B0",
     );
   });
 

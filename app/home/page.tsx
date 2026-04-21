@@ -2,7 +2,6 @@ import { BottomNav } from "@/components/navigation/bottom-nav";
 import { HomeFeed } from "@/features/home/components/home-feed";
 import { HomeFab } from "@/features/home/components/home-fab";
 import { HomeHeader } from "@/features/home/components/home-header";
-import { resolveHomeExperimentVariant } from "@/lib/home-experiment";
 import { getHomeCategories, getHomeFeedPage } from "@/lib/marketplace-data";
 
 export const dynamic = "force-dynamic";
@@ -10,7 +9,6 @@ export const dynamic = "force-dynamic";
 type HomePageProps = {
   searchParams?: Promise<{
     category?: string | string[];
-    variant?: string | string[];
   }>;
 };
 
@@ -19,7 +17,6 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   const selectedCategory = Array.isArray(resolvedSearchParams.category)
     ? resolvedSearchParams.category[0]
     : resolvedSearchParams.category;
-  const experimentVariant = resolveHomeExperimentVariant(resolvedSearchParams.variant);
   const [{ items, hasMore, nextOffset }, categories] = await Promise.all([
     getHomeFeedPage({ category: selectedCategory }),
     getHomeCategories(),
@@ -37,8 +34,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
               initialHasMore={hasMore}
               initialItems={items}
               initialNextOffset={nextOffset}
-              key={`${selectedCategory ?? "all"}-${experimentVariant}`}
-              variant={experimentVariant}
+              key={selectedCategory ?? "all"}
             />
           </div>
         </section>
