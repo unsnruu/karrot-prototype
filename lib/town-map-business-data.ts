@@ -19,6 +19,18 @@ function readReviewCount(value: unknown, fallback: number) {
   return typeof value === "number" && Number.isFinite(value) ? value : fallback;
 }
 
+function normalizeImageSrc(src: string | null | undefined) {
+  if (!src) {
+    return "";
+  }
+
+  if (src.startsWith("/")) {
+    return encodeURI(src);
+  }
+
+  return src;
+}
+
 function createDefaultBusinessDetail(id: string): TownMapBusinessDetail {
   return {
     id,
@@ -47,6 +59,8 @@ function createDefaultBusinessDetail(id: string): TownMapBusinessDetail {
 }
 
 function mapBusinessRowToDetail(row: Record<string, unknown>, fallback: TownMapBusinessDetail) {
+  const imageUrl = normalizeImageSrc(readNullableString(row, "image_url", "town-map-business"));
+
   return {
     ...fallback,
     id: readString(row, "id", "town-map-business"),
@@ -65,6 +79,8 @@ function mapBusinessRowToDetail(row: Record<string, unknown>, fallback: TownMapB
     rating: readNullableNumber(row, "rating", "town-map-business") ?? fallback.rating,
     lat: readNullableFloat(row, "lat", "town-map-business") ?? fallback.lat,
     lng: readNullableFloat(row, "lng", "town-map-business") ?? fallback.lng,
+    imageGallery: imageUrl ? [imageUrl] : fallback.imageGallery,
+    mapPreviewImage: imageUrl || fallback.mapPreviewImage,
     websiteUrl: readNullableString(row, "website_url", "town-map-business") ?? fallback.websiteUrl,
     websiteLabel: readNullableString(row, "website_label", "town-map-business") ?? fallback.websiteLabel,
   };
@@ -94,6 +110,7 @@ type NearbyBusinessCardRow = {
   id: string;
   name: string;
   category: string;
+  image_url: string | null;
   town_label: string | null;
   rating: number | null;
   review_count: number | null;
@@ -110,7 +127,7 @@ function parseNearbyBusinessCardRow(value: unknown, fallback?: TownMapBusinessDe
     id: readString(value, "id", "nearby-business-card"),
     name: readString(value, "name", "nearby-business-card"),
     category: readString(value, "category", "nearby-business-card"),
-    image: LOCAL_FALLBACK_IMAGE_SRC,
+    image: normalizeImageSrc(readNullableString(value, "image_url", "nearby-business-card")) || LOCAL_FALLBACK_IMAGE_SRC,
     townLabel: readNullableString(value, "town_label", "nearby-business-card") ?? fallback?.townLabel ?? "우리 동네",
     regularCount:
       readNullableNumber(value, "review_count", "nearby-business-card") ?? fallback?.reviewCount ?? 0,
@@ -234,7 +251,7 @@ export const getNearbyTownMapBusinessCards = cache(
         const supabase = createServerSupabaseClient();
         const { data, error } = await supabase
           .from("businesses")
-          .select("id, name, category, town_label, rating, review_count, lat, lng")
+          .select("id, name, category, image_url, town_label, rating, review_count, lat, lng")
           .order("id")
           .limit(Math.max(limit * 3, limit));
 
