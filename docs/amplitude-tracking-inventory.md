@@ -3,7 +3,7 @@
 ## 문서 목적
 이 문서는 현재 코드베이스에서 실제로 Amplitude로 전송되는 이벤트와 각 이벤트의 속성 스키마를 정리한 문서다.
 
-- 기준 시점: 2026-04-21
+- 기준 시점: 2026-04-22
 - 기준 범위: `components/`, `features/`, `lib/analytics/`
 - 제외 범위: 테스트 코드
 - 기준 방식: `trackEvent(...)`, `amplitude.track(...)`, 공용 analytics helper 직접 확인
@@ -41,7 +41,31 @@ Amplitude 초기화는 [lib/analytics/amplitude.ts](/Users/unsnruu/Documents/pro
 - SDK: `@amplitude/unified`
 - 초기화: `amplitude.initAll(...)`
 - 자동 수집: `analytics: { autocapture: true }`
-- 사용자 식별: `localStorage` 기반 익명 visitor id를 생성해 `setUserId(...)`로 설정
+- 사용자 식별: 앱 초기화 시 새 익명 visitor id를 생성해 `setUserId(...)`로 설정
+- 실험 컨텍스트: [lib/analytics/visitor-experiment.ts](/Users/unsnruu/Documents/projects/dev/2026/karrot/lib/analytics/visitor-experiment.ts:1) 에서 `userId`, `appVersion`, `experiment`를 함께 생성하고 유지
+- user property 세팅:
+  - `app_version`
+  - `experiment_id`
+  - `iteration`
+  - `variant`
+
+## 공통 실험 속성
+
+현재 `trackEvent(...)`를 통해 전송되는 모든 명시 이벤트에는 아래 실험/방문자 속성이 함께 붙는다.
+
+| 속성 | 타입 | 필수 | 설명 |
+| --- | --- | --- | --- |
+| `user_id` | `string` | 예 | 앱 초기화 시 새로 생성되는 익명 visitor id |
+| `app_version` | `string` | 예 | 현재 앱 버전 (`package.json`) |
+| `experiment_id` | `string` | 예 | 현재 활성 실험 id |
+| `iteration` | `string` | 예 | 현재 실험 iteration |
+| `variant` | `string` | 예 | 현재 실험 variant |
+
+현재 활성 실험은 아래 하나다.
+
+- `experiment_id=item_detail_nearby_business_entry`
+- `iteration=v1`
+- `variant=as_is | nearby_business_carousel`
 
 ## 공통 helper 스키마
 
@@ -85,6 +109,11 @@ Amplitude 초기화는 [lib/analytics/amplitude.ts](/Users/unsnruu/Documents/pro
 - `screen_name: string`
 - `path: string`
 - `query_string?: string`
+- `user_id: string`
+- `app_version: string`
+- `experiment_id: string`
+- `iteration: string`
+- `variant: string`
 
 ### `element_clicked`
 
@@ -98,6 +127,11 @@ Amplitude 초기화는 [lib/analytics/amplitude.ts](/Users/unsnruu/Documents/pro
 - `target_name: string`
 - `path?: string`
 - `destination_path?: string`
+- `user_id: string`
+- `app_version: string`
+- `experiment_id: string`
+- `iteration: string`
+- `variant: string`
 
 현재 추가된 target:
 
@@ -106,6 +140,7 @@ Amplitude 초기화는 [lib/analytics/amplitude.ts](/Users/unsnruu/Documents/pro
 - `town_map_search_submit`
 - `sell_write_submit_button`
 - `chat_appointment_complete_button`
+- `item_detail_nearby_business_card`
 
 ### `component_interacted`
 
@@ -113,6 +148,7 @@ Amplitude 초기화는 [lib/analytics/amplitude.ts](/Users/unsnruu/Documents/pro
 
 - [features/home/components/home-native-ad-carousel.tsx](/Users/unsnruu/Documents/projects/dev/2026/karrot/features/home/components/home-native-ad-carousel.tsx:134)
 - [features/home/components/home-native-ad-hero-carousel.tsx](/Users/unsnruu/Documents/projects/dev/2026/karrot/features/home/components/home-native-ad-hero-carousel.tsx:126)
+- [features/home/components/item-detail-nearby-business-strip.tsx](/Users/unsnruu/Documents/projects/dev/2026/karrot/features/home/components/item-detail-nearby-business-strip.tsx:1)
 - [features/town-map/components/town-map-bottom-sheet.tsx](/Users/unsnruu/Documents/projects/dev/2026/karrot/features/town-map/components/town-map-bottom-sheet.tsx:74)
 
 스키마:
@@ -124,8 +160,11 @@ Amplitude 초기화는 [lib/analytics/amplitude.ts](/Users/unsnruu/Documents/pro
 | `screen_name` | `string` | 예 | 화면명 |
 | `surface` | `string` | 예 | UI 영역 |
 | `item_count` | `number` | 아니오 | 캐러셀 아이템 개수 |
-| `experiment_name` | `string` | 아니오 | 현재는 `home_to_town_map_entry` |
-| `experiment_variant` | `string` | 아니오 | variant |
+| `user_id` | `string` | 예 | 익명 visitor id |
+| `app_version` | `string` | 예 | 현재 앱 버전 |
+| `experiment_id` | `string` | 예 | 현재 활성 실험 id |
+| `iteration` | `string` | 예 | 현재 실험 iteration |
+| `variant` | `string` | 예 | 현재 실험 variant |
 
 ## 현재 해석상의 주의점
 
@@ -138,11 +177,22 @@ Amplitude 초기화는 [lib/analytics/amplitude.ts](/Users/unsnruu/Documents/pro
 - 약속 화면 진입은 `screen_viewed(chat_appointment)`로 본다.
 - 약속 완료는 `element_clicked(chat_appointment_complete_button)`로 본다.
 
-### 3. 홈 실험 town map 진입도 별도 이벤트가 아니다
+### 3. 실험 노출/전환도 별도 이벤트가 아니다
 
-`home_experiment_town_map_entered`는 현재 `screen_viewed`의 추가 속성으로 흡수되어 있다.
+실험 관련 분석은 별도 이벤트를 새로 만들지 않고, 기존 `screen_viewed`, `element_clicked`, `component_interacted`에 붙는 공통 실험 속성으로 해석한다.
 
-### 4. 상품 상세 추천 목록은 아직 클릭 추적이 없다
+### 4. 상품 상세 근처 업체 carousel은 기존 이벤트 조합으로 본다
+
+상품 상세의 근처 업체 carousel 실험은 아래처럼 해석한다.
+
+- 상품 상세 진입: `screen_viewed(screen_name=item_detail)`
+- carousel 스크롤: `component_interacted(component_name=item_detail_nearby_business_carousel)`
+- 업체 카드 클릭: `element_clicked(target_name=item_detail_nearby_business_card)`
+- 이후 업체 상세 진입: `screen_viewed(screen_name=town_map_business_detail)`
+
+각 이벤트에는 공통으로 `experiment_id`, `iteration`, `variant`가 붙으므로 variant별 퍼널 비교가 가능하다.
+
+### 5. 상품 상세 추천 목록은 아직 클릭 추적이 없다
 
 상품 상세 하단 추천 목록(`다른 물품 보러가기`, 추천 상품 카드)은 현재 `element_clicked`를 전송하지 않는다.
 
