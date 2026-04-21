@@ -5,6 +5,7 @@ import { useEffect } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import { initAmplitude, trackEvent } from "@/lib/analytics/amplitude";
 import { setHomeExperimentUserProperties } from "@/lib/analytics/home-experiment-user-properties";
+import { calculateScrollDepthPercent, getScrollDepthMilestones } from "@/lib/analytics/scroll-depth";
 import { buildScreenViewedEventProperties, getScreenName, isScreenViewedTrackedLocally } from "@/lib/analytics/screen-view";
 import { readHomeExperimentVariantFromPathname, resolveHomeExperimentVariant } from "@/lib/home-experiment";
 
@@ -42,6 +43,7 @@ export function AnalyticsProvider() {
   useEffect(() => {
     const isHomeExperimentScreen = pathname === "/home" || /^\/exp\/(a|b|c|d)\/home$/.test(pathname);
     const isDevelopingScreen = pathname === "/developing";
+    const isHomeExperimentTownMapScreen = pathname.includes("/town-map") && searchParams.get("exp_source") === "home_experiment";
 
     const additionalProperties = {
       ...(isHomeExperimentScreen && homeExperimentVariant
@@ -58,6 +60,20 @@ export function AnalyticsProvider() {
             screen_type: "pending_feature",
           }
         : undefined),
+      ...(isHomeExperimentTownMapScreen
+        ? {
+            experiment_name: "home_to_town_map_entry",
+            experiment_surface: searchParams.get("exp_surface") ?? undefined,
+            experiment_variant: searchParams.get("exp_variant") ?? undefined,
+            target_id: searchParams.get("exp_target_id") ?? searchParams.get("exp_ad_id") ?? undefined,
+            target_name: searchParams.get("exp_target_name") ?? "home_native_ad",
+            target_position: (() => {
+              const rawValue = searchParams.get("exp_target_position") ?? searchParams.get("exp_index");
+              return rawValue != null ? Number(rawValue) : undefined;
+            })(),
+            target_type: searchParams.get("exp_target_type") ?? "ad",
+          }
+        : undefined),
     };
 
     const screenViewedProperties = buildScreenViewedEventProperties({
@@ -72,51 +88,17 @@ export function AnalyticsProvider() {
   }, [homeExperimentVariant, pathname, search, searchParams]);
 
   useEffect(() => {
-    const source = searchParams.get("exp_source");
-    const variant = searchParams.get("exp_variant");
-    const surface = searchParams.get("exp_surface");
-    const targetId = searchParams.get("exp_target_id") ?? searchParams.get("exp_ad_id");
-    const targetPosition = searchParams.get("exp_target_position") ?? searchParams.get("exp_index");
-    const targetName = searchParams.get("exp_target_name") ?? "home_native_ad";
-    const targetType = searchParams.get("exp_target_type") ?? "ad";
-
-    if (source !== "home_experiment") {
-      return;
-    }
-
-    if (!pathname.includes("/town-map")) {
-      return;
-    }
-
-    trackEvent("home_experiment_town_map_entered", {
-      experiment_name: "home_to_town_map_entry",
-      experiment_surface: surface ?? undefined,
-      experiment_variant: variant ?? undefined,
-      path: pathname,
-      screen_name: screenName,
-      target_id: targetId ?? undefined,
-      target_name: targetName,
-      target_position: targetPosition != null ? Number(targetPosition) : undefined,
-      target_type: targetType,
-    });
-  }, [pathname, screenName, searchParams]);
-
-  useEffect(() => {
     const isHomeExperimentScreen = pathname === "/home" || /^\/exp\/(a|b|c|d)\/home$/.test(pathname);
 
     if (!isHomeExperimentScreen || !homeExperimentVariant) {
       return;
     }
 
-    const milestones = [25, 50, 75, 100] as const;
+    const milestones = getScrollDepthMilestones();
     const trackedMilestones = new Set<number>();
 
     const handleScroll = () => {
-      const documentElement = document.documentElement;
-      const scrollTop = window.scrollY;
-      const viewportHeight = window.innerHeight;
-      const scrollableHeight = documentElement.scrollHeight - viewportHeight;
-      const progress = scrollableHeight <= 0 ? 100 : Math.min(100, Math.round(((scrollTop + viewportHeight) / documentElement.scrollHeight) * 100));
+      const progress = calculateScrollDepthPercent();
 
       milestones.forEach((milestone) => {
         if (progress < milestone || trackedMilestones.has(milestone)) {
@@ -143,65 +125,6 @@ export function AnalyticsProvider() {
       window.removeEventListener("resize", handleScroll);
     };
   }, [homeExperimentVariant, pathname, screenName]);
-
-  useEffect(() => {
-    const source = searchParams.get("exp_source");
-    const variant = searchParams.get("exp_variant");
-    const surface = searchParams.get("exp_surface");
-    const targetId = searchParams.get("exp_target_id") ?? searchParams.get("exp_ad_id");
-    const targetPosition = searchParams.get("exp_target_position") ?? searchParams.get("exp_index");
-    const targetName = searchParams.get("exp_target_name") ?? "home_native_ad";
-    const targetType = searchParams.get("exp_target_type") ?? "ad";
-
-    if (source !== "home_experiment" || !pathname.includes("/town-map")) {
-      return;
-    }
-
-    let hasTracked = false;
-
-    const trackEngagement = (engagementType: "dwell" | "scroll" | "tap") => {
-      if (hasTracked) {
-        return;
-      }
-
-      hasTracked = true;
-      trackEvent("town_map_landing_engaged", {
-        engagement_type: engagementType,
-        experiment_name: "home_to_town_map_entry",
-        experiment_surface: surface ?? undefined,
-        experiment_variant: variant ?? undefined,
-        path: pathname,
-        screen_name: screenName,
-        target_id: targetId ?? undefined,
-        target_name: targetName,
-        target_position: targetPosition != null ? Number(targetPosition) : undefined,
-        target_type: targetType,
-      });
-      window.removeEventListener("scroll", handleScroll);
-      window.removeEventListener("pointerdown", handlePointerDown);
-    };
-
-    const handleScroll = () => {
-      trackEngagement("scroll");
-    };
-
-    const handlePointerDown = () => {
-      trackEngagement("tap");
-    };
-
-    const dwellTimer = window.setTimeout(() => {
-      trackEngagement("dwell");
-    }, 5000);
-
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    window.addEventListener("pointerdown", handlePointerDown, { passive: true });
-
-    return () => {
-      window.clearTimeout(dwellTimer);
-      window.removeEventListener("scroll", handleScroll);
-      window.removeEventListener("pointerdown", handlePointerDown);
-    };
-  }, [pathname, screenName, searchParams]);
 
   return null;
 }

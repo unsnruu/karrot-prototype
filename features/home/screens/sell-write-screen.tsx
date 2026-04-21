@@ -9,6 +9,7 @@ import { FieldButton } from "@/components/ui/field-button";
 import { PageHeader } from "@/components/ui/page-header";
 import { SelectionChipButton } from "@/components/ui/selection-chip";
 import { trackEvent } from "@/lib/analytics/amplitude";
+import { buildElementClickedEventProperties } from "@/lib/analytics/element-click";
 import { buildScreenViewedEventProperties } from "@/lib/analytics/screen-view";
 import { useSellFlow } from "@/features/home/components/sell-flow-provider";
 import { resolveHomeHrefFromPathname } from "@/lib/home-experiment";
@@ -95,12 +96,22 @@ export function SellWriteScreen() {
   };
 
   const handleComplete = () => {
-    trackEvent("sell_form_completed", {
-      has_location: Boolean(draft.location),
-      photo_count: draft.photos.length,
-      price_text: draft.priceText || undefined,
-      trade_type: draft.tradeType,
-    });
+    trackEvent(
+      "element_clicked",
+      buildElementClickedEventProperties({
+        screenName: "sell_write",
+        targetType: "button",
+        targetName: "sell_write_submit_button",
+        surface: "sticky_footer",
+        path: pathname,
+        additionalProperties: {
+          has_location: Boolean(draft.location),
+          photo_count: draft.photos.length,
+          price_text: draft.priceText || undefined,
+          trade_type: draft.tradeType,
+        },
+      }),
+    );
     const nextItem = buildSellPreviewItem(draft);
     savePublishedSellItem(nextItem);
     router.push("/home/sell/preview");

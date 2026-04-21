@@ -6,7 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { PendingFeatureLink } from "@/components/ui/pending-feature-link";
 import { ArrowLeftIcon } from "@/features/home/components/item-detail-icons";
 import { trackEvent } from "@/lib/analytics/amplitude";
-import { buildSearchEventProperties } from "@/lib/analytics/search";
+import { buildElementClickedEventProperties } from "@/lib/analytics/element-click";
 import { buildPendingFeatureHref } from "@/lib/tab-navigation";
 import {
   townMapKeyboardRows,
@@ -48,22 +48,25 @@ export function TownMapSearchScreen({ returnHref }: TownMapSearchScreenProps) {
     const value = term.trim();
     const destinationPath = buildPendingFeatureHref(returnHref, "동네지도에서 업체 찾기");
 
-    trackEvent(
-      "search_submitted",
-      buildSearchEventProperties({
-        screenName: "town_map_search",
-        path: pathname,
-        searchName: "town_map_search_input",
-        surface: "search_screen",
-        destinationPath,
-        query: value || undefined,
-        hasQuery: Boolean(value),
-      }),
-    );
-
     if (!value) {
       return;
     }
+
+    trackEvent(
+      "element_clicked",
+      buildElementClickedEventProperties({
+        screenName: "town_map_search",
+        targetType: "button",
+        targetName: "town_map_search_submit",
+        surface: "search_screen",
+        path: pathname,
+        destinationPath,
+        additionalProperties: {
+          query: value,
+          has_query: true,
+        },
+      }),
+    );
 
     addRecentSearch(value);
     router.push(destinationPath);
@@ -122,12 +125,13 @@ export function TownMapSearchScreen({ returnHref }: TownMapSearchScreenProps) {
               disabled={!hasRecentSearches}
               onClick={() => {
                 trackEvent(
-                  "search_history_cleared",
-                  buildSearchEventProperties({
+                  "element_clicked",
+                  buildElementClickedEventProperties({
                     screenName: "town_map_search",
-                    path: pathname,
-                    searchName: "town_map_search_input",
+                    targetType: "button",
+                    targetName: "town_map_search_history_clear",
                     surface: "recent_searches",
+                    path: pathname,
                   }),
                 );
                 setRecentSearches([]);

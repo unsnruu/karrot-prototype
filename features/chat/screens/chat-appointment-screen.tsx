@@ -6,6 +6,8 @@ import { ActionButton } from "@/components/ui/action-button";
 import { FieldButton } from "@/components/ui/field-button";
 import { PendingFeatureLink } from "@/components/ui/pending-feature-link";
 import { trackEvent } from "@/lib/analytics/amplitude";
+import { buildElementClickedEventProperties } from "@/lib/analytics/element-click";
+import { buildScreenViewedEventProperties } from "@/lib/analytics/screen-view";
 import {
   appendChatAppointmentQuery,
   DEFAULT_CHAT_APPOINTMENT_REMINDER,
@@ -49,23 +51,22 @@ export function ChatAppointmentScreen({
   const [selectedTime, setSelectedTime] = useState<string | null>(initialDraft.time);
   const [selectedReminder, setSelectedReminder] = useState<string | null>(initialDraft.reminder);
   const selectedLocation = initialDraft.location;
+  const appointmentPath = completeBaseHref.replace(/\/complete$/, "");
 
   useEffect(() => {
-    if (!seller || !item) {
-      trackEvent("chat_appointment_invalid_state", {
-        has_item: Boolean(item),
-        has_seller: Boolean(seller),
-        source: "chat_appointment",
-      });
-      return;
-    }
-
-    trackEvent("chat_appointment_started", {
-      item_id: item.id,
-      seller_name: seller.name,
-      thread_id: item.id,
-    });
-  }, [item, seller]);
+    trackEvent(
+      "screen_viewed",
+      buildScreenViewedEventProperties({
+        pathname: appointmentPath,
+        queryString: "",
+        additionalProperties: {
+          item_id: item.id,
+          seller_name: seller.name,
+          thread_id: item.id,
+        },
+      }),
+    );
+  }, [appointmentPath, item.id, seller.name]);
 
   const currentDraft: ChatAppointmentDraft = {
     date: selectedDate,
@@ -125,15 +126,26 @@ export function ChatAppointmentScreen({
               fullWidth
               href={completeHref}
               onClick={() => {
-                trackEvent("chat_appointment_completed", {
-                  has_location: Boolean(currentDraft.location),
-                  has_reminder: Boolean(currentDraft.reminder),
-                  item_id: item.id,
-                  scheduled_date: currentDraft.date ?? undefined,
-                  scheduled_time: currentDraft.time ?? undefined,
-                  seller_name: seller.name,
-                  thread_id: item.id,
-                });
+                trackEvent(
+                  "element_clicked",
+                  buildElementClickedEventProperties({
+                    screenName: "chat_appointment",
+                    targetType: "button",
+                    targetName: "chat_appointment_complete_button",
+                    surface: "sticky_footer",
+                    path: appointmentPath,
+                    destinationPath: completeHref,
+                    additionalProperties: {
+                      has_location: Boolean(currentDraft.location),
+                      has_reminder: Boolean(currentDraft.reminder),
+                      item_id: item.id,
+                      scheduled_date: currentDraft.date ?? undefined,
+                      scheduled_time: currentDraft.time ?? undefined,
+                      seller_name: seller.name,
+                      thread_id: item.id,
+                    },
+                  }),
+                );
               }}
               replace
               size="medium"

@@ -130,10 +130,13 @@ export function HomeNativeAdHeroCarousel({
         }
 
         hasTrackedInteraction.current = true;
-        trackEvent("home_experiment_carousel_interacted", {
-          ad_count: ads.length,
+        trackEvent("component_interacted", {
+          component_name: "home_native_ad_carousel",
+          interaction_type: "scroll",
+          item_count: ads.length,
+          screen_name: "home",
+          surface: "top_carousel",
           experiment_name: "home_to_town_map_entry",
-          experiment_surface: "top_carousel",
           experiment_variant: variant,
         });
       }}

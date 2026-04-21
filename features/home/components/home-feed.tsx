@@ -7,7 +7,6 @@ import { HomeNativeAdCarousel } from "@/features/home/components/home-native-ad-
 import { HomeNativeAdHeroCarousel } from "@/features/home/components/home-native-ad-hero-carousel";
 import { HomeNativeAdHighlightCard } from "@/features/home/components/home-native-ad-highlight-card";
 import { MarketplaceListItem } from "@/features/home/components/marketplace-list-item";
-import { trackEvent } from "@/lib/analytics/amplitude";
 import { buildPublishedSellFeedItem, readPublishedSellItem } from "@/lib/local-sell-storage";
 import { type HomeExperimentVariant } from "@/lib/home-experiment";
 import { HOME_FEED_PAGE_SIZE, type HomeFeedEntry, type HomeFeedNativeAd } from "@/lib/marketplace";
@@ -103,12 +102,6 @@ export function HomeFeed({
         category,
         error: loadError,
         offset: nextOffsetRef.current,
-      });
-      trackEvent("home_feed_load_failed", {
-        category: category ?? "all",
-        offset: nextOffsetRef.current,
-        error_message: loadError instanceof Error ? loadError.message : String(loadError),
-        source: "home_feed",
       });
       setError("상품을 더 불러오지 못했어요.");
     } finally {

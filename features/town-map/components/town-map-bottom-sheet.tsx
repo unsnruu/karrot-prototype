@@ -80,8 +80,11 @@ export function TownMapBottomSheet() {
         const nextHeight = collapsedDistance <= expandedDistance ? collapsedHeight : expandedHeight;
 
         if (nextHeight === expandedHeight && currentHeight !== expandedHeight) {
-          trackEvent("town_map_bottom_sheet_expanded", {
-            source: "town_map_bottom_sheet",
+          trackEvent("component_interacted", {
+            component_name: "town_map_bottom_sheet",
+            interaction_type: "expand",
+            screen_name: "town_map",
+            surface: "bottom_sheet",
           });
         }
 

@@ -9,7 +9,7 @@ import { TownMapBottomSheet } from "@/features/town-map/components/town-map-bott
 import { TownMapCategoryChip } from "@/features/town-map/components/town-map-category-chip";
 import { TownMapKakaoMap } from "@/features/town-map/components/town-map-kakao-map";
 import { trackEvent } from "@/lib/analytics/amplitude";
-import { buildSearchEventProperties } from "@/lib/analytics/search";
+import { buildElementClickedEventProperties } from "@/lib/analytics/element-click";
 import { appendNavigationQuery } from "@/lib/tab-navigation";
 import {
   townMapCenter,
@@ -40,12 +40,13 @@ export function TownMapScreen({
               href={searchHref}
               onClick={() => {
                 trackEvent(
-                  "search_opened",
-                  buildSearchEventProperties({
+                  "element_clicked",
+                  buildElementClickedEventProperties({
                     screenName: "town_map",
-                    path: pathname,
-                    searchName: "town_map_search_input",
+                    targetType: "input",
+                    targetName: "town_map_search_input",
                     surface: "header",
+                    path: pathname,
                     destinationPath: searchHref,
                   }),
                 );

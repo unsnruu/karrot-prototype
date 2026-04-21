@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { trackEvent } from "@/lib/analytics/amplitude";
+import { calculateScrollDepthPercent, resolveScrollDepthBucket } from "@/lib/analytics/scroll-depth";
 
 export function useHomeExperimentImpression(eventProperties: Record<string, unknown>) {
   const ref = useRef<HTMLElement | null>(null);
@@ -26,7 +27,14 @@ export function useHomeExperimentImpression(eventProperties: Record<string, unkn
         }
 
         hasTracked = true;
-        trackEvent("element_exposed", eventProperties);
+
+        const scrollDepthPercent = calculateScrollDepthPercent();
+
+        trackEvent("element_exposed", {
+          ...eventProperties,
+          scroll_depth_bucket: resolveScrollDepthBucket(scrollDepthPercent),
+          scroll_depth_percent: scrollDepthPercent,
+        });
         observer.disconnect();
       },
       { threshold: 0.6 },

@@ -73,7 +73,7 @@ describe("AnalyticsProvider", () => {
     });
   });
 
-  it("keeps target context when home experiment traffic enters town map", async () => {
+  it("keeps target context on screen_viewed when home experiment traffic enters town map", async () => {
     navigationState.pathname = "/town-map";
     navigationState.searchParams = new URLSearchParams(
       "exp_source=home_experiment&exp_variant=b&exp_surface=top_carousel&exp_target_id=ad-1&exp_target_position=2&exp_target_name=home_native_ad&exp_target_type=ad",
@@ -82,11 +82,13 @@ describe("AnalyticsProvider", () => {
     render(React.createElement(AnalyticsProvider));
 
     await waitFor(() => {
-      expect(amplitudeMocks.track).toHaveBeenCalledWith("home_experiment_town_map_entered", {
+      expect(amplitudeMocks.track).toHaveBeenCalledWith("screen_viewed", {
         experiment_name: "home_to_town_map_entry",
         experiment_surface: "top_carousel",
         experiment_variant: "b",
         path: "/town-map",
+        query_string:
+          "exp_source=home_experiment&exp_variant=b&exp_surface=top_carousel&exp_target_id=ad-1&exp_target_position=2&exp_target_name=home_native_ad&exp_target_type=ad",
         screen_name: "town_map",
         target_id: "ad-1",
         target_name: "home_native_ad",

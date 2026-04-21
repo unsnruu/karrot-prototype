@@ -73,14 +73,6 @@ export function SellPhotoSelectionScreen() {
                 className="relative aspect-square overflow-hidden bg-[#f5f5f5]"
                 key={photo}
                 onClick={() => {
-                  const isSelected = draft.photos.includes(photo);
-
-                  trackEvent("sell_photo_toggled", {
-                    next_selected_count: isSelected ? Math.max(0, draft.photos.length - 1) : draft.photos.length + 1,
-                    photo_id: photo,
-                    selected: !isSelected,
-                    step_name: "photos",
-                  });
                   togglePhoto(photo);
                 }}
                 type="button"
