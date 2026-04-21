@@ -43,6 +43,14 @@ Amplitude 초기화는 `lib/analytics/amplitude.ts`에 있으며, SDK는 `@ampli
 
 코드 위치: `lib/analytics/home-experiment-user-properties.ts`
 
+## 변경 기록
+
+### 2026-04-20
+
+- `screen_exited`는 현재 코드베이스에서 더 이상 명시적으로 전송되지 않는다.
+- 저장소 전체 검색 기준 `screen_exited` 호출 및 관련 트래킹 코드는 존재하지 않는다.
+- 운영 기준 이벤트는 계속 `screen_viewed`를 사용한다.
+
 ## 핵심 원칙
 
 ### 1. 이벤트 이름은 행동을 표현한다
@@ -53,10 +61,7 @@ Amplitude 초기화는 `lib/analytics/amplitude.ts`에 있으며, SDK는 `@ampli
 - `screen_viewed`
 - `element_clicked`
 - `element_exposed`
-- `search_opened`
-- `search_submitted`
-- `search_history_cleared`
-- `sell_form_completed`
+- `component_interacted`
 - `chat_appointment_completed`
 
 비권장 예시:
@@ -73,7 +78,7 @@ Amplitude 초기화는 `lib/analytics/amplitude.ts`에 있으며, SDK는 `@ampli
 - 같은 화면 진입이면 `screen_viewed`
 - 같은 클릭이면 `element_clicked`
 - 같은 노출이면 `element_exposed`
-- 같은 검색 진입이면 `search_opened`
+- 같은 드래그/확장/스크롤이면 `component_interacted`
 
 그리고 차이는 아래 속성으로 분리한다.
 
@@ -91,9 +96,8 @@ Amplitude 초기화는 `lib/analytics/amplitude.ts`에 있으며, SDK는 `@ampli
 
 예:
 
-- `sell_form_completed`
 - `chat_appointment_completed`
-- `home_feed_load_failed`
+- `sell_flow_redirected_missing_photos`
 
 ### 4. 분석 질문이 병목이면 상태를 먼저 본다
 모든 UI 조작을 클릭 이벤트로 먼저 수집하지 않는다.
@@ -245,6 +249,8 @@ Amplitude autocapture의 page view 이벤트는 아래 질문에는 유용하다
 
 현재 코드에서 명시적으로 호출되는 이벤트는 총 18개다.
 
+`screen_exited`는 이 목록에 포함되지 않으며, 현재 미사용 상태다.
+
 ### 공통 이벤트
 
 - `screen_viewed`
@@ -363,6 +369,8 @@ Amplitude autocapture의 page view 이벤트는 아래 질문에는 유용하다
 - `target_position`
 - `experiment_name`
 - `experiment_variant`
+- `scroll_depth_percent`
+- `scroll_depth_bucket`
 - `destination_path`
 
 #### `target_type`와 `target_name`
@@ -538,7 +546,7 @@ Town Map:
 - `target_type=ad`
 - `screen_name=home`
 - 사용 surface: `inline_card`, `inline_banner`, `top_carousel`
-- 추가 속성: `ad_destination`, `ad_feature`, `experiment_name`, `experiment_surface`, `experiment_variant`
+- 추가 속성: `ad_destination`, `ad_feature`, `experiment_name`, `experiment_surface`, `experiment_variant`, `scroll_depth_percent`, `scroll_depth_bucket`
 
 전송 훅: `features/home/components/use-home-experiment-impression.ts`
 
