@@ -40,6 +40,11 @@ export type TownMapBusinessDetail = {
   updatedAtLabel: string;
 };
 
+type FallbackBusinessInput = Omit<TownMapBusinessDetail, "websiteLabel" | "websiteUrl"> & {
+  websiteLabel?: string | null;
+  websiteUrl?: string | null;
+};
+
 const detailAssets = {
   geumhwaFoodA: "https://www.figma.com/api/mcp/asset/2d0526a3-6fa3-4d1d-9125-e0279d40aaf8",
   geumhwaFoodB: "https://www.figma.com/api/mcp/asset/6f05a671-06fa-4d44-acfc-5f02412b3ced",
@@ -50,8 +55,16 @@ const detailAssets = {
   bagelB: "https://www.figma.com/api/mcp/asset/0430fdd5-12c3-4618-bb1e-32bc746f617d",
 } as const;
 
+function defineFallbackBusiness(detail: FallbackBusinessInput): TownMapBusinessDetail {
+  return {
+    websiteLabel: null,
+    websiteUrl: null,
+    ...detail,
+  };
+}
+
 export const townMapBusinessDetailsFallback: TownMapBusinessDetail[] = [
-  {
+  defineFallbackBusiness({
     id: "geumhwa-tonkatsu-hapjeong",
     name: "금화왕돈까스 합정점",
     category: "돈까스",
@@ -117,8 +130,8 @@ export const townMapBusinessDetailsFallback: TownMapBusinessDetail[] = [
       },
     ],
     updatedAtLabel: "2026년 1월 6일",
-  },
-  {
+  }),
+  defineFallbackBusiness({
     id: "mangwon-burger-hapjeong",
     name: "망원수제버거 합정점",
     category: "수제버거",
@@ -144,8 +157,8 @@ export const townMapBusinessDetailsFallback: TownMapBusinessDetail[] = [
     ],
     reviews: [],
     updatedAtLabel: "2026년 1월 2일",
-  },
-  {
+  }),
+  defineFallbackBusiness({
     id: "hapjeong-bagel-club",
     name: "합정베이글클럽",
     category: "베이커리",
@@ -171,9 +184,13 @@ export const townMapBusinessDetailsFallback: TownMapBusinessDetail[] = [
     ],
     reviews: [],
     updatedAtLabel: "2026년 1월 4일",
-  },
+  }),
 ];
 
+const fallbackBusinessById = new Map(
+  townMapBusinessDetailsFallback.map((business) => [business.id, business]),
+);
+
 export function getTownMapBusinessDetailFallback(id: string) {
-  return townMapBusinessDetailsFallback.find((business) => business.id === id) ?? null;
+  return fallbackBusinessById.get(id) ?? null;
 }

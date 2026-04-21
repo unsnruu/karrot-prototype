@@ -386,6 +386,10 @@ const communityPostDetailOverrides: Partial<Record<string, Partial<CommunityPost
   },
 };
 
+function createIndexMap<T extends { id: string }>(entries: T[]) {
+  return new Map(entries.map((entry) => [entry.id, entry]));
+}
+
 function buildDefaultCommunityPostDetail(post: CommunityPost): CommunityPostDetail {
   return {
     ...post,
@@ -401,25 +405,47 @@ function buildDefaultCommunityPostDetail(post: CommunityPost): CommunityPostDeta
   };
 }
 
-export function getFallbackCommunityPostDetail(postId: string) {
-  const post = communityPosts.find((entry) => entry.id === postId);
+const communityPostById = createIndexMap(communityPosts);
 
-  if (!post) {
-    return null;
-  }
-
+function buildFallbackCommunityPostDetail(
+  post: CommunityPost,
+  override?: Partial<CommunityPostDetail>,
+): CommunityPostDetail {
   const baseDetail = buildDefaultCommunityPostDetail(post);
-  const override = communityPostDetailOverrides[postId];
 
   return {
     ...baseDetail,
     ...override,
     author: override?.author ?? baseDetail.author,
     bodyParagraphs: override?.bodyParagraphs ?? baseDetail.bodyParagraphs,
-    commentsList: communityCommentThreadsByPostId[postId] ?? [],
-  } satisfies CommunityPostDetail;
+    commentsList: communityCommentThreadsByPostId[post.id] ?? [],
+  };
+}
+
+export function getFallbackCommunityPostDetail(postId: string) {
+  const post = communityPostById.get(postId);
+
+  if (!post) {
+    return null;
+  }
+
+  return buildFallbackCommunityPostDetail(post, communityPostDetailOverrides[postId]);
 }
 
 export function getFallbackCommunityRecommendations(postId: string, limit = 3) {
-  return communityPosts.filter((post) => post.id !== postId).slice(0, limit);
+  const recommendations: CommunityPost[] = [];
+
+  for (const post of communityPosts) {
+    if (post.id === postId) {
+      continue;
+    }
+
+    recommendations.push(post);
+
+    if (recommendations.length >= limit) {
+      break;
+    }
+  }
+
+  return recommendations;
 }

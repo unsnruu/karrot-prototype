@@ -23,6 +23,12 @@ import {
 import { getMarketplaceItemDetail } from "@/lib/marketplace-data";
 import type { MarketplaceItem, SellerProfile } from "@/lib/marketplace";
 
+type ChatScreenData = {
+  item: MarketplaceItem;
+  seller: SellerProfile;
+  chat: ChatPreview;
+};
+
 // ─── Row types ────────────────────────────────────────────────────────────────
 
 type ChatThreadRow = {
@@ -197,6 +203,53 @@ function mapThreadPreview(
   };
 }
 
+function buildFirstImageByItemId(images: ChatLandingImageRow[]) {
+  const firstImageByItemId = new Map<string, string>();
+
+  for (const image of images) {
+    if (!firstImageByItemId.has(image.item_id)) {
+      firstImageByItemId.set(image.item_id, image.image_url);
+    }
+  }
+
+  return firstImageByItemId;
+}
+
+function buildChatScreenData(detail: { item: MarketplaceItem; seller: SellerProfile }, chat: ChatPreview): ChatScreenData {
+  return {
+    ...detail,
+    chat,
+  };
+}
+
+function buildGenericChatScreenData(detail: { item: MarketplaceItem; seller: SellerProfile }): ChatScreenData {
+  return buildChatScreenData(
+    detail,
+    buildGenericChatPreview(detail.item.id, detail.seller.name, detail.item.title),
+  );
+}
+
+async function getFallbackChatScreenData(itemKey: string): Promise<ChatScreenData | null> {
+  const detail = await getMarketplaceItemDetail(itemKey);
+
+  if (detail) {
+    return buildChatScreenData(detail, getChatByItemId(detail.item.id));
+  }
+
+  const item = getItemById(itemKey);
+  const seller = item ? getSellerById(item.sellerId) : undefined;
+
+  if (!item || !seller) {
+    return null;
+  }
+
+  return {
+    item,
+    seller,
+    chat: getChatByItemId(item.id),
+  };
+}
+
 // ─── Public exports ───────────────────────────────────────────────────────────
 
 export const getChatLandingData = cache(async (): Promise<ChatThreadPreview[]> => {
@@ -261,12 +314,7 @@ export const getChatLandingData = cache(async (): Promise<ChatThreadPreview[]> =
 
     const itemById = new Map(items.map((item) => [item.id, item]));
     const sellerById = new Map(sellers.map((seller) => [seller.id, seller]));
-    const firstImageByItemId = new Map<string, string>();
-    for (const image of images) {
-      if (!firstImageByItemId.has(image.item_id)) {
-        firstImageByItemId.set(image.item_id, image.image_url);
-      }
-    }
+    const firstImageByItemId = buildFirstImageByItemId(images);
 
     const previews = threads.map((thread) => {
       const item = itemById.get(thread.item_id);
@@ -283,18 +331,9 @@ export const getChatLandingData = cache(async (): Promise<ChatThreadPreview[]> =
 });
 
 export const getChatScreenData = cache(
-  async (itemKey: string): Promise<{ item: MarketplaceItem; seller: SellerProfile; chat: ChatPreview } | null> => {
+  async (itemKey: string): Promise<ChatScreenData | null> => {
     if (!hasSupabaseEnv()) {
-      const detail = await getMarketplaceItemDetail(itemKey);
-
-      if (!detail) {
-        return null;
-      }
-
-      return {
-        ...detail,
-        chat: getChatByItemId(detail.item.id),
-      };
+      return getFallbackChatScreenData(itemKey);
     }
 
     try {
@@ -320,10 +359,7 @@ export const getChatScreenData = cache(
       }
 
       if (!threadData) {
-        return {
-          ...detail,
-          chat: buildGenericChatPreview(detail.item.id, detail.seller.name, detail.item.title),
-        };
+        return buildGenericChatScreenData(detail);
       }
 
       const thread = parseChatThreadRow(threadData, "chat.thread");
@@ -339,34 +375,20 @@ export const getChatScreenData = cache(
         throw messageError ?? new Error(`Missing chat messages for item ${resolvedItemId}`);
       }
 
-      return {
-        ...detail,
-        chat: mapChatPreview(thread, parseRows(messageData, "chat.messages", parseChatMessageRow)),
-      };
+      return buildChatScreenData(
+        detail,
+        mapChatPreview(thread, parseRows(messageData, "chat.messages", parseChatMessageRow)),
+      );
     } catch (error) {
       logSupabaseFallback("chat", error);
 
       const detail = await getMarketplaceItemDetail(itemKey);
 
       if (detail) {
-        return {
-          ...detail,
-          chat: buildGenericChatPreview(detail.item.id, detail.seller.name, detail.item.title),
-        };
+        return buildGenericChatScreenData(detail);
       }
 
-      const item = getItemById(itemKey);
-      const seller = item ? getSellerById(item.sellerId) : undefined;
-
-      if (!item || !seller) {
-        return null;
-      }
-
-      return {
-        item,
-        seller,
-        chat: getChatByItemId(item.id),
-      };
+      return getFallbackChatScreenData(itemKey);
     }
   },
 );

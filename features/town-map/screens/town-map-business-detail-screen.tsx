@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AppImage } from "@/components/ui/app-image";
 import { AppToolbar } from "@/components/ui/app-toolbar";
@@ -9,6 +8,9 @@ import { UnderlineTabLink } from "@/components/ui/tabs";
 import { PendingFeatureLink } from "@/components/ui/pending-feature-link";
 import { trackEvent } from "@/lib/analytics/amplitude";
 import { buildElementClickedEventProperties } from "@/lib/analytics/element-click";
+import { TownMapBusinessNewsList } from "@/features/town-map/components/town-map-business-news-list";
+import { TownMapBusinessPhotoGrid } from "@/features/town-map/components/town-map-business-photo-grid";
+import { TownMapBusinessReviewList } from "@/features/town-map/components/town-map-business-review-list";
 import { TownMapBusinessMiniMap } from "@/features/town-map/components/town-map-business-mini-map";
 import { type TownMapBusinessDetail } from "@/lib/town-map-business";
 import { type TownMapBusinessNewsPost } from "@/lib/town-map-business-news";
@@ -27,6 +29,19 @@ export function TownMapBusinessDetailScreen({
   tabHrefs: Record<BusinessDetailTab, string>;
 }) {
   const pathname = usePathname();
+  const trackFooterAction = (targetName: "town_map_business_call_button" | "town_map_business_chat_button") => {
+    trackEvent(
+      "element_clicked",
+      buildElementClickedEventProperties({
+        screenName: "town_map_business_detail",
+        targetType: "button",
+        targetName,
+        surface: "sticky_footer",
+        path: pathname,
+        targetId: detail.id,
+      }),
+    );
+  };
 
   return (
     <main className="min-h-screen bg-white text-[#111827]">
@@ -94,10 +109,10 @@ export function TownMapBusinessDetailScreen({
 
         <nav className="mt-4 border-b border-[#edeef0] px-4">
           <div className="flex">
-            <TabButton active={activeTab === "home"} currentPath={pathname} currentTab={activeTab} href={tabHrefs.home} label="홈" tabKey="home" />
-            <TabButton active={activeTab === "news"} currentPath={pathname} currentTab={activeTab} href={tabHrefs.news} label="소식" tabKey="news" />
-            <TabButton active={activeTab === "reviews"} currentPath={pathname} currentTab={activeTab} href={tabHrefs.reviews} label="후기" tabKey="reviews" />
-            <TabButton active={activeTab === "photos"} currentPath={pathname} currentTab={activeTab} href={tabHrefs.photos} label="사진" tabKey="photos" />
+            <TabButton active={activeTab === "home"} currentPath={pathname} href={tabHrefs.home} label="홈" tabKey="home" />
+            <TabButton active={activeTab === "news"} currentPath={pathname} href={tabHrefs.news} label="소식" tabKey="news" />
+            <TabButton active={activeTab === "reviews"} currentPath={pathname} href={tabHrefs.reviews} label="후기" tabKey="reviews" />
+            <TabButton active={activeTab === "photos"} currentPath={pathname} href={tabHrefs.photos} label="사진" tabKey="photos" />
           </div>
         </nav>
 
@@ -161,53 +176,7 @@ export function TownMapBusinessDetailScreen({
             </Section>
 
             <Section title="후기">
-              <div className="space-y-6">
-                {detail.reviews.length ? (
-                  detail.reviews.map((review) => (
-                    <article className="border-b border-[#edeef0] pb-5 last:border-b-0 last:pb-0" key={review.id}>
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="flex items-start gap-3">
-                          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#e5e7eb] text-[13px] font-bold text-[#6b7280]">
-                            {review.authorName.slice(0, 1)}
-                          </div>
-                          <div>
-                            <div className="flex items-center gap-1">
-                              <p className="text-[14px] font-bold leading-5 text-[#111827]">{review.authorName}</p>
-                              {review.badge ? (
-                                <span className="rounded-[8px] bg-[rgba(255,138,61,0.1)] px-1 py-0.5 text-[10px] font-bold leading-[15px] text-[#ff8a3d]">
-                                  {review.badge}
-                                </span>
-                              ) : null}
-                            </div>
-                            <p className="mt-0.5 text-[12px] leading-4 text-[#9ca3af]">{review.authorSummary}</p>
-                          </div>
-                        </div>
-                        <PendingFeatureLink aria-label="후기 더보기" className="px-1 text-[#9ca3af]" featureLabel="후기 메뉴" returnTo={backHref}>
-                          <KebabIcon />
-                        </PendingFeatureLink>
-                      </div>
-
-                      <div className="mt-3 flex items-center gap-1 text-[12px] leading-4 text-[#9ca3af]">
-                        <StarRow rating={review.rating} />
-                        <span>{review.createdAtLabel}</span>
-                      </div>
-
-                      <p className="mt-3 whitespace-pre-line text-[14px] leading-[22px] text-[#1f2937]">{review.content}</p>
-
-                      <PendingFeatureLink
-                        className="mt-4 inline-flex items-center gap-1 rounded-full border border-[#edeef0] px-3 py-[7px] text-[12px] font-medium leading-4 text-[#4b5563]"
-                        featureLabel="후기 도움돼요"
-                        returnTo={backHref}
-                      >
-                        <HelpfulIcon />
-                        도움돼요
-                      </PendingFeatureLink>
-                    </article>
-                  ))
-                ) : (
-                  <p className="text-[14px] leading-5 text-[#9ca3af]">아직 등록된 후기가 없어요.</p>
-                )}
-              </div>
+              <TownMapBusinessReviewList backHref={backHref} reviews={detail.reviews} showHelpfulAction />
 
               <PendingFeatureLink className="mt-4 flex w-full items-center justify-center gap-1 py-2 text-[14px] font-medium leading-5 text-[#6b7280]" featureLabel="후기 더보기" returnTo={backHref}>
                 후기 더보기
@@ -238,125 +207,25 @@ export function TownMapBusinessDetailScreen({
 
         {activeTab === "news" ? (
           <section className="px-4 pb-8 pt-2">
-            {newsPosts.length ? (
-              newsPosts.map((post) => (
-                <article className="border-b border-[#edeef0] py-4 first:pt-3 last:border-b-0" key={post.id}>
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex items-start gap-2.5">
-                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#ffefe4] text-[11px] font-bold text-[#ff7a00]">
-                        소식
-                      </div>
-                      <div>
-                        <p className="text-[13px] font-semibold leading-4 text-[#111827]">{detail.name}</p>
-                        <p className="mt-0.5 text-[11px] leading-4 text-[#9ca3af]">{post.postedAtLabel}</p>
-                      </div>
-                    </div>
-                    <PendingFeatureLink aria-label="소식 더보기" className="px-1 text-[#9ca3af]" featureLabel="소식 메뉴" returnTo={backHref}>
-                      <KebabIcon />
-                    </PendingFeatureLink>
-                  </div>
-
-                  <div className="mt-3">
-                    <p className="whitespace-pre-line text-[15px] leading-6 text-[#111827]">
-                      <span className="font-bold">{post.title}</span>
-                      {"\n"}
-                      {post.body}
-                    </p>
-                  </div>
-
-                  {post.imageSrc ? (
-                    <div className="mt-3 overflow-hidden rounded-[4px]">
-                      <div className="relative aspect-[320/170]">
-                        <AppImage alt={`${detail.name} 소식 이미지`} className="object-cover" fill sizes="(max-width: 640px) 100vw, 360px" src={post.imageSrc} />
-                      </div>
-                    </div>
-                  ) : null}
-                </article>
-              ))
-            ) : (
-              <p className="py-6 text-[14px] leading-5 text-[#9ca3af]">아직 등록된 소식이 없어요.</p>
-            )}
+            <TownMapBusinessNewsList backHref={backHref} businessName={detail.name} newsPosts={newsPosts} />
           </section>
         ) : null}
 
         {activeTab === "reviews" ? (
           <Section title="후기">
-            <div className="space-y-6">
-              {detail.reviews.length ? (
-                detail.reviews.map((review) => (
-                  <article className="border-b border-[#edeef0] pb-5 last:border-b-0 last:pb-0" key={review.id}>
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="flex items-start gap-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#e5e7eb] text-[13px] font-bold text-[#6b7280]">
-                          {review.authorName.slice(0, 1)}
-                        </div>
-                        <div>
-                          <div className="flex items-center gap-1">
-                            <p className="text-[14px] font-bold leading-5 text-[#111827]">{review.authorName}</p>
-                            {review.badge ? (
-                              <span className="rounded-[8px] bg-[rgba(255,138,61,0.1)] px-1 py-0.5 text-[10px] font-bold leading-[15px] text-[#ff8a3d]">
-                                {review.badge}
-                              </span>
-                            ) : null}
-                          </div>
-                          <p className="mt-0.5 text-[12px] leading-4 text-[#9ca3af]">{review.authorSummary}</p>
-                        </div>
-                      </div>
-                      <PendingFeatureLink aria-label="후기 더보기" className="px-1 text-[#9ca3af]" featureLabel="후기 메뉴" returnTo={backHref}>
-                        <KebabIcon />
-                      </PendingFeatureLink>
-                    </div>
-
-                    <div className="mt-3 flex items-center gap-1 text-[12px] leading-4 text-[#9ca3af]">
-                      <StarRow rating={review.rating} />
-                      <span>{review.createdAtLabel}</span>
-                    </div>
-
-                    <p className="mt-3 whitespace-pre-line text-[14px] leading-[22px] text-[#1f2937]">{review.content}</p>
-                  </article>
-                ))
-              ) : (
-                <p className="text-[14px] leading-5 text-[#9ca3af]">아직 등록된 후기가 없어요.</p>
-              )}
-            </div>
+            <TownMapBusinessReviewList backHref={backHref} reviews={detail.reviews} />
           </Section>
         ) : null}
 
         {activeTab === "photos" ? (
-          <section className="grid grid-cols-2 gap-1 px-4 py-4">
-            {Array.from({ length: 6 }).map((_, index) => {
-              const image = detail.imageGallery[index % Math.max(detail.imageGallery.length, 1)] ?? detail.imageGallery[0];
-
-              if (!image) {
-                return null;
-              }
-
-              return (
-                <div className="relative aspect-square overflow-hidden rounded-[6px] bg-[#f3f4f6]" key={`${detail.id}-photo-${index}`}>
-                  <AppImage alt={`${detail.name} 사진 ${index + 1}`} className="object-cover" fill sizes="50vw" src={image} />
-                </div>
-              );
-            })}
-          </section>
+          <TownMapBusinessPhotoGrid businessId={detail.id} businessName={detail.name} imageGallery={detail.imageGallery} />
         ) : null}
 
         <div className="fixed bottom-0 left-1/2 z-30 flex w-full max-w-[375px] -translate-x-1/2 gap-2 border-t border-[#edeef0] bg-white px-4 py-3">
           <PendingFeatureLink
             className="flex-1 rounded-[8px] bg-[#f3f4f6] py-[13px] text-[15px] font-bold leading-5 text-[#374151]"
             featureLabel="전화 문의"
-            onClick={() => {
-              trackEvent(
-                "element_clicked",
-                buildElementClickedEventProperties({
-                  screenName: "town_map_business_detail",
-                  targetType: "button",
-                  targetName: "town_map_business_call_button",
-                  surface: "sticky_footer",
-                  path: pathname,
-                  targetId: detail.id,
-                }),
-              );
-            }}
+            onClick={() => trackFooterAction("town_map_business_call_button")}
             returnTo={backHref}
           >
             전화 문의
@@ -364,19 +233,7 @@ export function TownMapBusinessDetailScreen({
           <PendingFeatureLink
             className="flex-1 rounded-[8px] bg-[#ff6f0f] py-[13px] text-[15px] font-bold leading-5 text-white"
             featureLabel="채팅 문의"
-            onClick={() => {
-              trackEvent(
-                "element_clicked",
-                buildElementClickedEventProperties({
-                  screenName: "town_map_business_detail",
-                  targetType: "button",
-                  targetName: "town_map_business_chat_button",
-                  surface: "sticky_footer",
-                  path: pathname,
-                  targetId: detail.id,
-                }),
-              );
-            }}
+            onClick={() => trackFooterAction("town_map_business_chat_button")}
             returnTo={backHref}
           >
             채팅 문의
@@ -405,16 +262,15 @@ function Section({
   );
 }
 
+
 function TabButton({
   active = false,
-  currentTab,
   currentPath,
   href,
   label,
   tabKey,
 }: {
   active?: boolean;
-  currentTab: BusinessDetailTab;
   currentPath: string;
   href: string;
   label: string;
@@ -467,18 +323,6 @@ function InfoRow({
         {trailing}
       </div>
     </div>
-  );
-}
-
-function StarRow({ rating }: { rating: number }) {
-  return (
-    <span className="mr-1 flex items-center gap-0.5 text-[11px] leading-none">
-      {Array.from({ length: 5 }).map((_, index) => (
-        <span className={index < rating ? "text-[#ff8a3d]" : "text-[#d1d5db]"} key={`star-${index}`}>
-          ★
-        </span>
-      ))}
-    </span>
   );
 }
 
@@ -549,23 +393,6 @@ function PinIcon() {
   );
 }
 
-function KebabIcon() {
-  return (
-    <svg aria-hidden="true" className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
-      <circle cx="12" cy="5" r="1.7" />
-      <circle cx="12" cy="12" r="1.7" />
-      <circle cx="12" cy="19" r="1.7" />
-    </svg>
-  );
-}
-
-function HelpfulIcon() {
-  return (
-    <svg aria-hidden="true" className="h-3.5 w-3.5" fill="currentColor" viewBox="0 0 16 16">
-      <path d="M6.73 1.16a.75.75 0 0 1 .9.94l-.62 2.41h5.02c.95 0 1.55 1.01 1.1 1.84l-2.52 4.63a1.75 1.75 0 0 1-1.54.91H4.5a1.5 1.5 0 0 1-1.5-1.5V7.4c0-.29.08-.58.24-.83L5.9 2.13a1.75 1.75 0 0 1 .83-.73ZM2 7h-.25A.75.75 0 0 0 1 7.75v3.5c0 .41.34.75.75.75H2V7Z" />
-    </svg>
-  );
-}
 
 function ChevronDownIcon({ className = "" }: { className?: string }) {
   return (

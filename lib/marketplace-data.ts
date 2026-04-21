@@ -33,6 +33,8 @@ import {
   readStringArrayOrNull,
 } from "@/lib/supabase/row-helpers";
 
+type SupabaseClient = ReturnType<typeof createServerSupabaseClient>;
+
 // ─── Row types ────────────────────────────────────────────────────────────────
 
 type SellerRow = {
@@ -460,6 +462,109 @@ export function getFallbackItemById(itemId: string) {
   return fallbackIndex >= 0 ? withFallbackItemSlug(marketplaceItems[fallbackIndex], fallbackIndex) : null;
 }
 
+function getFallbackMarketplaceDetail(item: MarketplaceItem | null) {
+  const seller = item ? getSellerById(item.sellerId) : undefined;
+
+  return item && seller ? { item, seller } : null;
+}
+
+function buildFallbackHomeFeedPage(
+  safeOffset: number,
+  safeLimit: number,
+  normalizedCategory?: string,
+) {
+  const filteredItems = normalizedCategory
+    ? marketplaceItems.filter((item) => item.sellingPoints[0] === normalizedCategory)
+    : interleaveItemsByGroup(marketplaceItems, (item) => item.sellingPoints[0] ?? "기타");
+  const pageItems = filteredItems.slice(safeOffset, safeOffset + safeLimit + 1).map(mapFallbackItemToHomeFeedItem);
+  const pagedItems = pageItems.slice(0, safeLimit);
+
+  return {
+    pagedItems,
+    hasMore: pageItems.length > safeLimit,
+    nextOffset: safeOffset + pagedItems.length,
+  };
+}
+
+function buildFirstImageByItemId(imageRows: ItemImageRow[]) {
+  const firstImageByItemId = new Map<string, string>();
+
+  for (const image of imageRows) {
+    if (!firstImageByItemId.has(image.item_id)) {
+      firstImageByItemId.set(image.item_id, image.image_url);
+    }
+  }
+
+  return firstImageByItemId;
+}
+
+async function fetchPrimaryItemImageUrl(
+  supabase: SupabaseClient,
+  itemId: string,
+  scope: string,
+) {
+  const { data, error } = await supabase
+    .from("item_images")
+    .select("item_id, image_url, sort_order")
+    .eq("item_id", itemId)
+    .order("sort_order", { ascending: true })
+    .limit(1)
+    .maybeSingle();
+
+  if (error) {
+    throw error;
+  }
+
+  return data ? parseItemImageRow(data, scope).image_url : undefined;
+}
+
+function toSellerMetricsRow(seller: SellerProfile): SellerMetricsRow {
+  return {
+    id: seller.id,
+    response_rate: seller.responseRate,
+    repeat_deals: seller.repeatDeals,
+  };
+}
+
+async function fetchMarketplaceItemAndSeller(
+  supabase: SupabaseClient,
+  itemRow: ItemRow,
+  scope: string,
+  missingSellerMessage: string,
+) {
+  const [imageUrl, sellerResult] = await Promise.all([
+    fetchPrimaryItemImageUrl(supabase, itemRow.id, `${scope}.image`),
+    supabase
+      .from("users")
+      .select("*")
+      .eq("id", itemRow.seller_id)
+      .maybeSingle(),
+  ]);
+  const { data: sellerData, error: sellerError } = sellerResult;
+
+  if (sellerError || !sellerData) {
+    throw sellerError ?? new Error(missingSellerMessage);
+  }
+
+  const seller = mapSeller(parseSellerRow(sellerData, `${scope}.seller`));
+
+  return {
+    seller,
+    item: mapItemRowToMarketplaceItem(itemRow, imageUrl, toSellerMetricsRow(seller)),
+  };
+}
+
+function getFallbackSingleHomeItem() {
+  const fallbackItem = marketplaceItems[0];
+
+  return fallbackItem
+    ? {
+        item: withFallbackItemSlug(fallbackItem, 0),
+        categories: homeCategoriesFallback,
+      }
+    : null;
+}
+
 function interleaveItemsByGroup<T>(items: T[], getGroupKey: (item: T) => string): T[] {
   const groupOrder: string[] = [];
   const groupedItems = new Map<string, T[]>();
@@ -640,17 +745,17 @@ export async function getHomeFeedPage({
   const normalizedCategory = category && category !== "전체" ? category : undefined;
 
   if (!hasSupabaseEnv()) {
-    const filteredItems = normalizedCategory
-      ? marketplaceItems.filter((item) => item.sellingPoints[0] === normalizedCategory)
-      : interleaveItemsByGroup(marketplaceItems, (item) => item.sellingPoints[0] ?? "기타");
-    const pageItems = filteredItems.slice(safeOffset, safeOffset + safeLimit + 1).map(mapFallbackItemToHomeFeedItem);
-    const pagedItems = pageItems.slice(0, safeLimit);
     const ads = await getHomeNativeAds();
+    const { pagedItems, hasMore, nextOffset } = buildFallbackHomeFeedPage(
+      safeOffset,
+      safeLimit,
+      normalizedCategory,
+    );
 
     return {
       items: insertNativeAdsIntoHomeFeed(pagedItems, ads, safeOffset),
-      hasMore: pageItems.length > safeLimit,
-      nextOffset: safeOffset + pagedItems.length,
+      hasMore,
+      nextOffset,
     };
   }
 
@@ -695,13 +800,7 @@ export async function getHomeFeedPage({
       imageRows = parseRows(imagesData ?? [], "home-feed.images", parseItemImageRow);
     }
 
-    const firstImageByItemId = new Map<string, string>();
-    for (const image of imageRows) {
-      if (!firstImageByItemId.has(image.item_id)) {
-        firstImageByItemId.set(image.item_id, image.image_url);
-      }
-    }
-
+    const firstImageByItemId = buildFirstImageByItemId(imageRows);
     const mappedItems = pagedItems.map((item) => mapItemRowToHomeFeedItem(item, firstImageByItemId.get(item.id)));
     const ads = await getHomeNativeAds();
 
@@ -712,31 +811,24 @@ export async function getHomeFeedPage({
     };
   } catch (error) {
     logSupabaseFallback("home-feed", error);
-    const filteredItems = normalizedCategory
-      ? marketplaceItems.filter((item) => item.sellingPoints[0] === normalizedCategory)
-      : interleaveItemsByGroup(marketplaceItems, (item) => item.sellingPoints[0] ?? "기타");
-    const pageItems = filteredItems.slice(safeOffset, safeOffset + safeLimit + 1).map(mapFallbackItemToHomeFeedItem);
-    const pagedItems = pageItems.slice(0, safeLimit);
     const ads = await getHomeNativeAds();
+    const { pagedItems, hasMore, nextOffset } = buildFallbackHomeFeedPage(
+      safeOffset,
+      safeLimit,
+      normalizedCategory,
+    );
 
     return {
       items: insertNativeAdsIntoHomeFeed(pagedItems, ads, safeOffset),
-      hasMore: pageItems.length > safeLimit,
-      nextOffset: safeOffset + pagedItems.length,
+      hasMore,
+      nextOffset,
     };
   }
 }
 
 export const getSingleHomeItem = cache(async (): Promise<{ item: MarketplaceItem; categories: HomeCategory[] } | null> => {
   if (!hasSupabaseEnv()) {
-    const fallbackItem = marketplaceItems[0];
-
-    return fallbackItem
-      ? {
-          item: withFallbackItemSlug(fallbackItem, 0),
-          categories: homeCategoriesFallback,
-        }
-      : null;
+    return getFallbackSingleHomeItem();
   }
 
   try {
@@ -790,24 +882,14 @@ export const getSingleHomeItem = cache(async (): Promise<{ item: MarketplaceItem
     };
   } catch (error) {
     logSupabaseFallback("home-single", error);
-    const fallbackItem = marketplaceItems[0];
-
-    return fallbackItem
-      ? {
-          item: withFallbackItemSlug(fallbackItem, 0),
-          categories: homeCategoriesFallback,
-        }
-      : null;
+    return getFallbackSingleHomeItem();
   }
 });
 
 export const getMarketplaceItemDetail = cache(
   async (itemSlug: string): Promise<{ item: MarketplaceItem; seller: SellerProfile } | null> => {
     if (!hasSupabaseEnv()) {
-      const item = getFallbackItemBySlug(itemSlug) ?? getFallbackItemById(itemSlug);
-      const seller = item ? getSellerById(item.sellerId) : undefined;
-
-      return item && seller ? { item, seller } : null;
+      return getFallbackMarketplaceDetail(getFallbackItemBySlug(itemSlug) ?? getFallbackItemById(itemSlug));
     }
 
     try {
@@ -827,49 +909,10 @@ export const getMarketplaceItemDetail = cache(
       }
 
       const itemRow = parseItemRow(itemData, "item-detail.item");
-      const { data: imageData, error: imageError } = await supabase
-        .from("item_images")
-        .select("item_id, image_url, sort_order")
-        .eq("item_id", itemRow.id)
-        .order("sort_order", { ascending: true })
-        .limit(1)
-        .maybeSingle();
-
-      if (imageError) {
-        throw imageError;
-      }
-
-      const { data: sellerData, error: sellerError } = await supabase
-        .from("users")
-        .select("*")
-        .eq("id", itemRow.seller_id)
-        .maybeSingle();
-
-      if (sellerError || !sellerData) {
-        throw sellerError ?? new Error(`Missing seller for item ${itemSlug}`);
-      }
-
-      const seller = mapSeller(parseSellerRow(sellerData, "item-detail.seller"));
-      const item = mapItemRowToMarketplaceItem(
-        itemRow,
-        imageData ? parseItemImageRow(imageData, "item-detail.image").image_url : undefined,
-        {
-          id: seller.id,
-          response_rate: seller.responseRate,
-          repeat_deals: seller.repeatDeals,
-        },
-      );
-
-      return {
-        item,
-        seller,
-      };
+      return fetchMarketplaceItemAndSeller(supabase, itemRow, "item-detail", `Missing seller for item ${itemSlug}`);
     } catch (error) {
       logSupabaseFallback("item-detail", error);
-      const item = getFallbackItemBySlug(itemSlug) ?? getFallbackItemById(itemSlug);
-      const seller = item ? getSellerById(item.sellerId) : undefined;
-
-      return item && seller ? { item, seller } : null;
+      return getFallbackMarketplaceDetail(getFallbackItemBySlug(itemSlug) ?? getFallbackItemById(itemSlug));
     }
   },
 );
@@ -877,10 +920,7 @@ export const getMarketplaceItemDetail = cache(
 export const getMarketplaceItemDetailById = cache(
   async (itemId: string): Promise<{ item: MarketplaceItem; seller: SellerProfile } | null> => {
     if (!hasSupabaseEnv()) {
-      const item = getFallbackItemById(itemId);
-      const seller = item ? getSellerById(item.sellerId) : undefined;
-
-      return item && seller ? { item, seller } : null;
+      return getFallbackMarketplaceDetail(getFallbackItemById(itemId));
     }
 
     try {
@@ -900,49 +940,15 @@ export const getMarketplaceItemDetailById = cache(
       }
 
       const itemRow = parseItemRow(itemData, "item-detail-by-id.item");
-      const { data: imageData, error: imageError } = await supabase
-        .from("item_images")
-        .select("item_id, image_url, sort_order")
-        .eq("item_id", itemRow.id)
-        .order("sort_order", { ascending: true })
-        .limit(1)
-        .maybeSingle();
-
-      if (imageError) {
-        throw imageError;
-      }
-
-      const { data: sellerData, error: sellerError } = await supabase
-        .from("users")
-        .select("*")
-        .eq("id", itemRow.seller_id)
-        .maybeSingle();
-
-      if (sellerError || !sellerData) {
-        throw sellerError ?? new Error(`Missing seller for item ${itemId}`);
-      }
-
-      const seller = mapSeller(parseSellerRow(sellerData, "item-detail-by-id.seller"));
-      const item = mapItemRowToMarketplaceItem(
+      return fetchMarketplaceItemAndSeller(
+        supabase,
         itemRow,
-        imageData ? parseItemImageRow(imageData, "item-detail-by-id.image").image_url : undefined,
-        {
-          id: seller.id,
-          response_rate: seller.responseRate,
-          repeat_deals: seller.repeatDeals,
-        },
+        "item-detail-by-id",
+        `Missing seller for item ${itemId}`,
       );
-
-      return {
-        item,
-        seller,
-      };
     } catch (error) {
       logSupabaseFallback("item-detail-by-id", error);
-      const item = getFallbackItemById(itemId);
-      const seller = item ? getSellerById(item.sellerId) : undefined;
-
-      return item && seller ? { item, seller } : null;
+      return getFallbackMarketplaceDetail(getFallbackItemById(itemId));
     }
   },
 );

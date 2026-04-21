@@ -206,17 +206,15 @@ export const homeNativeAdsFallback: HomeFeedNativeAd[] = [
   },
 ];
 
+const homeNativeAdHrefByDestination: Record<HomeNativeAdFeature, string> = {
+  동네지도: "/town-map",
+  "동네 생활": "/community",
+  모임: "/community?tab=meetup",
+  카페: "/community?tab=cafe",
+};
+
 export function resolveHomeNativeAdHref(destination: HomeNativeAdFeature) {
-  switch (destination) {
-    case "동네지도":
-      return "/town-map";
-    case "동네 생활":
-      return "/community";
-    case "모임":
-      return "/community?tab=meetup";
-    case "카페":
-      return "/community?tab=cafe";
-  }
+  return homeNativeAdHrefByDestination[destination];
 }
 
 export const HOME_FEED_PAGE_SIZE = 10;
@@ -596,26 +594,36 @@ export const bottomTabs = [
   { label: "나의 당근", icon: "/icons/profile.svg", href: "/my-karrot" },
 ];
 
-export function getSellerById(id: string) {
-  return sellers.find((seller) => seller.id === id);
+function createIndexMap<T extends { id: string }>(entries: T[]) {
+  return new Map(entries.map((entry, index) => [entry.id, { entry, index }]));
 }
 
-export function getItemById(id: string) {
-  const index = marketplaceItems.findIndex((item) => item.id === id);
+const sellerById = new Map(sellers.map((seller) => [seller.id, seller]));
+const marketplaceItemById = createIndexMap(marketplaceItems);
+const chatByItemId = new Map(chatPreviews.map((chat) => [chat.itemId, chat]));
 
-  if (index < 0) {
-    return undefined;
-  }
-
+function withMarketplaceItemSlug(item: MarketplaceItem, index: number) {
   return {
-    ...marketplaceItems[index],
+    ...item,
     slug: formatItemSlug(index + 1),
   };
 }
 
-export function getChatByItemId(itemId: string) {
-  const chat = chatPreviews.find((candidate) => candidate.itemId === itemId);
+export function getSellerById(id: string) {
+  return sellerById.get(id);
+}
 
+export function getItemById(id: string) {
+  const itemRecord = marketplaceItemById.get(id);
+  if (!itemRecord) {
+    return undefined;
+  }
+
+  return withMarketplaceItemSlug(itemRecord.entry, itemRecord.index);
+}
+
+export function getChatByItemId(itemId: string) {
+  const chat = chatByItemId.get(itemId);
   if (chat) {
     return chat;
   }

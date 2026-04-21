@@ -1,31 +1,19 @@
-import Image from "next/image";
 import { BottomNav } from "@/components/navigation/bottom-nav";
 import { PendingFeatureLink } from "@/components/ui/pending-feature-link";
-import { prototypeViewerUser } from "@/lib/prototype-user";
-
-type ServiceItem = {
-  label: string;
-  iconSrc: string;
-  bubble: string;
-};
+import { MyKarrotMenuGroup, type MyKarrotMenuItem } from "@/features/my-karrot/components/my-karrot-menu-group";
+import { MyKarrotPayCard } from "@/features/my-karrot/components/my-karrot-pay-card";
+import { MyKarrotProfileCard } from "@/features/my-karrot/components/my-karrot-profile-card";
+import { MyKarrotServiceSection, type MyKarrotServiceItem } from "@/features/my-karrot/components/my-karrot-service-section";
+import { MyKarrotShortcutGrid, type MyKarrotShortcutItem } from "@/features/my-karrot/components/my-karrot-shortcut-grid";
 
 type ServiceSection = {
   title: string;
-  items: ServiceItem[];
-};
-
-type ShortcutItem = {
-  label: string;
-  iconSrc: string;
-  hasDot?: boolean;
+  items: MyKarrotServiceItem[];
 };
 
 type MenuGroup = {
   title: string;
-  items: Array<{
-    label: string;
-    iconSrc: string;
-  }>;
+  items: MyKarrotMenuItem[];
 };
 
 const figmaIcons = {
@@ -64,7 +52,7 @@ const serviceSections: ServiceSection[] = [
   },
 ];
 
-const shortcuts: ShortcutItem[] = [
+const shortcuts: MyKarrotShortcutItem[] = [
   { label: "관심목록", iconSrc: figmaIcons.favorites },
   { label: "최근 본 글", iconSrc: figmaIcons.recentClock },
   { label: "혜택", iconSrc: figmaIcons.benefit, hasDot: true },
@@ -124,66 +112,6 @@ const menuGroups: MenuGroup[] = [
   },
 ];
 
-function ProfileCard() {
-  return (
-    <PendingFeatureLink className="block rounded-2xl bg-white px-5 py-4 shadow-[0_1px_3px_rgba(15,23,42,0.08)]" featureLabel="내 프로필 보기" returnTo="/my-karrot">
-      <div className="flex items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[#e5e7eb]">
-            <Image alt="" height={28} src={figmaIcons.profileAvatar} width={28} />
-          </span>
-          <div className="flex items-center gap-2">
-            <span className="text-[17px] font-bold leading-[25.5px] tracking-[-0.03em] text-[#0a0a0a]">
-              {prototypeViewerUser.name}
-            </span>
-            <span className="text-xs font-semibold leading-[18px] text-[#ff6900]">
-              {prototypeViewerUser.mannerScore.toFixed(1)}°C
-            </span>
-          </div>
-        </div>
-        <span aria-hidden="true" className="text-[20px] text-[#c9ced6]">
-          ›
-        </span>
-      </div>
-    </PendingFeatureLink>
-  );
-}
-
-function PayCard() {
-  return (
-    <section className="rounded-2xl bg-white px-5 py-4 shadow-[0_1px_3px_rgba(15,23,42,0.08)]">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-1">
-          <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#ff8a3d] text-[10px] font-bold text-white">
-            P
-          </span>
-          <span className="text-sm font-bold leading-[21px] text-[#ff8a3d]">pay</span>
-        </div>
-        <div className="flex items-center gap-1">
-          <span className="text-base font-bold leading-6 text-[#0a0a0a]">8,700원</span>
-          <span aria-hidden="true" className="text-[20px] text-[#c9ced6]">
-            ›
-          </span>
-        </div>
-      </div>
-      <div className="mt-3 flex items-center justify-between gap-4">
-        <div className="flex items-center gap-4 text-sm font-medium leading-[21px] text-[#364153]">
-          <PendingFeatureLink featureLabel="당근페이 충전" returnTo="/my-karrot">충전</PendingFeatureLink>
-          <PendingFeatureLink featureLabel="당근페이 송금" returnTo="/my-karrot">송금</PendingFeatureLink>
-        </div>
-        <PendingFeatureLink
-          className="inline-flex h-[35px] items-center gap-2 rounded-full bg-[#101828] px-4 text-[13px] font-semibold leading-[19.5px] text-white"
-          featureLabel="당근페이 결제"
-          returnTo="/my-karrot"
-        >
-          <Image alt="" height={16} src={figmaIcons.payCard} width={16} />
-          결제
-        </PendingFeatureLink>
-      </div>
-    </section>
-  );
-}
-
 export function MyKarrotScreen() {
   return (
     <main className="min-h-screen bg-[#f9fafb] text-[#1e2939]">
@@ -205,82 +133,17 @@ export function MyKarrotScreen() {
         </header>
 
         <div className="space-y-3 px-[clamp(16px,4vw,24px)] pb-8 pt-3">
-          <ProfileCard />
-          <PayCard />
+          <MyKarrotProfileCard profileAvatarSrc={figmaIcons.profileAvatar} />
+          <MyKarrotPayCard payCardIconSrc={figmaIcons.payCard} />
 
           {serviceSections.map((section) => (
-            <section
-              className="rounded-2xl bg-white px-5 py-4 shadow-[0_1px_3px_rgba(15,23,42,0.08)]"
-              key={section.title}
-            >
-              <div className="mb-4 flex items-center justify-between">
-                <h2 className="text-[15px] font-bold leading-[22.5px] tracking-[-0.03em] text-[#0a0a0a]">
-                  {section.title}
-                </h2>
-                <span aria-hidden="true" className="text-[20px] text-[#c9ced6]">
-                  ›
-                </span>
-              </div>
-              <div className="grid grid-cols-[repeat(auto-fit,minmax(152px,1fr))] gap-x-4 gap-y-5">
-                {section.items.map((item) => (
-                  <PendingFeatureLink className="flex min-h-9 items-center gap-3" featureLabel={item.label} key={item.label} returnTo="/my-karrot">
-                    <span
-                      aria-hidden="true"
-                      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full"
-                      style={{ backgroundColor: item.bubble }}
-                    >
-                      <Image alt="" height={20} src={item.iconSrc} width={20} />
-                    </span>
-                    <span className="text-[14px] font-medium leading-[21px] tracking-[-0.02em] text-[#1e2939]">
-                      {item.label}
-                    </span>
-                  </PendingFeatureLink>
-                ))}
-              </div>
-            </section>
+            <MyKarrotServiceSection items={section.items} key={section.title} title={section.title} />
           ))}
 
-          <section className="rounded-2xl bg-white px-5 py-5 shadow-[0_1px_3px_rgba(15,23,42,0.08)]">
-            <div className="grid grid-cols-3 gap-4">
-              {shortcuts.map((item) => (
-                <PendingFeatureLink className="flex flex-col items-center gap-2" featureLabel={item.label} key={item.label} returnTo="/my-karrot">
-                  <span className="relative flex h-[26px] w-[26px] items-center justify-center">
-                    <Image alt="" height={26} src={item.iconSrc} width={26} />
-                    {item.hasDot ? (
-                      <span className="absolute -right-1 -top-1 h-2.5 w-2.5 rounded-full bg-[#ff6900]" />
-                    ) : null}
-                  </span>
-                  <span className="text-xs font-medium leading-[18px] text-[#4a5565]">{item.label}</span>
-                </PendingFeatureLink>
-              ))}
-            </div>
-          </section>
+          <MyKarrotShortcutGrid shortcuts={shortcuts} />
 
           {menuGroups.map((group) => (
-            <section
-              className="rounded-2xl bg-white px-5 py-4 shadow-[0_1px_3px_rgba(15,23,42,0.08)]"
-              key={group.title}
-            >
-              <h2 className="mb-2 text-[15px] font-bold leading-[22.5px] text-[#0a0a0a]">{group.title}</h2>
-              <div>
-                {group.items.map((item) => (
-                  <PendingFeatureLink
-                    className="flex w-full items-center justify-between py-3 text-left"
-                    featureLabel={item.label}
-                    key={item.label}
-                    returnTo="/my-karrot"
-                  >
-                    <span className="flex items-center gap-3">
-                      <Image alt="" height={22} src={item.iconSrc} width={22} />
-                      <span className="text-[15px] font-medium leading-[22.5px] text-[#1e2939]">{item.label}</span>
-                    </span>
-                    <span aria-hidden="true" className="text-[20px] text-[#c9ced6]">
-                      ›
-                    </span>
-                  </PendingFeatureLink>
-                ))}
-              </div>
-            </section>
+            <MyKarrotMenuGroup items={group.items} key={group.title} title={group.title} />
           ))}
 
           <section className="px-1 pb-4 pt-3 text-xs leading-[19.5px] text-[#99a1af]">
