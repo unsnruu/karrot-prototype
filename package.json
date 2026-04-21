@@ -11,6 +11,9 @@
   },
   "dependencies": {
     "@amplitude/unified": "^1.0.17",
+    "@seed-design/css": "^1.2.9",
+    "@seed-design/react": "^1.2.9",
+    "@seed-design/tailwind3-plugin": "^1.1.18",
     "@supabase/supabase-js": "^2.102.1",
     "clsx": "^2.1.1",
     "next": "15.5.14",

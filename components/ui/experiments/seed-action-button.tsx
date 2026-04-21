@@ -1,9 +1,10 @@
 import type { ButtonHTMLAttributes, ComponentPropsWithoutRef, ReactNode } from "react";
+import { ActionButton as SeedActionButton } from "@seed-design/react";
 import Link from "next/link";
 import { PendingFeatureLink } from "@/components/ui/pending-feature-link";
 import { cn } from "@/lib/utils";
 
-type ActionButtonVariant =
+type SeedActionButtonVariant =
   | "brandSolid"
   | "neutralSolid"
   | "neutralWeak"
@@ -12,13 +13,13 @@ type ActionButtonVariant =
   | "neutralOutline"
   | "ghost";
 
-type ActionButtonSize = "small" | "medium" | "large";
+type SeedActionButtonSize = "small" | "medium" | "large";
 
 type SharedStyleProps = {
   className?: string;
   fullWidth?: boolean;
-  size?: ActionButtonSize;
-  variant?: ActionButtonVariant;
+  size?: SeedActionButtonSize;
+  variant?: SeedActionButtonVariant;
 };
 
 type SharedProps = SharedStyleProps & {
@@ -47,32 +48,13 @@ type PendingButtonProps = SharedProps & {
   returnTo?: string;
 };
 
-type ActionButtonProps = ButtonProps | LinkButtonProps | PendingButtonProps;
+type SeedActionButtonExperimentProps = ButtonProps | LinkButtonProps | PendingButtonProps;
 
-export function actionButtonClassName({
-  className,
-  fullWidth = false,
-  size = "medium",
-  variant = "brandSolid",
-}: SharedStyleProps) {
-  return cn(
-    "inline-flex items-center justify-center gap-1 rounded-[8px] font-bold transition-colors",
-    fullWidth && "w-full",
-    size === "small" && "h-9 px-3 text-[13px]",
-    size === "medium" && "h-[52px] px-4 text-[15px]",
-    size === "large" && "h-[58px] px-4 text-[18px]",
-    variant === "brandSolid" && "bg-[#ff6f0f] text-white",
-    variant === "neutralSolid" && "bg-[#2a3038] text-white",
-    variant === "neutralWeak" && "bg-[#e5e7eb] text-[#111111]",
-    variant === "criticalSolid" && "bg-[#dc2626] text-white",
-    variant === "brandOutline" && "border border-[#ff6f0f] bg-white text-[#ff6f0f]",
-    variant === "neutralOutline" && "border border-black/10 bg-white text-black",
-    variant === "ghost" && "bg-transparent text-[#111827]",
-    className,
-  );
+function seedActionButtonExperimentClassName({ className, fullWidth = false }: SharedStyleProps) {
+  return cn(fullWidth && "w-full", className);
 }
 
-export function ActionButton(props: ActionButtonProps) {
+export function SeedActionButtonExperiment(props: SeedActionButtonExperimentProps) {
   const {
     children,
     className,
@@ -91,22 +73,24 @@ export function ActionButton(props: ActionButtonProps) {
     </>
   );
 
-  const nextClassName = actionButtonClassName({
+  const nextClassName = seedActionButtonExperimentClassName({
     className,
     fullWidth,
-    size,
-    variant,
   });
 
   if ("pendingFeatureLabel" in props && props.pendingFeatureLabel) {
     return (
-      <PendingFeatureLink
+      <SeedActionButton
+        asChild
         className={nextClassName}
-        featureLabel={props.pendingFeatureLabel}
-        returnTo={props.returnTo}
+        flexGrow={fullWidth ? 1 : undefined}
+        size={size}
+        variant={variant}
       >
-        {content}
-      </PendingFeatureLink>
+        <PendingFeatureLink featureLabel={props.pendingFeatureLabel} returnTo={props.returnTo}>
+          {content}
+        </PendingFeatureLink>
+      </SeedActionButton>
     );
   }
 
@@ -123,26 +107,42 @@ export function ActionButton(props: ActionButtonProps) {
       ...linkProps
     } = props;
     return (
-      <Link
+      <SeedActionButton
+        asChild
         className={nextClassName}
-        href={href}
-        {...linkProps}
+        flexGrow={fullWidth ? 1 : undefined}
+        size={size}
+        variant={variant}
       >
-        {content}
-      </Link>
+        <Link href={href} {...linkProps}>
+          {content}
+        </Link>
+      </SeedActionButton>
     );
   }
 
   const buttonProps = props as ButtonProps;
+  const {
+    className: _className,
+    children: _children,
+    fullWidth: _fullWidth,
+    leading: _leading,
+    size: _size,
+    trailing: _trailing,
+    variant: _variant,
+    ...seedButtonProps
+  } = buttonProps;
 
   return (
-    <button
+    <SeedActionButton
       className={nextClassName}
-      disabled={buttonProps.disabled}
-      onClick={buttonProps.onClick}
-      type={buttonProps.type ?? "button"}
+      flexGrow={fullWidth ? 1 : undefined}
+      size={size}
+      type={seedButtonProps.type ?? "button"}
+      variant={variant}
+      {...seedButtonProps}
     >
       {content}
-    </button>
+    </SeedActionButton>
   );
 }

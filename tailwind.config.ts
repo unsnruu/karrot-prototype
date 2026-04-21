@@ -1,3 +1,4 @@
+import seedPlugin from "@seed-design/tailwind3-plugin";
 import type { Config } from "tailwindcss";
 
 export default {
@@ -59,5 +60,5 @@ export default {
       },
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [seedPlugin, require("tailwindcss-animate")],
 } satisfies Config;

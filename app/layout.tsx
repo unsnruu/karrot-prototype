@@ -22,11 +22,24 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ko">
+    <html
+      data-seed
+      data-seed-color-mode="light-only"
+      data-seed-user-color-scheme="light"
+      lang="ko"
+    >
+      <head>
+        <meta content="light" name="color-scheme" />
+      </head>
       <body className="antialiased">
         <Script
           id="useberry-snippet"
           src="https://api.useberry.com/integrations/liveUrl/scripts/useberryScript.js"
+          strategy="afterInteractive"
+        />
+        <Script
+          id="figma-capture-snippet"
+          src="https://mcp.figma.com/mcp/html-to-design/capture.js"
           strategy="afterInteractive"
         />
         <Suspense fallback={children}>

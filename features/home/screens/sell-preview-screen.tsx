@@ -54,6 +54,7 @@ export function SellPreviewScreen() {
   const item = publishedItem ?? buildSellPreviewItem(draft);
   const seller = buildSellPreviewSeller();
   const recommendationItems = buildSellPreviewRecommendations();
+  const detailHref = `/home/items/${item.slug ?? item.id}`;
 
   return (
     <main className="min-h-screen bg-white text-black">
@@ -63,7 +64,9 @@ export function SellPreviewScreen() {
         <div className="w-full px-4 pt-4 sm:px-5">
           <ItemDetailMainColumn
             adItem={itemDetailUnifiedAd}
+            detailHref={detailHref}
             item={item}
+            nearbyBusinesses={[]}
             recommendationItems={recommendationItems}
             seller={seller}
           />

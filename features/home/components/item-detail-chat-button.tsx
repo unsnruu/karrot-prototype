@@ -1,6 +1,6 @@
 "use client";
 
-import { ActionButton } from "@/components/ui/action-button";
+import { SeedActionButtonExperiment } from "@/components/ui/experiments/seed-action-button";
 import { usePathname, useRouter } from "next/navigation";
 import { trackEvent } from "@/lib/analytics/amplitude";
 import { buildElementClickedEventProperties } from "@/lib/analytics/element-click";
@@ -27,7 +27,7 @@ export function ItemDetailChatButton({
   const pathname = usePathname();
 
   return (
-    <ActionButton
+    <SeedActionButtonExperiment
       className="flex-1 text-[18px] font-semibold"
       fullWidth
       onClick={() => {
@@ -62,6 +62,6 @@ export function ItemDetailChatButton({
       variant="brandSolid"
     >
       채팅하기
-    </ActionButton>
+    </SeedActionButtonExperiment>
   );
 }

@@ -48,7 +48,7 @@
 | `address`             | 기본 주소 문자열   | 상세 화면과 위치 맥락 표현에 사용             | 실제 동네 느낌이 나는 주소 문자열 생성               |
 | `lat`                 | 위도               | 지도 마커 위치 표시                           | 합정역 인근 안에서만 생성                            |
 | `lng`                 | 경도               | 지도 마커 위치 표시                           | 합정역 인근 안에서만 생성                            |
-| `thumbnail_image_url` | 대표 썸네일 이미지 | 마커 카드, 상세 상단, 리스트에 사용           | 별도로 생성 예정이므로 비워두기                      |
+| `image_url`           | 대표 업체 이미지   | 마커 카드, 상세 상단, 리스트에 사용           | Storage에 업로드한 공개 URL을 저장                  |
 | `created_at`          | 데이터 생성 시각   | 관리 및 정렬용                                | ISO datetime 사용                                    |
 | `updated_at`          | 데이터 수정 시각   | 최신 상태 관리용                              | ISO datetime 사용                                    |
 
@@ -89,7 +89,7 @@
 - `detail_address`
 - `lat`
 - `lng`
-- `thumbnail_image_url`
+- `image_url`
 - `short_description`
 - `intro_text`
 - `phone_number`

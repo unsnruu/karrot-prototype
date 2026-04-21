@@ -3,8 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AppImage } from "@/components/ui/app-image";
+import { SeedUserAvatarExperiment } from "@/components/ui/experiments/seed-user-avatar";
 import { PendingFeatureLink } from "@/components/ui/pending-feature-link";
-import { UserAvatar } from "@/components/ui/user-avatar";
 import { trackEvent } from "@/lib/analytics/amplitude";
 import { buildElementClickedEventProperties } from "@/lib/analytics/element-click";
 import {
@@ -13,8 +13,10 @@ import {
   InfoIcon,
 } from "@/features/home/components/item-detail-icons";
 import { ItemDetailKakaoMap } from "@/features/home/components/item-detail-kakao-map";
+import { ItemDetailNearbyBusinessStrip } from "@/features/home/components/item-detail-nearby-business-strip";
 import { appendNavigationQuery } from "@/lib/tab-navigation";
 import { formatPrice, type HomeFeedItem, type MarketplaceItem, type SellerProfile } from "@/lib/marketplace";
+import { type NearbyTownMapBusinessCard } from "@/lib/town-map-business-data";
 
 function SellerSection({ seller }: { seller: SellerProfile }) {
   const sellerTemperature = `${seller.mannerScore.toFixed(1)}°C`;
@@ -22,7 +24,7 @@ function SellerSection({ seller }: { seller: SellerProfile }) {
     <section className="border-b border-black/10 py-4">
       <div className="flex items-center justify-between gap-3">
         <div className="flex min-w-0 items-center gap-[6px]">
-          <UserAvatar alt={seller.name} className="border border-black/10" size="xl" src={seller.avatar} />
+          <SeedUserAvatarExperiment alt={seller.name} className="border border-black/10" size="xl" src={seller.avatar} />
           <div className="min-w-0">
             <p className="truncate text-base font-medium leading-none text-black">{seller.name}</p>
             <p className="mt-1 text-[13px] leading-none text-[#898991]">{seller.town}</p>
@@ -43,12 +45,43 @@ function SellerSection({ seller }: { seller: SellerProfile }) {
   );
 }
 
-function ItemBodySection({ item, returnTo }: { item: MarketplaceItem; returnTo?: string }) {
+function ItemBodySection({
+  item,
+  returnTo,
+  detailHref,
+  nearbyBusinesses,
+}: {
+  item: MarketplaceItem;
+  returnTo?: string;
+  detailHref: string;
+  nearbyBusinesses: NearbyTownMapBusinessCard[];
+}) {
   const pathname = usePathname();
   const homeHref = returnTo ?? "/home";
   const categoryLabel = item.sellingPoints[0] ?? item.condition;
   const locationHref = createItemLocationHref(item.slug ?? item.id, returnTo);
   const hasMeetupLocation = item.meetupLat != null && item.meetupLng != null && Boolean(item.meetupHint.trim());
+
+  const trackMeetupLocationClick = () => {
+    trackEvent(
+      "element_clicked",
+      buildElementClickedEventProperties({
+        screenName: "item_detail",
+        targetType: "link",
+        targetName: "item_detail_location_link",
+        surface: "content",
+        path: pathname,
+        targetId: item.id,
+        destinationPath: locationHref,
+        additionalProperties: {
+          has_meetup_address: Boolean(item.meetupAddress),
+          item_title: item.title,
+          meetup_hint: item.meetupHint,
+        },
+      }),
+    );
+  };
+
   return (
     <section className="py-6">
       <div className="space-y-4">
@@ -67,47 +100,38 @@ function ItemBodySection({ item, returnTo }: { item: MarketplaceItem; returnTo?:
         <p className="whitespace-pre-line text-[16px] leading-[1.7] text-black sm:text-[17px]">{item.description}</p>
 
         {hasMeetupLocation ? (
-          <Link
-          className="block space-y-3"
-          href={locationHref}
-          onClick={() => {
-            trackEvent(
-              "element_clicked",
-              buildElementClickedEventProperties({
-                screenName: "item_detail",
-                targetType: "link",
-                targetName: "item_detail_location_link",
-                surface: "content",
-                path: pathname,
-                targetId: item.id,
-                destinationPath: locationHref,
-                additionalProperties: {
-                  has_meetup_address: Boolean(item.meetupAddress),
-                  item_title: item.title,
-                  meetup_hint: item.meetupHint,
-                },
-              }),
-            );
-          }}
-        >
-            <div className="flex flex-wrap items-center gap-x-[10px] gap-y-2">
-              <p className="text-base font-semibold leading-none text-black">거래 희망 장소</p>
-              <span className="flex items-center text-base leading-none text-black">
-                <span>{item.meetupHint}</span>
-                <ChevronRightIcon className="ml-0.5" />
-              </span>
-            </div>
+          <div className="space-y-3">
+            <Link className="block" href={locationHref} onClick={trackMeetupLocationClick}>
+              <div className="flex flex-wrap items-center gap-x-[10px] gap-y-2">
+                <p className="text-base font-semibold leading-none text-black">거래 희망 장소</p>
+                <span className="flex items-center text-base leading-none text-black">
+                  <span>{item.meetupHint}</span>
+                  <ChevronRightIcon className="ml-0.5" />
+                </span>
+              </div>
+            </Link>
 
-            <ItemDetailKakaoMap
-              lat={item.meetupLat}
-              lng={item.meetupLng}
-              meetupAddress={item.meetupAddress}
+            <Link className="block" href={locationHref} onClick={trackMeetupLocationClick}>
+              <ItemDetailKakaoMap
+                lat={item.meetupLat}
+                lng={item.meetupLng}
+                meetupAddress={item.meetupAddress}
+                meetupHint={item.meetupHint}
+                title={item.title}
+              />
+            </Link>
+
+            <ItemDetailNearbyBusinessStrip
+              businesses={nearbyBusinesses}
+              detailHref={detailHref}
+              itemTitle={item.title}
               meetupHint={item.meetupHint}
-              title={item.title}
             />
 
-            <p className="text-[13px] leading-none text-[#1d1c21]">{item.distance} 근처에서 거래할 수 있어요</p>
-          </Link>
+            <Link className="block" href={locationHref} onClick={trackMeetupLocationClick}>
+              <p className="text-[13px] leading-none text-[#1d1c21]">{item.distance} 근처에서 거래할 수 있어요</p>
+            </Link>
+          </div>
         ) : null}
       </div>
 
@@ -168,17 +192,21 @@ export function ItemDetailMainColumn({
   adItem,
   recommendationItems,
   returnTo,
+  detailHref,
+  nearbyBusinesses,
 }: {
   item: MarketplaceItem;
   seller: SellerProfile;
   adItem?: HomeFeedItem;
   recommendationItems: HomeFeedItem[];
   returnTo?: string;
+  detailHref: string;
+  nearbyBusinesses: NearbyTownMapBusinessCard[];
 }) {
   return (
     <div className="min-w-0">
       <SellerSection seller={seller} />
-      <ItemBodySection item={item} returnTo={returnTo} />
+      <ItemBodySection detailHref={detailHref} item={item} nearbyBusinesses={nearbyBusinesses} returnTo={returnTo} />
       {adItem ? (
         <section className="py-3">
           <ItemDetailAdCard item={adItem} />
