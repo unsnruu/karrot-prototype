@@ -29,6 +29,7 @@ export default async function HomeItemPage({
     getNearbyTownMapBusinessCards({
       lat: detail.item.meetupLat,
       lng: detail.item.meetupLng,
+      limit: 5,
     }),
   ]);
 
