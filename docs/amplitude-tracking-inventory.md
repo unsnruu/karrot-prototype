@@ -150,21 +150,29 @@ Amplitude 초기화는 [lib/analytics/amplitude.ts](/Users/unsnruu/Documents/pro
 - [features/home/components/home-native-ad-hero-carousel.tsx](/Users/unsnruu/Documents/projects/dev/2026/karrot/features/home/components/home-native-ad-hero-carousel.tsx:126)
 - [features/home/components/item-detail-nearby-business-strip.tsx](/Users/unsnruu/Documents/projects/dev/2026/karrot/features/home/components/item-detail-nearby-business-strip.tsx:1)
 - [features/town-map/components/town-map-bottom-sheet.tsx](/Users/unsnruu/Documents/projects/dev/2026/karrot/features/town-map/components/town-map-bottom-sheet.tsx:74)
+- [features/town-map/components/town-map-kakao-map.tsx](/Users/unsnruu/Documents/projects/dev/2026/karrot/features/town-map/components/town-map-kakao-map.tsx:44)
 
 스키마:
 
 | 속성 | 타입 | 필수 | 설명 |
 | --- | --- | --- | --- |
-| `component_name` | `string` | 예 | `home_native_ad_carousel`, `town_map_bottom_sheet` |
-| `interaction_type` | `string` | 예 | `scroll`, `expand` |
+| `component_name` | `string` | 예 | `home_native_ad_carousel`, `town_map_bottom_sheet`, `town_map_map` |
+| `interaction_type` | `string` | 예 | `scroll`, `expand`, `pan`, `zoom`, `tap` |
 | `screen_name` | `string` | 예 | 화면명 |
 | `surface` | `string` | 예 | UI 영역 |
-| `item_count` | `number` | 아니오 | 캐러셀 아이템 개수 |
+| `path` | `string` | 아니오 | 현재 path. 지도 인터랙션에는 `/town-map`이 함께 전송된다 |
 | `user_id` | `string` | 예 | 익명 visitor id |
 | `app_version` | `string` | 예 | 현재 앱 버전 |
 | `experiment_id` | `string` | 예 | 현재 활성 실험 id |
 | `iteration` | `string` | 예 | 현재 실험 iteration |
 | `variant` | `string` | 예 | 현재 실험 variant |
+
+현재 추가된 component:
+
+- `home_native_ad_carousel`
+- `item_detail_nearby_business_carousel`
+- `town_map_bottom_sheet`
+- `town_map_map`
 
 ## 현재 해석상의 주의점
 

@@ -41,6 +41,28 @@ export function TownMapKakaoMap({
         map.setDraggable(true);
         map.setZoomable(true);
 
+        const buildMapInteractionProperties = (interactionType: "pan" | "zoom" | "tap") => {
+          return {
+            component_name: "town_map_map",
+            interaction_type: interactionType,
+            screen_name: "town_map",
+            surface: "map",
+            path: "/town-map",
+          };
+        };
+
+        kakao.maps.event.addListener(map, "dragend", () => {
+          trackEvent("component_interacted", buildMapInteractionProperties("pan"));
+        });
+
+        kakao.maps.event.addListener(map, "zoom_changed", () => {
+          trackEvent("component_interacted", buildMapInteractionProperties("zoom"));
+        });
+
+        kakao.maps.event.addListener(map, "click", () => {
+          trackEvent("component_interacted", buildMapInteractionProperties("tap"));
+        });
+
         for (const pin of pins) {
           const overlayPosition = new kakao.maps.LatLng(pin.lat, pin.lng);
           const overlayNode = createPinOverlay(pin);

@@ -46,7 +46,6 @@ export function ItemDetailNearbyBusinessStrip({
           trackEvent("component_interacted", {
             component_name: "item_detail_nearby_business_carousel",
             interaction_type: "scroll",
-            item_count: businesses.length,
             screen_name: "item_detail",
             surface: "content",
           });
