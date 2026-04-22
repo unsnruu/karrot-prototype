@@ -8,16 +8,15 @@ import { trackEvent } from "@/lib/analytics/amplitude";
 import { buildElementClickedEventProperties } from "@/lib/analytics/element-click";
 import { type NearbyTownMapBusinessCard } from "@/lib/town-map-business-data";
 import { appendNavigationQuery } from "@/lib/tab-navigation";
+import { ChevronRightIcon } from "@/features/home/components/item-detail-icons";
 
 export function ItemDetailNearbyBusinessStrip({
   businesses,
   detailHref,
-  itemTitle,
   meetupHint,
 }: {
   businesses: NearbyTownMapBusinessCard[];
   detailHref: string;
-  itemTitle: string;
   meetupHint: string;
 }) {
   const pathname = usePathname();
@@ -27,73 +26,68 @@ export function ItemDetailNearbyBusinessStrip({
     return null;
   }
 
+  const browseHref = appendNavigationQuery("/town-map", {
+    tab: "town-map",
+    returnTo: detailHref,
+  });
+
   return (
-    <div
-      className="overflow-x-auto snap-x snap-mandatory [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-      onScroll={(event) => {
-        if (hasTrackedInteraction.current || event.currentTarget.scrollLeft <= 8) {
-          return;
-        }
+    <section className="space-y-3">
+      <h2 className="text-[18px] font-bold leading-none text-black">거래 장소 근처의 방문할 만한 곳이에요</h2>
 
-        hasTrackedInteraction.current = true;
-        trackEvent("component_interacted", {
-          component_name: "item_detail_nearby_business_carousel",
-          interaction_type: "scroll",
-          item_count: businesses.length,
-          screen_name: "item_detail",
-          surface: "content",
-        });
-      }}
-    >
-      <div className="flex min-w-max gap-5 pr-4">
-        {businesses.map((business, index) => {
-          const href = appendNavigationQuery(`/town-map/businesses/${business.id}`, {
-            tab: "town-map",
-            returnTo: detailHref,
+      <div
+        className="overflow-x-auto snap-x snap-mandatory [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        onScroll={(event) => {
+          if (hasTrackedInteraction.current || event.currentTarget.scrollLeft <= 8) {
+            return;
+          }
+
+          hasTrackedInteraction.current = true;
+          trackEvent("component_interacted", {
+            component_name: "item_detail_nearby_business_carousel",
+            interaction_type: "scroll",
+            item_count: businesses.length,
+            screen_name: "item_detail",
+            surface: "content",
           });
+        }}
+      >
+        <div className="flex min-w-max gap-5 pr-4">
+          {businesses.map((business, index) => {
+            const href = appendNavigationQuery(`/town-map/businesses/${business.id}`, {
+              tab: "town-map",
+              returnTo: detailHref,
+            });
 
-          return (
-            <Link
-              className="flex w-[247px] shrink-0 snap-start gap-4 rounded-[16px]"
-              href={href}
-              key={business.id}
-              onClick={() => {
-                trackEvent(
-                  "element_clicked",
-                  buildElementClickedEventProperties({
-                    screenName: "item_detail",
-                    targetType: "card",
-                    targetName: "item_detail_nearby_business_card",
-                    surface: "content",
-                    path: pathname,
-                    targetId: business.id,
-                    targetPosition: index + 1,
-                    destinationPath: href,
-                  }),
-                );
-              }}
-            >
-              <div className="relative h-[108px] w-[108px] shrink-0 overflow-hidden rounded-[12px] bg-[#f1f3f5]">
-                <AppImage
-                  alt={business.name}
-                  className="object-cover"
-                  fill
-                  sizes="108px"
-                  src={business.image}
-                />
-              </div>
-
-              <div className="flex min-w-0 flex-1 flex-col gap-1 py-0.5">
-                <div className="min-w-0 leading-[1.5]">
-                  <p className="truncate text-[16px] font-semibold text-black">{business.name}</p>
-                  <p className="truncate text-[14px] font-medium text-[#868b94]">{business.category}</p>
+            return (
+              <Link
+                className="flex w-[203px] shrink-0 snap-start items-start gap-4 rounded-[16px]"
+                href={href}
+                key={business.id}
+                onClick={() => {
+                  trackEvent(
+                    "element_clicked",
+                    buildElementClickedEventProperties({
+                      screenName: "item_detail",
+                      targetType: "card",
+                      targetName: "item_detail_nearby_business_card",
+                      surface: "content",
+                      path: pathname,
+                      targetId: business.id,
+                      targetPosition: index + 1,
+                      destinationPath: href,
+                    }),
+                  );
+                }}
+              >
+                <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-[12px] bg-[#f1f3f5]">
+                  <AppImage alt={business.name} className="object-cover" fill sizes="64px" src={business.image} />
                 </div>
 
-                <div className="min-w-0 space-y-1">
-                  <div className="flex min-w-0 items-center gap-1 text-[13px] leading-none text-[#868b94]">
-                    <p className="truncate">{business.townLabel}</p>
-                    <span aria-hidden="true">·</span>
-                    <p className="truncate">단골 {business.regularCount}</p>
+                <div className="flex min-w-0 flex-1 flex-col gap-1">
+                  <div className="min-w-0 leading-[1.5]">
+                    <p className="truncate text-[16px] font-semibold text-black">{business.name}</p>
+                    <p className="truncate text-[13px] font-medium leading-[1.5] text-[#868b94]">{business.category}</p>
                   </div>
 
                   <div className="flex items-center gap-0.5 text-[13px] leading-none text-[#ff6f0f]">
@@ -101,12 +95,40 @@ export function ItemDetailNearbyBusinessStrip({
                     <p className="font-semibold">{business.rating.toFixed(1)}</p>
                   </div>
                 </div>
-              </div>
-            </Link>
-          );
-        })}
+              </Link>
+            );
+          })}
+        </div>
       </div>
-    </div>
+
+      <div className="flex items-center gap-2">
+        <p className="min-w-0 flex-1 text-[13px] leading-[1.5] text-[#1a1c20]">
+          <span className="font-semibold">{meetupHint} </span>
+          <span>근처에서 다른 장소도 함께 둘러보세요</span>
+        </p>
+
+        <Link
+          className="inline-flex shrink-0 items-center rounded-full border border-black/10 bg-white py-[6px] pl-[14px] pr-[10px] text-[13px] font-medium leading-[1.5] text-black"
+          href={browseHref}
+          onClick={() => {
+            trackEvent(
+              "element_clicked",
+              buildElementClickedEventProperties({
+                screenName: "item_detail",
+                targetType: "button",
+                targetName: "item_detail_nearby_business_browse_button",
+                surface: "content",
+                path: pathname,
+                destinationPath: browseHref,
+              }),
+            );
+          }}
+        >
+          <span>구경하기</span>
+          <ChevronRightIcon className="ml-0.5 h-6 w-6" />
+        </Link>
+      </div>
+    </section>
   );
 }
 

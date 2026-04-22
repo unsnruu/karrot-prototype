@@ -124,14 +124,6 @@ function ItemBodySection({
               <p className="text-[13px] leading-none text-[#1d1c21]">{item.distance} 근처에서 거래할 수 있어요</p>
             </Link>
 
-            {showNearbyBusinesses ? (
-              <ItemDetailNearbyBusinessStrip
-                businesses={nearbyBusinesses}
-                detailHref={detailHref}
-                itemTitle={item.title}
-                meetupHint={item.meetupHint}
-              />
-            ) : null}
           </div>
         ) : null}
       </div>
@@ -220,6 +212,11 @@ export function ItemDetailMainColumn({
         returnTo={returnTo}
         showNearbyBusinesses={variant === "nearby_business_carousel"}
       />
+      {variant === "nearby_business_carousel" ? (
+        <section className="py-3">
+          <ItemDetailNearbyBusinessStrip businesses={nearbyBusinesses} detailHref={detailHref} meetupHint={item.meetupHint} />
+        </section>
+      ) : null}
       {adItem ? (
         <section className="py-3">
           <ItemDetailAdCard item={adItem} />

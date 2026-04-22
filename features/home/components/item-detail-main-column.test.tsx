@@ -124,6 +124,8 @@ describe("ItemDetailMainColumn", () => {
       }),
     );
 
-    expect(await screen.findByText("근처 업체")).toBeInTheDocument();
+    expect(await screen.findByText("거래 장소 근처의 방문할 만한 곳이에요")).toBeInTheDocument();
+    expect(screen.getByText("근처 업체")).toBeInTheDocument();
+    expect(screen.getByText("구경하기")).toBeInTheDocument();
   });
 });
