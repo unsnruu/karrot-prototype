@@ -42,7 +42,7 @@ Amplitude 초기화는 [lib/analytics/amplitude.ts](/Users/unsnruu/Documents/pro
 - 초기화: `amplitude.initAll(...)`
 - 자동 수집: `analytics: { autocapture: true }`
 - 사용자 식별: 앱 초기화 시 새 익명 visitor id를 생성해 `setUserId(...)`로 설정
-- 실험 컨텍스트: [lib/analytics/visitor-experiment.ts](/Users/unsnruu/Documents/projects/dev/2026/karrot/lib/analytics/visitor-experiment.ts:1) 에서 `userId`, `appVersion`, `experiment`를 함께 생성하고 유지
+- 실험 컨텍스트: [lib/analytics/visitor-experiment.ts](/Users/unsnruu/Documents/projects/dev/2026/karrot/lib/analytics/visitor-experiment.ts:1) 에서 `userId`, `appVersion`, `experiment`를 함께 생성해 메모리에 유지하고 `localStorage`에도 기록
 - user property 세팅:
   - `app_version`
   - `experiment_id`
@@ -92,6 +92,16 @@ Amplitude 초기화는 [lib/analytics/amplitude.ts](/Users/unsnruu/Documents/pro
 
 ## 이벤트별 스키마
 
+아래 섹션은 각 이벤트의 "고유 속성"만 정리한다.
+
+- `user_id`
+- `app_version`
+- `experiment_id`
+- `iteration`
+- `variant`
+
+는 위 `공통 실험 속성` 섹션에서 한 번만 설명하고, 아래 이벤트별 스키마에서는 반복하지 않는다.
+
 ### `screen_viewed`
 
 전송 위치:
@@ -109,11 +119,6 @@ Amplitude 초기화는 [lib/analytics/amplitude.ts](/Users/unsnruu/Documents/pro
 - `screen_name: string`
 - `path: string`
 - `query_string?: string`
-- `user_id: string`
-- `app_version: string`
-- `experiment_id: string`
-- `iteration: string`
-- `variant: string`
 
 ### `element_clicked`
 
@@ -127,11 +132,6 @@ Amplitude 초기화는 [lib/analytics/amplitude.ts](/Users/unsnruu/Documents/pro
 - `target_name: string`
 - `path?: string`
 - `destination_path?: string`
-- `user_id: string`
-- `app_version: string`
-- `experiment_id: string`
-- `iteration: string`
-- `variant: string`
 
 현재 추가된 target:
 
@@ -161,11 +161,6 @@ Amplitude 초기화는 [lib/analytics/amplitude.ts](/Users/unsnruu/Documents/pro
 | `screen_name` | `string` | 예 | 화면명 |
 | `surface` | `string` | 예 | UI 영역 |
 | `path` | `string` | 아니오 | 현재 path. 지도 인터랙션에는 `/town-map`이 함께 전송된다 |
-| `user_id` | `string` | 예 | 익명 visitor id |
-| `app_version` | `string` | 예 | 현재 앱 버전 |
-| `experiment_id` | `string` | 예 | 현재 활성 실험 id |
-| `iteration` | `string` | 예 | 현재 실험 iteration |
-| `variant` | `string` | 예 | 현재 실험 variant |
 
 현재 추가된 component:
 
