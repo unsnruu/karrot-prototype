@@ -5,4 +5,15 @@ export type TownMapBusinessNewsPost = {
   createdAt: string;
   postedAtLabel: string;
   imageSrc?: string;
+  businessId?: string;
+  businessName?: string;
+  businessCategory?: string;
+  businessImageSrc?: string;
+};
+
+export type TownMapBusinessNewsFeedPost = TownMapBusinessNewsPost & {
+  businessId: string;
+  businessName: string;
+  businessCategory: string;
+  businessImageSrc?: string;
 };

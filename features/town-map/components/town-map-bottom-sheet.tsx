@@ -8,8 +8,8 @@ import { buildElementClickedEventProperties } from "@/lib/analytics/element-clic
 import { TownMapPostCard } from "@/features/town-map/components/town-map-post-card";
 import { TownMapQuickActionCard } from "@/features/town-map/components/town-map-quick-action-card";
 import { buildPendingFeatureHref } from "@/lib/tab-navigation";
+import { type TownMapBusinessNewsFeedPost } from "@/lib/town-map-business-news";
 import {
-  townMapPosts,
   townMapQuickActions,
   townMapScreenData,
 } from "@/lib/town-map";
@@ -17,7 +17,11 @@ import {
 const COLLAPSED_RATIO = 335 / 852;
 const EXPANDED_RATIO = 711 / 852;
 
-export function TownMapBottomSheet() {
+export function TownMapBottomSheet({
+  newsPosts,
+}: {
+  newsPosts: TownMapBusinessNewsFeedPost[];
+}) {
   const sheetRef = useRef<HTMLDivElement | null>(null);
   const dragStateRef = useRef<{
     pointerId: number;
@@ -204,9 +208,13 @@ export function TownMapBottomSheet() {
         </div>
 
         <div className="mt-5 flex flex-col gap-10 pb-10">
-          {townMapPosts.map((post) => (
-            <TownMapPostCard key={post.id} post={post} />
-          ))}
+          {newsPosts.length > 0 ? (
+            newsPosts.map((post) => <TownMapPostCard key={post.id} post={post} />)
+          ) : (
+            <p className="rounded-[16px] bg-[#f7f8f9] px-4 py-5 text-[14px] leading-6 text-[#6b7280]">
+              아직 불러온 업체 소식이 없어요.
+            </p>
+          )}
         </div>
       </div>
     </section>
