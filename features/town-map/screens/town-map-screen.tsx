@@ -1,7 +1,6 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { BottomNav } from "@/components/navigation/bottom-nav";
 import { AppImage } from "@/components/ui/app-image";
 import { PendingFeatureLink } from "@/components/ui/pending-feature-link";
@@ -25,7 +24,24 @@ export function TownMapScreen({
   pins: TownMapPin[];
 }) {
   const pathname = usePathname();
+  const router = useRouter();
   const searchHref = appendNavigationQuery("/town-map/search", { returnTo: "/town-map", tab: "town-map" });
+
+  const handleSearchClick = () => {
+    trackEvent(
+      "element_clicked",
+      buildElementClickedEventProperties({
+        screenName: "town_map",
+        targetType: "input",
+        targetName: "town_map_search_input",
+        surface: "header",
+        path: pathname,
+        destinationPath: searchHref,
+      }),
+    );
+
+    router.push(searchHref);
+  };
 
   return (
     <main className="min-h-screen bg-[#f2f4f7] text-[#111827]">
@@ -34,34 +50,24 @@ export function TownMapScreen({
           <TownMapKakaoMap center={townMapCenter} pins={pins} />
 
           <div className="relative z-10 px-4 pt-5">
-            <Link
-              aria-label="업체 검색 화면 열기"
-              className="block rounded-[8px] bg-gradient-to-b from-[#fdfdfe] to-[#f4f6fa] p-2 shadow-[0px_1px_8px_0px_rgba(0,0,0,0.15)]"
-              href={searchHref}
-              onClick={() => {
-                trackEvent(
-                  "element_clicked",
-                  buildElementClickedEventProperties({
-                    screenName: "town_map",
-                    targetType: "input",
-                    targetName: "town_map_search_input",
-                    surface: "header",
-                    path: pathname,
-                    destinationPath: searchHref,
-                  }),
-                );
-              }}
-            >
+            <div className="rounded-[8px] bg-gradient-to-b from-[#fdfdfe] to-[#f4f6fa] p-2 shadow-[0px_1px_8px_0px_rgba(0,0,0,0.15)]">
               <div className="flex h-12 items-center gap-2">
+                <button
+                  aria-label="업체 검색 화면 열기"
+                  className="flex min-w-0 flex-1 items-center gap-2 text-left"
+                  onClick={handleSearchClick}
+                  type="button"
+                >
                 <span className="relative h-8 w-8 shrink-0">
                   <AppImage alt="" className="object-contain" fill sizes="32px" src={townMapSearchIcon} />
                 </span>
                 <span className="flex-1 text-[18px] text-[#aeb3bb]">{townMapScreenData.searchPlaceholder}</span>
+                </button>
                 <PendingFeatureLink className="relative h-9 w-9 shrink-0 overflow-hidden rounded-full" featureLabel="동네지도 프로필 보기" returnTo="/town-map">
                   <AppImage alt="프로필" className="object-cover" fill sizes="36px" src={townMapScreenData.profileImage} />
                 </PendingFeatureLink>
               </div>
-            </Link>
+            </div>
 
             <div className="mt-2 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
               {townMapSearchCategories.map((category) => (
