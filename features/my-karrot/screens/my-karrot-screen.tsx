@@ -126,6 +126,13 @@ export function MyKarrotScreen() {
               className="flex h-8 w-8 items-center justify-center rounded-full text-[20px] text-[#6b7280]"
               featureLabel="설정"
               returnTo="/my-karrot"
+              tracking={{
+                screenName: "my_karrot",
+                targetType: "button",
+                targetName: "my_karrot_settings_button",
+                surface: "header",
+                path: "/my-karrot",
+              }}
             >
               ⚙
             </PendingFeatureLink>

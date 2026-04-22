@@ -1,13 +1,31 @@
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { AppImage } from "@/components/ui/app-image";
+import { trackElementClicked } from "@/lib/analytics/element-click";
 import { type CommunityPost } from "@/lib/community";
 
 const iconChat = "/icons/chat.svg";
 
 export function CommunityPostCard({ post }: { post: CommunityPost }) {
+  const pathname = usePathname();
+
   return (
     <article className="border-b border-[#eceef2] py-4">
-      <Link className="block" href={`/community/${post.id}`}>
+      <Link
+        className="block"
+        href={`/community/${post.id}`}
+        onClick={() => {
+          trackElementClicked({
+            screenName: "community",
+            targetType: "card",
+            targetName: "community_post_card",
+            surface: "post_list",
+            path: pathname,
+            targetId: post.id,
+            destinationPath: `/community/${post.id}`,
+          });
+        }}
+      >
       <div className="mb-3 inline-flex rounded-[4px] bg-[#f3f4f5] px-[6px] py-1 text-[11px] font-medium leading-none text-[#555d6d]">
         {post.topic}
       </div>

@@ -7,6 +7,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { PendingFeatureLink } from "@/components/ui/pending-feature-link";
 import { useHomeNavigationHistory } from "@/features/home/components/home-navigation-history-provider";
 import { ArrowLeftIcon } from "@/features/home/components/item-detail-icons";
+import { trackElementClicked } from "@/lib/analytics/element-click";
 import { resolveHomeHrefFromPathname } from "@/lib/home-experiment";
 import { homeServiceSections } from "@/lib/home-services";
 import { usePathname, useRouter } from "next/navigation";
@@ -40,7 +41,20 @@ export function HomeServicesScreen() {
           className="z-20"
           innerClassName="h-[60px] px-5"
           leading={
-            <IconButton ariaLabel="뒤로가기" onClick={handleBack}>
+            <IconButton
+              ariaLabel="뒤로가기"
+              onClick={() => {
+                trackElementClicked({
+                  screenName: "home_services",
+                  targetType: "button",
+                  targetName: "home_services_back_button",
+                  surface: "header",
+                  path: pathname,
+                  destinationPath: homeHref,
+                });
+                handleBack();
+              }}
+            >
               <span className="text-[#0a0a0a]">
                 <ArrowLeftIcon />
               </span>
@@ -57,7 +71,22 @@ export function HomeServicesScreen() {
                 <div className="mt-4 grid grid-cols-2 gap-x-4 gap-y-4">
                   {section.items.map((item) =>
                     item.href ? (
-                      <Link className="flex items-center gap-3 rounded-[10px] pl-3" href={item.href} key={item.label}>
+                      <Link
+                        className="flex items-center gap-3 rounded-[10px] pl-3"
+                        href={item.href}
+                        key={item.label}
+                        onClick={() => {
+                          trackElementClicked({
+                            screenName: "home_services",
+                            targetType: "list_item",
+                            targetName: "home_services_item",
+                            surface: "services_grid",
+                            path: pathname,
+                            targetId: item.label,
+                            destinationPath: item.href,
+                          });
+                        }}
+                      >
                         <ServiceIcon icon={item.icon} label={item.label} />
                         <span className="text-[16px] font-medium leading-6 text-[#101828]">{item.label}</span>
                       </Link>
@@ -67,6 +96,14 @@ export function HomeServicesScreen() {
                         featureLabel={item.label}
                         key={item.label}
                         returnTo={pathname}
+                        tracking={{
+                          screenName: "home_services",
+                          targetType: "list_item",
+                          targetName: "home_services_item",
+                          surface: "services_grid",
+                          path: pathname,
+                          targetId: item.label,
+                        }}
                       >
                         <ServiceIcon icon={item.icon} label={item.label} />
                         <span className="text-[16px] font-medium leading-6 text-[#101828]">{item.label}</span>

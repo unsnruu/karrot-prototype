@@ -44,7 +44,9 @@ type LinkButtonProps = SharedProps &
 type PendingButtonProps = SharedProps & {
   href?: never;
   pendingFeatureLabel: string;
+  onClick?: ComponentPropsWithoutRef<typeof PendingFeatureLink>["onClick"];
   returnTo?: string;
+  tracking?: ComponentPropsWithoutRef<typeof PendingFeatureLink>["tracking"];
 };
 
 type ActionButtonProps = ButtonProps | LinkButtonProps | PendingButtonProps;
@@ -103,7 +105,9 @@ export function ActionButton(props: ActionButtonProps) {
       <PendingFeatureLink
         className={nextClassName}
         featureLabel={props.pendingFeatureLabel}
+        onClick={props.onClick}
         returnTo={props.returnTo}
+        tracking={props.tracking}
       >
         {content}
       </PendingFeatureLink>

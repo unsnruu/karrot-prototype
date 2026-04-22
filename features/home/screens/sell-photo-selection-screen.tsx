@@ -6,6 +6,7 @@ import { useEffect, useRef } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { AppImage } from "@/components/ui/app-image";
 import { trackEvent } from "@/lib/analytics/amplitude";
+import { buildElementClickedEventProperties } from "@/lib/analytics/element-click";
 import { buildScreenViewedEventProperties } from "@/lib/analytics/screen-view";
 import { useSellFlow } from "@/features/home/components/sell-flow-provider";
 import { resolveHomeHrefFromPathname } from "@/lib/home-experiment";
@@ -40,12 +41,35 @@ export function SellPhotoSelectionScreen() {
     <main className="min-h-screen bg-white text-[#111827]">
       <div className="mobile-shell min-h-screen bg-white pb-[168px]">
         <header className="flex h-14 items-center justify-between px-4">
-          <Link aria-label="홈으로 돌아가기" className="flex h-10 w-10 items-center justify-center" href={homeHref}>
+          <Link
+            aria-label="홈으로 돌아가기"
+            className="flex h-10 w-10 items-center justify-center"
+            href={homeHref}
+            onClick={() => {
+              trackEvent("element_clicked", buildElementClickedEventProperties({
+                screenName: "sell_photo_selection",
+                targetType: "button",
+                targetName: "sell_photo_selection_close_button",
+                surface: "header",
+                path: pathname,
+                destinationPath: homeHref,
+              }));
+            }}
+          >
             <X aria-hidden="true" className="h-6 w-6 text-[#111827]" strokeWidth={1.9} />
           </Link>
           <Link
             className="flex items-center gap-1 text-[15px] font-semibold text-[#111827]"
             href={buildPendingFeatureHref("/home/sell/photos", "최근 항목 정렬 변경")}
+            onClick={() => {
+              trackEvent("element_clicked", buildElementClickedEventProperties({
+                screenName: "sell_photo_selection",
+                targetType: "button",
+                targetName: "sell_photo_selection_sort_button",
+                surface: "header",
+                path: pathname,
+              }));
+            }}
           >
             최근 항목
             <ChevronDown aria-hidden="true" className="h-4 w-4 text-[#111827]" strokeWidth={1.8} />
@@ -69,6 +93,15 @@ export function SellPhotoSelectionScreen() {
                 className="relative aspect-square overflow-hidden bg-[#f5f5f5]"
                 key={photo}
                 onClick={() => {
+                  trackEvent("element_clicked", buildElementClickedEventProperties({
+                    screenName: "sell_photo_selection",
+                    targetType: "tile",
+                    targetName: "sell_photo_selection_photo_tile",
+                    surface: "photo_grid",
+                    path: pathname,
+                    targetId: photo,
+                    targetPosition: index,
+                  }));
                   togglePhoto(photo);
                 }}
                 type="button"
@@ -101,7 +134,17 @@ export function SellPhotoSelectionScreen() {
               selectedCount > 0 ? "bg-[#2b3138] text-white" : "bg-[#d1d5db] text-[#9ca3af]"
             }`}
             disabled={selectedCount === 0}
-            onClick={() => router.push("/home/sell/write")}
+            onClick={() => {
+              trackEvent("element_clicked", buildElementClickedEventProperties({
+                screenName: "sell_photo_selection",
+                targetType: "button",
+                targetName: "sell_photo_selection_submit_button",
+                surface: "sticky_footer",
+                path: pathname,
+                destinationPath: "/home/sell/write",
+              }));
+              router.push("/home/sell/write");
+            }}
             type="button"
           >
             {selectedCount > 0 ? `${selectedCount}장 올리기` : `0/${SELL_FLOW_MAX_PHOTOS}`}

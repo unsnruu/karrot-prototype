@@ -20,13 +20,20 @@ export function MyKarrotPayCard({ payCardIconSrc }: { payCardIconSrc: string }) 
       </div>
       <div className="mt-3 flex items-center justify-between gap-4">
         <div className="flex items-center gap-4 text-sm font-medium leading-[21px] text-[#364153]">
-          <PendingFeatureLink featureLabel="당근페이 충전" returnTo="/my-karrot">충전</PendingFeatureLink>
-          <PendingFeatureLink featureLabel="당근페이 송금" returnTo="/my-karrot">송금</PendingFeatureLink>
+          <PendingFeatureLink featureLabel="당근페이 충전" returnTo="/my-karrot" tracking={{ screenName: "my_karrot", targetType: "button", targetName: "my_karrot_pay_charge_button", surface: "pay_card", path: "/my-karrot" }}>충전</PendingFeatureLink>
+          <PendingFeatureLink featureLabel="당근페이 송금" returnTo="/my-karrot" tracking={{ screenName: "my_karrot", targetType: "button", targetName: "my_karrot_pay_transfer_button", surface: "pay_card", path: "/my-karrot" }}>송금</PendingFeatureLink>
         </div>
         <PendingFeatureLink
           className="inline-flex h-[35px] items-center gap-2 rounded-full bg-[#101828] px-4 text-[13px] font-semibold leading-[19.5px] text-white"
           featureLabel="당근페이 결제"
           returnTo="/my-karrot"
+          tracking={{
+            screenName: "my_karrot",
+            targetType: "button",
+            targetName: "my_karrot_pay_pay_button",
+            surface: "pay_card",
+            path: "/my-karrot",
+          }}
         >
           <Image alt="" height={16} src={payCardIconSrc} width={16} />
           결제

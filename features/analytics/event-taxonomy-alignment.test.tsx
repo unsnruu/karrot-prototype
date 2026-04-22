@@ -69,12 +69,12 @@ describe("event taxonomy alignment", () => {
 
     fireEvent.click(screen.getByRole("link", { name: "커뮤니티" }));
 
-    expect(amplitudeMocks.trackEvent).toHaveBeenCalledWith("element_clicked", {
+    expect(amplitudeMocks.trackEvent).toHaveBeenCalledWith("element_clicked", expect.objectContaining({
       destination_path: "/community",
       path: "/home",
       screen_name: "home",
       target_name: "bottom_nav_tab",
-    });
+    }));
   });
 
   it("keeps the home tab linked to the shared home route", () => {
@@ -102,12 +102,12 @@ describe("event taxonomy alignment", () => {
 
     fireEvent.click(screen.getByRole("link", { name: "모임" }));
 
-    expect(amplitudeMocks.trackEvent).toHaveBeenCalledWith("element_clicked", {
+    expect(amplitudeMocks.trackEvent).toHaveBeenCalledWith("element_clicked", expect.objectContaining({
       destination_path: "/community?tab=meetup",
       path: "/community",
       screen_name: "community",
       target_name: "community_top_tab",
-    });
+    }));
   });
 
   it("tracks chat thread opens as element_clicked", () => {
@@ -129,12 +129,12 @@ describe("event taxonomy alignment", () => {
 
     fireEvent.click(screen.getByRole("link", { name: /당근이/ }));
 
-    expect(amplitudeMocks.trackEvent).toHaveBeenCalledWith("element_clicked", {
+    expect(amplitudeMocks.trackEvent).toHaveBeenCalledWith("element_clicked", expect.objectContaining({
       destination_path: "/chat/thread-1",
       path: "/chat",
       screen_name: "chat",
       target_name: "chat_thread_row",
-    });
+    }));
   });
 
   it("tracks item detail chat button clicks as element_clicked", () => {
@@ -153,12 +153,12 @@ describe("event taxonomy alignment", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "채팅하기" }));
 
-    expect(amplitudeMocks.trackEvent).toHaveBeenCalledWith("element_clicked", {
+    expect(amplitudeMocks.trackEvent).toHaveBeenCalledWith("element_clicked", expect.objectContaining({
       destination_path: "/chat/item-1",
       path: "/home/items/item-1",
       screen_name: "item_detail",
       target_name: "item_detail_chat_button_open_chat",
-    });
+    }));
     expect(chatStorageMocks.ensureLocalChatThread).toHaveBeenCalled();
     expect(navigationState.push).toHaveBeenCalledWith("/chat/item-1");
   });
@@ -171,12 +171,12 @@ describe("event taxonomy alignment", () => {
 
     fireEvent.click(screen.getByRole("link", { name: "업체 검색 화면 열기" }));
 
-    expect(amplitudeMocks.trackEvent).toHaveBeenCalledWith("element_clicked", {
+    expect(amplitudeMocks.trackEvent).toHaveBeenCalledWith("element_clicked", expect.objectContaining({
       destination_path: "/town-map/search?tab=town-map&returnTo=%2Ftown-map",
       path: "/town-map",
       screen_name: "town_map",
       target_name: "town_map_search_input",
-    });
+    }));
   });
 
   it("tracks town map search history clear as element_clicked", () => {
@@ -187,10 +187,10 @@ describe("event taxonomy alignment", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "전체 삭제" }));
 
-    expect(amplitudeMocks.trackEvent).toHaveBeenCalledWith("element_clicked", {
+    expect(amplitudeMocks.trackEvent).toHaveBeenCalledWith("element_clicked", expect.objectContaining({
       path: "/town-map/search",
       screen_name: "town_map_search",
       target_name: "town_map_search_history_clear",
-    });
+    }));
   });
 });

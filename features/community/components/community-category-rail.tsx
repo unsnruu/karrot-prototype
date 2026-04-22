@@ -7,7 +7,20 @@ export function CommunityCategoryRail({ className = "" }: { className?: string }
   return (
     <div className={`${className} flex gap-3 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden`}>
       {communityCategories.map((category) => (
-        <PendingFeatureLink className="w-20 shrink-0" featureLabel={category.label} key={category.id} returnTo="/community">
+        <PendingFeatureLink
+          className="w-20 shrink-0"
+          featureLabel={category.label}
+          key={category.id}
+          returnTo="/community"
+          tracking={{
+            screenName: "community",
+            targetType: "category",
+            targetName: "community_category_rail_item",
+            surface: "category_rail",
+            path: "/community",
+            targetId: category.id,
+          }}
+        >
           <div className="mx-auto relative h-16 w-16">
             <AppImage
               alt={category.label}

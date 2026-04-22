@@ -23,6 +23,14 @@ export function MyKarrotMenuGroup({
             featureLabel={item.label}
             key={item.label}
             returnTo="/my-karrot"
+            tracking={{
+              screenName: "my_karrot",
+              targetType: "menu_item",
+              targetName: "my_karrot_menu_item",
+              surface: "menu_group",
+              path: "/my-karrot",
+              targetId: item.label,
+            }}
           >
             <span className="flex items-center gap-3">
               <Image alt="" height={22} src={item.iconSrc} width={22} />

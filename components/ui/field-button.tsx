@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { ComponentPropsWithoutRef, ReactNode } from "react";
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import { PendingFeatureLink } from "@/components/ui/pending-feature-link";
@@ -17,16 +17,17 @@ type SharedProps = {
 
 type LinkProps = SharedProps & {
   href: string;
-  onClick?: never;
+  onClick?: ComponentPropsWithoutRef<typeof Link>["onClick"];
   pendingFeatureLabel?: never;
   returnTo?: never;
 };
 
 type PendingLinkProps = SharedProps & {
   href?: never;
-  onClick?: never;
+  onClick?: ComponentPropsWithoutRef<typeof PendingFeatureLink>["onClick"];
   pendingFeatureLabel: string;
   returnTo?: string;
+  tracking?: ComponentPropsWithoutRef<typeof PendingFeatureLink>["tracking"];
 };
 
 type ButtonProps = SharedProps & {
@@ -74,7 +75,9 @@ export function FieldButton({
       <PendingFeatureLink
         className={nextClassName}
         featureLabel={props.pendingFeatureLabel}
+        onClick={props.onClick}
         returnTo={props.returnTo}
+        tracking={props.tracking}
       >
         {content}
       </PendingFeatureLink>
@@ -83,14 +86,16 @@ export function FieldButton({
 
   if ("href" in props && props.href) {
     return (
-      <Link className={nextClassName} href={props.href}>
+      <Link className={nextClassName} href={props.href} onClick={props.onClick}>
         {content}
       </Link>
     );
   }
 
+  const buttonProps = props as ButtonProps;
+
   return (
-    <button className={cn(nextClassName, "w-full")} onClick={props.onClick} type="button">
+    <button className={cn(nextClassName, "w-full")} onClick={buttonProps.onClick} type="button">
       {content}
     </button>
   );

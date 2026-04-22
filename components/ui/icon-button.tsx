@@ -26,7 +26,7 @@ export function IconButton({
 
   if (href) {
     return (
-      <Link aria-label={ariaLabel} className={nextClassName} href={href} replace={replace}>
+      <Link aria-label={ariaLabel} className={nextClassName} href={href} onClick={onClick} replace={replace}>
         {children}
       </Link>
     );
@@ -38,6 +38,7 @@ export function IconButton({
         aria-label={ariaLabel}
         className={nextClassName}
         featureLabel={pendingFeatureLabel}
+        onClick={onClick}
         returnTo={returnTo}
       >
         {children}

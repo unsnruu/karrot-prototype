@@ -4,7 +4,18 @@ import { prototypeViewerUser } from "@/lib/prototype-user";
 
 export function MyKarrotProfileCard({ profileAvatarSrc }: { profileAvatarSrc: string }) {
   return (
-    <PendingFeatureLink className="block rounded-2xl bg-white px-5 py-4 shadow-[0_1px_3px_rgba(15,23,42,0.08)]" featureLabel="내 프로필 보기" returnTo="/my-karrot">
+    <PendingFeatureLink
+      className="block rounded-2xl bg-white px-5 py-4 shadow-[0_1px_3px_rgba(15,23,42,0.08)]"
+      featureLabel="내 프로필 보기"
+      returnTo="/my-karrot"
+      tracking={{
+        screenName: "my_karrot",
+        targetType: "card",
+        targetName: "my_karrot_profile_card",
+        surface: "profile",
+        path: "/my-karrot",
+      }}
+    >
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[#e5e7eb]">

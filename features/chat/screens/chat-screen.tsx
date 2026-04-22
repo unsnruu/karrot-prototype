@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { CalendarDays, CirclePlus, EllipsisVertical, Phone, SendHorizontal, Smile, Plus, ChevronLeft } from "lucide-react";
+import { usePathname } from "next/navigation";
 import { AppImage } from "@/components/ui/app-image";
 import { AppToolbar } from "@/components/ui/app-toolbar";
 import { ActionButton } from "@/components/ui/action-button";
@@ -8,6 +9,7 @@ import { IconButton } from "@/components/ui/icon-button";
 import { PendingFeatureLink } from "@/components/ui/pending-feature-link";
 import { ChatMessageRow } from "@/features/chat/components/chat-message-row";
 import { HistoryBackButton } from "@/features/chat/components/history-back-button";
+import { trackElementClicked } from "@/lib/analytics/element-click";
 import { appendChatAppointmentQuery, isChatAppointmentReady, type ChatAppointmentDraft } from "@/lib/chat-appointment";
 import { appendNavigationQuery } from "@/lib/tab-navigation";
 import { type ChatPreview, type MarketplaceItem, type SellerProfile } from "@/lib/marketplace";
@@ -27,12 +29,27 @@ export function ChatScreen({
   itemId: string;
   backHref: string;
 }) {
+  const pathname = usePathname();
+
   if (!item || !seller) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-[#eef2f6] p-6 text-center">
         <div className="rounded-[24px] bg-white p-8 shadow-lg">
           <p className="text-lg font-semibold text-[#111827]">채팅 정보를 찾을 수 없어요.</p>
-          <Link className="mt-4 inline-block text-sm font-semibold text-[#ff6f0f]" href="/">
+          <Link
+            className="mt-4 inline-block text-sm font-semibold text-[#ff6f0f]"
+            href="/"
+            onClick={() => {
+              trackElementClicked({
+                screenName: "chat",
+                targetType: "link",
+                targetName: "chat_missing_item_back_to_feed_link",
+                surface: "empty_state",
+                path: pathname,
+                destinationPath: "/",
+              });
+            }}
+          >
             피드로 돌아가기
           </Link>
         </div>
@@ -86,7 +103,20 @@ export function ChatScreen({
           }
           leading={
             <>
-              <HistoryBackButton className="flex h-8 w-8 items-center justify-center text-black" fallbackHref={backHref}>
+              <HistoryBackButton
+                className="flex h-8 w-8 items-center justify-center text-black"
+                fallbackHref={backHref}
+                onClick={() => {
+                  trackElementClicked({
+                    screenName: "chat",
+                    targetType: "button",
+                    targetName: "chat_back_button",
+                    surface: "header",
+                    path: pathname,
+                    destinationPath: backHref,
+                  });
+                }}
+              >
                 <ChevronLeft aria-hidden="true" className="h-6 w-6" strokeWidth={1.9} />
               </HistoryBackButton>
               <div className="flex h-8 w-8 items-center justify-center" />
@@ -94,10 +124,38 @@ export function ChatScreen({
           }
           trailing={
             <>
-              <IconButton ariaLabel="전화하기" className="text-black" pendingFeatureLabel="전화하기" returnTo={backHref}>
+              <IconButton
+                ariaLabel="전화하기"
+                className="text-black"
+                onClick={() => {
+                  trackElementClicked({
+                    screenName: "chat",
+                    targetType: "button",
+                    targetName: "chat_call_button",
+                    surface: "header",
+                    path: pathname,
+                  });
+                }}
+                pendingFeatureLabel="전화하기"
+                returnTo={backHref}
+              >
                 <Phone aria-hidden="true" className="h-6 w-6" strokeWidth={1.7} />
               </IconButton>
-              <IconButton ariaLabel="채팅 메뉴" className="text-black" pendingFeatureLabel="채팅 메뉴" returnTo={backHref}>
+              <IconButton
+                ariaLabel="채팅 메뉴"
+                className="text-black"
+                onClick={() => {
+                  trackElementClicked({
+                    screenName: "chat",
+                    targetType: "button",
+                    targetName: "chat_menu_button",
+                    surface: "header",
+                    path: pathname,
+                  });
+                }}
+                pendingFeatureLabel="채팅 메뉴"
+                returnTo={backHref}
+              >
                 <EllipsisVertical aria-hidden="true" className="h-6 w-6" strokeWidth={1.8} />
               </IconButton>
             </>
@@ -133,16 +191,52 @@ export function ChatScreen({
 
         <footer className="fixed inset-x-0 bottom-0 z-10 bg-white">
           <div className="mobile-shell flex items-center gap-3 px-2 pb-10 pt-2">
-            <IconButton ariaLabel="채팅에 항목 추가하기" className="text-[#8f95a3]" pendingFeatureLabel="채팅에 항목 추가하기" returnTo={backHref}>
+            <IconButton
+              ariaLabel="채팅에 항목 추가하기"
+              className="text-[#8f95a3]"
+              onClick={() => {
+                trackElementClicked({
+                  screenName: "chat",
+                  targetType: "button",
+                  targetName: "chat_add_item_button",
+                  surface: "message_input",
+                  path: pathname,
+                });
+              }}
+              pendingFeatureLabel="채팅에 항목 추가하기"
+              returnTo={backHref}
+            >
               <Plus aria-hidden="true" className="h-6 w-6" strokeWidth={1.8} />
             </IconButton>
             <div className="flex h-10 flex-1 items-center gap-1 rounded-full bg-[#f2f4f5] px-3">
               <p className="flex-1 text-[16px] font-medium text-[#aeb2b5]">메시지 보내기</p>
-              <PendingFeatureLink className="flex h-6 w-6 items-center justify-center text-[#9aa1ac]" featureLabel="이모지 보내기" returnTo={backHref}>
+              <PendingFeatureLink
+                className="flex h-6 w-6 items-center justify-center text-[#9aa1ac]"
+                featureLabel="이모지 보내기"
+                returnTo={backHref}
+                tracking={{
+                  screenName: "chat",
+                  targetType: "button",
+                  targetName: "chat_emoji_button",
+                  surface: "message_input",
+                  path: pathname,
+                }}
+              >
                 <Smile aria-hidden="true" className="h-5 w-5" strokeWidth={1.5} />
               </PendingFeatureLink>
             </div>
-            <PendingFeatureLink className="flex h-6 w-6 items-center justify-center text-[#d3d7dd]" featureLabel="메시지 보내기" returnTo={backHref}>
+            <PendingFeatureLink
+              className="flex h-6 w-6 items-center justify-center text-[#d3d7dd]"
+              featureLabel="메시지 보내기"
+              returnTo={backHref}
+              tracking={{
+                screenName: "chat",
+                targetType: "button",
+                targetName: "chat_send_message_button",
+                surface: "message_input",
+                path: pathname,
+              }}
+            >
               <SendHorizontal aria-hidden="true" className="h-5 w-5" strokeWidth={1.8} />
             </PendingFeatureLink>
           </div>
@@ -153,11 +247,29 @@ export function ChatScreen({
 }
 
 function ChatActionButton({ icon, label, href, backHref }: { icon: ReactNode; label: string; href?: string; backHref: string }) {
+  const pathname = usePathname();
+  const targetName =
+    label === "약속잡기"
+      ? "chat_quick_action_appointment"
+      : label === "당근페이"
+        ? "chat_quick_action_pay"
+        : "chat_quick_action_add_item";
+
   if (href) {
     return (
       <ActionButton
         href={href}
         leading={icon}
+        onClick={() => {
+          trackElementClicked({
+            screenName: "chat",
+            targetType: "button",
+            targetName,
+            surface: "item_actions",
+            path: pathname,
+            destinationPath: href,
+          });
+        }}
         size="small"
         variant="neutralOutline"
       >
@@ -169,6 +281,15 @@ function ChatActionButton({ icon, label, href, backHref }: { icon: ReactNode; la
   return (
     <ActionButton
       leading={icon}
+      onClick={() => {
+        trackElementClicked({
+          screenName: "chat",
+          targetType: "button",
+          targetName,
+          surface: "item_actions",
+          path: pathname,
+        });
+      }}
       pendingFeatureLabel={label}
       returnTo={backHref}
       size="small"

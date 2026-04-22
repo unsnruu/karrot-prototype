@@ -60,7 +60,18 @@ export function TownMapScreen({
                   <AppImage alt="" className="object-contain" fill sizes="32px" src={townMapSearchIcon} />
                 </span>
                 <span className="flex-1 text-[18px] text-[#aeb3bb]">{townMapScreenData.searchPlaceholder}</span>
-                <PendingFeatureLink className="relative h-9 w-9 shrink-0 overflow-hidden rounded-full" featureLabel="동네지도 프로필 보기" returnTo="/town-map">
+                <PendingFeatureLink
+                  className="relative h-9 w-9 shrink-0 overflow-hidden rounded-full"
+                  featureLabel="동네지도 프로필 보기"
+                  returnTo="/town-map"
+                  tracking={{
+                    screenName: "town_map",
+                    targetType: "button",
+                    targetName: "town_map_profile_button",
+                    surface: "header",
+                    path: pathname,
+                  }}
+                >
                   <AppImage alt="프로필" className="object-cover" fill sizes="36px" src={townMapScreenData.profileImage} />
                 </PendingFeatureLink>
               </div>

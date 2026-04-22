@@ -103,7 +103,21 @@ export function SellWriteScreen() {
       <div className="mobile-shell min-h-screen bg-white pb-[108px]">
         <PageHeader
           leading={
-          <Link aria-label="홈으로 닫기" className="flex h-10 w-10 items-center justify-center" href={homeHref}>
+          <Link
+            aria-label="홈으로 닫기"
+            className="flex h-10 w-10 items-center justify-center"
+            href={homeHref}
+            onClick={() => {
+              trackEvent("element_clicked", buildElementClickedEventProperties({
+                screenName: "sell_write",
+                targetType: "button",
+                targetName: "sell_write_close_button",
+                surface: "header",
+                path: pathname,
+                destinationPath: homeHref,
+              }));
+            }}
+          >
               <X aria-hidden="true" className="h-6 w-6 text-[#111827]" strokeWidth={1.9} />
           </Link>
           }
@@ -112,6 +126,15 @@ export function SellWriteScreen() {
             <Link
               className="text-[14px] font-medium text-[#9ca3af]"
               href={buildPendingFeatureHref("/home/sell/write", "판매글 임시저장")}
+              onClick={() => {
+                trackEvent("element_clicked", buildElementClickedEventProperties({
+                  screenName: "sell_write",
+                  targetType: "button",
+                  targetName: "sell_write_draft_button",
+                  surface: "header",
+                  path: pathname,
+                }));
+              }}
             >
               임시저장
             </Link>
@@ -122,6 +145,16 @@ export function SellWriteScreen() {
           <Link
             className="flex h-16 w-16 shrink-0 flex-col items-center justify-center rounded-[14px] border-2 border-[#d1d5db] bg-white"
             href="/home/sell/photos"
+            onClick={() => {
+              trackEvent("element_clicked", buildElementClickedEventProperties({
+                screenName: "sell_write",
+                targetType: "button",
+                targetName: "sell_write_photo_button",
+                surface: "photos",
+                path: pathname,
+                destinationPath: "/home/sell/photos",
+              }));
+            }}
           >
             <Camera aria-hidden="true" className="h-5 w-5 text-[#9ca3af]" strokeWidth={1.7} />
             <span className="mt-1 text-[11px] font-medium text-[#4b5563]">{draft.photos.length}/4</span>
@@ -138,7 +171,16 @@ export function SellWriteScreen() {
           <p className="text-[14px] font-semibold text-[#111827]">제목</p>
           <button
             className="mt-3 w-full border-0 p-0 text-left text-[15px] text-[#111827] focus:outline-none"
-            onClick={handleAutoFillTitle}
+            onClick={() => {
+              trackEvent("element_clicked", buildElementClickedEventProperties({
+                screenName: "sell_write",
+                targetType: "field",
+                targetName: "sell_write_title_field",
+                surface: "form",
+                path: pathname,
+              }));
+              handleAutoFillTitle();
+            }}
             type="button"
           >
             <span className={draft.title ? "text-[#111827]" : "text-[#99a1af]"}>
@@ -151,7 +193,16 @@ export function SellWriteScreen() {
           <p className="text-[14px] font-semibold text-[#111827]">자세한 설명</p>
           <button
             className="mt-4 block min-h-[168px] w-full rounded-[14px] border border-[#e5e7eb] px-[13px] py-3 text-left text-[14px] leading-[1.6] focus:border-[#ff6f0f] focus:outline-none"
-            onClick={handleAutoFillDescription}
+            onClick={() => {
+              trackEvent("element_clicked", buildElementClickedEventProperties({
+                screenName: "sell_write",
+                targetType: "field",
+                targetName: "sell_write_description_field",
+                surface: "form",
+                path: pathname,
+              }));
+              handleAutoFillDescription();
+            }}
             type="button"
           >
             <span className={draft.description ? "whitespace-pre-wrap text-[#111827]" : "text-[#99a1af]"}>
@@ -181,6 +232,16 @@ export function SellWriteScreen() {
               <Link
                 className="mt-4 flex h-[48px] items-center justify-between border-t border-[#f3f4f6] text-[15px] text-[#111827]"
                 href="/home/sell/price"
+                onClick={() => {
+                  trackEvent("element_clicked", buildElementClickedEventProperties({
+                    screenName: "sell_write",
+                    targetType: "field",
+                    targetName: "sell_write_price_field",
+                    surface: "form",
+                    path: pathname,
+                    destinationPath: "/home/sell/price",
+                  }));
+                }}
               >
                 <div className="flex items-center gap-2">
                   <span className="text-[#9ca3af]">₩</span>
@@ -211,6 +272,16 @@ export function SellWriteScreen() {
             className="mt-3"
             href="/home/sell/location"
             label="거래 희망 장소"
+            onClick={() => {
+              trackEvent("element_clicked", buildElementClickedEventProperties({
+                screenName: "sell_write",
+                targetType: "field",
+                targetName: "sell_write_location_field",
+                surface: "form",
+                path: pathname,
+                destinationPath: "/home/sell/location",
+              }));
+            }}
             placeholder="위치 추가"
             value={draft.location?.label}
           />

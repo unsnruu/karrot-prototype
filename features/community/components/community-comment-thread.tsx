@@ -31,7 +31,20 @@ export function CommunityCommentThread({
               </span>
             ) : null}
           </div>
-          <PendingFeatureLink aria-label="댓글 더보기" className="text-[#9ca3af]" featureLabel="댓글 메뉴" returnTo="/community">
+          <PendingFeatureLink
+            aria-label="댓글 더보기"
+            className="text-[#9ca3af]"
+            featureLabel="댓글 메뉴"
+            returnTo="/community"
+            tracking={{
+              screenName: "community_post_detail",
+              targetType: "button",
+              targetName: "community_comment_menu_button",
+              surface: "comment_thread",
+              path: "/community",
+              targetId: comment.id,
+            }}
+          >
             <EllipsisVertical aria-hidden="true" className="h-5 w-5" strokeWidth={1.8} />
           </PendingFeatureLink>
         </div>
@@ -40,11 +53,35 @@ export function CommunityCommentThread({
         <p className="mt-2 whitespace-pre-line text-sm leading-5 tracking-[-0.015em] text-[#0a0a0a]">{comment.body}</p>
 
         <div className="mt-3 flex items-center gap-4 text-sm font-medium text-[#6b7280]">
-          <PendingFeatureLink className="inline-flex items-center gap-1" featureLabel="댓글 좋아요" returnTo="/community">
+          <PendingFeatureLink
+            className="inline-flex items-center gap-1"
+            featureLabel="댓글 좋아요"
+            returnTo="/community"
+            tracking={{
+              screenName: "community_post_detail",
+              targetType: "button",
+              targetName: "community_comment_like_button",
+              surface: "comment_thread",
+              path: "/community",
+              targetId: comment.id,
+            }}
+          >
             <ThumbsUp aria-hidden="true" className="h-4 w-4" strokeWidth={1.8} />
             좋아요
           </PendingFeatureLink>
-          <PendingFeatureLink className="inline-flex items-center gap-1" featureLabel="답글 작성하기" returnTo="/community">
+          <PendingFeatureLink
+            className="inline-flex items-center gap-1"
+            featureLabel="답글 작성하기"
+            returnTo="/community"
+            tracking={{
+              screenName: "community_post_detail",
+              targetType: "button",
+              targetName: "community_comment_reply_button",
+              surface: "comment_thread",
+              path: "/community",
+              targetId: comment.id,
+            }}
+          >
             <Reply aria-hidden="true" className="h-4 w-4" strokeWidth={1.5} />
             {comment.replyCount ? `답글 ${comment.replyCount}` : "답글쓰기"}
           </PendingFeatureLink>

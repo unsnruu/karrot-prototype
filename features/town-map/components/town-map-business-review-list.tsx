@@ -54,7 +54,20 @@ function BusinessReviewCard({
             <p className="mt-0.5 text-[12px] leading-4 text-[#9ca3af]">{review.authorSummary}</p>
           </div>
         </div>
-        <PendingFeatureLink aria-label="후기 더보기" className="px-1 text-[#9ca3af]" featureLabel="후기 메뉴" returnTo={backHref}>
+        <PendingFeatureLink
+          aria-label="후기 더보기"
+          className="px-1 text-[#9ca3af]"
+          featureLabel="후기 메뉴"
+          returnTo={backHref}
+          tracking={{
+            screenName: "town_map_business_detail",
+            targetType: "button",
+            targetName: "town_map_review_menu_button",
+            surface: "reviews",
+            path: backHref,
+            targetId: review.id,
+          }}
+        >
           <EllipsisVertical aria-hidden="true" className="h-5 w-5" strokeWidth={1.8} />
         </PendingFeatureLink>
       </div>
@@ -71,6 +84,14 @@ function BusinessReviewCard({
           className="mt-4 inline-flex items-center gap-1 rounded-full border border-[#edeef0] px-3 py-[7px] text-[12px] font-medium leading-4 text-[#4b5563]"
           featureLabel="후기 도움돼요"
           returnTo={backHref}
+          tracking={{
+            screenName: "town_map_business_detail",
+            targetType: "button",
+            targetName: "town_map_review_helpful_button",
+            surface: "reviews",
+            path: backHref,
+            targetId: review.id,
+          }}
         >
           <ThumbsUp aria-hidden="true" className="h-3.5 w-3.5" strokeWidth={1.8} />
           도움돼요

@@ -28,7 +28,20 @@ export function TownMapBusinessNewsList({
             <p className="mt-0.5 text-[11px] leading-4 text-[#9ca3af]">{post.postedAtLabel}</p>
           </div>
         </div>
-        <PendingFeatureLink aria-label="소식 더보기" className="px-1 text-[#9ca3af]" featureLabel="소식 메뉴" returnTo={backHref}>
+        <PendingFeatureLink
+          aria-label="소식 더보기"
+          className="px-1 text-[#9ca3af]"
+          featureLabel="소식 메뉴"
+          returnTo={backHref}
+          tracking={{
+            screenName: "town_map_business_detail",
+            targetType: "button",
+            targetName: "town_map_news_menu_button",
+            surface: "news",
+            path: backHref,
+            targetId: post.id,
+          }}
+        >
           <EllipsisVertical aria-hidden="true" className="h-5 w-5" strokeWidth={1.8} />
         </PendingFeatureLink>
       </div>

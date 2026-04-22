@@ -17,11 +17,35 @@ export function ChatLandingScreen({ threads = chatThreadPreviews }: { threads?: 
               <h1 className="text-[22px] font-bold tracking-[-0.03em] text-black">채팅</h1>
 
               <div className="flex items-center gap-3">
-                <PendingFeatureLink aria-label="알림" className="relative" featureLabel="채팅 알림 확인" returnTo="/chat">
+                <PendingFeatureLink
+                  aria-label="알림"
+                  className="relative"
+                  featureLabel="채팅 알림 확인"
+                  returnTo="/chat"
+                  tracking={{
+                    screenName: "chat_landing",
+                    targetType: "button",
+                    targetName: "chat_landing_notification_button",
+                    surface: "header",
+                    path: "/chat",
+                  }}
+                >
                   <AppImage alt="" className="h-8 w-8" height={32} src={iconBell} width={32} />
                   <span className="absolute right-[5px] top-[5px] h-[6px] w-[6px] rounded-full bg-[#ff6f0f]" />
                 </PendingFeatureLink>
-                <PendingFeatureLink aria-label="저장한 채팅" className="flex h-8 w-8 items-center justify-center" featureLabel="저장한 채팅 보기" returnTo="/chat">
+                <PendingFeatureLink
+                  aria-label="저장한 채팅"
+                  className="flex h-8 w-8 items-center justify-center"
+                  featureLabel="저장한 채팅 보기"
+                  returnTo="/chat"
+                  tracking={{
+                    screenName: "chat_landing",
+                    targetType: "button",
+                    targetName: "chat_landing_saved_chats_button",
+                    surface: "header",
+                    path: "/chat",
+                  }}
+                >
                   <BookmarkIcon />
                 </PendingFeatureLink>
               </div>

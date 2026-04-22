@@ -24,7 +24,20 @@ export function MyKarrotServiceSection({
       </div>
       <div className="grid grid-cols-[repeat(auto-fit,minmax(152px,1fr))] gap-x-4 gap-y-5">
         {items.map((item) => (
-          <PendingFeatureLink className="flex min-h-9 items-center gap-3" featureLabel={item.label} key={item.label} returnTo="/my-karrot">
+          <PendingFeatureLink
+            className="flex min-h-9 items-center gap-3"
+            featureLabel={item.label}
+            key={item.label}
+            returnTo="/my-karrot"
+            tracking={{
+              screenName: "my_karrot",
+              targetType: "service",
+              targetName: "my_karrot_service_item",
+              surface: "service_section",
+              path: "/my-karrot",
+              targetId: item.label,
+            }}
+          >
             <span
               aria-hidden="true"
               className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full"

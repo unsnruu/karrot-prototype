@@ -2,6 +2,7 @@
 
 import { AppImage } from "@/components/ui/app-image";
 import { IconButton } from "@/components/ui/icon-button";
+import { trackElementClicked } from "@/lib/analytics/element-click";
 import { buildPendingFeatureHref } from "@/lib/tab-navigation";
 import { useRouter } from "next/navigation";
 import { useHomeNavigationHistory } from "@/features/home/components/home-navigation-history-provider";
@@ -63,18 +64,68 @@ export function ItemDetailHero({
 
       <header className="absolute inset-x-0 top-0 flex items-center justify-between px-5 pb-2 pt-7 text-white sm:px-6">
         <div className="flex items-center gap-[15px]">
-          <IconButton ariaLabel="뒤로가기" onClick={handleBack}>
+          <IconButton
+            ariaLabel="뒤로가기"
+            onClick={() => {
+              trackElementClicked({
+                screenName: "item_detail",
+                targetType: "button",
+                targetName: "item_detail_back_button",
+                surface: "hero",
+                path: pathname,
+                destinationPath: homeHref,
+              });
+              handleBack();
+            }}
+          >
             <ArrowLeftIcon />
           </IconButton>
-          <IconButton ariaLabel="홈으로" href={homeHref}>
+          <IconButton
+            ariaLabel="홈으로"
+            href={homeHref}
+            onClick={() => {
+              trackElementClicked({
+                screenName: "item_detail",
+                targetType: "button",
+                targetName: "item_detail_home_button",
+                surface: "hero",
+                path: pathname,
+                destinationPath: homeHref,
+              });
+            }}
+          >
             <HomeIcon />
           </IconButton>
         </div>
         <div className="flex items-center gap-[7px]">
-          <IconButton ariaLabel="공유하기" href={buildPendingFeatureHref(homeHref, "상품 공유하기")}>
+          <IconButton
+            ariaLabel="공유하기"
+            href={buildPendingFeatureHref(homeHref, "상품 공유하기")}
+            onClick={() => {
+              trackElementClicked({
+                screenName: "item_detail",
+                targetType: "button",
+                targetName: "item_detail_share_button",
+                surface: "hero",
+                path: pathname,
+              });
+            }}
+          >
             <ShareIcon />
           </IconButton>
-          <IconButton ariaLabel="더보기" href={buildPendingFeatureHref(homeHref, "상품 상세 메뉴")}>
+          <IconButton
+            ariaLabel="더보기"
+            href={buildPendingFeatureHref(homeHref, "상품 상세 메뉴")}
+            onClick={() => {
+              trackElementClicked({
+                screenName: "item_detail",
+                targetType: "button",
+                targetName: "item_detail_more_button",
+                surface: "hero",
+                path: pathname,
+              });
+            }}
+          >
             <MoreVerticalIcon />
           </IconButton>
         </div>

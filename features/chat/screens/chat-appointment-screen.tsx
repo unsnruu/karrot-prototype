@@ -7,7 +7,7 @@ import { ActionButton } from "@/components/ui/action-button";
 import { FieldButton } from "@/components/ui/field-button";
 import { PendingFeatureLink } from "@/components/ui/pending-feature-link";
 import { trackEvent } from "@/lib/analytics/amplitude";
-import { buildElementClickedEventProperties } from "@/lib/analytics/element-click";
+import { buildElementClickedEventProperties, trackElementClicked } from "@/lib/analytics/element-click";
 import { buildScreenViewedEventProperties } from "@/lib/analytics/screen-view";
 import {
   appendChatAppointmentQuery,
@@ -84,10 +84,35 @@ export function ChatAppointmentScreen({
     <main className="min-h-screen bg-[#f5f5f5]">
       <div className="mobile-shell flex min-h-screen flex-col bg-white px-4 pb-10 pt-6">
         <header className="flex items-center justify-between">
-          <Link className="flex h-8 w-8 items-center justify-center text-black" href={backHref} replace>
+          <Link
+            className="flex h-8 w-8 items-center justify-center text-black"
+            href={backHref}
+            onClick={() => {
+              trackElementClicked({
+                screenName: "chat_appointment",
+                targetType: "button",
+                targetName: "chat_appointment_close_button",
+                surface: "header",
+                path: appointmentPath,
+                destinationPath: backHref,
+              });
+            }}
+            replace
+          >
             <X aria-hidden="true" className="h-6 w-6" strokeWidth={1.9} />
           </Link>
-          <PendingFeatureLink className="flex h-8 w-8 items-center justify-center text-black" featureLabel="약속 메뉴" returnTo={backHref}>
+          <PendingFeatureLink
+            className="flex h-8 w-8 items-center justify-center text-black"
+            featureLabel="약속 메뉴"
+            returnTo={backHref}
+            tracking={{
+              screenName: "chat_appointment",
+              targetType: "button",
+              targetName: "chat_appointment_menu_button",
+              surface: "header",
+              path: appointmentPath,
+            }}
+          >
             <EllipsisVertical aria-hidden="true" className="h-6 w-6" strokeWidth={1.8} />
           </PendingFeatureLink>
         </header>
@@ -171,12 +196,56 @@ function AppointmentRow({
   href?: string;
   onClick?: () => void;
 }) {
+  const targetName =
+    label === "날짜"
+      ? "chat_appointment_date_row"
+      : label === "시간"
+        ? "chat_appointment_time_row"
+        : label === "장소"
+          ? "chat_appointment_location_row"
+          : "chat_appointment_reminder_row";
+
   if (href) {
-    return <FieldButton href={href} label={label} placeholder={trailing} tone="line" value={muted ? undefined : trailing} />;
+    return (
+      <FieldButton
+        href={href}
+        label={label}
+        onClick={() => {
+          trackElementClicked({
+            screenName: "chat_appointment",
+            targetType: "field",
+            targetName,
+            surface: "form",
+            path: "/chat/appointment",
+            destinationPath: href.replace(/\?.*$/, ""),
+          });
+        }}
+        placeholder={trailing}
+        tone="line"
+        value={muted ? undefined : trailing}
+      />
+    );
   }
 
   if (onClick) {
-    return <FieldButton label={label} onClick={onClick} placeholder={trailing} tone="line" value={muted ? undefined : trailing} />;
+    return (
+      <FieldButton
+        label={label}
+        onClick={() => {
+          trackElementClicked({
+            screenName: "chat_appointment",
+            targetType: "field",
+            targetName,
+            surface: "form",
+            path: "/chat/appointment",
+          });
+          onClick();
+        }}
+        placeholder={trailing}
+        tone="line"
+        value={muted ? undefined : trailing}
+      />
+    );
   }
 
   return <FieldButton label={label} placeholder={trailing} tone="line" value={muted ? undefined : trailing} />;

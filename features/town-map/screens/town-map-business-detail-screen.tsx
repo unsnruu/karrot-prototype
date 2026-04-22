@@ -54,16 +54,66 @@ export function TownMapBusinessDetailScreen({
               ariaLabel="동네지도로 돌아가기"
               className="h-10 w-10 rounded-full text-[#111827]"
               href={backHref}
+              onClick={() => {
+                trackEvent(
+                  "element_clicked",
+                  buildElementClickedEventProperties({
+                    screenName: "town_map_business_detail",
+                    targetType: "button",
+                    targetName: "town_map_business_back_button",
+                    surface: "header",
+                    path: pathname,
+                    destinationPath: backHref,
+                    targetId: detail.id,
+                  }),
+                );
+              }}
             >
               <ArrowLeft aria-hidden="true" className="h-6 w-6" strokeWidth={2} />
             </IconButton>
           }
           trailing={
             <>
-              <IconButton ariaLabel="찜하기" className="h-10 w-10 rounded-full text-[#111827]" pendingFeatureLabel="업체 찜하기" returnTo={backHref}>
+              <IconButton
+                ariaLabel="찜하기"
+                className="h-10 w-10 rounded-full text-[#111827]"
+                onClick={() => {
+                  trackEvent(
+                    "element_clicked",
+                    buildElementClickedEventProperties({
+                      screenName: "town_map_business_detail",
+                      targetType: "button",
+                      targetName: "town_map_business_like_button",
+                      surface: "header",
+                      path: pathname,
+                      targetId: detail.id,
+                    }),
+                  );
+                }}
+                pendingFeatureLabel="업체 찜하기"
+                returnTo={backHref}
+              >
                 <Heart aria-hidden="true" className="h-6 w-6" strokeWidth={1.8} />
               </IconButton>
-              <IconButton ariaLabel="공유하기" className="h-10 w-10 rounded-full text-[#111827]" pendingFeatureLabel="업체 공유하기" returnTo={backHref}>
+              <IconButton
+                ariaLabel="공유하기"
+                className="h-10 w-10 rounded-full text-[#111827]"
+                onClick={() => {
+                  trackEvent(
+                    "element_clicked",
+                    buildElementClickedEventProperties({
+                      screenName: "town_map_business_detail",
+                      targetType: "button",
+                      targetName: "town_map_business_share_button",
+                      surface: "header",
+                      path: pathname,
+                      targetId: detail.id,
+                    }),
+                  );
+                }}
+                pendingFeatureLabel="업체 공유하기"
+                returnTo={backHref}
+              >
                 <Share aria-hidden="true" className="h-6 w-6" strokeWidth={1.8} />
               </IconButton>
             </>
@@ -88,7 +138,19 @@ export function TownMapBusinessDetailScreen({
             <p className="flex-1 text-[14px] leading-5 text-[#4b5563]">
               <span className="font-bold text-[#111827]">{detail.informantName}</span> 이웃이 정보를 알려줬어요.
             </p>
-            <PendingFeatureLink className="text-[12px] text-[#9ca3af] underline" featureLabel="이웃 제보 자세히 보기" returnTo={backHref}>
+            <PendingFeatureLink
+              className="text-[12px] text-[#9ca3af] underline"
+              featureLabel="이웃 제보 자세히 보기"
+              returnTo={backHref}
+              tracking={{
+                screenName: "town_map_business_detail",
+                targetType: "link",
+                targetName: "town_map_business_informant_detail_link",
+                surface: "overview",
+                path: pathname,
+                targetId: detail.id,
+              }}
+            >
               더보기
             </PendingFeatureLink>
           </div>
@@ -124,7 +186,19 @@ export function TownMapBusinessDetailScreen({
               <InfoRow
                 icon={<Phone aria-hidden="true" className="h-[18px] w-[18px]" strokeWidth={1.6} />}
                 trailing={(
-                  <PendingFeatureLink className="rounded-full border border-[#d1d5db] px-[10px] py-[3px] text-[12px] leading-4 text-[#6b7280]" featureLabel="전화번호 복사" returnTo={backHref}>
+                  <PendingFeatureLink
+                    className="rounded-full border border-[#d1d5db] px-[10px] py-[3px] text-[12px] leading-4 text-[#6b7280]"
+                    featureLabel="전화번호 복사"
+                    returnTo={backHref}
+                    tracking={{
+                      screenName: "town_map_business_detail",
+                      targetType: "button",
+                      targetName: "town_map_business_copy_phone_button",
+                      surface: "info",
+                      path: pathname,
+                      targetId: detail.id,
+                    }}
+                  >
                     복사
                   </PendingFeatureLink>
                 )}
@@ -147,6 +221,14 @@ export function TownMapBusinessDetailScreen({
                 className="flex w-full items-center justify-center gap-2 rounded-[8px] bg-[#f8f9fa] py-[10px] text-[14px] font-medium leading-5 text-[#374151]"
                 featureLabel="업체 정보 수정 및 추가"
                 returnTo={backHref}
+                tracking={{
+                  screenName: "town_map_business_detail",
+                  targetType: "button",
+                  targetName: "town_map_business_edit_info_button",
+                  surface: "info",
+                  path: pathname,
+                  targetId: detail.id,
+                }}
               >
                 <PencilLine aria-hidden="true" className="h-[12px] w-[12px]" strokeWidth={1.4} />
                 정보 수정 및 추가
@@ -170,7 +252,19 @@ export function TownMapBusinessDetailScreen({
                   </div>
                 ))}
               </div>
-              <PendingFeatureLink className="mt-4 flex w-full items-center justify-center gap-1 py-2 text-[14px] font-medium leading-5 text-[#6b7280]" featureLabel="가격 더보기" returnTo={backHref}>
+              <PendingFeatureLink
+                className="mt-4 flex w-full items-center justify-center gap-1 py-2 text-[14px] font-medium leading-5 text-[#6b7280]"
+                featureLabel="가격 더보기"
+                returnTo={backHref}
+                tracking={{
+                  screenName: "town_map_business_detail",
+                  targetType: "button",
+                  targetName: "town_map_business_more_prices_button",
+                  surface: "prices",
+                  path: pathname,
+                  targetId: detail.id,
+                }}
+              >
                 가격 더보기
                 <ChevronDown aria-hidden="true" className="h-4 w-4" strokeWidth={1.6} />
               </PendingFeatureLink>
@@ -179,7 +273,19 @@ export function TownMapBusinessDetailScreen({
             <Section title="후기">
               <TownMapBusinessReviewList backHref={backHref} reviews={detail.reviews} showHelpfulAction />
 
-              <PendingFeatureLink className="mt-4 flex w-full items-center justify-center gap-1 py-2 text-[14px] font-medium leading-5 text-[#6b7280]" featureLabel="후기 더보기" returnTo={backHref}>
+              <PendingFeatureLink
+                className="mt-4 flex w-full items-center justify-center gap-1 py-2 text-[14px] font-medium leading-5 text-[#6b7280]"
+                featureLabel="후기 더보기"
+                returnTo={backHref}
+                tracking={{
+                  screenName: "town_map_business_detail",
+                  targetType: "button",
+                  targetName: "town_map_business_more_reviews_button",
+                  surface: "reviews",
+                  path: pathname,
+                  targetId: detail.id,
+                }}
+              >
                 후기 더보기
                 <ChevronDown aria-hidden="true" className="h-4 w-4" strokeWidth={1.6} />
               </PendingFeatureLink>
@@ -191,6 +297,14 @@ export function TownMapBusinessDetailScreen({
                 className="mt-4 inline-flex items-center gap-2 rounded-[8px] bg-[#f8f9fa] px-5 py-[10px] text-[14px] font-bold leading-5 text-[#1f2937]"
                 featureLabel="스토리 올리기"
                 returnTo={backHref}
+                tracking={{
+                  screenName: "town_map_business_detail",
+                  targetType: "button",
+                  targetName: "town_map_business_story_button",
+                  surface: "story",
+                  path: pathname,
+                  targetId: detail.id,
+                }}
               >
                 <StoryIcon />
                 스토리 올리기
@@ -198,7 +312,19 @@ export function TownMapBusinessDetailScreen({
             </section>
 
             <footer className="bg-[#f8f9fa] px-6 py-6 text-[12px] leading-4 text-[#9ca3af]">
-              <PendingFeatureLink className="underline" featureLabel="장소 삭제 신고" returnTo={backHref}>
+              <PendingFeatureLink
+                className="underline"
+                featureLabel="장소 삭제 신고"
+                returnTo={backHref}
+                tracking={{
+                  screenName: "town_map_business_detail",
+                  targetType: "link",
+                  targetName: "town_map_business_report_link",
+                  surface: "footer",
+                  path: pathname,
+                  targetId: detail.id,
+                }}
+              >
                 장소 삭제 신고
               </PendingFeatureLink>
               <p className="mt-2">마지막 수정일 {detail.updatedAtLabel}</p>

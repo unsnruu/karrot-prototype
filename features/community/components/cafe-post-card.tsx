@@ -18,12 +18,32 @@ export function CafePostCard({ post }: { post: CafePost }) {
           className="h-[34px] shrink-0 rounded-[4px] border border-[#d1d5dc] px-4 text-[14px] font-medium text-[#0a0a0a]"
           featureLabel="카페 가입하기"
           returnTo="/community?tab=cafe"
+          tracking={{
+            screenName: "community",
+            targetType: "button",
+            targetName: "community_cafe_join_button",
+            surface: "cafe_list",
+            path: "/community",
+            targetId: post.cafeName,
+          }}
         >
           가입
         </PendingFeatureLink>
       </div>
 
-      <PendingFeatureLink className="mt-4 block" featureLabel="카페 글 상세 보기" returnTo="/community?tab=cafe">
+      <PendingFeatureLink
+        className="mt-4 block"
+        featureLabel="카페 글 상세 보기"
+        returnTo="/community?tab=cafe"
+        tracking={{
+          screenName: "community",
+          targetType: "card",
+          targetName: "community_cafe_post_card",
+          surface: "cafe_list",
+          path: "/community",
+          targetId: post.cafeName,
+        }}
+      >
         <h2 className="text-[16px] font-semibold leading-6 tracking-[-0.02em] text-[#0a0a0a]">{post.title}</h2>
         <p className="mt-2 line-clamp-3 text-[14px] leading-[1.5] tracking-[-0.015em] text-[#364153]">{post.excerpt}</p>
         {post.previewComment ? <p className="mt-1 text-[14px] leading-5 tracking-[-0.015em] text-[#364153]">...더보기</p> : null}

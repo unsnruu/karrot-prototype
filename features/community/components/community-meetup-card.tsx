@@ -4,7 +4,19 @@ import { type CommunityMeetup } from "@/lib/community";
 
 export function CommunityMeetupCard({ meetup }: { meetup: CommunityMeetup }) {
   return (
-    <PendingFeatureLink className="flex items-start gap-3" featureLabel="모임 상세 보기" returnTo="/community?tab=meetup">
+    <PendingFeatureLink
+      className="flex items-start gap-3"
+      featureLabel="모임 상세 보기"
+      returnTo="/community?tab=meetup"
+      tracking={{
+        screenName: "community",
+        targetType: "card",
+        targetName: "community_meetup_card",
+        surface: "meetup_list",
+        path: "/community",
+        targetId: meetup.id,
+      }}
+    >
       <AppImage
         alt={meetup.title}
         className="h-20 w-20 shrink-0 rounded-[10px] object-cover"

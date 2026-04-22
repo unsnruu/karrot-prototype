@@ -26,7 +26,18 @@ export function CommunityMeetupList({
       title={communityMeetupSection.title}
       titleMeta={communityMeetupSection.description}
       trailing={
-        <PendingFeatureLink className="shrink-0 text-[14px] font-medium text-[#4a5565]" featureLabel="모임 전체 보기" returnTo="/community?tab=meetup">
+        <PendingFeatureLink
+          className="shrink-0 text-[14px] font-medium text-[#4a5565]"
+          featureLabel="모임 전체 보기"
+          returnTo="/community?tab=meetup"
+          tracking={{
+            screenName: "community",
+            targetType: "link",
+            targetName: "community_meetup_view_all_link",
+            surface: "meetup_list",
+            path: "/community",
+          }}
+        >
           전체보기 ›
         </PendingFeatureLink>
       }

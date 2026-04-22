@@ -140,6 +140,13 @@ function ItemBodySection({
         className="mt-5 inline-flex text-sm leading-none text-[#8b8c91] underline underline-offset-2"
         featureLabel="게시글 신고하기"
         returnTo={homeHref}
+        tracking={{
+          screenName: "item_detail",
+          targetType: "link",
+          targetName: "item_detail_report_link",
+          surface: "content",
+          path: pathname,
+        }}
       >
         이 게시글 신고하기
       </PendingFeatureLink>
@@ -148,19 +155,56 @@ function ItemBodySection({
 }
 
 function RecommendationsSection({ items, returnTo }: { items: HomeFeedItem[]; returnTo?: string }) {
+  const pathname = usePathname();
+
   if (items.length === 0) return null;
   const firstRecommendationHref = createItemDetailHref(items[0].slug, returnTo);
 
   return (
     <section className="py-7">
-      <Link className="flex items-center justify-between" href={firstRecommendationHref}>
+      <Link
+        className="flex items-center justify-between"
+        href={firstRecommendationHref}
+        onClick={() => {
+          trackEvent(
+            "element_clicked",
+            buildElementClickedEventProperties({
+              screenName: "item_detail",
+              targetType: "link",
+              targetName: "item_detail_recommendation_section_link",
+              surface: "recommendations",
+              path: pathname,
+              destinationPath: firstRecommendationHref,
+            }),
+          );
+        }}
+      >
         <h2 className="text-[18px] font-bold leading-none text-black">다른 물품 보러가기</h2>
         <ChevronRightIcon className="text-black" />
       </Link>
 
       <div className="mt-6 grid grid-cols-2 gap-x-3 gap-y-5">
         {items.map((relatedItem) => (
-          <Link className="space-y-3" href={createItemDetailHref(relatedItem.slug, returnTo)} key={relatedItem.id}>
+          <Link
+            className="space-y-3"
+            href={createItemDetailHref(relatedItem.slug, returnTo)}
+            key={relatedItem.id}
+            onClick={() => {
+              const destinationPath = createItemDetailHref(relatedItem.slug, returnTo);
+              trackEvent(
+                "element_clicked",
+                buildElementClickedEventProperties({
+                  screenName: "item_detail",
+                  targetType: "card",
+                  targetName: "item_detail_recommendation_card",
+                  surface: "recommendations",
+                  path: pathname,
+                  targetId: relatedItem.id,
+                  destinationPath,
+                }),
+              );
+            }}
+          >
             <AppImage
               alt={relatedItem.title}
               className="aspect-[1.32/1] w-full rounded-[12px] object-cover"

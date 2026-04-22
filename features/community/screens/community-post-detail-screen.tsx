@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArrowLeft, Bell, ChevronRight, EllipsisVertical, Eye, Plus, Share, Smile, ThumbsUp } from "lucide-react";
+import { usePathname } from "next/navigation";
 import { AppImage } from "@/components/ui/app-image";
 import { AppToolbar } from "@/components/ui/app-toolbar";
 import { ActionButton } from "@/components/ui/action-button";
@@ -8,6 +9,7 @@ import { PendingFeatureLink } from "@/components/ui/pending-feature-link";
 import { UserAvatar } from "@/components/ui/user-avatar";
 import { CommunityCommentThread } from "@/features/community/components/community-comment-thread";
 import { CommunityRecommendedPostRow } from "@/features/community/components/community-recommended-post-row";
+import { trackElementClicked } from "@/lib/analytics/element-click";
 import { type CommunityPost, type CommunityPostDetail } from "@/lib/community";
 
 type CommunityPostDetailScreenProps = {
@@ -19,6 +21,8 @@ export function CommunityPostDetailScreen({
   detail,
   recommendations,
 }: CommunityPostDetailScreenProps) {
+  const pathname = usePathname();
+
   return (
     <main className="min-h-screen bg-[#f3f4f6] text-[#0a0a0a]">
       <div className="min-h-screen w-full bg-[#f3f4f6] pb-28">
@@ -26,19 +30,72 @@ export function CommunityPostDetailScreen({
           className="sticky top-0 z-20 border-b border-black/5 bg-white/95 px-4 pb-2 pt-5 backdrop-blur sm:px-6"
           innerClassName="mobile-shell-wide"
           leading={
-            <Link aria-label="뒤로 가기" className="flex h-8 w-8 items-center justify-center text-black" href="/community">
+            <Link
+              aria-label="뒤로 가기"
+              className="flex h-8 w-8 items-center justify-center text-black"
+              href="/community"
+              onClick={() => {
+                trackElementClicked({
+                  screenName: "community_post_detail",
+                  targetType: "button",
+                  targetName: "community_post_detail_back_button",
+                  surface: "header",
+                  path: pathname,
+                  destinationPath: "/community",
+                });
+              }}
+            >
               <ArrowLeft aria-hidden="true" className="h-6 w-6" strokeWidth={2} />
             </Link>
           }
           trailing={
             <>
-              <IconButton ariaLabel="알림" pendingFeatureLabel="커뮤니티 알림 확인" returnTo="/community">
+              <IconButton
+                ariaLabel="알림"
+                onClick={() => {
+                  trackElementClicked({
+                    screenName: "community_post_detail",
+                    targetType: "button",
+                    targetName: "community_post_detail_notification_button",
+                    surface: "header",
+                    path: pathname,
+                  });
+                }}
+                pendingFeatureLabel="커뮤니티 알림 확인"
+                returnTo="/community"
+              >
                 <Bell aria-hidden="true" className="h-6 w-6" strokeWidth={1.8} />
               </IconButton>
-              <IconButton ariaLabel="공유" pendingFeatureLabel="커뮤니티 글 공유하기" returnTo="/community">
+              <IconButton
+                ariaLabel="공유"
+                onClick={() => {
+                  trackElementClicked({
+                    screenName: "community_post_detail",
+                    targetType: "button",
+                    targetName: "community_post_detail_share_button",
+                    surface: "header",
+                    path: pathname,
+                  });
+                }}
+                pendingFeatureLabel="커뮤니티 글 공유하기"
+                returnTo="/community"
+              >
                 <Share aria-hidden="true" className="h-6 w-6" strokeWidth={1.8} />
               </IconButton>
-              <IconButton ariaLabel="더보기" pendingFeatureLabel="커뮤니티 글 메뉴" returnTo="/community">
+              <IconButton
+                ariaLabel="더보기"
+                onClick={() => {
+                  trackElementClicked({
+                    screenName: "community_post_detail",
+                    targetType: "button",
+                    targetName: "community_post_detail_menu_button",
+                    surface: "header",
+                    path: pathname,
+                  });
+                }}
+                pendingFeatureLabel="커뮤니티 글 메뉴"
+                returnTo="/community"
+              >
                 <EllipsisVertical aria-hidden="true" className="h-6 w-6" strokeWidth={1.8} />
               </IconButton>
             </>
@@ -87,6 +144,15 @@ export function CommunityPostDetailScreen({
             <ActionButton
               className="rounded-full text-sm font-medium"
               leading={<ThumbsUp aria-hidden="true" className="h-5 w-5" strokeWidth={1.8} />}
+              onClick={() => {
+                trackElementClicked({
+                  screenName: "community_post_detail",
+                  targetType: "button",
+                  targetName: "community_post_like_button",
+                  surface: "content",
+                  path: pathname,
+                });
+              }}
               pendingFeatureLabel="커뮤니티 글 공감하기"
               returnTo="/community"
               size="small"
@@ -96,6 +162,15 @@ export function CommunityPostDetailScreen({
             </ActionButton>
             <ActionButton
               className="rounded-full text-sm font-medium"
+              onClick={() => {
+                trackElementClicked({
+                  screenName: "community_post_detail",
+                  targetType: "button",
+                  targetName: "community_post_save_button",
+                  surface: "content",
+                  path: pathname,
+                });
+              }}
               pendingFeatureLabel="커뮤니티 글 저장하기"
               returnTo="/community"
               size="small"
@@ -110,11 +185,33 @@ export function CommunityPostDetailScreen({
           <div className="flex items-center justify-between border-b border-[#f3f4f6] px-5 py-4">
             <h2 className="text-base font-medium tracking-[-0.02em] text-[#0a0a0a]">댓글 {detail.commentsList.length}</h2>
             <div className="flex items-center gap-2 text-base">
-              <PendingFeatureLink className="font-medium text-black" featureLabel="댓글 정렬 바꾸기" returnTo="/community">
+              <PendingFeatureLink
+                className="font-medium text-black"
+                featureLabel="댓글 정렬 바꾸기"
+                returnTo="/community"
+                tracking={{
+                  screenName: "community_post_detail",
+                  targetType: "button",
+                  targetName: "community_comment_sort_register_order",
+                  surface: "comments",
+                  path: pathname,
+                }}
+              >
                 등록순
               </PendingFeatureLink>
               <span className="text-[#d1d5dc]">|</span>
-              <PendingFeatureLink className="font-medium text-[#6a7282]" featureLabel="댓글 정렬 바꾸기" returnTo="/community">
+              <PendingFeatureLink
+                className="font-medium text-[#6a7282]"
+                featureLabel="댓글 정렬 바꾸기"
+                returnTo="/community"
+                tracking={{
+                  screenName: "community_post_detail",
+                  targetType: "button",
+                  targetName: "community_comment_sort_latest_order",
+                  surface: "comments",
+                  path: pathname,
+                }}
+              >
                 최신순
               </PendingFeatureLink>
             </div>
@@ -145,7 +242,21 @@ export function CommunityPostDetailScreen({
 
       <div className="fixed inset-x-0 bottom-0 z-20 border-t border-black/5 bg-white/95 backdrop-blur">
         <div className="mobile-shell-wide flex items-center gap-3 px-2 py-2 pb-10 sm:px-4">
-          <IconButton ariaLabel="댓글 추가" className="text-[#6b7280]" pendingFeatureLabel="댓글 작성하기" returnTo="/community">
+          <IconButton
+            ariaLabel="댓글 추가"
+            className="text-[#6b7280]"
+            onClick={() => {
+              trackElementClicked({
+                screenName: "community_post_detail",
+                targetType: "button",
+                targetName: "community_comment_add_button",
+                surface: "comment_input",
+                path: pathname,
+              });
+            }}
+            pendingFeatureLabel="댓글 작성하기"
+            returnTo="/community"
+          >
             <Plus aria-hidden="true" className="h-6 w-6" strokeWidth={1.8} />
           </IconButton>
           <div className="flex h-10 flex-1 items-center justify-between rounded-full bg-[#f2f4f5] px-4 text-base text-[#aeb2b5]">

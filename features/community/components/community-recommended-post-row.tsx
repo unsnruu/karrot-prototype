@@ -1,12 +1,30 @@
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { AppImage } from "@/components/ui/app-image";
+import { trackElementClicked } from "@/lib/analytics/element-click";
 import { type CommunityPost } from "@/lib/community";
 
 const iconChat = "/icons/chat.svg";
 
 export function CommunityRecommendedPostRow({ post }: { post: CommunityPost }) {
+  const pathname = usePathname();
+
   return (
-    <Link className="block border-b border-[#eef2f6] py-5 last:border-b-0" href={`/community/${post.id}`}>
+    <Link
+      className="block border-b border-[#eef2f6] py-5 last:border-b-0"
+      href={`/community/${post.id}`}
+      onClick={() => {
+        trackElementClicked({
+          screenName: "community_post_detail",
+          targetType: "card",
+          targetName: "community_recommended_post_card",
+          surface: "recommendations",
+          path: pathname,
+          targetId: post.id,
+          destinationPath: `/community/${post.id}`,
+        });
+      }}
+    >
       <div className="mb-3 inline-flex rounded-[4px] bg-[#f3f4f5] px-[6px] py-1 text-[11px] font-medium text-[#555d6d]">
         {post.topic}
       </div>
