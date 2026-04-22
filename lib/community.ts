@@ -98,6 +98,16 @@ const meetupFigmaAssets = {
   afterWorkDrink: "https://www.figma.com/api/mcp/asset/98d0591b-f166-49a3-9e7b-99df026bcbc2",
 } as const;
 
+const meetupNativeAdImages = [
+  "https://udazzhluazlmcsbdbhzo.supabase.co/storage/v1/object/public/home-native-ads/meetup/meetup-ad-01.webp",
+  "https://udazzhluazlmcsbdbhzo.supabase.co/storage/v1/object/public/home-native-ads/meetup/meetup-ad-02.webp",
+  "https://udazzhluazlmcsbdbhzo.supabase.co/storage/v1/object/public/home-native-ads/meetup/meetup-ad-03.webp",
+] as const;
+
+function getMeetupImage(index: number) {
+  return meetupNativeAdImages[index % meetupNativeAdImages.length];
+}
+
 export const communityTopTabs: CommunityTopTab[] = [
   { key: "town", label: "동네생활" },
   { key: "meetup", label: "모임" },
@@ -158,7 +168,7 @@ export const communityMeetups: CommunityMeetup[] = [
     excerpt: "맥도날드 감튀모임할 분들 구합니다!!! 합정·상수·홍대 인근 중심으로 모여요",
     location: "마포구 합정동",
     members: 96,
-    image: meetupFigmaAssets.friesMapo,
+    image: getMeetupImage(0),
   },
   {
     id: "fries-hapjeong",
@@ -166,7 +176,7 @@ export const communityMeetups: CommunityMeetup[] = [
     excerpt: "달에 2-3회 모여서 감자튀김 산처럼 쌓아놓고 먹는 소소한 모임이에요",
     location: "마포구 합정동",
     members: 247,
-    image: meetupFigmaAssets.friesHapjeong,
+    image: getMeetupImage(1),
   },
   {
     id: "fries-lovers",
@@ -174,7 +184,7 @@ export const communityMeetups: CommunityMeetup[] = [
     excerpt: "합정동, 망원동 근처에서 감자튀김 🍟 좋아하고 야식 메이트 구해요",
     location: "합정동, 망원동",
     members: 331,
-    image: meetupFigmaAssets.friesLovers,
+    image: getMeetupImage(2),
   },
   {
     id: "pasta-share",
@@ -183,7 +193,7 @@ export const communityMeetups: CommunityMeetup[] = [
     location: "합정동, 상수동",
     members: 64,
     status: "일정 모집 중",
-    image: meetupFigmaAssets.pastaShare,
+    image: getMeetupImage(3),
   },
   {
     id: "nineties-talk",
@@ -192,7 +202,7 @@ export const communityMeetups: CommunityMeetup[] = [
     location: "연남동",
     members: 28,
     status: "일정 모집중",
-    image: meetupFigmaAssets.ninetiesTalk,
+    image: getMeetupImage(4),
   },
   {
     id: "mixed-hobby",
@@ -200,7 +210,7 @@ export const communityMeetups: CommunityMeetup[] = [
     excerpt: "보드게임·산책·가벼운 운동 번갈아가며 부담 없이 친해져요",
     location: "서교동",
     members: 137,
-    image: meetupFigmaAssets.mixedHobby,
+    image: getMeetupImage(5),
   },
   {
     id: "night-running",
@@ -208,7 +218,7 @@ export const communityMeetups: CommunityMeetup[] = [
     excerpt: "화·목 저녁, 5km 내외 가볍게",
     location: "마포구청역",
     members: 11,
-    image: meetupFigmaAssets.nightRunning,
+    image: getMeetupImage(6),
   },
   {
     id: "after-work-drink",
@@ -217,7 +227,7 @@ export const communityMeetups: CommunityMeetup[] = [
     location: "합정동",
     members: 58,
     status: "1시간 전 활동",
-    image: meetupFigmaAssets.afterWorkDrink,
+    image: getMeetupImage(7),
   },
 ];
 
