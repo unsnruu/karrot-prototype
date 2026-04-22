@@ -1,8 +1,7 @@
+import { Plus } from "lucide-react";
 import { AppImage } from "@/components/ui/app-image";
 import { PendingFeatureLink } from "@/components/ui/pending-feature-link";
 import { communityCategories } from "@/lib/community";
-
-const iconPlus = "/icons/plus.svg";
 
 export function CommunityCategoryRail({ className = "" }: { className?: string }) {
   return (
@@ -18,7 +17,7 @@ export function CommunityCategoryRail({ className = "" }: { className?: string }
               width={64}
             />
             <span className="absolute bottom-0 right-0 flex h-6 w-6 items-center justify-center rounded-full border border-black/10 bg-white shadow-[0_1px_3px_rgba(0,0,0,0.1)]">
-              <AppImage alt="" className="h-3.5 w-3.5" height={14} src={iconPlus} width={14} />
+              <Plus aria-hidden="true" className="h-3.5 w-3.5" strokeWidth={1.8} />
             </span>
           </div>
           <span className="mt-2 block text-center text-[12px] leading-4 tracking-[-0.02em] text-[#0a0a0a]">

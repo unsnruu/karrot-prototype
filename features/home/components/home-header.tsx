@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import { Bell, ChevronDown, Menu, Search } from "lucide-react";
 import { usePathname, useSearchParams } from "next/navigation";
-import { AppImage } from "@/components/ui/app-image";
 import { PendingFeatureLink } from "@/components/ui/pending-feature-link";
 import { SelectionChipLink } from "@/components/ui/selection-chip";
 import { trackEvent } from "@/lib/analytics/amplitude";
@@ -10,12 +10,6 @@ import { buildElementClickedEventProperties } from "@/lib/analytics/element-clic
 import { resolveHomeHrefFromPathname } from "@/lib/home-experiment";
 import { type HomeCategory } from "@/lib/marketplace";
 import { buildPendingFeatureHref } from "@/lib/tab-navigation";
-
-const iconChevronDown = "/icons/chevron-down.svg";
-const iconSearch = "/icons/search.svg";
-const iconBell = "/icons/bell.svg";
-const iconMenu = "/icons/menu.svg";
-const iconCategoryChevron = "/icons/category-chevron.svg";
 
 export function HomeHeader({
   categories,
@@ -54,7 +48,7 @@ export function HomeHeader({
             returnTo={homeHref}
           >
             <span className="text-[22px] font-bold tracking-[-0.03em] text-black">합정동</span>
-            <AppImage alt="" className="h-6 w-6" height={24} src={iconChevronDown} width={24} />
+            <ChevronDown aria-hidden="true" className="h-6 w-6" strokeWidth={1.8} />
           </PendingFeatureLink>
           <div className="flex items-center gap-3">
             <PendingFeatureLink
@@ -76,7 +70,7 @@ export function HomeHeader({
               }}
               returnTo={homeHref}
             >
-              <AppImage alt="" className="h-8 w-8" height={32} src={iconSearch} width={32} />
+              <Search aria-hidden="true" className="h-8 w-8" strokeWidth={1.8} />
             </PendingFeatureLink>
             <PendingFeatureLink
               aria-label="알림"
@@ -97,7 +91,7 @@ export function HomeHeader({
               }}
               returnTo={homeHref}
             >
-              <AppImage alt="" className="h-8 w-8" height={32} src={iconBell} width={32} />
+              <Bell aria-hidden="true" className="h-8 w-8" strokeWidth={1.8} />
             </PendingFeatureLink>
             <Link
               aria-label="메뉴"
@@ -117,7 +111,7 @@ export function HomeHeader({
                 );
               }}
             >
-              <AppImage alt="" className="h-8 w-8" height={32} src={iconMenu} width={32} />
+              <Menu aria-hidden="true" className="h-8 w-8" strokeWidth={1.8} />
             </Link>
           </div>
         </div>
@@ -149,7 +143,7 @@ export function HomeHeader({
               >
                 {category.label}
                 {category.hasChevron ? (
-                  <AppImage alt="" className="ml-1 h-3 w-3" height={12} src={iconCategoryChevron} width={12} />
+                  <ChevronDown aria-hidden="true" className="ml-1 h-3 w-3" strokeWidth={1.8} />
                 ) : null}
               </SelectionChipLink>
             );

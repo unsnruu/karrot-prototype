@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { ChevronDown, X } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { AppImage } from "@/components/ui/app-image";
@@ -40,14 +41,14 @@ export function SellPhotoSelectionScreen() {
       <div className="mobile-shell min-h-screen bg-white pb-[168px]">
         <header className="flex h-14 items-center justify-between px-4">
           <Link aria-label="홈으로 돌아가기" className="flex h-10 w-10 items-center justify-center" href={homeHref}>
-            <CloseIcon />
+            <X aria-hidden="true" className="h-6 w-6 text-[#111827]" strokeWidth={1.9} />
           </Link>
           <Link
             className="flex items-center gap-1 text-[15px] font-semibold text-[#111827]"
             href={buildPendingFeatureHref("/home/sell/photos", "최근 항목 정렬 변경")}
           >
             최근 항목
-            <ChevronDownIcon />
+            <ChevronDown aria-hidden="true" className="h-4 w-4 text-[#111827]" strokeWidth={1.8} />
           </Link>
           <div className="h-10 w-10" />
         </header>
@@ -108,21 +109,5 @@ export function SellPhotoSelectionScreen() {
         </div>
       </div>
     </main>
-  );
-}
-
-function CloseIcon() {
-  return (
-    <svg aria-hidden="true" className="h-6 w-6 text-[#111827]" fill="none" viewBox="0 0 24 24">
-      <path d="M6 6L18 18M18 6L6 18" stroke="currentColor" strokeLinecap="round" strokeWidth="1.9" />
-    </svg>
-  );
-}
-
-function ChevronDownIcon() {
-  return (
-    <svg aria-hidden="true" className="h-4 w-4 text-[#111827]" fill="none" viewBox="0 0 24 24">
-      <path d="M6 9l6 6 6-6" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" />
-    </svg>
   );
 }

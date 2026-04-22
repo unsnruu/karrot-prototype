@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { Camera, ChevronRight, X } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { ActionButton } from "@/components/ui/action-button";
@@ -17,7 +18,6 @@ import { savePublishedSellItem } from "@/lib/local-sell-storage";
 import { formatSellPriceText } from "@/lib/sell-flow";
 import { buildSellPreviewItem } from "@/lib/sell-flow";
 import { buildPendingFeatureHref } from "@/lib/tab-navigation";
-import { prototypeViewerUser } from "@/lib/prototype-user";
 
 const AUTO_FILLED_TITLE = "향수 일괄 판매해요";
 
@@ -103,9 +103,9 @@ export function SellWriteScreen() {
       <div className="mobile-shell min-h-screen bg-white pb-[108px]">
         <PageHeader
           leading={
-            <Link aria-label="홈으로 닫기" className="flex h-10 w-10 items-center justify-center" href={homeHref}>
-              <CloseIcon />
-            </Link>
+          <Link aria-label="홈으로 닫기" className="flex h-10 w-10 items-center justify-center" href={homeHref}>
+              <X aria-hidden="true" className="h-6 w-6 text-[#111827]" strokeWidth={1.9} />
+          </Link>
           }
           title="내 물건 팔기"
           trailing={
@@ -123,7 +123,7 @@ export function SellWriteScreen() {
             className="flex h-16 w-16 shrink-0 flex-col items-center justify-center rounded-[14px] border-2 border-[#d1d5db] bg-white"
             href="/home/sell/photos"
           >
-            <CameraMiniIcon />
+            <Camera aria-hidden="true" className="h-5 w-5 text-[#9ca3af]" strokeWidth={1.7} />
             <span className="mt-1 text-[11px] font-medium text-[#4b5563]">{draft.photos.length}/4</span>
           </Link>
 
@@ -188,7 +188,7 @@ export function SellWriteScreen() {
                     {draft.priceText ? formatSellPriceText(draft.priceText) : "가격을 입력해주세요."}
                   </span>
                 </div>
-                <ChevronRightIcon />
+                <ChevronRight aria-hidden="true" className="h-[14px] w-[14px]" strokeWidth={1.8} />
               </Link>
 
               <label className="mt-1 flex items-center gap-2 text-[14px] text-[#374151]">
@@ -257,34 +257,5 @@ function TradeChip({
     >
       {label}
     </SelectionChipButton>
-  );
-}
-
-function CloseIcon() {
-  return (
-    <svg aria-hidden="true" className="h-6 w-6 text-[#111827]" fill="none" viewBox="0 0 24 24">
-      <path d="M6 6L18 18M18 6L6 18" stroke="currentColor" strokeLinecap="round" strokeWidth="1.9" />
-    </svg>
-  );
-}
-
-function CameraMiniIcon() {
-  return (
-    <svg aria-hidden="true" className="h-5 w-5 text-[#9ca3af]" fill="none" viewBox="0 0 24 24">
-      <path
-        d="M4 8.5h3.2l1.3-2h7l1.3 2H20a1.5 1.5 0 0 1 1.5 1.5V17A1.5 1.5 0 0 1 20 18.5H4A1.5 1.5 0 0 1 2.5 17v-7A1.5 1.5 0 0 1 4 8.5Z"
-        stroke="currentColor"
-        strokeWidth="1.7"
-      />
-      <circle cx="12" cy="13" r="3.25" stroke="currentColor" strokeWidth="1.7" />
-    </svg>
-  );
-}
-
-function ChevronRightIcon() {
-  return (
-    <svg aria-hidden="true" className="h-[14px] w-[14px]" fill="none" viewBox="0 0 24 24">
-      <path d="M9 6l6 6-6 6" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" />
-    </svg>
   );
 }

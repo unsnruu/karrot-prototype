@@ -1,5 +1,6 @@
 "use client";
 
+import { ArrowLeft, ChevronDown, Clock3, Globe, Heart, MapPin, Menu, Phone, PencilLine, Share } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { AppImage } from "@/components/ui/app-image";
 import { AppToolbar } from "@/components/ui/app-toolbar";
@@ -54,16 +55,16 @@ export function TownMapBusinessDetailScreen({
               className="h-10 w-10 rounded-full text-[#111827]"
               href={backHref}
             >
-              <BackIcon />
+              <ArrowLeft aria-hidden="true" className="h-6 w-6" strokeWidth={2} />
             </IconButton>
           }
           trailing={
             <>
               <IconButton ariaLabel="찜하기" className="h-10 w-10 rounded-full text-[#111827]" pendingFeatureLabel="업체 찜하기" returnTo={backHref}>
-                <HeartIcon />
+                <Heart aria-hidden="true" className="h-6 w-6" strokeWidth={1.8} />
               </IconButton>
               <IconButton ariaLabel="공유하기" className="h-10 w-10 rounded-full text-[#111827]" pendingFeatureLabel="업체 공유하기" returnTo={backHref}>
-                <ShareIcon />
+                <Share aria-hidden="true" className="h-6 w-6" strokeWidth={1.8} />
               </IconButton>
             </>
           }
@@ -119,9 +120,9 @@ export function TownMapBusinessDetailScreen({
         {activeTab === "home" ? (
           <>
             <section className="space-y-4 px-4 py-5">
-              <InfoRow icon={<ClockIcon />} value={detail.businessHoursText} />
+              <InfoRow icon={<Clock3 aria-hidden="true" className="h-[18px] w-[18px]" strokeWidth={1.8} />} value={detail.businessHoursText} />
               <InfoRow
-                icon={<PhoneIcon />}
+                icon={<Phone aria-hidden="true" className="h-[18px] w-[18px]" strokeWidth={1.6} />}
                 trailing={(
                   <PendingFeatureLink className="rounded-full border border-[#d1d5db] px-[10px] py-[3px] text-[12px] leading-4 text-[#6b7280]" featureLabel="전화번호 복사" returnTo={backHref}>
                     복사
@@ -130,12 +131,12 @@ export function TownMapBusinessDetailScreen({
                 value={detail.phoneNumber}
               />
               <InfoRow
-                icon={<GlobeIcon />}
+                icon={<Globe aria-hidden="true" className="h-[18px] w-[18px]" strokeWidth={1.8} />}
                 value="홈페이지, SNS를 추가해주세요."
                 valueClassName="text-[#9ca3af]"
               />
-              <InfoRow icon={<MenuIcon />} multiline value={detail.amenities.join(", ")} />
-              <InfoRow icon={<PinIcon />} value={detail.roadAddress} />
+              <InfoRow icon={<Menu aria-hidden="true" className="h-[18px] w-[18px]" strokeWidth={1.8} />} multiline value={detail.amenities.join(", ")} />
+              <InfoRow icon={<MapPin aria-hidden="true" className="h-[18px] w-[18px]" strokeWidth={1.8} />} value={detail.roadAddress} />
 
               <div className="overflow-hidden rounded-[12px] border border-[#edeef0]">
                 <div className="h-[126px]">
@@ -147,7 +148,7 @@ export function TownMapBusinessDetailScreen({
                 featureLabel="업체 정보 수정 및 추가"
                 returnTo={backHref}
               >
-                <EditInfoIcon />
+                <PencilLine aria-hidden="true" className="h-[12px] w-[12px]" strokeWidth={1.4} />
                 정보 수정 및 추가
               </PendingFeatureLink>
             </section>
@@ -171,7 +172,7 @@ export function TownMapBusinessDetailScreen({
               </div>
               <PendingFeatureLink className="mt-4 flex w-full items-center justify-center gap-1 py-2 text-[14px] font-medium leading-5 text-[#6b7280]" featureLabel="가격 더보기" returnTo={backHref}>
                 가격 더보기
-                <ChevronDownIcon />
+                <ChevronDown aria-hidden="true" className="h-4 w-4" strokeWidth={1.6} />
               </PendingFeatureLink>
             </Section>
 
@@ -180,7 +181,7 @@ export function TownMapBusinessDetailScreen({
 
               <PendingFeatureLink className="mt-4 flex w-full items-center justify-center gap-1 py-2 text-[14px] font-medium leading-5 text-[#6b7280]" featureLabel="후기 더보기" returnTo={backHref}>
                 후기 더보기
-                <ChevronDownIcon />
+                <ChevronDown aria-hidden="true" className="h-4 w-4" strokeWidth={1.6} />
               </PendingFeatureLink>
             </Section>
 
@@ -326,81 +327,6 @@ function InfoRow({
   );
 }
 
-function BackIcon() {
-  return (
-    <svg aria-hidden="true" className="h-6 w-6" fill="none" viewBox="0 0 24 24">
-      <path d="m15 18-6-6 6-6" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
-    </svg>
-  );
-}
-
-function HeartIcon() {
-  return (
-    <svg aria-hidden="true" className="h-6 w-6" fill="none" viewBox="0 0 24 24">
-      <path d="m12 20-1.4-1.27C5.4 14 2 10.91 2 7.1 2 4.01 4.42 2 7.5 2c1.74 0 3.41.81 4.5 2.09C13.09 2.81 14.76 2 16.5 2 19.58 2 22 4.01 22 7.1c0 3.81-3.4 6.9-8.6 11.64L12 20Z" stroke="currentColor" strokeWidth="1.8" />
-    </svg>
-  );
-}
-
-function ShareIcon() {
-  return (
-    <svg aria-hidden="true" className="h-6 w-6" fill="none" viewBox="0 0 24 24">
-      <path d="M12 16V5m0 0 4 4m-4-4-4 4M5 14v3a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-3" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" />
-    </svg>
-  );
-}
-
-function ClockIcon() {
-  return (
-    <svg aria-hidden="true" className="h-[18px] w-[18px]" fill="none" viewBox="0 0 24 24">
-      <circle cx="12" cy="12" r="8.5" stroke="currentColor" strokeWidth="1.8" />
-      <path d="M12 7.5v5l3 1.5" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" />
-    </svg>
-  );
-}
-
-function PhoneIcon() {
-  return (
-    <svg aria-hidden="true" className="h-[18px] w-[18px]" fill="none" viewBox="0 0 24 24">
-      <path d="M6.62 10.79a15.05 15.05 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1.03-.24c1.12.37 2.31.56 3.56.56a1 1 0 0 1 1 1v3.5a1 1 0 0 1-1 1C10.85 21 3 13.15 3 3.5a1 1 0 0 1 1-1H7.5a1 1 0 0 1 1 1c0 1.25.19 2.44.56 3.56a1 1 0 0 1-.24 1.03l-2.2 2.2Z" stroke="currentColor" strokeWidth="1.6" />
-    </svg>
-  );
-}
-
-function GlobeIcon() {
-  return (
-    <svg aria-hidden="true" className="h-[18px] w-[18px]" fill="none" viewBox="0 0 24 24">
-      <circle cx="12" cy="12" r="8.5" stroke="currentColor" strokeWidth="1.8" />
-      <path d="M4 12h16M12 3.5c2.3 2.35 3.5 5.18 3.5 8.5S14.3 18.15 12 20.5M12 3.5C9.7 5.85 8.5 8.68 8.5 12s1.2 6.15 3.5 8.5" stroke="currentColor" strokeWidth="1.6" />
-    </svg>
-  );
-}
-
-function MenuIcon() {
-  return (
-    <svg aria-hidden="true" className="h-[18px] w-[18px]" fill="none" viewBox="0 0 24 24">
-      <path d="M5 7h14M5 12h14M5 17h14" stroke="currentColor" strokeLinecap="round" strokeWidth="1.8" />
-    </svg>
-  );
-}
-
-function PinIcon() {
-  return (
-    <svg aria-hidden="true" className="h-[18px] w-[18px]" fill="none" viewBox="0 0 24 24">
-      <path d="M12 21s6-5.69 6-11a6 6 0 1 0-12 0c0 5.31 6 11 6 11Z" stroke="currentColor" strokeWidth="1.8" />
-      <circle cx="12" cy="10" r="2.3" stroke="currentColor" strokeWidth="1.6" />
-    </svg>
-  );
-}
-
-
-function ChevronDownIcon({ className = "" }: { className?: string }) {
-  return (
-    <svg aria-hidden="true" className={`h-4 w-4 ${className}`.trim()} fill="none" viewBox="0 0 16 16">
-      <path d="m4 6 4 4 4-4" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.6" />
-    </svg>
-  );
-}
 
 function StoryIcon() {
   return (
@@ -408,20 +334,6 @@ function StoryIcon() {
       <path
         d="M8 2.2c.39 0 .7.31.7.7v4.4h4.4a.7.7 0 1 1 0 1.4H8.7v4.4a.7.7 0 1 1-1.4 0V8.7H2.9a.7.7 0 1 1 0-1.4h4.4V2.9c0-.39.31-.7.7-.7Z"
         fill="currentColor"
-      />
-    </svg>
-  );
-}
-
-function EditInfoIcon() {
-  return (
-    <svg aria-hidden="true" className="h-[12px] w-[12px]" fill="none" viewBox="0 0 16 16">
-      <path
-        d="M11.91 1.84a1.5 1.5 0 0 1 2.12 2.12l-7.5 7.5-3.03.91.9-3.03 7.51-7.5Zm-6.93 8.13 1.05 1.05"
-        stroke="currentColor"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="1.4"
       />
     </svg>
   );

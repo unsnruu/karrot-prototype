@@ -1,3 +1,4 @@
+import { EllipsisVertical, ThumbsUp } from "lucide-react";
 import { PendingFeatureLink } from "@/components/ui/pending-feature-link";
 import { type TownMapBusinessDetail } from "@/lib/town-map-business";
 
@@ -54,7 +55,7 @@ function BusinessReviewCard({
           </div>
         </div>
         <PendingFeatureLink aria-label="후기 더보기" className="px-1 text-[#9ca3af]" featureLabel="후기 메뉴" returnTo={backHref}>
-          <KebabIcon />
+          <EllipsisVertical aria-hidden="true" className="h-5 w-5" strokeWidth={1.8} />
         </PendingFeatureLink>
       </div>
 
@@ -71,7 +72,7 @@ function BusinessReviewCard({
           featureLabel="후기 도움돼요"
           returnTo={backHref}
         >
-          <HelpfulIcon />
+          <ThumbsUp aria-hidden="true" className="h-3.5 w-3.5" strokeWidth={1.8} />
           도움돼요
         </PendingFeatureLink>
       ) : null}
@@ -88,23 +89,5 @@ function StarRow({ rating }: { rating: number }) {
         </span>
       ))}
     </span>
-  );
-}
-
-function KebabIcon() {
-  return (
-    <svg aria-hidden="true" className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
-      <circle cx="12" cy="5" r="1.7" />
-      <circle cx="12" cy="12" r="1.7" />
-      <circle cx="12" cy="19" r="1.7" />
-    </svg>
-  );
-}
-
-function HelpfulIcon() {
-  return (
-    <svg aria-hidden="true" className="h-3.5 w-3.5" fill="currentColor" viewBox="0 0 16 16">
-      <path d="M6.73 1.16a.75.75 0 0 1 .9.94l-.62 2.41h5.02c.95 0 1.55 1.01 1.1 1.84l-2.52 4.63a1.75 1.75 0 0 1-1.54.91H4.5a1.5 1.5 0 0 1-1.5-1.5V7.4c0-.29.08-.58.24-.83L5.9 2.13a1.75 1.75 0 0 1 .83-.73ZM2 7h-.25A.75.75 0 0 0 1 7.75v3.5c0 .41.34.75.75.75H2V7Z" />
-    </svg>
   );
 }

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { EllipsisVertical, X } from "lucide-react";
 import { ActionButton } from "@/components/ui/action-button";
 import { FieldButton } from "@/components/ui/field-button";
 import { PendingFeatureLink } from "@/components/ui/pending-feature-link";
@@ -34,19 +35,6 @@ export function ChatAppointmentScreen({
   completeBaseHref: string;
   initialDraft: ChatAppointmentDraft;
 }) {
-  if (!seller || !item) {
-    return (
-      <main className="flex min-h-screen items-center justify-center bg-[#f5f5f5] p-6 text-center">
-        <div className="rounded-[24px] bg-white p-8 shadow-lg">
-          <p className="text-lg font-semibold text-[#111827]">약속 화면을 불러올 수 없어요.</p>
-          <Link className="mt-4 inline-block text-sm font-semibold text-[#ff6f0f]" href={backHref}>
-            채팅으로 돌아가기
-          </Link>
-        </div>
-      </main>
-    );
-  }
-
   const [selectedDate, setSelectedDate] = useState<string | null>(initialDraft.date);
   const [selectedTime, setSelectedTime] = useState<string | null>(initialDraft.time);
   const [selectedReminder, setSelectedReminder] = useState<string | null>(initialDraft.reminder);
@@ -62,6 +50,19 @@ export function ChatAppointmentScreen({
       }),
     );
   }, [appointmentPath]);
+
+  if (!seller || !item) {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-[#f5f5f5] p-6 text-center">
+        <div className="rounded-[24px] bg-white p-8 shadow-lg">
+          <p className="text-lg font-semibold text-[#111827]">약속 화면을 불러올 수 없어요.</p>
+          <Link className="mt-4 inline-block text-sm font-semibold text-[#ff6f0f]" href={backHref}>
+            채팅으로 돌아가기
+          </Link>
+        </div>
+      </main>
+    );
+  }
 
   const currentDraft: ChatAppointmentDraft = {
     date: selectedDate,
@@ -84,10 +85,10 @@ export function ChatAppointmentScreen({
       <div className="mobile-shell flex min-h-screen flex-col bg-white px-4 pb-10 pt-6">
         <header className="flex items-center justify-between">
           <Link className="flex h-8 w-8 items-center justify-center text-black" href={backHref} replace>
-            <CloseIcon />
+            <X aria-hidden="true" className="h-6 w-6" strokeWidth={1.9} />
           </Link>
           <PendingFeatureLink className="flex h-8 w-8 items-center justify-center text-black" featureLabel="약속 메뉴" returnTo={backHref}>
-            <KebabIcon />
+            <EllipsisVertical aria-hidden="true" className="h-6 w-6" strokeWidth={1.8} />
           </PendingFeatureLink>
         </header>
 
@@ -179,22 +180,4 @@ function AppointmentRow({
   }
 
   return <FieldButton label={label} placeholder={trailing} tone="line" value={muted ? undefined : trailing} />;
-}
-
-function CloseIcon() {
-  return (
-    <svg aria-hidden="true" fill="none" height="24" viewBox="0 0 24 24" width="24">
-      <path d="M6.5 6.5L17.5 17.5M17.5 6.5L6.5 17.5" stroke="currentColor" strokeLinecap="round" strokeWidth="1.9" />
-    </svg>
-  );
-}
-
-function KebabIcon() {
-  return (
-    <svg aria-hidden="true" fill="currentColor" height="24" viewBox="0 0 24 24" width="24">
-      <circle cx="12" cy="6.5" r="1.4" />
-      <circle cx="12" cy="12" r="1.4" />
-      <circle cx="12" cy="17.5" r="1.4" />
-    </svg>
-  );
 }

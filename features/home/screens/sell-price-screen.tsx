@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import Link from "next/link";
+import { ChevronLeft } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { ActionButton } from "@/components/ui/action-button";
 import { trackEvent } from "@/lib/analytics/amplitude";
@@ -48,7 +49,7 @@ export function SellPriceScreen() {
       <div className="mobile-shell flex min-h-screen flex-col bg-[#f9fafb]">
         <header className="flex h-[60px] items-center px-4">
           <Link aria-label="글쓰기 화면으로 돌아가기" className="flex h-9 w-9 items-center justify-center" href="/home/sell/write">
-            <BackIcon />
+            <ChevronLeft aria-hidden="true" className="h-[18px] w-[10px] text-[#111827]" strokeWidth={1.8} />
           </Link>
           <h1 className="flex-1 pr-9 text-center text-[20px] font-bold tracking-[-0.03em] text-[#111827]">가격 설정</h1>
         </header>
@@ -82,13 +83,5 @@ export function SellPriceScreen() {
         </div>
       </div>
     </main>
-  );
-}
-
-function BackIcon() {
-  return (
-    <svg aria-hidden="true" className="h-[18px] w-[10px] text-[#111827]" fill="none" viewBox="0 0 10 18">
-      <path d="M9 1L1 9l8 8" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" />
-    </svg>
   );
 }

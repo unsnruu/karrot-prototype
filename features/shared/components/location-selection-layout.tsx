@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
+import { X } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 
 type LocationSelectionLayoutProps = {
@@ -29,7 +30,7 @@ export function LocationSelectionLayout({
         <PageHeader
           leading={
             <Link aria-label={backLabel} className="flex h-10 w-10 items-center justify-center" href={backHref} replace={replaceBack}>
-              <CloseIcon />
+              <X aria-hidden="true" className="h-6 w-6 text-[#111827]" strokeWidth={1.9} />
             </Link>
           }
           title={headerTitle}
@@ -47,13 +48,5 @@ export function LocationSelectionLayout({
         </div>
       </div>
     </main>
-  );
-}
-
-function CloseIcon() {
-  return (
-    <svg aria-hidden="true" className="h-6 w-6 text-[#111827]" fill="none" viewBox="0 0 24 24">
-      <path d="M6 6L18 18M18 6L6 18" stroke="currentColor" strokeLinecap="round" strokeWidth="1.9" />
-    </svg>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { Clock3, Delete, Globe, Mic, X } from "lucide-react";
 import { useMemo, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { PendingFeatureLink } from "@/components/ui/pending-feature-link";
@@ -144,7 +145,7 @@ export function TownMapSearchScreen({ returnHref }: TownMapSearchScreenProps) {
                 <div className="flex items-center justify-between" key={term}>
                   <button className="flex min-w-0 items-center gap-3 text-left" onClick={() => handleSearchSubmit(term)} type="button">
                     <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#f3f4f6]">
-                      <RecentClockIcon />
+                      <Clock3 aria-hidden="true" className="h-4 w-4 text-[#111827]" strokeWidth={1.2} />
                     </span>
                     <span className="text-[17px] leading-[26px] text-[#1f2937]">{term}</span>
                   </button>
@@ -154,7 +155,7 @@ export function TownMapSearchScreen({ returnHref }: TownMapSearchScreenProps) {
                     onClick={() => removeRecentSearch(term)}
                     type="button"
                   >
-                    <CloseIcon />
+                    <X aria-hidden="true" className="h-6 w-6 text-[#111827]" strokeWidth={2.1} />
                   </button>
                 </div>
               ))
@@ -193,7 +194,7 @@ export function TownMapSearchScreen({ returnHref }: TownMapSearchScreenProps) {
                         onClick={() => handleKeyboardPress(key)}
                         type="button"
                       >
-                        {key.action === "shift" ? <ShiftIcon /> : key.action === "delete" ? <DeleteIcon /> : key.label}
+                        {key.action === "shift" ? <ShiftIcon /> : key.action === "delete" ? <Delete aria-hidden="true" className="h-6 w-6" strokeWidth={1.7} /> : key.label}
                       </button>
                     ))}
                   </div>
@@ -214,10 +215,10 @@ export function TownMapSearchScreen({ returnHref }: TownMapSearchScreenProps) {
 
                 <div className="flex items-center justify-between px-8 pb-3 pt-1 text-[#111827]">
                   <PendingFeatureLink className="flex h-6 w-6 items-center justify-center" featureLabel="키보드 언어 변경" returnTo={returnHref}>
-                    <GlobeIcon />
+                    <Globe aria-hidden="true" className="h-6 w-6" strokeWidth={1.8} />
                   </PendingFeatureLink>
                   <PendingFeatureLink className="flex h-6 w-6 items-center justify-center" featureLabel="음성으로 검색" returnTo={returnHref}>
-                    <MicIcon />
+                    <Mic aria-hidden="true" className="h-6 w-6" strokeWidth={1.8} />
                   </PendingFeatureLink>
                 </div>
               </div>
@@ -249,59 +250,10 @@ function keyboardKeyClassName(key: TownMapKeyboardKey) {
   return `${widthClassName} flex h-11 items-center justify-center rounded-[10px] shadow-[0px_1px_0px_0px_rgba(0,0,0,0.3)] ${toneClassName} text-[18px]`;
 }
 
-function RecentClockIcon() {
-  return (
-    <svg fill="none" height="16" viewBox="0 0 16 16" width="16">
-      <circle cx="8" cy="8" r="5.5" stroke="#111827" strokeWidth="1.2" />
-      <path d="M8 4.8V8L10.2 9.4" stroke="#111827" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.2" />
-    </svg>
-  );
-}
-
-function CloseIcon() {
-  return (
-    <svg fill="none" height="24" viewBox="0 0 24 24" width="24">
-      <path d="M6 6L18 18" stroke="#111827" strokeLinecap="round" strokeWidth="2.1" />
-      <path d="M18 6L6 18" stroke="#111827" strokeLinecap="round" strokeWidth="2.1" />
-    </svg>
-  );
-}
-
 function ShiftIcon() {
   return (
     <svg fill="none" height="24" viewBox="0 0 24 24" width="24">
       <path d="M12 5L6 12H10V18H14V12H18L12 5Z" stroke="#111827" strokeLinejoin="round" strokeWidth="1.8" />
-    </svg>
-  );
-}
-
-function DeleteIcon() {
-  return (
-    <svg fill="none" height="24" viewBox="0 0 24 24" width="24">
-      <path d="M10 7H18C19.1 7 20 7.9 20 9V15C20 16.1 19.1 17 18 17H10L4 12L10 7Z" stroke="#111827" strokeLinejoin="round" strokeWidth="1.7" />
-      <path d="M12 10L16 14" stroke="#111827" strokeLinecap="round" strokeWidth="1.7" />
-      <path d="M16 10L12 14" stroke="#111827" strokeLinecap="round" strokeWidth="1.7" />
-    </svg>
-  );
-}
-
-function GlobeIcon() {
-  return (
-    <svg fill="none" height="24" viewBox="0 0 24 24" width="24">
-      <circle cx="12" cy="12" r="9" stroke="#111827" strokeWidth="1.8" />
-      <path d="M3.5 12H20.5" stroke="#111827" strokeWidth="1.6" />
-      <path d="M12 3C14.3 5.3 15.6 8.4 15.6 12C15.6 15.6 14.3 18.7 12 21" stroke="#111827" strokeWidth="1.6" />
-      <path d="M12 3C9.7 5.3 8.4 8.4 8.4 12C8.4 15.6 9.7 18.7 12 21" stroke="#111827" strokeWidth="1.6" />
-    </svg>
-  );
-}
-
-function MicIcon() {
-  return (
-    <svg fill="none" height="24" viewBox="0 0 24 24" width="24">
-      <rect height="10" rx="4" stroke="#111827" strokeWidth="1.8" width="8" x="8" y="3" />
-      <path d="M6.5 11.5C6.5 14.54 8.96 17 12 17C15.04 17 17.5 14.54 17.5 11.5" stroke="#111827" strokeLinecap="round" strokeWidth="1.8" />
-      <path d="M12 17V21" stroke="#111827" strokeLinecap="round" strokeWidth="1.8" />
     </svg>
   );
 }

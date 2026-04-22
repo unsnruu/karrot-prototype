@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
+import { ChevronRight } from "lucide-react";
 import { PendingFeatureLink } from "@/components/ui/pending-feature-link";
 import { cn } from "@/lib/utils";
 
@@ -57,7 +58,7 @@ export function FieldButton({
         <span className={isEmpty ? "text-[#99a1af]" : "text-[#374151]"}>
           {isEmpty ? placeholder : value}
         </span>
-        <ChevronRightIcon />
+        <ChevronRight aria-hidden="true" className="h-4 w-4 text-[#9ca3af]" strokeWidth={1.5} />
       </div>
     </div>
   );
@@ -92,13 +93,5 @@ export function FieldButton({
     <button className={cn(nextClassName, "w-full")} onClick={props.onClick} type="button">
       {content}
     </button>
-  );
-}
-
-function ChevronRightIcon() {
-  return (
-    <svg aria-hidden="true" className="h-4 w-4 text-[#9ca3af]" fill="none" viewBox="0 0 16 16">
-      <path d="m6 4 4 4-4 4" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" />
-    </svg>
   );
 }

@@ -1,3 +1,4 @@
+import { EllipsisVertical } from "lucide-react";
 import { AppImage } from "@/components/ui/app-image";
 import { PendingFeatureLink } from "@/components/ui/pending-feature-link";
 import { type TownMapBusinessNewsPost } from "@/lib/town-map-business-news";
@@ -28,7 +29,7 @@ export function TownMapBusinessNewsList({
           </div>
         </div>
         <PendingFeatureLink aria-label="소식 더보기" className="px-1 text-[#9ca3af]" featureLabel="소식 메뉴" returnTo={backHref}>
-          <KebabIcon />
+          <EllipsisVertical aria-hidden="true" className="h-5 w-5" strokeWidth={1.8} />
         </PendingFeatureLink>
       </div>
 
@@ -49,14 +50,4 @@ export function TownMapBusinessNewsList({
       ) : null}
     </article>
   ));
-}
-
-function KebabIcon() {
-  return (
-    <svg aria-hidden="true" className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
-      <circle cx="12" cy="5" r="1.7" />
-      <circle cx="12" cy="12" r="1.7" />
-      <circle cx="12" cy="19" r="1.7" />
-    </svg>
-  );
 }
