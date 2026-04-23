@@ -30,6 +30,7 @@ export function TownMapBusinessDetailScreen({
   tabHrefs: Record<BusinessDetailTab, string>;
 }) {
   const pathname = usePathname();
+
   const trackFooterAction = (targetName: "town_map_business_call_button" | "town_map_business_chat_button") => {
     trackEvent(
       "element_clicked",
