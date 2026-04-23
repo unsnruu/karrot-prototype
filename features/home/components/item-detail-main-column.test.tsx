@@ -6,6 +6,7 @@ import { resetVisitorExperimentContextForTests } from "@/lib/analytics/visitor-e
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/home/items/item-1",
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 vi.mock("@/lib/analytics/amplitude", () => ({

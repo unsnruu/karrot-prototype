@@ -1,8 +1,10 @@
 "use client";
 
 import { startTransition, useCallback, useEffect, useRef, useState } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
 import { HomeNativeAdCard } from "@/features/home/components/home-native-ad-card";
 import { MarketplaceListItem } from "@/features/home/components/marketplace-list-item";
+import { useScreenScrollMilestones } from "@/lib/analytics/screen-scroll";
 import { buildPublishedSellFeedItem, readPublishedSellItem } from "@/lib/local-sell-storage";
 import { HOME_FEED_PAGE_SIZE, type HomeFeedEntry } from "@/lib/marketplace";
 
@@ -23,6 +25,8 @@ export function HomeFeed({
   initialNextOffset: number;
   category?: string;
 }) {
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [items, setItems] = useState(initialItems);
   const [hasMore, setHasMore] = useState(initialHasMore);
   const [isLoading, setIsLoading] = useState(false);
@@ -31,6 +35,13 @@ export function HomeFeed({
   const sentinelRef = useRef<HTMLDivElement | null>(null);
   const isLoadingRef = useRef(false);
   const hasMoreRef = useRef(initialHasMore);
+
+  useScreenScrollMilestones({
+    screenName: "home",
+    path: pathname,
+    queryString: searchParams.toString(),
+    milestones: [25, 50, 75],
+  });
 
   useEffect(() => {
     if (category && category !== "전체") {

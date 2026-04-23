@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { AppImage } from "@/components/ui/app-image";
 import { SeedUserAvatarExperiment } from "@/components/ui/experiments/seed-user-avatar";
 import { PendingFeatureLink } from "@/components/ui/pending-feature-link";
 import { trackEvent } from "@/lib/analytics/amplitude";
 import { getItemDetailNearbyBusinessVariant, type ItemDetailNearbyBusinessVariant } from "@/lib/analytics/visitor-experiment";
 import { buildElementClickedEventProperties } from "@/lib/analytics/element-click";
+import { useScreenScrollMilestones } from "@/lib/analytics/screen-scroll";
 import {
   BellIcon,
   ChevronRightIcon,
@@ -241,10 +242,19 @@ export function ItemDetailMainColumn({
   nearbyBusinesses: NearbyTownMapBusinessCard[];
 }) {
   const [variant, setVariant] = useState<ItemDetailNearbyBusinessVariant | null>(null);
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
 
   useEffect(() => {
     setVariant(getItemDetailNearbyBusinessVariant() ?? "as_is");
   }, []);
+
+  useScreenScrollMilestones({
+    screenName: "item_detail",
+    path: pathname,
+    queryString: searchParams.toString(),
+    milestones: [25, 50, 75],
+  });
 
   return (
     <div className="min-w-0">

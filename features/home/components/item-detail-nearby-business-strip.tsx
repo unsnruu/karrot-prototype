@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { AppImage } from "@/components/ui/app-image";
 import { trackEvent } from "@/lib/analytics/amplitude";
 import { buildElementClickedEventProperties } from "@/lib/analytics/element-click";
+import { useExposureTracking } from "@/lib/analytics/exposure";
 import { type NearbyTownMapBusinessCard } from "@/lib/town-map-business-data";
 import { appendNavigationQuery } from "@/lib/tab-navigation";
 import { ChevronRightIcon } from "@/features/home/components/item-detail-icons";
@@ -21,6 +22,16 @@ export function ItemDetailNearbyBusinessStrip({
 }) {
   const pathname = usePathname();
   const hasTrackedInteraction = useRef(false);
+  const exposureRef = useExposureTracking<HTMLElement>({
+    eventType: "component_exposed",
+    eventProperties: {
+      component_name: "item_detail_nearby_business_carousel",
+      screen_name: "item_detail",
+      surface: "content",
+      path: pathname,
+    },
+    threshold: 0,
+  });
 
   if (businesses.length === 0) {
     return null;
@@ -32,7 +43,7 @@ export function ItemDetailNearbyBusinessStrip({
   });
 
   return (
-    <section className="space-y-3">
+    <section className="space-y-3" ref={exposureRef}>
       <h2 className="text-[18px] font-bold leading-none text-black">거래 장소 근처의 방문할 만한 곳이에요</h2>
 
       <div

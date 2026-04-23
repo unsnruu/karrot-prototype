@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { AppImage } from "@/components/ui/app-image";
+import { useExposureTracking } from "@/lib/analytics/exposure";
 import { trackEvent } from "@/lib/analytics/amplitude";
 import { buildElementClickedEventProperties } from "@/lib/analytics/element-click";
 import { buildHomeExperimentTownMapHref } from "@/lib/analytics/home-experiment";
@@ -23,9 +24,22 @@ export function HomeNativeAdCard({
     index,
     surface: "inline_card",
   });
+  const articleRef = useExposureTracking<HTMLElement>({
+    eventType: "element_exposed",
+    eventProperties: buildElementClickedEventProperties({
+      screenName: "home",
+      targetType: "card",
+      targetName: "home_native_ad",
+      surface: "inline_card",
+      path: "/home",
+      targetId: ad.id,
+      targetPosition: index,
+      destinationPath: trackedHref,
+    }),
+  });
 
   return (
-    <article className="mb-4 border-b border-[#eceef2] pb-4">
+    <article className="mb-4 border-b border-[#eceef2] pb-4" ref={articleRef}>
       <Link
         className="flex items-start gap-[21px]"
         href={trackedHref}
