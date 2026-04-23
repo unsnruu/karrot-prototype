@@ -65,8 +65,8 @@ Amplitude 초기화는 [lib/analytics/amplitude.ts](/Users/unsnruu/Documents/pro
 현재 활성 실험은 아래 하나다.
 
 - `experiment_id=item_detail_nearby_business_entry`
-- `iteration=v1`
-- `variant=as_is | nearby_business_carousel`
+- `iteration=2`
+- `variant=cta_button_color_change_orange | cta_button_color_change_neutral | carousel_relocation`
 
 ## 공통 helper 스키마
 

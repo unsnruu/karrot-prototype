@@ -53,19 +53,20 @@ function ItemBodySection({
   returnTo,
   detailHref,
   nearbyBusinesses,
-  showNearbyBusinesses,
+  variant,
 }: {
   item: MarketplaceItem;
   returnTo?: string;
   detailHref: string;
   nearbyBusinesses: NearbyTownMapBusinessCard[];
-  showNearbyBusinesses: boolean;
+  variant: ItemDetailNearbyBusinessVariant | null;
 }) {
   const pathname = usePathname();
   const homeHref = returnTo ?? "/home";
   const categoryLabel = item.sellingPoints[0] ?? item.condition;
   const locationHref = createItemLocationHref(item.slug ?? item.id, returnTo);
   const hasMeetupLocation = item.meetupLat != null && item.meetupLng != null && Boolean(item.meetupHint.trim());
+  const showRelocatedNearbyBusinesses = variant === "carousel_relocation";
 
   const trackMeetupLocationClick = () => {
     trackEvent(
@@ -120,6 +121,15 @@ function ItemBodySection({
                 title={item.title}
               />
             </Link>
+
+            {showRelocatedNearbyBusinesses ? (
+              <ItemDetailNearbyBusinessStrip
+                businesses={nearbyBusinesses}
+                detailHref={detailHref}
+                meetupHint={item.meetupHint}
+                variant="carousel_relocation"
+              />
+            ) : null}
 
             <Link className="block" href={locationHref} onClick={trackMeetupLocationClick}>
               <p className="text-[13px] leading-none text-[#1d1c21]">{item.distance} 근처에서 거래할 수 있어요</p>
@@ -244,9 +254,11 @@ export function ItemDetailMainColumn({
   const [variant, setVariant] = useState<ItemDetailNearbyBusinessVariant | null>(null);
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const shouldShowNearbyBusinessesAtBottom =
+    variant === "cta_button_color_change_orange" || variant === "cta_button_color_change_neutral";
 
   useEffect(() => {
-    setVariant(getItemDetailNearbyBusinessVariant() ?? "as_is");
+    setVariant(getItemDetailNearbyBusinessVariant() ?? "cta_button_color_change_orange");
   }, []);
 
   useScreenScrollMilestones({
@@ -264,11 +276,16 @@ export function ItemDetailMainColumn({
         item={item}
         nearbyBusinesses={nearbyBusinesses}
         returnTo={returnTo}
-        showNearbyBusinesses={variant === "nearby_business_carousel"}
+        variant={variant}
       />
-      {variant === "nearby_business_carousel" ? (
+      {shouldShowNearbyBusinessesAtBottom ? (
         <section className="py-3">
-          <ItemDetailNearbyBusinessStrip businesses={nearbyBusinesses} detailHref={detailHref} meetupHint={item.meetupHint} />
+          <ItemDetailNearbyBusinessStrip
+            businesses={nearbyBusinesses}
+            detailHref={detailHref}
+            meetupHint={item.meetupHint}
+            variant={variant ?? "cta_button_color_change_orange"}
+          />
         </section>
       ) : null}
       {adItem ? (

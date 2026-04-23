@@ -10,15 +10,18 @@ import { useExposureTracking } from "@/lib/analytics/exposure";
 import { type NearbyTownMapBusinessCard } from "@/lib/town-map-business-data";
 import { appendNavigationQuery } from "@/lib/tab-navigation";
 import { ChevronRightIcon } from "@/features/home/components/item-detail-icons";
+import { type ItemDetailNearbyBusinessVariant } from "@/lib/analytics/visitor-experiment";
 
 export function ItemDetailNearbyBusinessStrip({
   businesses,
   detailHref,
   meetupHint,
+  variant,
 }: {
   businesses: NearbyTownMapBusinessCard[];
   detailHref: string;
   meetupHint: string;
+  variant: ItemDetailNearbyBusinessVariant;
 }) {
   const pathname = usePathname();
   const hasTrackedInteraction = useRef(false);
@@ -41,6 +44,8 @@ export function ItemDetailNearbyBusinessStrip({
     tab: "town-map",
     returnTo: detailHref,
   });
+  const isOrangeButtonVariant = variant === "cta_button_color_change_orange";
+  const isNeutralButtonVariant = variant === "cta_button_color_change_neutral";
 
   return (
     <section className="space-y-3" ref={exposureRef}>
@@ -118,7 +123,13 @@ export function ItemDetailNearbyBusinessStrip({
         </p>
 
         <Link
-          className="inline-flex shrink-0 items-center rounded-full border border-black/10 bg-white py-[6px] pl-[14px] pr-[10px] text-[13px] font-medium leading-[1.5] text-black"
+          className={
+            isOrangeButtonVariant
+              ? "inline-flex shrink-0 items-center rounded-full bg-[#ff6600] py-[6px] pl-[14px] pr-[10px] text-[13px] font-semibold leading-[1.5] text-white"
+              : isNeutralButtonVariant
+                ? "inline-flex shrink-0 items-center rounded-full bg-[#2a3038] py-[6px] pl-[14px] pr-[10px] text-[13px] font-semibold leading-[1.5] text-white"
+                : "inline-flex shrink-0 items-center rounded-full border border-black/10 bg-white py-[6px] pl-[14px] pr-[10px] text-[13px] font-medium leading-[1.5] text-black"
+          }
           href={browseHref}
           onClick={() => {
             trackEvent(

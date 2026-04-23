@@ -36,7 +36,7 @@ describe("AnalyticsProvider", () => {
     vi.clearAllMocks();
     navigationState.pathname = "/home";
     navigationState.searchParams = new URLSearchParams("category=%EB%94%94%EC%A7%80%ED%84%B8%EA%B8%B0%EA%B8%B0");
-    vi.spyOn(Math, "random").mockReturnValue(0.8);
+    vi.spyOn(Math, "random").mockReturnValue(0.9);
   });
 
   afterEach(() => {
@@ -53,10 +53,10 @@ describe("AnalyticsProvider", () => {
           path: "/home",
           query_string: "category=%EB%94%94%EC%A7%80%ED%84%B8%EA%B8%B0%EA%B8%B0",
           screen_name: "home",
-          app_version: "0.1.0",
+          app_version: "1.1",
           experiment_id: "item_detail_nearby_business_entry",
-          iteration: "v1",
-          variant: "nearby_business_carousel",
+          iteration: "2",
+          variant: "carousel_relocation",
         }),
       );
     });
@@ -75,10 +75,10 @@ describe("AnalyticsProvider", () => {
           path: "/developing",
           query_string: "feature=%EC%83%81%ED%92%88+%EA%B3%B5%EC%9C%A0%ED%95%98%EA%B8%B0&returnTo=%2Fhome",
           screen_name: "developing",
-          app_version: "0.1.0",
+          app_version: "1.1",
           experiment_id: "item_detail_nearby_business_entry",
-          iteration: "v1",
-          variant: "nearby_business_carousel",
+          iteration: "2",
+          variant: "carousel_relocation",
         }),
       );
     });
@@ -100,10 +100,10 @@ describe("AnalyticsProvider", () => {
           query_string:
             "entry_source=home_native_ad&entry_surface=top_carousel&entry_target_id=ad-1&entry_target_position=2&entry_target_name=home_native_ad&entry_target_type=ad",
           screen_name: "town_map",
-          app_version: "0.1.0",
+          app_version: "1.1",
           experiment_id: "item_detail_nearby_business_entry",
-          iteration: "v1",
-          variant: "nearby_business_carousel",
+          iteration: "2",
+          variant: "carousel_relocation",
         }),
       );
     });
