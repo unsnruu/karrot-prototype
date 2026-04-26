@@ -8,8 +8,8 @@ import { PendingFeatureLink } from "@/components/ui/pending-feature-link";
 import { ArrowLeftIcon } from "@/features/home/components/item-detail-icons";
 import { trackEvent } from "@/lib/analytics/amplitude";
 import { buildElementClickedEventProperties } from "@/lib/analytics/element-click";
-import { buildPendingFeatureHref } from "@/lib/tab-navigation";
 import {
+  buildTownMapSearchResultsHref,
   townMapKeyboardRows,
   townMapKeyboardSuggestions,
   townMapRecentSearches,
@@ -45,9 +45,13 @@ export function TownMapSearchScreen({ returnHref }: TownMapSearchScreenProps) {
     setRecentSearches((current) => [value, ...current.filter((item) => item !== value)].slice(0, townMapRecentSearches.length));
   };
 
-  const handleSearchSubmit = (term: string) => {
+  const handleSearchSubmit = (term: string, source: "keyboard" | "recent_search" | "suggestion" | "complete" = "keyboard") => {
     const value = term.trim();
-    const destinationPath = buildPendingFeatureHref(returnHref, "동네지도에서 업체 찾기");
+    const destinationPath = buildTownMapSearchResultsHref({
+      query: value,
+      returnTo: returnHref,
+      entrySource: "town_map_search",
+    });
 
     if (!value) {
       return;
@@ -57,10 +61,18 @@ export function TownMapSearchScreen({ returnHref }: TownMapSearchScreenProps) {
       "element_clicked",
       buildElementClickedEventProperties({
         screenName: "town_map_search",
-        targetType: "button",
-        targetName: "town_map_search_submit",
-        surface: "search_screen",
+        targetType: source === "recent_search" ? "list_item" : "button",
+        targetName:
+          source === "recent_search"
+            ? "town_map_recent_search_item"
+            : source === "suggestion"
+              ? "town_map_search_suggestion"
+              : source === "complete"
+                ? "town_map_search_complete_button"
+                : "town_map_search_submit",
+        surface: source === "recent_search" ? "recent_searches" : source === "suggestion" ? "keyboard_suggestions" : "search_screen",
         path: pathname,
+        query: value,
         destinationPath,
       }),
     );
@@ -78,7 +90,7 @@ export function TownMapSearchScreen({ returnHref }: TownMapSearchScreenProps) {
         setQuery((current) => `${current} `);
         return;
       case "search":
-        handleSearchSubmit(query);
+        handleSearchSubmit(query, "keyboard");
         return;
       case "shift":
       case "numbers":
@@ -143,7 +155,11 @@ export function TownMapSearchScreen({ returnHref }: TownMapSearchScreenProps) {
             {hasRecentSearches ? (
               recentSearches.map((term) => (
                 <div className="flex items-center justify-between" key={term}>
-                  <button className="flex min-w-0 items-center gap-3 text-left" onClick={() => handleSearchSubmit(term)} type="button">
+                  <button
+                    className="flex min-w-0 items-center gap-3 text-left"
+                    onClick={() => handleSearchSubmit(term, "recent_search")}
+                    type="button"
+                  >
                     <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#f3f4f6]">
                       <Clock3 aria-hidden="true" className="h-4 w-4 text-[#111827]" strokeWidth={1.2} />
                     </span>
@@ -169,15 +185,20 @@ export function TownMapSearchScreen({ returnHref }: TownMapSearchScreenProps) {
           <div className="mobile-shell">
             <div className="border-b border-[#d1d5db] bg-[rgba(255,255,255,0.9)] px-4 py-[10px] backdrop-blur-[10px]">
               <div className="flex items-center justify-end">
-                <PendingFeatureLink className="text-[16px] font-medium leading-6 text-[#007aff]" featureLabel="동네지도 검색 완료" returnTo={returnHref}>
+                <button className="text-[16px] font-medium leading-6 text-[#007aff]" onClick={() => handleSearchSubmit(query, "complete")} type="button">
                   완료
-                </PendingFeatureLink>
+                </button>
               </div>
             </div>
 
             <div className="grid grid-cols-3 border-b border-[#d1d5db] bg-[#d1d3d9] text-center text-[14px] leading-5 text-[#111827]">
               {suggestedTerms.map((item) => (
-                <button className="h-11 border-r border-[#d1d5db] last:border-r-0" key={item} onClick={() => handleSearchSubmit(item)} type="button">
+                <button
+                  className="h-11 border-r border-[#d1d5db] last:border-r-0"
+                  key={item}
+                  onClick={() => handleSearchSubmit(item, "suggestion")}
+                  type="button"
+                >
                   {item}
                 </button>
               ))}

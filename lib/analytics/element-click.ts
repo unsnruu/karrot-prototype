@@ -16,6 +16,8 @@ export type ElementClickedEventPropertiesInput = {
   queryString?: string;
   targetId?: string;
   targetPosition?: number;
+  query?: string;
+  entrySource?: string;
 };
 
 export function buildElementClickedEventProperties({
@@ -28,6 +30,8 @@ export function buildElementClickedEventProperties({
   queryString,
   targetId,
   targetPosition,
+  query,
+  entrySource,
 }: ElementClickedEventPropertiesInput) {
   return compactProperties({
     screen_name: screenName,
@@ -39,6 +43,8 @@ export function buildElementClickedEventProperties({
     query_string: queryString,
     target_id: targetId,
     target_position: targetPosition,
+    query,
+    entry_source: entrySource,
   });
 }
 

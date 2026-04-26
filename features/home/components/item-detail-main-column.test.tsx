@@ -18,7 +18,6 @@ describe("ItemDetailMainColumn", () => {
     render(
       React.createElement(ItemDetailMainColumn, {
         adItem: undefined,
-        detailHref: "/home/items/item-1",
         item: {
           chats: 1,
           condition: "중고",
@@ -41,17 +40,6 @@ describe("ItemDetailMainColumn", () => {
           trustLabel: "신뢰할 수 있는 판매자",
           trustNote: "응답이 빨라요",
         },
-        nearbyBusinesses: [
-          {
-            category: "카페",
-            id: "business-1",
-            image: "/business-1.webp",
-            name: "근처 업체",
-            rating: 4.8,
-            regularCount: 12,
-            townLabel: "합정동",
-          },
-        ],
         recommendationItems: [],
         returnTo: "/home",
         seller: {
@@ -77,38 +65,36 @@ describe("ItemDetailMainColumn", () => {
     cleanup();
   });
 
-  it("shows nearby businesses with an orange cta button variant", async () => {
+  it("shows the control meetup location map for the control variant", async () => {
     vi.spyOn(Math, "random").mockReturnValue(0.2);
 
     renderItemDetail();
 
-    expect(await screen.findAllByText("거래 장소 근처의 방문할 만한 곳이에요")).not.toHaveLength(0);
-    const browseButton = screen.getByRole("link", { name: /구경하기/i });
-    expect(browseButton).toHaveClass("bg-[#ff6600]");
-    expect(browseButton).toHaveClass("text-white");
-    expect(screen.getByText("도보 3분 근처에서 거래할 수 있어요").compareDocumentPosition(browseButton)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+    expect(await screen.findByText("거래 희망 장소")).toBeInTheDocument();
+    expect(screen.getByText("지도 보기")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /지도 보기/ })).toHaveAttribute(
+      "href",
+      "/town-map/search/results?query=%ED%95%A9%EC%A0%95%EC%97%AD+2%EB%B2%88+%EC%B6%9C%EA%B5%AC&returnTo=%2Fhome%2Fitems%2Fitem-1%3FreturnTo%3D%252Fhome&entrySource=item_detail",
+    );
+    expect(screen.getByText("서울 마포구 합정동")).toBeInTheDocument();
+    expect(screen.getByText("도보 3분 근처에서 거래할 수 있어요")).toBeInTheDocument();
+    expect(screen.queryByText("동네지도 바로가기")).not.toBeInTheDocument();
+    expect(screen.queryByText("거래 장소 근처의 방문할 만한 곳이에요")).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /구경하기/i })).not.toBeInTheDocument();
   });
 
-  it("shows nearby businesses with a neutral cta button variant", async () => {
-    vi.spyOn(Math, "random").mockReturnValue(0.5);
-
-    renderItemDetail();
-
-    expect(await screen.findAllByText("거래 장소 근처의 방문할 만한 곳이에요")).not.toHaveLength(0);
-    const browseButton = screen.getByRole("link", { name: /구경하기/i });
-    expect(browseButton).toHaveClass("bg-[#2a3038]");
-    expect(browseButton).toHaveClass("text-white");
-    expect(screen.getByText("도보 3분 근처에서 거래할 수 있어요").compareDocumentPosition(browseButton)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
-  });
-
-  it("shows nearby businesses in the carousel relocation variant", async () => {
+  it("shows the town map CTA for the map redesign variant", async () => {
     vi.spyOn(Math, "random").mockReturnValue(0.9);
 
     renderItemDetail();
 
-    expect(await screen.findAllByText("거래 장소 근처의 방문할 만한 곳이에요")).not.toHaveLength(0);
-    const browseButton = screen.getByRole("link", { name: /구경하기/i });
-    expect(browseButton).toHaveClass("border-black/10");
-    expect(screen.getByText("도보 3분 근처에서 거래할 수 있어요").compareDocumentPosition(browseButton)).toBe(Node.DOCUMENT_POSITION_PRECEDING);
+    expect(await screen.findByText("동네지도 바로가기")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /동네지도 바로가기/ })).toHaveAttribute(
+      "href",
+      "/town-map/search/results?query=%ED%95%A9%EC%A0%95%EC%97%AD+2%EB%B2%88+%EC%B6%9C%EA%B5%AC&returnTo=%2Fhome%2Fitems%2Fitem-1%3FreturnTo%3D%252Fhome&entrySource=item_detail",
+    );
+    expect(screen.getByText("도보 3분 근처에서 거래할 수 있어요")).toBeInTheDocument();
+    expect(screen.queryByText("서울 마포구 합정동")).not.toBeInTheDocument();
+    expect(screen.queryByText("거래 장소 근처의 방문할 만한 곳이에요")).not.toBeInTheDocument();
   });
 });

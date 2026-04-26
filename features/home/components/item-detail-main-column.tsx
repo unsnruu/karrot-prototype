@@ -7,19 +7,18 @@ import { AppImage } from "@/components/ui/app-image";
 import { SeedUserAvatarExperiment } from "@/components/ui/experiments/seed-user-avatar";
 import { PendingFeatureLink } from "@/components/ui/pending-feature-link";
 import { trackEvent } from "@/lib/analytics/amplitude";
-import { getItemDetailNearbyBusinessVariant, type ItemDetailNearbyBusinessVariant } from "@/lib/analytics/visitor-experiment";
 import { buildElementClickedEventProperties } from "@/lib/analytics/element-click";
 import { useScreenScrollMilestones } from "@/lib/analytics/screen-scroll";
+import { getMeetupLocationMapVariant, type MeetupLocationMapVariant } from "@/lib/analytics/visitor-experiment";
 import {
   BellIcon,
   ChevronRightIcon,
   InfoIcon,
 } from "@/features/home/components/item-detail-icons";
 import { ItemDetailKakaoMap } from "@/features/home/components/item-detail-kakao-map";
-import { ItemDetailNearbyBusinessStrip } from "@/features/home/components/item-detail-nearby-business-strip";
 import { appendNavigationQuery } from "@/lib/tab-navigation";
 import { formatPrice, type HomeFeedItem, type MarketplaceItem, type SellerProfile } from "@/lib/marketplace";
-import { type NearbyTownMapBusinessCard } from "@/lib/town-map-business-data";
+import { buildTownMapSearchResultsHref } from "@/lib/town-map";
 
 function SellerSection({ seller }: { seller: SellerProfile }) {
   const sellerTemperature = `${seller.mannerScore.toFixed(1)}°C`;
@@ -51,34 +50,47 @@ function SellerSection({ seller }: { seller: SellerProfile }) {
 function ItemBodySection({
   item,
   returnTo,
-  detailHref,
-  nearbyBusinesses,
   variant,
 }: {
   item: MarketplaceItem;
   returnTo?: string;
-  detailHref: string;
-  nearbyBusinesses: NearbyTownMapBusinessCard[];
-  variant: ItemDetailNearbyBusinessVariant | null;
+  variant: MeetupLocationMapVariant;
 }) {
   const pathname = usePathname();
   const homeHref = returnTo ?? "/home";
   const categoryLabel = item.sellingPoints[0] ?? item.condition;
   const locationHref = createItemLocationHref(item.slug ?? item.id, returnTo);
+  const itemDetailHref = createItemDetailHref(item.slug ?? item.id, returnTo);
+  const townMapSearchResultsHref = buildTownMapSearchResultsHref({
+    query: item.meetupHint,
+    returnTo: itemDetailHref,
+    entrySource: "item_detail",
+  });
   const hasMeetupLocation = item.meetupLat != null && item.meetupLng != null && Boolean(item.meetupHint.trim());
-  const showRelocatedNearbyBusinesses = variant === "carousel_relocation";
 
-  const trackMeetupLocationClick = () => {
+  const trackMeetupLocationClick = ({
+    targetName,
+    targetType,
+    destinationPath = locationHref,
+    query,
+  }: {
+    targetName: string;
+    targetType: string;
+    destinationPath?: string;
+    query?: string;
+  }) => {
     trackEvent(
       "element_clicked",
       buildElementClickedEventProperties({
         screenName: "item_detail",
-        targetType: "link",
-        targetName: "item_detail_location_link",
-        surface: "content",
+        targetType,
+        targetName,
+        surface: "meetup_location",
         path: pathname,
         targetId: item.id,
-        destinationPath: locationHref,
+        query,
+        entrySource: "item_detail",
+        destinationPath,
       }),
     );
   };
@@ -102,7 +114,16 @@ function ItemBodySection({
 
         {hasMeetupLocation ? (
           <div className="space-y-3">
-            <Link className="block" href={locationHref} onClick={trackMeetupLocationClick}>
+            <Link
+              className="block"
+              href={locationHref}
+              onClick={() => {
+                trackMeetupLocationClick({
+                  targetName: "item_detail_location_header_link",
+                  targetType: "link",
+                });
+              }}
+            >
               <div className="flex flex-wrap items-center gap-x-[10px] gap-y-2">
                 <p className="text-base font-semibold leading-none text-black">거래 희망 장소</p>
                 <span className="flex items-center text-base leading-none text-black">
@@ -112,26 +133,38 @@ function ItemBodySection({
               </div>
             </Link>
 
-            <Link className="block" href={locationHref} onClick={trackMeetupLocationClick}>
+            <Link
+              className="block"
+              href={townMapSearchResultsHref}
+              onClick={() => {
+                trackMeetupLocationClick({
+                  targetName: variant === "map_redesign" ? "item_detail_town_map_cta" : "item_detail_location_map_cta",
+                  targetType: "button",
+                  query: item.meetupHint,
+                  destinationPath: townMapSearchResultsHref,
+                });
+              }}
+            >
               <ItemDetailKakaoMap
                 lat={item.meetupLat}
                 lng={item.meetupLng}
                 meetupAddress={item.meetupAddress}
                 meetupHint={item.meetupHint}
+                showTownMapCta={variant === "map_redesign"}
                 title={item.title}
               />
             </Link>
 
-            {showRelocatedNearbyBusinesses ? (
-              <ItemDetailNearbyBusinessStrip
-                businesses={nearbyBusinesses}
-                detailHref={detailHref}
-                meetupHint={item.meetupHint}
-                variant="carousel_relocation"
-              />
-            ) : null}
-
-            <Link className="block" href={locationHref} onClick={trackMeetupLocationClick}>
+            <Link
+              className="block"
+              href={locationHref}
+              onClick={() => {
+                trackMeetupLocationClick({
+                  targetName: "item_detail_location_distance_link",
+                  targetType: "link",
+                });
+              }}
+            >
               <p className="text-[13px] leading-none text-[#1d1c21]">{item.distance} 근처에서 거래할 수 있어요</p>
             </Link>
 
@@ -240,25 +273,19 @@ export function ItemDetailMainColumn({
   adItem,
   recommendationItems,
   returnTo,
-  detailHref,
-  nearbyBusinesses,
 }: {
   item: MarketplaceItem;
   seller: SellerProfile;
   adItem?: HomeFeedItem;
   recommendationItems: HomeFeedItem[];
   returnTo?: string;
-  detailHref: string;
-  nearbyBusinesses: NearbyTownMapBusinessCard[];
 }) {
-  const [variant, setVariant] = useState<ItemDetailNearbyBusinessVariant | null>(null);
+  const [variant, setVariant] = useState<MeetupLocationMapVariant>("control");
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const shouldShowNearbyBusinessesAtBottom =
-    variant === "cta_button_color_change_orange" || variant === "cta_button_color_change_neutral";
 
   useEffect(() => {
-    setVariant(getItemDetailNearbyBusinessVariant() ?? "cta_button_color_change_orange");
+    setVariant(getMeetupLocationMapVariant() ?? "control");
   }, []);
 
   useScreenScrollMilestones({
@@ -272,22 +299,10 @@ export function ItemDetailMainColumn({
     <div className="min-w-0">
       <SellerSection seller={seller} />
       <ItemBodySection
-        detailHref={detailHref}
         item={item}
-        nearbyBusinesses={nearbyBusinesses}
         returnTo={returnTo}
         variant={variant}
       />
-      {shouldShowNearbyBusinessesAtBottom ? (
-        <section className="py-3">
-          <ItemDetailNearbyBusinessStrip
-            businesses={nearbyBusinesses}
-            detailHref={detailHref}
-            meetupHint={item.meetupHint}
-            variant={variant ?? "cta_button_color_change_orange"}
-          />
-        </section>
-      ) : null}
       {adItem ? (
         <section className="py-3">
           <ItemDetailAdCard item={adItem} />

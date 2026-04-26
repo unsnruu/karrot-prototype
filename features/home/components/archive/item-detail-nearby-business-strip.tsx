@@ -10,7 +10,11 @@ import { useExposureTracking } from "@/lib/analytics/exposure";
 import { type NearbyTownMapBusinessCard } from "@/lib/town-map-business-data";
 import { appendNavigationQuery } from "@/lib/tab-navigation";
 import { ChevronRightIcon } from "@/features/home/components/item-detail-icons";
-import { type ItemDetailNearbyBusinessVariant } from "@/lib/analytics/visitor-experiment";
+
+type ArchivedItemDetailNearbyBusinessVariant =
+  | "cta_button_color_change_orange"
+  | "cta_button_color_change_neutral"
+  | "carousel_relocation";
 
 export function ItemDetailNearbyBusinessStrip({
   businesses,
@@ -21,7 +25,7 @@ export function ItemDetailNearbyBusinessStrip({
   businesses: NearbyTownMapBusinessCard[];
   detailHref: string;
   meetupHint: string;
-  variant: ItemDetailNearbyBusinessVariant;
+  variant: ArchivedItemDetailNearbyBusinessVariant;
 }) {
   const pathname = usePathname();
   const hasTrackedInteraction = useRef(false);

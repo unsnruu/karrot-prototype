@@ -53,10 +53,10 @@ describe("AnalyticsProvider", () => {
           path: "/home",
           query_string: "category=%EB%94%94%EC%A7%80%ED%84%B8%EA%B8%B0%EA%B8%B0",
           screen_name: "home",
-          app_version: "1.1",
-          experiment_id: "item_detail_nearby_business_entry",
-          iteration: "2",
-          variant: "carousel_relocation",
+          app_version: "2.0",
+          experiment_id: "meetup_location_map_redesign",
+          iteration: "1",
+          variant: "map_redesign",
         }),
       );
     });
@@ -75,10 +75,10 @@ describe("AnalyticsProvider", () => {
           path: "/developing",
           query_string: "feature=%EC%83%81%ED%92%88+%EA%B3%B5%EC%9C%A0%ED%95%98%EA%B8%B0&returnTo=%2Fhome",
           screen_name: "developing",
-          app_version: "1.1",
-          experiment_id: "item_detail_nearby_business_entry",
-          iteration: "2",
-          variant: "carousel_relocation",
+          app_version: "2.0",
+          experiment_id: "meetup_location_map_redesign",
+          iteration: "1",
+          variant: "map_redesign",
         }),
       );
     });
@@ -100,10 +100,36 @@ describe("AnalyticsProvider", () => {
           query_string:
             "entry_source=home_native_ad&entry_surface=top_carousel&entry_target_id=ad-1&entry_target_position=2&entry_target_name=home_native_ad&entry_target_type=ad",
           screen_name: "town_map",
-          app_version: "1.1",
-          experiment_id: "item_detail_nearby_business_entry",
-          iteration: "2",
-          variant: "carousel_relocation",
+          app_version: "2.0",
+          experiment_id: "meetup_location_map_redesign",
+          iteration: "1",
+          variant: "map_redesign",
+        }),
+      );
+    });
+  });
+
+  it("sends search result context on town map search results screen_viewed", async () => {
+    navigationState.pathname = "/town-map/search/results";
+    navigationState.searchParams = new URLSearchParams(
+      "query=%ED%95%A9%EC%A0%95%EC%97%AD&returnTo=%2Ftown-map&entrySource=town_map_search",
+    );
+
+    render(React.createElement(AnalyticsProvider));
+
+    await waitFor(() => {
+      expect(amplitudeMocks.track).toHaveBeenCalledWith(
+        "screen_viewed",
+        expect.objectContaining({
+          path: "/town-map/search/results",
+          query: "합정역",
+          return_to: "/town-map",
+          entry_source: "town_map_search",
+          screen_name: "town_map_search_results",
+          app_version: "2.0",
+          experiment_id: "meetup_location_map_redesign",
+          iteration: "1",
+          variant: "map_redesign",
         }),
       );
     });

@@ -1,4 +1,4 @@
-import { appendTabQuery } from "@/lib/tab-navigation";
+import { appendTabQuery, isSafeLocalHref } from "@/lib/tab-navigation";
 
 export type TownMapSearchCategory = {
   id: string;
@@ -47,6 +47,8 @@ export type TownMapKeyboardKey = {
   width?: "default" | "wide" | "search";
 };
 
+export type TownMapSearchEntrySource = "item_detail" | "town_map_search";
+
 const TOWN_MAP_STORAGE_BASE =
   "https://udazzhluazlmcsbdbhzo.supabase.co/storage/v1/object/public/town-map";
 
@@ -83,6 +85,34 @@ export const townMapCenter: TownMapCoordinate = {
   lat: 37.54991,
   lng: 126.91440,
 };
+
+export function buildTownMapSearchResultsHref({
+  query,
+  returnTo,
+  entrySource,
+}: {
+  query: string;
+  returnTo?: string;
+  entrySource?: TownMapSearchEntrySource;
+}) {
+  const params = new URLSearchParams();
+  const trimmedQuery = query.trim();
+
+  if (trimmedQuery) {
+    params.set("query", trimmedQuery);
+  }
+
+  if (isSafeLocalHref(returnTo)) {
+    params.set("returnTo", returnTo);
+  }
+
+  if (entrySource) {
+    params.set("entrySource", entrySource);
+  }
+
+  const queryString = params.toString();
+  return queryString ? `/town-map/search/results?${queryString}` : "/town-map/search/results";
+}
 
 export const townMapScreenData = {
   townLabel: "마포구 공덕동",

@@ -85,10 +85,10 @@ describe("SellWriteScreen", () => {
         expect.objectContaining({
           path: "/home/sell/write",
           screen_name: "sell_write",
-          app_version: "1.1",
-          experiment_id: "item_detail_nearby_business_entry",
-          iteration: "2",
-          variant: "cta_button_color_change_orange",
+          app_version: "2.0",
+          experiment_id: "meetup_location_map_redesign",
+          iteration: "1",
+          variant: "control",
         }),
       );
     });

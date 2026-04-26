@@ -9,9 +9,13 @@ import { type TownMapCoordinate, type TownMapPin } from "@/lib/town-map";
 export function TownMapKakaoMap({
   center,
   pins,
+  screenName = "town_map",
+  path = "/town-map",
 }: {
   center: TownMapCoordinate;
   pins: TownMapPin[];
+  screenName?: string;
+  path?: string;
 }) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
@@ -45,9 +49,9 @@ export function TownMapKakaoMap({
           return {
             component_name: "town_map_map",
             interaction_type: interactionType,
-            screen_name: "town_map",
+            screen_name: screenName,
             surface: "map",
-            path: "/town-map",
+            path,
           };
         };
 
@@ -65,7 +69,7 @@ export function TownMapKakaoMap({
 
         for (const pin of pins) {
           const overlayPosition = new kakao.maps.LatLng(pin.lat, pin.lng);
-          const overlayNode = createPinOverlay(pin);
+          const overlayNode = createPinOverlay({ path, pin, screenName });
           const overlay = new kakao.maps.CustomOverlay({
             map,
             position: overlayPosition,
@@ -89,7 +93,7 @@ export function TownMapKakaoMap({
         overlay.setMap(null);
       }
     };
-  }, [center.lat, center.lng, pins]);
+  }, [center.lat, center.lng, path, pins, screenName]);
 
   return (
     <div className="absolute inset-0">
@@ -104,7 +108,15 @@ export function TownMapKakaoMap({
   );
 }
 
-function createPinOverlay(pin: TownMapPin) {
+function createPinOverlay({
+  path,
+  pin,
+  screenName,
+}: {
+  path: string;
+  pin: TownMapPin;
+  screenName: string;
+}) {
   const wrapper = document.createElement("div");
   wrapper.style.display = "flex";
   wrapper.style.flexDirection = "column";
@@ -175,11 +187,11 @@ function createPinOverlay(pin: TownMapPin) {
       trackEvent(
         "element_clicked",
         buildElementClickedEventProperties({
-          screenName: "town_map",
+          screenName,
           targetType: "pin",
           targetName: "town_map_business_pin",
           surface: "map",
-          path: "/town-map",
+          path,
           targetId: pin.id,
           destinationPath: pin.href,
         }),

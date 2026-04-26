@@ -193,4 +193,24 @@ describe("event taxonomy alignment", () => {
       target_name: "town_map_search_history_clear",
     }));
   });
+
+  it("routes town map recent search items into search results with tracking", () => {
+    navigationState.pathname = "/town-map/search";
+    navigationState.searchParams = new URLSearchParams("returnTo=%2Ftown-map");
+
+    render(React.createElement(TownMapSearchScreen, { returnHref: "/town-map" }));
+
+    fireEvent.click(screen.getAllByRole("button", { name: "거래" })[0]);
+
+    expect(amplitudeMocks.trackEvent).toHaveBeenCalledWith("element_clicked", expect.objectContaining({
+      destination_path: "/town-map/search/results?query=%EA%B1%B0%EB%9E%98&returnTo=%2Ftown-map&entrySource=town_map_search",
+      path: "/town-map/search",
+      query: "거래",
+      screen_name: "town_map_search",
+      target_name: "town_map_recent_search_item",
+    }));
+    expect(navigationState.push).toHaveBeenCalledWith(
+      "/town-map/search/results?query=%EA%B1%B0%EB%9E%98&returnTo=%2Ftown-map&entrySource=town_map_search",
+    );
+  });
 });

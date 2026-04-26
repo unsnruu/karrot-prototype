@@ -3,7 +3,6 @@ import { ItemDetailScreen } from "@/features/home/screens/item-detail-screen";
 import { type HomeFeedItem } from "@/lib/marketplace";
 import { getHomeFeedPage, getMarketplaceItemDetail } from "@/lib/marketplace-data";
 import { isSafeLocalHref } from "@/lib/tab-navigation";
-import { getNearbyTownMapBusinessCards } from "@/lib/town-map-business-data";
 
 export default async function HomeItemPage({
   params,
@@ -24,14 +23,7 @@ export default async function HomeItemPage({
     notFound();
   }
 
-  const [feedPage, nearbyBusinesses] = await Promise.all([
-    getHomeFeedPage({ limit: 8 }),
-    getNearbyTownMapBusinessCards({
-      lat: detail.item.meetupLat,
-      lng: detail.item.meetupLng,
-      limit: 5,
-    }),
-  ]);
+  const feedPage = await getHomeFeedPage({ limit: 8 });
 
   const relatedItems = feedPage.items.filter(
     (item): item is HomeFeedItem => item.type === "marketplace-item" && item.id !== detail.item.id,
@@ -40,7 +32,6 @@ export default async function HomeItemPage({
   return (
     <ItemDetailScreen
       item={detail.item}
-      nearbyBusinesses={nearbyBusinesses}
       relatedItems={relatedItems}
       returnTo={returnTo}
       seller={detail.seller}

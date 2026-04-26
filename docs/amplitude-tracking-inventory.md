@@ -5,17 +5,16 @@
 
 - 기준 시점: 2026-04-23
 - 기준 범위: `components/`, `features/`, `lib/analytics/`
-- 제외 범위: 테스트 코드
+- 제외 범위: 테스트 코드, `archive/` 보관 코드
 - 기준 방식: `trackEvent(...)`, `amplitude.track(...)`, 공용 analytics helper 직접 확인
 
 ## 현재 명시 이벤트 이름
 
-현재 코드 기준으로 살아 있는 명시 이벤트 이름은 아래 5개다.
+현재 라이브 화면 코드 기준으로 살아 있는 명시 이벤트 이름은 아래 4개다.
 
 - `screen_viewed`
 - `element_clicked`
 - `element_exposed`
-- `component_exposed`
 - `component_interacted`
 
 즉 아래 이벤트들은 현재 코드에서 제거되었거나 더 이상 전송되지 않는다.
@@ -34,6 +33,7 @@
 - `chat_appointment_started`
 - `chat_appointment_invalid_state`
 - `chat_appointment_completed`
+- `component_exposed`
 
 ## 초기화
 
@@ -64,9 +64,9 @@ Amplitude 초기화는 [lib/analytics/amplitude.ts](/Users/unsnruu/Documents/pro
 
 현재 활성 실험은 아래 하나다.
 
-- `experiment_id=item_detail_nearby_business_entry`
-- `iteration=2`
-- `variant=cta_button_color_change_orange | cta_button_color_change_neutral | carousel_relocation`
+- `experiment_id=meetup_location_map_redesign`
+- `iteration=1`
+- `variant=control | map_redesign`
 
 ## 공통 helper 스키마
 
@@ -81,6 +81,9 @@ scroll milestone helper: [lib/analytics/screen-scroll.ts](/Users/unsnruu/Documen
 | `path` | `string` | 예 | 현재 pathname |
 | `query_string` | `string` | 아니오 | query string이 있을 때만 포함 |
 | `scroll_reached` | `number` | 아니오 | 일부 화면에서만 붙는 scroll milestone 퍼센트 |
+| `query` | `string` | 아니오 | 동네지도 검색 결과 화면의 검색어 |
+| `entry_source` | `string` | 아니오 | 동네지도 검색 결과 화면 진입 출처 |
+| `return_to` | `string` | 아니오 | 동네지도 검색 결과 화면의 뒤로가기 목적지 |
 
 운영 원칙:
 
@@ -113,7 +116,6 @@ scroll milestone helper: [lib/analytics/screen-scroll.ts](/Users/unsnruu/Documen
 - 모든 UI에 붙이지 않는다.
 - 실험 판단이나 핵심 퍼널 해석에 직접 필요한 surface에만 붙인다.
 - 기본 노출은 `IntersectionObserver` 기준 60% 이상 보였을 때 1회만 전송한다.
-- 단, `item_detail_nearby_business_carousel`처럼 "보이기 시작한 것 자체"가 중요한 surface는 threshold 없이 즉시 노출로 본다.
 
 `element_exposed` 권장 속성:
 
@@ -197,9 +199,19 @@ scroll milestone helper: [lib/analytics/screen-scroll.ts](/Users/unsnruu/Documen
 
 - `town_map_search_input`
 - `town_map_search_history_clear`
+- `town_map_search_submit`
+- `town_map_recent_search_item`
+- `town_map_search_suggestion`
+- `town_map_search_complete_button`
+- `town_map_search_results_back_button`
+- `town_map_search_results_close_button`
+- `town_map_search_results_list_button`
 - `sell_write_submit_button`
 - `chat_appointment_complete_button`
-- `item_detail_nearby_business_card`
+- `item_detail_location_header_link`
+- `item_detail_location_map_cta`
+- `item_detail_location_distance_link`
+- `item_detail_town_map_cta`
 - `item_detail_recommendation_card`
 - `home_native_ad`
 - `home_item_card`
@@ -231,7 +243,8 @@ scroll milestone helper: [lib/analytics/screen-scroll.ts](/Users/unsnruu/Documen
 
 전송 위치:
 
-- [features/home/components/item-detail-nearby-business-strip.tsx](/Users/unsnruu/Documents/projects/dev/2026/karrot/features/home/components/item-detail-nearby-business-strip.tsx:1)
+- 현재 라이브 화면 코드에는 없다.
+- 이전 `item_detail_nearby_business_carousel` 실험 코드는 `features/home/components/archive/` 아래에 보관되어 있다.
 
 기본 스키마:
 
@@ -242,13 +255,12 @@ scroll milestone helper: [lib/analytics/screen-scroll.ts](/Users/unsnruu/Documen
 
 현재 추가된 component:
 
-- `item_detail_nearby_business_carousel`
+- 없음
 
 ### `component_interacted`
 
 전송 위치:
 
-- [features/home/components/item-detail-nearby-business-strip.tsx](/Users/unsnruu/Documents/projects/dev/2026/karrot/features/home/components/item-detail-nearby-business-strip.tsx:1)
 - [features/town-map/components/town-map-bottom-sheet.tsx](/Users/unsnruu/Documents/projects/dev/2026/karrot/features/town-map/components/town-map-bottom-sheet.tsx:1)
 - [features/town-map/components/town-map-kakao-map.tsx](/Users/unsnruu/Documents/projects/dev/2026/karrot/features/town-map/components/town-map-kakao-map.tsx:1)
 
@@ -256,7 +268,7 @@ scroll milestone helper: [lib/analytics/screen-scroll.ts](/Users/unsnruu/Documen
 
 | 속성 | 타입 | 필수 | 설명 |
 | --- | --- | --- | --- |
-| `component_name` | `string` | 예 | `item_detail_nearby_business_carousel`, `town_map_bottom_sheet`, `town_map_map` |
+| `component_name` | `string` | 예 | `town_map_bottom_sheet`, `town_map_map` |
 | `interaction_type` | `string` | 예 | `scroll`, `expand`, `pan`, `zoom`, `tap` |
 | `screen_name` | `string` | 예 | 화면명 |
 | `surface` | `string` | 예 | UI 영역 |
@@ -264,7 +276,6 @@ scroll milestone helper: [lib/analytics/screen-scroll.ts](/Users/unsnruu/Documen
 
 현재 추가된 component:
 
-- `item_detail_nearby_business_carousel`
 - `town_map_bottom_sheet`
 - `town_map_map`
 
@@ -289,7 +300,7 @@ scroll milestone helper: [lib/analytics/screen-scroll.ts](/Users/unsnruu/Documen
 - 클릭률/진입율의 분모로 삼을 가치가 있는가
 - 노이즈 대비 해석 이득이 충분한가
 
-즉 현재는 `home_native_ad`, `item_detail_nearby_business_carousel`처럼 중요한 지점만 추적한다.
+즉 현재는 `home_native_ad`처럼 중요한 지점만 선별적으로 추적한다.
 
 ### 4. scroll depth도 별도 이벤트가 아니라 `screen_viewed` 속성으로 본다
 
@@ -303,14 +314,7 @@ scroll milestone helper: [lib/analytics/screen-scroll.ts](/Users/unsnruu/Documen
 
 현재는 `home`, `item_detail` 두 화면에만 적용한다.
 
-### 5. 상품 상세 근처 업체 carousel 실험은 노출-상호작용-클릭 조합으로 본다
+### 5. 상품 상세 근처 업체 carousel 실험은 종료됐다
 
-상품 상세의 근처 업체 carousel 실험은 아래처럼 해석한다.
-
-- 상품 상세 진입: `screen_viewed(screen_name=item_detail)`
-- carousel 노출: `component_exposed(component_name=item_detail_nearby_business_carousel)`
-- carousel 스크롤: `component_interacted(component_name=item_detail_nearby_business_carousel, interaction_type=scroll)`
-- 업체 카드 클릭: `element_clicked(target_name=item_detail_nearby_business_card)`
-- 이후 업체 상세 진입: `screen_viewed(screen_name=town_map_business_detail)`
-
-각 이벤트에는 공통으로 `experiment_id`, `iteration`, `variant`가 붙으므로 variant별 퍼널 비교가 가능하다.
+이전 `item_detail_nearby_business_entry` 실험에서 쓰던 carousel UI와 관련 이벤트는 현재 라이브 화면에서 전송되지 않는다.
+관련 코드는 `features/home/components/archive/` 아래에 보관한다.

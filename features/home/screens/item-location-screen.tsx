@@ -35,6 +35,7 @@ export function ItemLocationScreen({
             meetupAddress={item.meetupAddress}
             meetupHint={item.meetupHint}
             rounded={false}
+            showMapViewCta={false}
             title={item.title}
           />
         </div>

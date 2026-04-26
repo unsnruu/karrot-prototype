@@ -8,17 +8,15 @@ import {
   type MarketplaceItem,
   type SellerProfile,
 } from "@/lib/marketplace";
-import { type NearbyTownMapBusinessCard } from "@/lib/town-map-business-data";
 
 type ItemDetailScreenProps = {
   item: MarketplaceItem;
   seller: SellerProfile;
   relatedItems: HomeFeedItem[];
-  nearbyBusinesses: NearbyTownMapBusinessCard[];
   returnTo?: string;
 };
 
-export function ItemDetailScreen({ item, seller, relatedItems, nearbyBusinesses, returnTo }: ItemDetailScreenProps) {
+export function ItemDetailScreen({ item, seller, relatedItems, returnTo }: ItemDetailScreenProps) {
   const recommendationItems = relatedItems.slice(0, 6);
   const detailHref = createDetailHref(item.slug ?? item.id, returnTo);
 
@@ -30,9 +28,7 @@ export function ItemDetailScreen({ item, seller, relatedItems, nearbyBusinesses,
         <div className="w-full px-4 pt-4 sm:px-5">
           <ItemDetailMainColumn
             adItem={itemDetailUnifiedAd}
-            detailHref={detailHref}
             item={item}
-            nearbyBusinesses={nearbyBusinesses}
             recommendationItems={recommendationItems}
             returnTo={returnTo}
             seller={seller}

@@ -37,6 +37,10 @@ export function getScreenName(pathname: string) {
     return "town_map_search";
   }
 
+  if (pathname === "/town-map/search/results") {
+    return "town_map_search_results";
+  }
+
   if (pathname.startsWith("/town-map/businesses/")) {
     return "town_map_business_detail";
   }
@@ -113,10 +117,15 @@ export function buildScreenViewedEventProperties({
   pathname: string;
   queryString: string;
 }) {
+  const params = new URLSearchParams(queryString);
+
   return compactProperties({
     path: pathname,
     query_string: queryString || undefined,
     screen_name: getScreenName(pathname),
+    query: pathname === "/town-map/search/results" ? params.get("query") ?? undefined : undefined,
+    entry_source: pathname === "/town-map/search/results" ? params.get("entrySource") ?? undefined : undefined,
+    return_to: pathname === "/town-map/search/results" ? params.get("returnTo") ?? undefined : undefined,
   });
 }
 
