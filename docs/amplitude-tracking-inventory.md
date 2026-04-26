@@ -66,7 +66,7 @@ Amplitude 초기화는 [lib/analytics/amplitude.ts](/Users/unsnruu/Documents/pro
 
 - `experiment_id=meetup_location_map_redesign`
 - `iteration=1`
-- `variant=control | map_redesign`
+- `variant=control | map_redesign | map_redesign_text_changed`
 
 ## 공통 helper 스키마
 

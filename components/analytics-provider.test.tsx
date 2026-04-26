@@ -36,7 +36,7 @@ describe("AnalyticsProvider", () => {
     vi.clearAllMocks();
     navigationState.pathname = "/home";
     navigationState.searchParams = new URLSearchParams("category=%EB%94%94%EC%A7%80%ED%84%B8%EA%B8%B0%EA%B8%B0");
-    vi.spyOn(Math, "random").mockReturnValue(0.9);
+    vi.spyOn(Math, "random").mockReturnValue(0.5);
   });
 
   afterEach(() => {
@@ -130,6 +130,24 @@ describe("AnalyticsProvider", () => {
           experiment_id: "meetup_location_map_redesign",
           iteration: "1",
           variant: "map_redesign",
+        }),
+      );
+    });
+  });
+
+  it("can assign the text changed meetup location map variant", async () => {
+    vi.spyOn(Math, "random").mockReturnValue(0.9);
+
+    render(React.createElement(AnalyticsProvider));
+
+    await waitFor(() => {
+      expect(amplitudeMocks.track).toHaveBeenCalledWith(
+        "screen_viewed",
+        expect.objectContaining({
+          path: "/home",
+          screen_name: "home",
+          experiment_id: "meetup_location_map_redesign",
+          variant: "map_redesign_text_changed",
         }),
       );
     });

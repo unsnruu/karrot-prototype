@@ -20,6 +20,11 @@ import { appendNavigationQuery } from "@/lib/tab-navigation";
 import { formatPrice, type HomeFeedItem, type MarketplaceItem, type SellerProfile } from "@/lib/marketplace";
 import { buildTownMapSearchResultsHref } from "@/lib/town-map";
 
+const TOWN_MAP_CTA_LABEL_BY_VARIANT: Partial<Record<MeetupLocationMapVariant, string>> = {
+  map_redesign: "동네지도 바로가기",
+  map_redesign_text_changed: "약속 장소 주변도 둘러보기",
+};
+
 function SellerSection({ seller }: { seller: SellerProfile }) {
   const sellerTemperature = `${seller.mannerScore.toFixed(1)}°C`;
   return (
@@ -66,6 +71,7 @@ function ItemBodySection({
     returnTo: itemDetailHref,
     entrySource: "item_detail",
   });
+  const townMapCtaLabel = TOWN_MAP_CTA_LABEL_BY_VARIANT[variant];
   const hasMeetupLocation = item.meetupLat != null && item.meetupLng != null && Boolean(item.meetupHint.trim());
 
   const trackMeetupLocationClick = ({
@@ -138,7 +144,7 @@ function ItemBodySection({
               href={townMapSearchResultsHref}
               onClick={() => {
                 trackMeetupLocationClick({
-                  targetName: variant === "map_redesign" ? "item_detail_town_map_cta" : "item_detail_location_map_cta",
+                  targetName: townMapCtaLabel ? "item_detail_town_map_cta" : "item_detail_location_map_cta",
                   targetType: "button",
                   query: item.meetupHint,
                   destinationPath: townMapSearchResultsHref,
@@ -150,8 +156,9 @@ function ItemBodySection({
                 lng={item.meetupLng}
                 meetupAddress={item.meetupAddress}
                 meetupHint={item.meetupHint}
-                showTownMapCta={variant === "map_redesign"}
+                showTownMapCta={Boolean(townMapCtaLabel)}
                 title={item.title}
+                townMapCtaLabel={townMapCtaLabel}
               />
             </Link>
 

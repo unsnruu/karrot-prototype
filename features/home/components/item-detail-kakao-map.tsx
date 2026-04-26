@@ -14,6 +14,7 @@ export function ItemDetailKakaoMap({
   rounded = true,
   heightClassName = "h-[140px] sm:h-[170px]",
   showTownMapCta = false,
+  townMapCtaLabel = "동네지도 바로가기",
   showMapViewCta = true,
 }: {
   title: string;
@@ -24,6 +25,7 @@ export function ItemDetailKakaoMap({
   rounded?: boolean;
   heightClassName?: string;
   showTownMapCta?: boolean;
+  townMapCtaLabel?: string;
   showMapViewCta?: boolean;
 }) {
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -111,10 +113,10 @@ export function ItemDetailKakaoMap({
         </div>
 
         {showTownMapCta ? (
-          <div className="flex w-full items-center justify-between bg-[#f2f4f5] p-2">
+          <div className="flex w-full items-center justify-between bg-[#f2f4f5] p-[10px]">
             <div className="flex min-w-0 flex-1 items-center gap-1">
               <MapPinIcon aria-hidden="true" className="h-4 w-4 shrink-0 fill-[#ff6f0f] text-[#ff6f0f] [&_circle]:fill-white" strokeWidth={0} />
-              <span className="truncate text-[12px] font-medium leading-none text-black">동네지도 바로가기</span>
+              <span className="truncate text-[14px] font-medium leading-none text-black">{townMapCtaLabel}</span>
             </div>
             <ChevronRightIcon className="h-4 w-4 shrink-0 text-black" />
           </div>

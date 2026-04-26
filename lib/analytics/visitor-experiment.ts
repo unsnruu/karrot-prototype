@@ -8,7 +8,7 @@ const VISITOR_EXPERIMENT_STORAGE_KEY = "karrot_visitor_experiment_context.v2";
 export const MEETUP_LOCATION_MAP_EXPERIMENT_ID = "meetup_location_map_redesign";
 export const MEETUP_LOCATION_MAP_ITERATION = "1";
 
-export type MeetupLocationMapVariant = "control" | "map_redesign";
+export type MeetupLocationMapVariant = "control" | "map_redesign" | "map_redesign_text_changed";
 
 export type VisitorExperimentContext = {
   userId: string;
@@ -31,7 +31,17 @@ function createAnonymousVisitorId() {
 }
 
 function pickMeetupLocationMapVariant(): MeetupLocationMapVariant {
-  return Math.random() < 0.5 ? "control" : "map_redesign";
+  const bucket = Math.random();
+
+  if (bucket < 1 / 3) {
+    return "control";
+  }
+
+  if (bucket < 2 / 3) {
+    return "map_redesign";
+  }
+
+  return "map_redesign_text_changed";
 }
 
 function createVisitorExperimentContext(): VisitorExperimentContext {
