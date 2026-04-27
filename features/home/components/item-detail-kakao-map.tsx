@@ -16,6 +16,7 @@ export function ItemDetailKakaoMap({
   showTownMapCta = false,
   townMapCtaLabel = "동네지도 바로가기",
   showMapViewCta = true,
+  showLocationLabel = true,
 }: {
   title: string;
   meetupHint: string;
@@ -27,6 +28,7 @@ export function ItemDetailKakaoMap({
   showTownMapCta?: boolean;
   townMapCtaLabel?: string;
   showMapViewCta?: boolean;
+  showLocationLabel?: boolean;
 }) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
@@ -123,7 +125,7 @@ export function ItemDetailKakaoMap({
         ) : null}
       </div>
 
-      {!showTownMapCta ? (
+      {!showTownMapCta && showLocationLabel ? (
         <div className="flex flex-wrap items-center justify-between gap-2">
           <p className="text-[13px] leading-[1.5] text-[#4b5563]">{meetupAddress ?? meetupHint}</p>
         </div>
