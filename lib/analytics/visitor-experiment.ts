@@ -9,7 +9,7 @@ const VISITOR_EXPERIMENT_STORAGE_KEY = "karrot_visitor_experiment_context.v3";
 export const CHAT_APPOINTMENT_PLACE_RECOMMENDATION_EXPERIMENT_ID = "chat_appointment_place_recommendation";
 export const CHAT_APPOINTMENT_PLACE_RECOMMENDATION_ITERATION = "1";
 
-export type ChatAppointmentPlaceRecommendationVariant = "message" | "callout";
+export type ChatAppointmentPlaceRecommendationVariant = "control" | "message" | "callout";
 
 export type VisitorExperimentContext = {
   userId: string;
@@ -30,7 +30,7 @@ function getDevVariantOverride(): ChatAppointmentPlaceRecommendationVariant | nu
 
   const variantOverride = new URLSearchParams(window.location.search).get("experimentVariant");
 
-  if (variantOverride === "message" || variantOverride === "callout") {
+  if (variantOverride === "control" || variantOverride === "message" || variantOverride === "callout") {
     return variantOverride;
   }
 
@@ -54,7 +54,11 @@ function pickChatAppointmentPlaceRecommendationVariant(): ChatAppointmentPlaceRe
 
   const bucket = Math.random();
 
-  if (bucket < 1 / 2) {
+  if (bucket < 1 / 3) {
+    return "control";
+  }
+
+  if (bucket < 2 / 3) {
     return "message";
   }
 

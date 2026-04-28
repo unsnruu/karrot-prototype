@@ -7,6 +7,7 @@ type LocalChatAppointmentRecord = ChatAppointmentDraft & {
 };
 
 const localChatAppointments = new Map<string, LocalChatAppointmentRecord>();
+let pendingCompletionChatKey: string | null = null;
 
 export function readLocalChatAppointment(chatKey: string): ChatAppointmentDraft | null {
   const record = localChatAppointments.get(chatKey);
@@ -29,6 +30,7 @@ export function saveLocalChatAppointment(chatKey: string, draft: ChatAppointment
     return;
   }
 
+  pendingCompletionChatKey = chatKey;
   localChatAppointments.set(chatKey, {
     chatKey,
     date: draft.date,
@@ -40,6 +42,16 @@ export function saveLocalChatAppointment(chatKey: string, draft: ChatAppointment
   });
 }
 
+export function consumeLocalChatAppointmentCompletion(chatKey: string) {
+  if (pendingCompletionChatKey !== chatKey) {
+    return false;
+  }
+
+  pendingCompletionChatKey = null;
+  return true;
+}
+
 export function resetLocalChatAppointmentsForTests() {
   localChatAppointments.clear();
+  pendingCompletionChatKey = null;
 }

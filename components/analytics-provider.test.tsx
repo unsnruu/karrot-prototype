@@ -56,7 +56,7 @@ describe("AnalyticsProvider", () => {
           app_version: "3.0",
           experiment_id: "chat_appointment_place_recommendation",
           iteration: "1",
-          variant: "callout",
+          variant: "message",
         }),
       );
     });
@@ -78,7 +78,7 @@ describe("AnalyticsProvider", () => {
           app_version: "3.0",
           experiment_id: "chat_appointment_place_recommendation",
           iteration: "1",
-          variant: "callout",
+          variant: "message",
         }),
       );
     });
@@ -103,7 +103,7 @@ describe("AnalyticsProvider", () => {
           app_version: "3.0",
           experiment_id: "chat_appointment_place_recommendation",
           iteration: "1",
-          variant: "callout",
+          variant: "message",
         }),
       );
     });
@@ -129,7 +129,7 @@ describe("AnalyticsProvider", () => {
           app_version: "3.0",
           experiment_id: "chat_appointment_place_recommendation",
           iteration: "1",
-          variant: "callout",
+          variant: "message",
         }),
       );
     });

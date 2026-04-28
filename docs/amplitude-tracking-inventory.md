@@ -66,7 +66,7 @@ Amplitude 초기화는 [lib/analytics/amplitude.ts](/Users/unsnruu/Documents/pro
 
 - `experiment_id=chat_appointment_place_recommendation`
 - `iteration=1`
-- `variant=message | callout`
+- `variant=control | message | callout`
 
 ## 공통 helper 스키마
 

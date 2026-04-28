@@ -73,7 +73,7 @@ describe("SellWriteScreen", () => {
     resetVisitorExperimentContextForTests();
     navigationState.pathname = "/home/sell/write";
     navigationState.searchParams = new URLSearchParams();
-    vi.spyOn(Math, "random").mockReturnValue(0.2);
+    vi.spyOn(Math, "random").mockReturnValue(0.5);
   });
 
   it("sends screen_viewed with common properties", async () => {

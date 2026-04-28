@@ -107,6 +107,15 @@ describe("ChatScreen experiment", () => {
     resetLocalChatAppointmentsForTests();
     resetVisitorExperimentContextForTests();
     vi.restoreAllMocks();
+    window.HTMLElement.prototype.scrollIntoView = vi.fn();
+    Object.defineProperty(window, "matchMedia", {
+      writable: true,
+      value: vi.fn().mockReturnValue({
+        matches: false,
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+      }),
+    });
   });
 
   afterEach(() => {
@@ -114,7 +123,7 @@ describe("ChatScreen experiment", () => {
   });
 
   it("shows the follow-up recommendation as a message card for the message variant", async () => {
-    vi.spyOn(Math, "random").mockReturnValue(0.2);
+    vi.spyOn(Math, "random").mockReturnValue(0.5);
 
     renderCompletedAppointmentChat();
 
@@ -140,6 +149,18 @@ describe("ChatScreen experiment", () => {
     );
   });
 
+  it("shows only the completed appointment card for the control variant", async () => {
+    vi.spyOn(Math, "random").mockReturnValue(0.2);
+
+    renderCompletedAppointmentChat();
+
+    expect(await screen.findByText("약속을 만들었어요.")).toBeInTheDocument();
+    expect(screen.queryByText("함께 방문해보세요")).not.toBeInTheDocument();
+    expect(screen.queryByText("추천")).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "더 많은 업체 확인하기" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "동네지도 바로가기" })).not.toBeInTheDocument();
+  });
+
   it("replaces to the chat list when going back after completing an appointment", async () => {
     vi.spyOn(Math, "random").mockReturnValue(0.8);
 
@@ -150,6 +171,19 @@ describe("ChatScreen experiment", () => {
 
     expect(routerMock.replace).toHaveBeenCalledWith("/chat");
     expect(routerMock.back).not.toHaveBeenCalled();
+  });
+
+  it("scrolls to the recommendation after completing an appointment", async () => {
+    vi.spyOn(Math, "random").mockReturnValue(0.8);
+
+    renderCompletedAppointmentChat();
+
+    await screen.findByText("추천");
+
+    expect(window.HTMLElement.prototype.scrollIntoView).toHaveBeenCalledWith({
+      block: "center",
+      behavior: "smooth",
+    });
   });
 
   it("restores a completed appointment during the current client session only", async () => {

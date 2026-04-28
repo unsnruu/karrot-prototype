@@ -1,5 +1,6 @@
 "use client";
 
+import type { Ref } from "react";
 import { ActionButton } from "@/components/ui/action-button";
 import { UserAvatar } from "@/components/ui/user-avatar";
 import { Callout } from "@seed-design/react";
@@ -10,9 +11,11 @@ import { usePathname } from "next/navigation";
 
 export function ChatMessageRow({
   message,
+  rowRef,
   sellerAvatar,
 }: {
   message: ChatMessage;
+  rowRef?: Ref<HTMLDivElement>;
   sellerAvatar?: string;
 }) {
   const pathname = usePathname();
@@ -60,7 +63,7 @@ export function ChatMessageRow({
       };
 
       return (
-        <div className="flex items-end justify-end gap-2">
+        <div className="flex items-end justify-end gap-2" ref={rowRef}>
           <p className="text-[11px] text-[#adb1ba]">{message.createdAt}</p>
           <Callout.Root className="w-[272px]" tone="informative">
             <Callout.Content>
@@ -84,7 +87,7 @@ export function ChatMessageRow({
     }
 
     return (
-      <div className="flex items-end justify-end gap-2">
+      <div className="flex items-end justify-end gap-2" ref={rowRef}>
         <p className="text-[11px] text-[#adb1ba]">{message.createdAt}</p>
         <div className="w-[272px] rounded-[14px] border border-[#eeeeee] bg-white px-4 py-5 shadow-[0_1px_0_rgba(17,17,17,0.02)]">
           <div className="space-y-2 text-[16px] leading-[1.5] text-[#111111]">

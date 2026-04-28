@@ -42,7 +42,7 @@ Amplitude 초기화는 `lib/analytics/amplitude.ts`에 있으며, SDK는 `@ampli
 - `iteration`
 - `variant`
 
-현재 활성 값은 `app_version=3.0`, `experiment_id=chat_appointment_place_recommendation`, `iteration=1`, `variant=message | callout`이다.
+현재 활성 값은 `app_version=3.0`, `experiment_id=chat_appointment_place_recommendation`, `iteration=1`, `variant=control | message | callout`이다.
 
 코드 위치: `lib/analytics/visitor-experiment.ts`
 

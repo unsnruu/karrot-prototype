@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { CalendarDays, CirclePlus, EllipsisVertical, Phone, SendHorizontal, Smile, Plus, ChevronLeft } from "lucide-react";
 import { usePathname, useSearchParams } from "next/navigation";
@@ -15,7 +15,7 @@ import { HistoryBackButton } from "@/features/chat/components/history-back-butto
 import { trackElementClicked } from "@/lib/analytics/element-click";
 import { getChatAppointmentPlaceRecommendationVariant, type ChatAppointmentPlaceRecommendationVariant } from "@/lib/analytics/visitor-experiment";
 import { appendChatAppointmentQuery, isChatAppointmentReady, type ChatAppointmentDraft } from "@/lib/chat-appointment";
-import { readLocalChatAppointment, saveLocalChatAppointment } from "@/lib/local-chat-appointment-storage";
+import { consumeLocalChatAppointmentCompletion, readLocalChatAppointment, saveLocalChatAppointment } from "@/lib/local-chat-appointment-storage";
 import { appendNavigationQuery } from "@/lib/tab-navigation";
 import { type ChatPreview, type MarketplaceItem, type SellerProfile } from "@/lib/marketplace";
 import { buildTownMapSearchResultsHref } from "@/lib/town-map";
@@ -37,13 +37,18 @@ export function ChatScreen({
 }) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const recommendationRowRef = useRef<HTMLDivElement | null>(null);
+  const shouldAutoScrollRecommendationRef = useRef(false);
   const [variant, setVariant] = useState<ChatAppointmentPlaceRecommendationVariant>("message");
   const [savedAppointmentDraft, setSavedAppointmentDraft] = useState<ChatAppointmentDraft | null>(null);
   const variantOverride = searchParams.get("experimentVariant");
   const displayVariant: ChatAppointmentPlaceRecommendationVariant =
-    variantOverride === "message" || variantOverride === "callout" ? variantOverride : variant;
+    variantOverride === "control" || variantOverride === "message" || variantOverride === "callout" ? variantOverride : variant;
   const resolvedAppointmentDraft =
     appointmentDraft && isChatAppointmentReady(appointmentDraft) ? appointmentDraft : savedAppointmentDraft;
+  const readyAppointmentDraft =
+    resolvedAppointmentDraft && isChatAppointmentReady(resolvedAppointmentDraft) ? resolvedAppointmentDraft : null;
+  const isAppointmentReady = Boolean(readyAppointmentDraft);
 
   useEffect(() => {
     setVariant(getChatAppointmentPlaceRecommendationVariant() ?? "message");
@@ -53,11 +58,31 @@ export function ChatScreen({
     if (appointmentDraft && isChatAppointmentReady(appointmentDraft)) {
       saveLocalChatAppointment(itemId, appointmentDraft);
       setSavedAppointmentDraft(appointmentDraft);
+      shouldAutoScrollRecommendationRef.current = true;
       return;
     }
 
-    setSavedAppointmentDraft(readLocalChatAppointment(itemId));
+    const storedAppointmentDraft = readLocalChatAppointment(itemId);
+    setSavedAppointmentDraft(storedAppointmentDraft);
+
+    if (storedAppointmentDraft && consumeLocalChatAppointmentCompletion(itemId)) {
+      shouldAutoScrollRecommendationRef.current = true;
+    }
   }, [appointmentDraft, itemId]);
+
+  useEffect(() => {
+    if (displayVariant === "control" || !isAppointmentReady || !shouldAutoScrollRecommendationRef.current || !recommendationRowRef.current) {
+      return;
+    }
+
+    shouldAutoScrollRecommendationRef.current = false;
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    recommendationRowRef.current.scrollIntoView({
+      block: "center",
+      behavior: prefersReducedMotion ? "auto" : "smooth",
+    });
+  }, [displayVariant, isAppointmentReady, itemId]);
 
   if (!item || !seller) {
     return (
@@ -101,32 +126,35 @@ export function ChatScreen({
     tab: "chat",
     returnTo: backHref,
   });
-  const appointmentActionHref = resolvedAppointmentDraft ? appendChatAppointmentQuery(appointmentHref, resolvedAppointmentDraft) : appointmentHref;
-  const isAppointmentReady = resolvedAppointmentDraft && isChatAppointmentReady(resolvedAppointmentDraft);
-  const chatMessages = isAppointmentReady
+  const appointmentActionHref = readyAppointmentDraft ? appendChatAppointmentQuery(appointmentHref, readyAppointmentDraft) : appointmentHref;
+  const chatMessages = readyAppointmentDraft
     ? [
         ...resolvedChat.messages,
         {
           id: `appointment-${itemId}`,
           type: "appointment-card" as const,
-          date: resolvedAppointmentDraft.date!,
-          time: resolvedAppointmentDraft.time!,
-          location: resolvedAppointmentDraft.location!,
-          createdAt: resolvedAppointmentDraft.createdAt ?? "",
+          date: readyAppointmentDraft.date!,
+          time: readyAppointmentDraft.time!,
+          location: readyAppointmentDraft.location!,
+          createdAt: readyAppointmentDraft.createdAt ?? "",
           viewHref: appointmentActionHref,
         },
-        {
-          id: `appointment-place-rec-${itemId}`,
-          type: "appointment-place-recommendation" as const,
-          display: displayVariant,
-          location: resolvedAppointmentDraft.location!,
-          createdAt: resolvedAppointmentDraft.createdAt ?? "",
-          href: buildTownMapSearchResultsHref({
-            query: resolvedAppointmentDraft.location!,
-            returnTo: completedChatHref,
-            entrySource: "chat_appointment",
-          }),
-        },
+        ...(displayVariant === "control"
+          ? []
+          : [
+              {
+                id: `appointment-place-rec-${itemId}`,
+                type: "appointment-place-recommendation" as const,
+                display: displayVariant,
+                location: readyAppointmentDraft.location!,
+                createdAt: readyAppointmentDraft.createdAt ?? "",
+                href: buildTownMapSearchResultsHref({
+                  query: readyAppointmentDraft.location!,
+                  returnTo: completedChatHref,
+                  entrySource: "chat_appointment",
+                }),
+              },
+            ]),
       ]
     : resolvedChat.messages;
 
@@ -231,7 +259,12 @@ export function ChatScreen({
         <section className="bg-white pb-24 pt-5">
           <div className="space-y-3 px-4">
             {chatMessages.map((message) => (
-              <ChatMessageRow key={message.id} message={message} sellerAvatar={seller.avatar} />
+              <ChatMessageRow
+                key={message.id}
+                message={message}
+                rowRef={message.type === "appointment-place-recommendation" ? recommendationRowRef : undefined}
+                sellerAvatar={seller.avatar}
+              />
             ))}
           </div>
         </section>
