@@ -3,12 +3,13 @@
 import packageJson from "@/package.json";
 
 const LEGACY_VISITOR_EXPERIMENT_STORAGE_KEY = "karrot_visitor_experiment_context";
-const VISITOR_EXPERIMENT_STORAGE_KEY = "karrot_visitor_experiment_context.v2";
+const PREVIOUS_VISITOR_EXPERIMENT_STORAGE_KEY = "karrot_visitor_experiment_context.v2";
+const VISITOR_EXPERIMENT_STORAGE_KEY = "karrot_visitor_experiment_context.v3";
 
-export const MEETUP_LOCATION_MAP_EXPERIMENT_ID = "meetup_location_map_redesign";
-export const MEETUP_LOCATION_MAP_ITERATION = "1";
+export const CHAT_APPOINTMENT_PLACE_RECOMMENDATION_EXPERIMENT_ID = "chat_appointment_place_recommendation";
+export const CHAT_APPOINTMENT_PLACE_RECOMMENDATION_ITERATION = "1";
 
-export type MeetupLocationMapVariant = "control" | "map_redesign" | "map_redesign_text_changed";
+export type ChatAppointmentPlaceRecommendationVariant = "message" | "callout";
 
 export type VisitorExperimentContext = {
   userId: string;
@@ -16,11 +17,25 @@ export type VisitorExperimentContext = {
   experiment: {
     id: string;
     iteration: string;
-    variant: MeetupLocationMapVariant;
+    variant: ChatAppointmentPlaceRecommendationVariant;
   };
 };
 
 let visitorExperimentContext: VisitorExperimentContext | null = null;
+
+function getDevVariantOverride(): ChatAppointmentPlaceRecommendationVariant | null {
+  if (process.env.NODE_ENV === "production" || typeof window === "undefined") {
+    return null;
+  }
+
+  const variantOverride = new URLSearchParams(window.location.search).get("experimentVariant");
+
+  if (variantOverride === "message" || variantOverride === "callout") {
+    return variantOverride;
+  }
+
+  return null;
+}
 
 function createAnonymousVisitorId() {
   if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
@@ -30,18 +45,20 @@ function createAnonymousVisitorId() {
   return `anon_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
 }
 
-function pickMeetupLocationMapVariant(): MeetupLocationMapVariant {
+function pickChatAppointmentPlaceRecommendationVariant(): ChatAppointmentPlaceRecommendationVariant {
+  const variantOverride = getDevVariantOverride();
+
+  if (variantOverride) {
+    return variantOverride;
+  }
+
   const bucket = Math.random();
 
-  if (bucket < 1 / 3) {
-    return "control";
+  if (bucket < 1 / 2) {
+    return "message";
   }
 
-  if (bucket < 2 / 3) {
-    return "map_redesign";
-  }
-
-  return "map_redesign_text_changed";
+  return "callout";
 }
 
 function createVisitorExperimentContext(): VisitorExperimentContext {
@@ -49,15 +66,29 @@ function createVisitorExperimentContext(): VisitorExperimentContext {
     userId: createAnonymousVisitorId(),
     appVersion: packageJson.version,
     experiment: {
-      id: MEETUP_LOCATION_MAP_EXPERIMENT_ID,
-      iteration: MEETUP_LOCATION_MAP_ITERATION,
-      variant: pickMeetupLocationMapVariant(),
+      id: CHAT_APPOINTMENT_PLACE_RECOMMENDATION_EXPERIMENT_ID,
+      iteration: CHAT_APPOINTMENT_PLACE_RECOMMENDATION_ITERATION,
+      variant: pickChatAppointmentPlaceRecommendationVariant(),
     },
   };
 }
 
 export function ensureVisitorExperimentContext() {
   if (visitorExperimentContext) {
+    const variantOverride = getDevVariantOverride();
+
+    if (variantOverride && visitorExperimentContext.experiment.variant !== variantOverride) {
+      visitorExperimentContext = {
+        ...visitorExperimentContext,
+        experiment: {
+          ...visitorExperimentContext.experiment,
+          variant: variantOverride,
+        },
+      };
+
+      window.localStorage.setItem(VISITOR_EXPERIMENT_STORAGE_KEY, JSON.stringify(visitorExperimentContext));
+    }
+
     return visitorExperimentContext;
   }
 
@@ -66,6 +97,7 @@ export function ensureVisitorExperimentContext() {
   }
 
   window.localStorage.removeItem(LEGACY_VISITOR_EXPERIMENT_STORAGE_KEY);
+  window.localStorage.removeItem(PREVIOUS_VISITOR_EXPERIMENT_STORAGE_KEY);
 
   const nextContext = createVisitorExperimentContext();
   window.localStorage.setItem(VISITOR_EXPERIMENT_STORAGE_KEY, JSON.stringify(nextContext));
@@ -90,8 +122,8 @@ export function getEventExperimentProperties() {
   };
 }
 
-export function getMeetupLocationMapVariant() {
-  return ensureVisitorExperimentContext()?.experiment.variant;
+export function getChatAppointmentPlaceRecommendationVariant() {
+  return getDevVariantOverride() ?? ensureVisitorExperimentContext()?.experiment.variant;
 }
 
 export function resetVisitorExperimentContextForTests() {
@@ -99,6 +131,7 @@ export function resetVisitorExperimentContextForTests() {
 
   if (typeof window !== "undefined") {
     window.localStorage.removeItem(LEGACY_VISITOR_EXPERIMENT_STORAGE_KEY);
+    window.localStorage.removeItem(PREVIOUS_VISITOR_EXPERIMENT_STORAGE_KEY);
     window.localStorage.removeItem(VISITOR_EXPERIMENT_STORAGE_KEY);
   }
 }

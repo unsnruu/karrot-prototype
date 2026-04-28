@@ -53,10 +53,10 @@ describe("AnalyticsProvider", () => {
           path: "/home",
           query_string: "category=%EB%94%94%EC%A7%80%ED%84%B8%EA%B8%B0%EA%B8%B0",
           screen_name: "home",
-          app_version: "2.0",
-          experiment_id: "meetup_location_map_redesign",
+          app_version: "3.0",
+          experiment_id: "chat_appointment_place_recommendation",
           iteration: "1",
-          variant: "map_redesign",
+          variant: "callout",
         }),
       );
     });
@@ -75,10 +75,10 @@ describe("AnalyticsProvider", () => {
           path: "/developing",
           query_string: "feature=%EC%83%81%ED%92%88+%EA%B3%B5%EC%9C%A0%ED%95%98%EA%B8%B0&returnTo=%2Fhome",
           screen_name: "developing",
-          app_version: "2.0",
-          experiment_id: "meetup_location_map_redesign",
+          app_version: "3.0",
+          experiment_id: "chat_appointment_place_recommendation",
           iteration: "1",
-          variant: "map_redesign",
+          variant: "callout",
         }),
       );
     });
@@ -100,10 +100,10 @@ describe("AnalyticsProvider", () => {
           query_string:
             "entry_source=home_native_ad&entry_surface=top_carousel&entry_target_id=ad-1&entry_target_position=2&entry_target_name=home_native_ad&entry_target_type=ad",
           screen_name: "town_map",
-          app_version: "2.0",
-          experiment_id: "meetup_location_map_redesign",
+          app_version: "3.0",
+          experiment_id: "chat_appointment_place_recommendation",
           iteration: "1",
-          variant: "map_redesign",
+          variant: "callout",
         }),
       );
     });
@@ -126,16 +126,16 @@ describe("AnalyticsProvider", () => {
           return_to: "/town-map",
           entry_source: "town_map_search",
           screen_name: "town_map_search_results",
-          app_version: "2.0",
-          experiment_id: "meetup_location_map_redesign",
+          app_version: "3.0",
+          experiment_id: "chat_appointment_place_recommendation",
           iteration: "1",
-          variant: "map_redesign",
+          variant: "callout",
         }),
       );
     });
   });
 
-  it("can assign the text changed meetup location map variant", async () => {
+  it("can assign the callout place recommendation variant", async () => {
     vi.spyOn(Math, "random").mockReturnValue(0.9);
 
     render(React.createElement(AnalyticsProvider));
@@ -146,8 +146,8 @@ describe("AnalyticsProvider", () => {
         expect.objectContaining({
           path: "/home",
           screen_name: "home",
-          experiment_id: "meetup_location_map_redesign",
-          variant: "map_redesign_text_changed",
+          experiment_id: "chat_appointment_place_recommendation",
+          variant: "callout",
         }),
       );
     });

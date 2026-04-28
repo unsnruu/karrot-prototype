@@ -57,16 +57,16 @@ Amplitude 초기화는 [lib/analytics/amplitude.ts](/Users/unsnruu/Documents/pro
 | 속성 | 타입 | 필수 | 설명 |
 | --- | --- | --- | --- |
 | `user_id` | `string` | 예 | 앱 초기화 시 새로 생성되는 익명 visitor id |
-| `app_version` | `string` | 예 | 현재 앱 버전 (`package.json`) |
+| `app_version` | `string` | 예 | 현재 앱 버전 (`package.json`, 현재 `3.0`) |
 | `experiment_id` | `string` | 예 | 현재 활성 실험 id |
 | `iteration` | `string` | 예 | 현재 실험 iteration |
 | `variant` | `string` | 예 | 현재 실험 variant |
 
 현재 활성 실험은 아래 하나다.
 
-- `experiment_id=meetup_location_map_redesign`
+- `experiment_id=chat_appointment_place_recommendation`
 - `iteration=1`
-- `variant=control | map_redesign | map_redesign_text_changed`
+- `variant=message | callout`
 
 ## 공통 helper 스키마
 
@@ -207,11 +207,13 @@ scroll milestone helper: [lib/analytics/screen-scroll.ts](/Users/unsnruu/Documen
 - `town_map_search_results_close_button`
 - `town_map_search_results_list_button`
 - `sell_write_submit_button`
+- `chat_quick_action_appointment`
 - `chat_appointment_complete_button`
+- `chat_appointment_place_recommendation_cta`
+- `chat_appointment_place_recommendation_callout_link`
 - `item_detail_location_header_link`
 - `item_detail_location_map_cta`
 - `item_detail_location_distance_link`
-- `item_detail_town_map_cta`
 - `item_detail_recommendation_card`
 - `home_native_ad`
 - `home_item_card`

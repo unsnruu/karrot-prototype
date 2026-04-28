@@ -35,12 +35,16 @@ Amplitude 초기화는 `lib/analytics/amplitude.ts`에 있으며, SDK는 `@ampli
 
 제품 분석의 기준은 1번이다.
 
-홈 실험 variant는 identify로 함께 세팅한다.
+현재 활성 실험 variant는 identify로 함께 세팅한다.
 
-- `home_experiment_name`
-- `home_experiment_variant`
+- `app_version`
+- `experiment_id`
+- `iteration`
+- `variant`
 
-코드 위치: `lib/analytics/home-experiment-user-properties.ts`
+현재 활성 값은 `app_version=3.0`, `experiment_id=chat_appointment_place_recommendation`, `iteration=1`, `variant=message | callout`이다.
+
+코드 위치: `lib/analytics/visitor-experiment.ts`
 
 ## 변경 기록
 
@@ -612,6 +616,14 @@ Town Map:
   - 속성: `item_id`, `seller_name`, `thread_id`
 - `chat_appointment_completed`
   - 속성: `has_location`, `has_reminder`, `item_id`, `scheduled_date`, `scheduled_time`, `seller_name`, `thread_id`
+- `element_clicked(target_name=chat_quick_action_appointment)`
+  - 채팅 상세에서 약속잡기 진입 클릭
+- `element_clicked(target_name=chat_appointment_complete_button)`
+  - 약속 잡기 완료 클릭
+- `element_clicked(target_name=chat_appointment_place_recommendation_cta)`
+  - `message` variant에서 약속 완료 후 주변 장소 CTA 클릭
+- `element_clicked(target_name=chat_appointment_place_recommendation_callout_link)`
+  - `callout` variant에서 약속 완료 후 Callout 안의 `동네지도 바로가기` 링크 클릭
 
 ### Town Map
 
