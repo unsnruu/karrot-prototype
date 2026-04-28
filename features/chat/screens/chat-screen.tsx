@@ -43,7 +43,7 @@ export function ChatScreen({
   const [savedAppointmentDraft, setSavedAppointmentDraft] = useState<ChatAppointmentDraft | null>(null);
   const variantOverride = searchParams.get("experimentVariant");
   const displayVariant: ChatAppointmentPlaceRecommendationVariant =
-    variantOverride === "control" || variantOverride === "message" || variantOverride === "callout" ? variantOverride : variant;
+    variantOverride === "message" || variantOverride === "callout" ? variantOverride : variant;
   const resolvedAppointmentDraft =
     appointmentDraft && isChatAppointmentReady(appointmentDraft) ? appointmentDraft : savedAppointmentDraft;
   const readyAppointmentDraft =
@@ -71,7 +71,7 @@ export function ChatScreen({
   }, [appointmentDraft, itemId]);
 
   useEffect(() => {
-    if (displayVariant === "control" || !isAppointmentReady || !shouldAutoScrollRecommendationRef.current || !recommendationRowRef.current) {
+    if (!isAppointmentReady || !shouldAutoScrollRecommendationRef.current || !recommendationRowRef.current) {
       return;
     }
 
@@ -139,22 +139,18 @@ export function ChatScreen({
           createdAt: readyAppointmentDraft.createdAt ?? "",
           viewHref: appointmentActionHref,
         },
-        ...(displayVariant === "control"
-          ? []
-          : [
-              {
-                id: `appointment-place-rec-${itemId}`,
-                type: "appointment-place-recommendation" as const,
-                display: displayVariant,
-                location: readyAppointmentDraft.location!,
-                createdAt: readyAppointmentDraft.createdAt ?? "",
-                href: buildTownMapSearchResultsHref({
-                  query: readyAppointmentDraft.location!,
-                  returnTo: completedChatHref,
-                  entrySource: "chat_appointment",
-                }),
-              },
-            ]),
+        {
+          id: `appointment-place-rec-${itemId}`,
+          type: "appointment-place-recommendation" as const,
+          display: displayVariant,
+          location: readyAppointmentDraft.location!,
+          createdAt: readyAppointmentDraft.createdAt ?? "",
+          href: buildTownMapSearchResultsHref({
+            query: readyAppointmentDraft.location!,
+            returnTo: completedChatHref,
+            entrySource: "chat_appointment",
+          }),
+        },
       ]
     : resolvedChat.messages;
 

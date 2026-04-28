@@ -36,7 +36,7 @@ describe("AnalyticsProvider", () => {
     vi.clearAllMocks();
     navigationState.pathname = "/home";
     navigationState.searchParams = new URLSearchParams("category=%EB%94%94%EC%A7%80%ED%84%B8%EA%B8%B0%EA%B8%B0");
-    vi.spyOn(Math, "random").mockReturnValue(0.5);
+    vi.spyOn(Math, "random").mockReturnValue(0.2);
   });
 
   afterEach(() => {

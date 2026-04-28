@@ -123,7 +123,7 @@ describe("ChatScreen experiment", () => {
   });
 
   it("shows the follow-up recommendation as a message card for the message variant", async () => {
-    vi.spyOn(Math, "random").mockReturnValue(0.5);
+    vi.spyOn(Math, "random").mockReturnValue(0.2);
 
     renderCompletedAppointmentChat();
 
@@ -147,18 +147,6 @@ describe("ChatScreen experiment", () => {
       "href",
       "/town-map/search/results?query=%ED%95%A9%EC%A0%95%EC%97%AD+2%EB%B2%88+%EC%B6%9C%EA%B5%AC&returnTo=%2Fchat%2Fitem-1%3Ftab%3Dchat%26returnTo%3D%252Fchat&entrySource=chat_appointment",
     );
-  });
-
-  it("shows only the completed appointment card for the control variant", async () => {
-    vi.spyOn(Math, "random").mockReturnValue(0.2);
-
-    renderCompletedAppointmentChat();
-
-    expect(await screen.findByText("약속을 만들었어요.")).toBeInTheDocument();
-    expect(screen.queryByText("함께 방문해보세요")).not.toBeInTheDocument();
-    expect(screen.queryByText("추천")).not.toBeInTheDocument();
-    expect(screen.queryByRole("link", { name: "더 많은 업체 확인하기" })).not.toBeInTheDocument();
-    expect(screen.queryByRole("link", { name: "동네지도 바로가기" })).not.toBeInTheDocument();
   });
 
   it("replaces to the chat list when going back after completing an appointment", async () => {
