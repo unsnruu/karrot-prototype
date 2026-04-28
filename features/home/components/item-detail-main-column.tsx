@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import { AppImage } from "@/components/ui/app-image";
 import { SeedUserAvatarExperiment } from "@/components/ui/experiments/seed-user-avatar";
@@ -9,7 +8,6 @@ import { PendingFeatureLink } from "@/components/ui/pending-feature-link";
 import { trackEvent } from "@/lib/analytics/amplitude";
 import { buildElementClickedEventProperties } from "@/lib/analytics/element-click";
 import { useScreenScrollMilestones } from "@/lib/analytics/screen-scroll";
-import { getMeetupLocationMapVariant, type MeetupLocationMapVariant } from "@/lib/analytics/visitor-experiment";
 import {
   BellIcon,
   ChevronRightIcon,
@@ -19,11 +17,6 @@ import { ItemDetailKakaoMap } from "@/features/home/components/item-detail-kakao
 import { appendNavigationQuery } from "@/lib/tab-navigation";
 import { formatPrice, type HomeFeedItem, type MarketplaceItem, type SellerProfile } from "@/lib/marketplace";
 import { buildTownMapSearchResultsHref } from "@/lib/town-map";
-
-const TOWN_MAP_CTA_LABEL_BY_VARIANT: Partial<Record<MeetupLocationMapVariant, string>> = {
-  map_redesign: "동네지도 바로가기",
-  map_redesign_text_changed: "약속 장소 주변도 둘러보기",
-};
 
 function SellerSection({ seller }: { seller: SellerProfile }) {
   const sellerTemperature = `${seller.mannerScore.toFixed(1)}°C`;
@@ -55,11 +48,9 @@ function SellerSection({ seller }: { seller: SellerProfile }) {
 function ItemBodySection({
   item,
   returnTo,
-  variant,
 }: {
   item: MarketplaceItem;
   returnTo?: string;
-  variant: MeetupLocationMapVariant;
 }) {
   const pathname = usePathname();
   const homeHref = returnTo ?? "/home";
@@ -71,7 +62,6 @@ function ItemBodySection({
     returnTo: itemDetailHref,
     entrySource: "item_detail",
   });
-  const townMapCtaLabel = TOWN_MAP_CTA_LABEL_BY_VARIANT[variant];
   const hasMeetupLocation = item.meetupLat != null && item.meetupLng != null && Boolean(item.meetupHint.trim());
 
   const trackMeetupLocationClick = ({
@@ -144,7 +134,7 @@ function ItemBodySection({
               href={townMapSearchResultsHref}
               onClick={() => {
                 trackMeetupLocationClick({
-                  targetName: townMapCtaLabel ? "item_detail_town_map_cta" : "item_detail_location_map_cta",
+                  targetName: "item_detail_location_map_cta",
                   targetType: "button",
                   query: item.meetupHint,
                   destinationPath: townMapSearchResultsHref,
@@ -156,9 +146,7 @@ function ItemBodySection({
                 lng={item.meetupLng}
                 meetupAddress={item.meetupAddress}
                 meetupHint={item.meetupHint}
-                showTownMapCta={Boolean(townMapCtaLabel)}
                 title={item.title}
-                townMapCtaLabel={townMapCtaLabel}
               />
             </Link>
 
@@ -287,13 +275,8 @@ export function ItemDetailMainColumn({
   recommendationItems: HomeFeedItem[];
   returnTo?: string;
 }) {
-  const [variant, setVariant] = useState<MeetupLocationMapVariant>("control");
   const pathname = usePathname();
   const searchParams = useSearchParams();
-
-  useEffect(() => {
-    setVariant(getMeetupLocationMapVariant() ?? "control");
-  }, []);
 
   useScreenScrollMilestones({
     screenName: "item_detail",
@@ -308,7 +291,6 @@ export function ItemDetailMainColumn({
       <ItemBodySection
         item={item}
         returnTo={returnTo}
-        variant={variant}
       />
       {adItem ? (
         <section className="py-3">

@@ -1,9 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { ExpandIcon, MapPinIcon } from "lucide-react";
+import { ExpandIcon } from "lucide-react";
 import { loadKakaoMapsSdk } from "@/lib/kakao-maps";
-import { ChevronRightIcon } from "@/features/home/components/item-detail-icons";
 
 export function ItemDetailKakaoMap({
   title,
@@ -13,8 +12,6 @@ export function ItemDetailKakaoMap({
   lng,
   rounded = true,
   heightClassName = "h-[140px] sm:h-[170px]",
-  showTownMapCta = false,
-  townMapCtaLabel = "동네지도 바로가기",
   showMapViewCta = true,
   showLocationLabel = true,
 }: {
@@ -25,8 +22,6 @@ export function ItemDetailKakaoMap({
   lng?: number;
   rounded?: boolean;
   heightClassName?: string;
-  showTownMapCta?: boolean;
-  townMapCtaLabel?: string;
   showMapViewCta?: boolean;
   showLocationLabel?: boolean;
 }) {
@@ -96,7 +91,7 @@ export function ItemDetailKakaoMap({
 
   return (
     <div className="space-y-2">
-      <div className={`overflow-hidden border border-black/10 ${rounded ? showTownMapCta ? "rounded-[8px]" : "rounded-[14px]" : ""}`}>
+      <div className={`overflow-hidden border border-black/10 ${rounded ? "rounded-[14px]" : ""}`}>
         <div className="relative">
           <div className={`${heightClassName} w-full bg-[#eef2f7]`} ref={containerRef} />
 
@@ -106,26 +101,16 @@ export function ItemDetailKakaoMap({
             </div>
           ) : null}
 
-          {!showTownMapCta && showMapViewCta ? (
+          {showMapViewCta ? (
             <div className="absolute bottom-2 right-2 z-20 flex items-center gap-1 rounded-full bg-white px-2 py-1 shadow-[0_1px_3px_rgba(0,0,0,0.18)]">
               <span className="text-[12px] font-medium leading-none text-black">지도 보기</span>
               <ExpandIcon aria-hidden="true" className="h-4 w-4 text-black" strokeWidth={1.8} />
             </div>
           ) : null}
         </div>
-
-        {showTownMapCta ? (
-          <div className="flex w-full items-center justify-between bg-[#f2f4f5] p-[10px]">
-            <div className="flex min-w-0 flex-1 items-center gap-1">
-              <MapPinIcon aria-hidden="true" className="h-4 w-4 shrink-0 fill-[#ff6f0f] text-[#ff6f0f] [&_circle]:fill-white" strokeWidth={0} />
-              <span className="truncate text-[14px] font-medium leading-none text-black">{townMapCtaLabel}</span>
-            </div>
-            <ChevronRightIcon className="h-4 w-4 shrink-0 text-black" />
-          </div>
-        ) : null}
       </div>
 
-      {!showTownMapCta && showLocationLabel ? (
+      {showLocationLabel ? (
         <div className="flex flex-wrap items-center justify-between gap-2">
           <p className="text-[13px] leading-[1.5] text-[#4b5563]">{meetupAddress ?? meetupHint}</p>
         </div>

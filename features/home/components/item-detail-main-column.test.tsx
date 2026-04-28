@@ -2,7 +2,6 @@ import React from "react";
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ItemDetailMainColumn } from "@/features/home/components/item-detail-main-column";
-import { resetVisitorExperimentContextForTests } from "@/lib/analytics/visitor-experiment";
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/home/items/item-1",
@@ -57,7 +56,6 @@ describe("ItemDetailMainColumn", () => {
 
   beforeEach(() => {
     localStorage.clear();
-    resetVisitorExperimentContextForTests();
     vi.restoreAllMocks();
   });
 
@@ -65,9 +63,7 @@ describe("ItemDetailMainColumn", () => {
     cleanup();
   });
 
-  it("shows the control meetup location map for the control variant", async () => {
-    vi.spyOn(Math, "random").mockReturnValue(0.2);
-
+  it("shows the baseline meetup location map", async () => {
     renderItemDetail();
 
     expect(await screen.findByText("거래 희망 장소")).toBeInTheDocument();
@@ -78,38 +74,7 @@ describe("ItemDetailMainColumn", () => {
     );
     expect(screen.getByText("서울 마포구 합정동")).toBeInTheDocument();
     expect(screen.getByText("도보 3분 근처에서 거래할 수 있어요")).toBeInTheDocument();
-    expect(screen.queryByText("동네지도 바로가기")).not.toBeInTheDocument();
     expect(screen.queryByText("거래 장소 근처의 방문할 만한 곳이에요")).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: /구경하기/i })).not.toBeInTheDocument();
-  });
-
-  it("shows the town map CTA for the map redesign variant", async () => {
-    vi.spyOn(Math, "random").mockReturnValue(0.5);
-
-    renderItemDetail();
-
-    expect(await screen.findByText("동네지도 바로가기")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /동네지도 바로가기/ })).toHaveAttribute(
-      "href",
-      "/town-map/search/results?query=%ED%95%A9%EC%A0%95%EC%97%AD+2%EB%B2%88+%EC%B6%9C%EA%B5%AC&returnTo=%2Fhome%2Fitems%2Fitem-1%3FreturnTo%3D%252Fhome&entrySource=item_detail",
-    );
-    expect(screen.getByText("도보 3분 근처에서 거래할 수 있어요")).toBeInTheDocument();
-    expect(screen.queryByText("서울 마포구 합정동")).not.toBeInTheDocument();
-    expect(screen.queryByText("거래 장소 근처의 방문할 만한 곳이에요")).not.toBeInTheDocument();
-  });
-
-  it("shows the contextual town map CTA copy for the contextual copy variant", async () => {
-    vi.spyOn(Math, "random").mockReturnValue(0.9);
-
-    renderItemDetail();
-
-    expect(await screen.findByText("약속 장소 주변도 둘러보기")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /약속 장소 주변도 둘러보기/ })).toHaveAttribute(
-      "href",
-      "/town-map/search/results?query=%ED%95%A9%EC%A0%95%EC%97%AD+2%EB%B2%88+%EC%B6%9C%EA%B5%AC&returnTo=%2Fhome%2Fitems%2Fitem-1%3FreturnTo%3D%252Fhome&entrySource=item_detail",
-    );
-    expect(screen.queryByText("동네지도 바로가기")).not.toBeInTheDocument();
-    expect(screen.getByText("도보 3분 근처에서 거래할 수 있어요")).toBeInTheDocument();
-    expect(screen.queryByText("서울 마포구 합정동")).not.toBeInTheDocument();
   });
 });
