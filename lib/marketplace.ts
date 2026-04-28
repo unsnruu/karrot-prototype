@@ -261,6 +261,14 @@ export type ChatMessage =
     }
   | {
       id: string;
+      type: "appointment-place-recommendation";
+      display: "message" | "callout";
+      location: string;
+      createdAt: string;
+      href: string;
+    }
+  | {
+      id: string;
       type: "system-date" | "system-notice";
       text: string;
     };

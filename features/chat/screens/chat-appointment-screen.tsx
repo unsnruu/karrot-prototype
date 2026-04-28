@@ -18,9 +18,11 @@ import {
   isChatAppointmentReady,
   type ChatAppointmentDraft,
 } from "@/lib/chat-appointment";
+import { saveLocalChatAppointment } from "@/lib/local-chat-appointment-storage";
 import { type MarketplaceItem, type SellerProfile } from "@/lib/marketplace";
 
 export function ChatAppointmentScreen({
+  chatKey,
   seller,
   item,
   backHref,
@@ -28,6 +30,7 @@ export function ChatAppointmentScreen({
   completeBaseHref,
   initialDraft,
 }: {
+  chatKey: string;
   seller?: SellerProfile | null;
   item?: MarketplaceItem | null;
   backHref: string;
@@ -73,11 +76,11 @@ export function ChatAppointmentScreen({
   };
   const isReadyToComplete = isChatAppointmentReady(currentDraft);
   const locationHref = appendChatAppointmentQuery(locationBaseHref, currentDraft);
-  const completeHref = isReadyToComplete
-    ? appendChatAppointmentQuery(completeBaseHref, {
+  const completeDraft = isReadyToComplete
+    ? {
         ...currentDraft,
         createdAt: currentDraft.createdAt ?? formatChatAppointmentCreatedTime(),
-      })
+      }
     : null;
 
   return (
@@ -142,11 +145,12 @@ export function ChatAppointmentScreen({
         </section>
 
         <div className="mt-auto pt-16">
-          {completeHref ? (
+          {completeDraft ? (
             <ActionButton
               fullWidth
-              href={completeHref}
+              href={completeBaseHref}
               onClick={() => {
+                saveLocalChatAppointment(chatKey, completeDraft);
                 trackEvent(
                   "element_clicked",
                   buildElementClickedEventProperties({
@@ -155,7 +159,7 @@ export function ChatAppointmentScreen({
                     targetName: "chat_appointment_complete_button",
                     surface: "sticky_footer",
                     path: appointmentPath,
-                    destinationPath: completeHref,
+                    destinationPath: completeBaseHref,
                   }),
                 );
               }}

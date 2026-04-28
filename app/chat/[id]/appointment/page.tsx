@@ -37,6 +37,7 @@ export default async function ChatAppointmentPage({
   return (
     <ChatAppointmentScreen
       backHref={backHref}
+      chatKey={id}
       completeBaseHref={backHref}
       initialDraft={parseChatAppointmentDraft(resolvedSearchParams)}
       item={chatData?.item}

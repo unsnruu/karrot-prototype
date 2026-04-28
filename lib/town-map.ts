@@ -47,7 +47,7 @@ export type TownMapKeyboardKey = {
   width?: "default" | "wide" | "search";
 };
 
-export type TownMapSearchEntrySource = "item_detail" | "town_map_search";
+export type TownMapSearchEntrySource = "item_detail" | "town_map_search" | "chat_appointment";
 
 const TOWN_MAP_STORAGE_BASE =
   "https://udazzhluazlmcsbdbhzo.supabase.co/storage/v1/object/public/town-map";
