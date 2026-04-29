@@ -4,12 +4,13 @@ import packageJson from "@/package.json";
 
 const LEGACY_VISITOR_EXPERIMENT_STORAGE_KEY = "karrot_visitor_experiment_context";
 const PREVIOUS_VISITOR_EXPERIMENT_STORAGE_KEY = "karrot_visitor_experiment_context.v2";
-const VISITOR_EXPERIMENT_STORAGE_KEY = "karrot_visitor_experiment_context.v3";
+const PREVIOUS_VISITOR_EXPERIMENT_STORAGE_KEY_V3 = "karrot_visitor_experiment_context.v3";
+const VISITOR_EXPERIMENT_STORAGE_KEY = "karrot_visitor_experiment_context.v4";
 
-export const CHAT_APPOINTMENT_PLACE_RECOMMENDATION_EXPERIMENT_ID = "chat_appointment_place_recommendation";
-export const CHAT_APPOINTMENT_PLACE_RECOMMENDATION_ITERATION = "1";
+export const ITEM_LOCATION_MAP_CHAT_CALLOUT_EXPERIMENT_ID = "item_location_map_chat_callout";
+export const ITEM_LOCATION_MAP_CHAT_CALLOUT_ITERATION = "1";
 
-export type ChatAppointmentPlaceRecommendationVariant = "message" | "callout";
+export type ItemLocationMapChatCalloutVariant = "control" | "map_flow_callout";
 
 export type VisitorExperimentContext = {
   userId: string;
@@ -17,20 +18,20 @@ export type VisitorExperimentContext = {
   experiment: {
     id: string;
     iteration: string;
-    variant: ChatAppointmentPlaceRecommendationVariant;
+    variant: ItemLocationMapChatCalloutVariant;
   };
 };
 
 let visitorExperimentContext: VisitorExperimentContext | null = null;
 
-function getDevVariantOverride(): ChatAppointmentPlaceRecommendationVariant | null {
+function getDevVariantOverride(): ItemLocationMapChatCalloutVariant | null {
   if (process.env.NODE_ENV === "production" || typeof window === "undefined") {
     return null;
   }
 
   const variantOverride = new URLSearchParams(window.location.search).get("experimentVariant");
 
-  if (variantOverride === "message" || variantOverride === "callout") {
+  if (variantOverride === "control" || variantOverride === "map_flow_callout") {
     return variantOverride;
   }
 
@@ -45,7 +46,7 @@ function createAnonymousVisitorId() {
   return `anon_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
 }
 
-function pickChatAppointmentPlaceRecommendationVariant(): ChatAppointmentPlaceRecommendationVariant {
+function pickItemLocationMapChatCalloutVariant(): ItemLocationMapChatCalloutVariant {
   const variantOverride = getDevVariantOverride();
 
   if (variantOverride) {
@@ -55,10 +56,10 @@ function pickChatAppointmentPlaceRecommendationVariant(): ChatAppointmentPlaceRe
   const bucket = Math.random();
 
   if (bucket < 1 / 2) {
-    return "message";
+    return "control";
   }
 
-  return "callout";
+  return "map_flow_callout";
 }
 
 function createVisitorExperimentContext(): VisitorExperimentContext {
@@ -66,9 +67,9 @@ function createVisitorExperimentContext(): VisitorExperimentContext {
     userId: createAnonymousVisitorId(),
     appVersion: packageJson.version,
     experiment: {
-      id: CHAT_APPOINTMENT_PLACE_RECOMMENDATION_EXPERIMENT_ID,
-      iteration: CHAT_APPOINTMENT_PLACE_RECOMMENDATION_ITERATION,
-      variant: pickChatAppointmentPlaceRecommendationVariant(),
+      id: ITEM_LOCATION_MAP_CHAT_CALLOUT_EXPERIMENT_ID,
+      iteration: ITEM_LOCATION_MAP_CHAT_CALLOUT_ITERATION,
+      variant: pickItemLocationMapChatCalloutVariant(),
     },
   };
 }
@@ -98,6 +99,7 @@ export function ensureVisitorExperimentContext() {
 
   window.localStorage.removeItem(LEGACY_VISITOR_EXPERIMENT_STORAGE_KEY);
   window.localStorage.removeItem(PREVIOUS_VISITOR_EXPERIMENT_STORAGE_KEY);
+  window.localStorage.removeItem(PREVIOUS_VISITOR_EXPERIMENT_STORAGE_KEY_V3);
 
   const nextContext = createVisitorExperimentContext();
   window.localStorage.setItem(VISITOR_EXPERIMENT_STORAGE_KEY, JSON.stringify(nextContext));
@@ -122,7 +124,7 @@ export function getEventExperimentProperties() {
   };
 }
 
-export function getChatAppointmentPlaceRecommendationVariant() {
+export function getItemLocationMapChatCalloutVariant() {
   return getDevVariantOverride() ?? ensureVisitorExperimentContext()?.experiment.variant;
 }
 
@@ -132,6 +134,7 @@ export function resetVisitorExperimentContextForTests() {
   if (typeof window !== "undefined") {
     window.localStorage.removeItem(LEGACY_VISITOR_EXPERIMENT_STORAGE_KEY);
     window.localStorage.removeItem(PREVIOUS_VISITOR_EXPERIMENT_STORAGE_KEY);
+    window.localStorage.removeItem(PREVIOUS_VISITOR_EXPERIMENT_STORAGE_KEY_V3);
     window.localStorage.removeItem(VISITOR_EXPERIMENT_STORAGE_KEY);
   }
 }

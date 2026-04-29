@@ -42,7 +42,7 @@ Amplitude 초기화는 `lib/analytics/amplitude.ts`에 있으며, SDK는 `@ampli
 - `iteration`
 - `variant`
 
-현재 활성 값은 `app_version=3.0`, `experiment_id=chat_appointment_place_recommendation`, `iteration=1`, `variant=message | callout`이다.
+현재 활성 값은 `app_version=4.0`, `experiment_id=item_location_map_chat_callout`, `iteration=1`, `variant=control | map_flow_callout`이다.
 
 코드 위치: `lib/analytics/visitor-experiment.ts`
 
@@ -621,9 +621,9 @@ Town Map:
 - `element_clicked(target_name=chat_appointment_complete_button)`
   - 약속 잡기 완료 클릭
 - `element_clicked(target_name=chat_appointment_place_recommendation_cta)`
-  - `message` variant에서 약속 완료 후 주변 장소 CTA 클릭
+  - `control` variant에서 약속 완료 후 주변 장소 CTA 클릭
 - `element_clicked(target_name=chat_appointment_place_recommendation_callout_link)`
-  - `callout` variant에서 약속 완료 후 Callout 안의 `동네지도 바로가기` 링크 클릭
+  - `map_flow_callout` variant에서 약속 완료 후 Callout 안의 `동네지도 바로가기` 링크 클릭
 
 ### Town Map
 

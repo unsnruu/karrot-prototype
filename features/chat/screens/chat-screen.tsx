@@ -13,7 +13,7 @@ import { PendingFeatureLink } from "@/components/ui/pending-feature-link";
 import { ChatMessageRow } from "@/features/chat/components/chat-message-row";
 import { HistoryBackButton } from "@/features/chat/components/history-back-button";
 import { trackElementClicked } from "@/lib/analytics/element-click";
-import { getChatAppointmentPlaceRecommendationVariant, type ChatAppointmentPlaceRecommendationVariant } from "@/lib/analytics/visitor-experiment";
+import { getItemLocationMapChatCalloutVariant, type ItemLocationMapChatCalloutVariant } from "@/lib/analytics/visitor-experiment";
 import { appendChatAppointmentQuery, isChatAppointmentReady, type ChatAppointmentDraft } from "@/lib/chat-appointment";
 import { consumeLocalChatAppointmentCompletion, readLocalChatAppointment, saveLocalChatAppointment } from "@/lib/local-chat-appointment-storage";
 import { appendNavigationQuery } from "@/lib/tab-navigation";
@@ -39,11 +39,12 @@ export function ChatScreen({
   const searchParams = useSearchParams();
   const recommendationRowRef = useRef<HTMLDivElement | null>(null);
   const shouldAutoScrollRecommendationRef = useRef(false);
-  const [variant, setVariant] = useState<ChatAppointmentPlaceRecommendationVariant>("message");
+  const [variant, setVariant] = useState<ItemLocationMapChatCalloutVariant>("control");
   const [savedAppointmentDraft, setSavedAppointmentDraft] = useState<ChatAppointmentDraft | null>(null);
   const variantOverride = searchParams.get("experimentVariant");
-  const displayVariant: ChatAppointmentPlaceRecommendationVariant =
-    variantOverride === "message" || variantOverride === "callout" ? variantOverride : variant;
+  const experimentVariant: ItemLocationMapChatCalloutVariant =
+    variantOverride === "control" || variantOverride === "map_flow_callout" ? variantOverride : variant;
+  const shouldShowAppointmentPlaceRecommendation = experimentVariant === "map_flow_callout";
   const resolvedAppointmentDraft =
     appointmentDraft && isChatAppointmentReady(appointmentDraft) ? appointmentDraft : savedAppointmentDraft;
   const readyAppointmentDraft =
@@ -51,7 +52,7 @@ export function ChatScreen({
   const isAppointmentReady = Boolean(readyAppointmentDraft);
 
   useEffect(() => {
-    setVariant(getChatAppointmentPlaceRecommendationVariant() ?? "message");
+    setVariant(getItemLocationMapChatCalloutVariant() ?? "control");
   }, []);
 
   useEffect(() => {
@@ -82,7 +83,7 @@ export function ChatScreen({
       block: "center",
       behavior: prefersReducedMotion ? "auto" : "smooth",
     });
-  }, [displayVariant, isAppointmentReady, itemId]);
+  }, [experimentVariant, isAppointmentReady, itemId]);
 
   if (!item || !seller) {
     return (
@@ -139,18 +140,22 @@ export function ChatScreen({
           createdAt: readyAppointmentDraft.createdAt ?? "",
           viewHref: appointmentActionHref,
         },
-        {
-          id: `appointment-place-rec-${itemId}`,
-          type: "appointment-place-recommendation" as const,
-          display: displayVariant,
-          location: readyAppointmentDraft.location!,
-          createdAt: readyAppointmentDraft.createdAt ?? "",
-          href: buildTownMapSearchResultsHref({
-            query: readyAppointmentDraft.location!,
-            returnTo: completedChatHref,
-            entrySource: "chat_appointment",
-          }),
-        },
+        ...(shouldShowAppointmentPlaceRecommendation
+          ? [
+              {
+                id: `appointment-place-rec-${itemId}`,
+                type: "appointment-place-recommendation" as const,
+                display: "callout" as const,
+                location: readyAppointmentDraft.location!,
+                createdAt: readyAppointmentDraft.createdAt ?? "",
+                href: buildTownMapSearchResultsHref({
+                  query: readyAppointmentDraft.location!,
+                  returnTo: completedChatHref,
+                  entrySource: "chat_appointment",
+                }),
+              },
+            ]
+          : []),
       ]
     : resolvedChat.messages;
 

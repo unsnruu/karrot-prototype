@@ -7,6 +7,7 @@ import { SeedUserAvatarExperiment } from "@/components/ui/experiments/seed-user-
 import { PendingFeatureLink } from "@/components/ui/pending-feature-link";
 import { trackEvent } from "@/lib/analytics/amplitude";
 import { buildElementClickedEventProperties } from "@/lib/analytics/element-click";
+import { getItemLocationMapChatCalloutVariant, type ItemLocationMapChatCalloutVariant } from "@/lib/analytics/visitor-experiment";
 import { useScreenScrollMilestones } from "@/lib/analytics/screen-scroll";
 import {
   BellIcon,
@@ -57,11 +58,15 @@ function ItemBodySection({
   const categoryLabel = item.sellingPoints[0] ?? item.condition;
   const locationHref = createItemLocationHref(item.slug ?? item.id, returnTo);
   const itemDetailHref = createItemDetailHref(item.slug ?? item.id, returnTo);
+  const experimentVariant = getItemLocationMapChatCalloutVariant() ?? "control";
+  const usesTownMapLocationFlow = experimentVariant === "map_flow_callout";
   const townMapSearchResultsHref = buildTownMapSearchResultsHref({
     query: item.meetupHint,
     returnTo: itemDetailHref,
     entrySource: "item_detail",
   });
+  const locationMapHref = usesTownMapLocationFlow ? townMapSearchResultsHref : locationHref;
+  const locationMapCtaLabel = getLocationMapCtaLabel(experimentVariant);
   const hasMeetupLocation = item.meetupLat != null && item.meetupLng != null && Boolean(item.meetupHint.trim());
 
   const trackMeetupLocationClick = ({
@@ -129,39 +134,72 @@ function ItemBodySection({
               </div>
             </Link>
 
-            <Link
-              className="block"
-              href={townMapSearchResultsHref}
-              onClick={() => {
-                trackMeetupLocationClick({
-                  targetName: "item_detail_location_map_cta",
-                  targetType: "button",
-                  query: item.meetupHint,
-                  destinationPath: townMapSearchResultsHref,
-                });
-              }}
-            >
-              <ItemDetailKakaoMap
-                lat={item.meetupLat}
-                lng={item.meetupLng}
-                meetupAddress={item.meetupAddress}
-                meetupHint={item.meetupHint}
-                title={item.title}
-              />
-            </Link>
+            {usesTownMapLocationFlow ? (
+              <>
+                <Link
+                  className="block"
+                  href={locationMapHref}
+                  onClick={() => {
+                    trackMeetupLocationClick({
+                      targetName: "item_detail_location_map_cta",
+                      targetType: "button",
+                      query: item.meetupHint,
+                      destinationPath: locationMapHref,
+                    });
+                  }}
+                >
+                  <ItemDetailKakaoMap
+                    containerClassName="overflow-hidden rounded-[8px]"
+                    heightClassName="h-[120px]"
+                    lat={item.meetupLat}
+                    lng={item.meetupLng}
+                    meetupAddress={item.meetupAddress}
+                    meetupHint={item.meetupHint}
+                    showLocationLabel={false}
+                    showMapViewCta={false}
+                    showTownMapCta
+                    title={item.title}
+                    townMapCtaLabel={locationMapCtaLabel}
+                  />
+                </Link>
+                <p className="text-[13px] leading-none text-[#1d1c21]">{item.distance} 근처에서 거래할 수 있어요</p>
+              </>
+            ) : (
+              <>
+                <Link
+                  className="block"
+                  href={locationHref}
+                  onClick={() => {
+                    trackMeetupLocationClick({
+                      targetName: "item_detail_location_map_cta",
+                      targetType: "button",
+                      destinationPath: locationHref,
+                    });
+                  }}
+                >
+                  <ItemDetailKakaoMap
+                    lat={item.meetupLat}
+                    lng={item.meetupLng}
+                    meetupAddress={item.meetupAddress}
+                    meetupHint={item.meetupHint}
+                    title={item.title}
+                  />
+                </Link>
 
-            <Link
-              className="block"
-              href={locationHref}
-              onClick={() => {
-                trackMeetupLocationClick({
-                  targetName: "item_detail_location_distance_link",
-                  targetType: "link",
-                });
-              }}
-            >
-              <p className="text-[13px] leading-none text-[#1d1c21]">{item.distance} 근처에서 거래할 수 있어요</p>
-            </Link>
+                <Link
+                  className="block"
+                  href={locationHref}
+                  onClick={() => {
+                    trackMeetupLocationClick({
+                      targetName: "item_detail_location_distance_link",
+                      targetType: "link",
+                    });
+                  }}
+                >
+                  <p className="text-[13px] leading-none text-[#1d1c21]">{item.distance} 근처에서 거래할 수 있어요</p>
+                </Link>
+              </>
+            )}
 
           </div>
         ) : null}
@@ -191,6 +229,14 @@ function ItemBodySection({
       </PendingFeatureLink>
     </section>
   );
+}
+
+function getLocationMapCtaLabel(variant: ItemLocationMapChatCalloutVariant) {
+  if (variant === "map_flow_callout") {
+    return "약속 장소 주변도 둘러보기";
+  }
+
+  return "지도 보기";
 }
 
 function RecommendationsSection({ items, returnTo }: { items: HomeFeedItem[]; returnTo?: string }) {

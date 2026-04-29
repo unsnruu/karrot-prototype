@@ -57,16 +57,16 @@ Amplitude 초기화는 [lib/analytics/amplitude.ts](/Users/unsnruu/Documents/pro
 | 속성 | 타입 | 필수 | 설명 |
 | --- | --- | --- | --- |
 | `user_id` | `string` | 예 | 앱 초기화 시 새로 생성되는 익명 visitor id |
-| `app_version` | `string` | 예 | 현재 앱 버전 (`package.json`, 현재 `3.0`) |
+| `app_version` | `string` | 예 | 현재 앱 버전 (`package.json`, 현재 `4.0`) |
 | `experiment_id` | `string` | 예 | 현재 활성 실험 id |
 | `iteration` | `string` | 예 | 현재 실험 iteration |
 | `variant` | `string` | 예 | 현재 실험 variant |
 
 현재 활성 실험은 아래 하나다.
 
-- `experiment_id=chat_appointment_place_recommendation`
+- `experiment_id=item_location_map_chat_callout`
 - `iteration=1`
-- `variant=message | callout`
+- `variant=control | map_flow_callout`
 
 ## 공통 helper 스키마
 

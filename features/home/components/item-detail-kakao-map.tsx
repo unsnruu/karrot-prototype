@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { ExpandIcon } from "lucide-react";
+import { ChevronRight, ExpandIcon } from "lucide-react";
 import { loadKakaoMapsSdk } from "@/lib/kakao-maps";
 
 export function ItemDetailKakaoMap({
@@ -11,9 +11,13 @@ export function ItemDetailKakaoMap({
   lat,
   lng,
   rounded = true,
+  containerClassName,
   heightClassName = "h-[140px] sm:h-[170px]",
   showMapViewCta = true,
   showLocationLabel = true,
+  mapViewCtaLabel = "지도 보기",
+  showTownMapCta = false,
+  townMapCtaLabel,
 }: {
   title: string;
   meetupHint: string;
@@ -21,9 +25,13 @@ export function ItemDetailKakaoMap({
   lat?: number;
   lng?: number;
   rounded?: boolean;
+  containerClassName?: string;
   heightClassName?: string;
   showMapViewCta?: boolean;
   showLocationLabel?: boolean;
+  mapViewCtaLabel?: string;
+  showTownMapCta?: boolean;
+  townMapCtaLabel?: string;
 }) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
@@ -91,7 +99,7 @@ export function ItemDetailKakaoMap({
 
   return (
     <div className="space-y-2">
-      <div className={`overflow-hidden border border-black/10 ${rounded ? "rounded-[14px]" : ""}`}>
+      <div className={containerClassName ?? `overflow-hidden border border-black/10 ${rounded ? "rounded-[14px]" : ""}`}>
         <div className="relative">
           <div className={`${heightClassName} w-full bg-[#eef2f7]`} ref={containerRef} />
 
@@ -103,11 +111,21 @@ export function ItemDetailKakaoMap({
 
           {showMapViewCta ? (
             <div className="absolute bottom-2 right-2 z-20 flex items-center gap-1 rounded-full bg-white px-2 py-1 shadow-[0_1px_3px_rgba(0,0,0,0.18)]">
-              <span className="text-[12px] font-medium leading-none text-black">지도 보기</span>
+              <span className="text-[12px] font-medium leading-none text-black">{mapViewCtaLabel}</span>
               <ExpandIcon aria-hidden="true" className="h-4 w-4 text-black" strokeWidth={1.8} />
             </div>
           ) : null}
         </div>
+
+        {showTownMapCta && townMapCtaLabel ? (
+          <div className="flex items-center justify-between bg-[#f2f4f5] p-2">
+            <div className="flex min-w-0 items-center gap-1">
+              <TownMapPinIcon />
+              <p className="truncate text-[12px] font-medium leading-none text-black">{townMapCtaLabel}</p>
+            </div>
+            <ChevronRight aria-hidden="true" className="h-4 w-4 shrink-0 text-black" strokeWidth={1.6} />
+          </div>
+        ) : null}
       </div>
 
       {showLocationLabel ? (
@@ -116,5 +134,17 @@ export function ItemDetailKakaoMap({
         </div>
       ) : null}
     </div>
+  );
+}
+
+function TownMapPinIcon() {
+  return (
+    <svg aria-hidden="true" className="h-4 w-4 shrink-0" fill="none" viewBox="0 0 16 16">
+      <path
+        d="M8 1.5A5.25 5.25 0 0 0 2.75 6.75c0 3.62 4.34 7.3 4.72 7.62a.82.82 0 0 0 1.06 0c.38-.32 4.72-4 4.72-7.62A5.25 5.25 0 0 0 8 1.5Z"
+        fill="#FF6F0F"
+      />
+      <circle cx="8" cy="6.75" fill="white" r="1.75" />
+    </svg>
   );
 }
