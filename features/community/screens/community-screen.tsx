@@ -3,6 +3,7 @@ import { CafePostList } from "@/features/community/components/cafe-post-list";
 import { CommunityHeader } from "@/features/community/components/community-header";
 import { CommunityMeetupList } from "@/features/community/components/community-meetup-list";
 import { CommunityPostList } from "@/features/community/components/community-post-list";
+import { CommunityWriteFab } from "@/features/community/components/community-write-fab";
 import { type CafePost, type CommunityMeetup, type CommunityPost, type CommunityTabKey, type CommunityTopicFilterKey } from "@/lib/community";
 
 type CommunityScreenProps = {
@@ -25,6 +26,7 @@ export function CommunityScreen({ selectedTab, selectedTopic, posts, meetups, ca
           {selectedTab === "cafe" ? <CafePostList posts={cafePosts} /> : null}
         </section>
 
+        <CommunityWriteFab />
         <BottomNav />
       </div>
     </main>
