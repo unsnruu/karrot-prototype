@@ -8,7 +8,18 @@ import { trackEvent } from "@/lib/analytics/amplitude";
 import { buildElementClickedEventProperties } from "@/lib/analytics/element-click";
 import { buildPendingFeatureHref } from "@/lib/tab-navigation";
 
-const COMMUNITY_WRITE_ACTIONS = [
+type CommunityWriteAction = {
+  label: string;
+  description?: string;
+  featureLabel: string;
+  icon: typeof BadgeCheck;
+  iconColor: string;
+  iconBg: string;
+  targetName: string;
+  sectionLabel?: string;
+};
+
+const COMMUNITY_WRITE_ACTIONS: CommunityWriteAction[] = [
   {
     label: "이웃에게 투표받기",
     description: "이웃들의 의견이 궁금할 땐, 투표로 물어보세요",
