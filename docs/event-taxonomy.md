@@ -1,13 +1,14 @@
 # 이벤트 택소노미
 
 ## 문서 목적
-이 문서는 현재 코드베이스에서 실제로 호출되는 Amplitude 이벤트를 기준으로, 이벤트를 어떤 원칙으로 설계하고 해석할지 함께 정의한 운영 문서다.
+이 문서는 현재 코드베이스에서 실제로 Amplitude로 전송되는 이벤트와 각 이벤트의 속성 스키마를 정리하는 단일 기준 문서다.
 
-- 기준 시점: 현재 저장소 코드
-- 범위: `components/`, `features/`, `lib/analytics/`
-- 제외: 테스트 코드
+- 기준 시점: 2026-05-20
+- 기준 범위: `components/`, `features/`, `lib/analytics/`
+- 제외 범위: 테스트 코드, `archive/` 보관 코드
+- 기준 방식: `trackEvent(...)`, `amplitude.track(...)`, 공용 analytics helper 직접 확인
 
-이 문서는 아래 내용을 설명한다.
+이 문서는 아래를 함께 다룬다.
 
 - 이벤트 이름을 언제 새로 만들고 언제 기존 이벤트를 재사용할지
 - `screen_viewed`를 어떤 기준 이벤트로 사용할지
@@ -20,51 +21,18 @@
 - 모든 이벤트 payload의 최종 확정 사전
 - SQL, 차트, 대시보드 작성법 문서
 
-## 현재 상태 요약
-현재 저장소에는 Amplitude 연동 코드가 존재하며, 구조는 이미 아래 패턴으로 수렴해 있다.
-
-- 화면 진입은 `screen_viewed`
-- 화면 내 클릭은 `element_clicked`
-- 검색 플로우는 `search_*`
-- 완료, 실패, 검증처럼 의미가 분명히 다른 행동만 개별 이벤트
-
-Amplitude 초기화는 `lib/analytics/amplitude.ts`에 있으며, SDK는 `@amplitude/unified`를 사용한다. 설정에는 `autocapture: true`가 켜져 있으므로 아래 두 계층이 함께 존재한다.
-
-1. 팀이 명시적으로 보내는 제품 이벤트
-2. Amplitude autocapture가 보내는 자동 이벤트
-
-제품 분석의 기준은 1번이다.
-
-현재 활성 실험 variant는 identify로 함께 세팅한다.
-
-- `app_version`
-- `experiment_id`
-- `iteration`
-- `variant`
-
-현재 활성 값은 `app_version=4.0`, `experiment_id=item_location_map_chat_callout`, `iteration=1`, `variant=control | map_flow_callout`이다.
-
-코드 위치: `lib/analytics/visitor-experiment.ts`
-
-## 변경 기록
-
-### 2026-04-20
-
-- `screen_exited`는 현재 코드베이스에서 더 이상 명시적으로 전송되지 않는다.
-- 저장소 전체 검색 기준 `screen_exited` 호출 및 관련 트래킹 코드는 존재하지 않는다.
-- 운영 기준 이벤트는 계속 `screen_viewed`를 사용한다.
-
-## 핵심 원칙
+## 핵심 판단 기준
 
 ### 1. 이벤트 이름은 행동을 표현한다
+
 이벤트 이름은 사용자가 무엇을 했는지 표현해야 한다.
 
 권장 예시:
 
 - `screen_viewed`
 - `element_clicked`
+- `element_exposed`
 - `component_interacted`
-- `chat_appointment_completed`
 
 비권장 예시:
 
@@ -73,12 +41,14 @@ Amplitude 초기화는 `lib/analytics/amplitude.ts`에 있으며, SDK는 `@ampli
 - `sell_write_price_chip_click`
 
 ### 2. 맥락 차이는 속성으로 표현한다
+
 같은 행동이지만 발생 위치, 실험 조건, 대상이 다를 때는 이벤트를 새로 만들기보다 속성으로 구분한다.
 
 예:
 
 - 같은 화면 진입이면 `screen_viewed`
 - 같은 클릭이면 `element_clicked`
+- 같은 노출이면 `element_exposed`
 - 같은 드래그/확장/스크롤이면 `component_interacted`
 
 그리고 차이는 아래 속성으로 분리한다.
@@ -86,20 +56,20 @@ Amplitude 초기화는 `lib/analytics/amplitude.ts`에 있으며, SDK는 `@ampli
 - 어느 화면인가: `screen_name`
 - 어느 UI 영역인가: `surface`
 - 무엇과 상호작용했는가: `target_type`, `target_name`, `target_id`
-- 어떤 실험인가: `experiment_name`, `experiment_variant`
+- 어떤 실험인가: `experiment_id`, `variant`, `iteration`
 
 ### 3. 새 이벤트는 행동 의미가 달라질 때만 만든다
+
 새 이벤트는 아래 조건일 때만 만든다.
 
-- 사용자의 행동 의미가 기존 이벤트와 명확히 다르다
-- 기존 이벤트와 속성 조합만으로는 분석 질문에 답하기 어렵다
-- 같은 행동으로 묶으면 해석이 왜곡된다
+- 사용자의 행동 의미가 기존 이벤트와 명확히 다르다.
+- 기존 이벤트와 속성 조합만으로는 분석 질문에 답하기 어렵다.
+- 같은 행동으로 묶으면 해석이 왜곡된다.
 
-예:
-
-- `chat_appointment_completed`
+현재는 이벤트 이름을 늘리기보다 `screen_viewed`, `element_clicked`, `element_exposed`, `component_interacted` 네 가지 명시 이벤트에 속성을 붙여 해석하는 방향을 기본으로 둔다.
 
 ### 4. 분석 질문이 병목이면 상태를 먼저 본다
+
 모든 UI 조작을 클릭 이벤트로 먼저 수집하지 않는다.
 
 특히 입력 플로우에서는 "무엇을 몇 번 눌렀는가"보다 "어느 단계에서 무엇이 비어 있는가"가 더 직접적인 제품 질문일 수 있다.
@@ -113,552 +83,335 @@ Amplitude 초기화는 `lib/analytics/amplitude.ts`에 있으며, SDK는 `@ampli
 그래서 sell flow는 `screen_viewed`에 `flow_name`, `step_name`, `has_*`, `photo_count`를 함께 붙여 해석한다.
 
 ### 5. fallback 화면도 같은 행동이면 같은 이벤트로 본다
+
 미구현 기능 안내 화면도 제품 안의 하나의 화면으로 취급한다.
 
 즉, `/developing` 진입은 별도 이벤트를 새로 만들지 않고 `screen_viewed`로 수집하며, 맥락은 속성으로 구분한다.
 
 ## `page_viewed`와 `screen_viewed`
 
-### 결론
 이 프로젝트의 제품 분석 기준 이벤트는 `screen_viewed`다.
 
-Amplitude Browser SDK의 자동 수집 page view 이벤트는 보조 이벤트로 취급한다.
-
-### 왜 `screen_viewed`를 기준으로 삼는가
-현재 프로토타입에서 분석하고 싶은 질문은 대부분 URL 자체보다 제품 화면 흐름에 가깝다.
-
-예:
-
-- 사용자가 홈에 진입했는가
-- 사용자가 동네지도 검색 화면까지 갔는가
-- 사용자가 상품 상세를 봤는가
-- 사용자가 판매 작성 플로우 어느 단계까지 갔는가
-
-이 질문은 URL보다 제품이 정의한 `screen_name`으로 보는 편이 더 자연스럽다.
-
-또한 동적 경로가 있는 경우에도 여러 URL을 하나의 제품 화면으로 묶을 수 있다.
-
-예:
-
-- `/community/123`
-- `/community/456`
-
-둘 다 제품 관점에서는 `community_post_detail`이다.
-
-### `page_viewed`의 역할
-Amplitude autocapture의 page view 이벤트는 아래 질문에는 유용하다.
-
-- 특정 URL path가 실제로 몇 번 열렸는가
-- referrer, page title, page URL 기준으로 어떤 유입이 있었는가
-- SPA navigation이 URL 단위로 어떻게 움직였는가
-
-하지만 팀의 표준 화면 진입 이벤트는 `screen_viewed`로 통일한다.
-
-### 문서상 취급 원칙
-
-- `screen_viewed`는 제품 표준 이벤트다
-- `[Amplitude] Page Viewed`는 SDK 자동 수집 이벤트다
-- 대시보드, 퍼널, 실험 해석에서는 `screen_viewed`를 우선 사용한다
-- `[Amplitude] Page Viewed`는 디버깅, URL 검증, 보조 분석 용도로만 사용한다
+Amplitude Browser SDK의 자동 수집 page view 이벤트는 특정 URL path, referrer, page title, page URL 기준의 보조 분석과 디버깅에만 사용한다. 제품 퍼널, 실험 해석, 화면 흐름 분석에서는 팀이 명시적으로 보내는 `screen_viewed`를 우선 사용한다.
 
 ## 네이밍 규칙
 
-### 이벤트 이름
+- 이벤트 이름과 속성 이름은 전부 `snake_case`를 사용한다.
+- 이벤트 이름은 행동 중심으로 작성하고, 가능하면 과거형 동사를 사용한다.
+- Boolean은 `has_*` 형태를 우선 사용한다.
+- 개수는 `*_count`, 순서는 `*_index` 또는 `*_position`, 비율은 `*_percent`를 우선 사용한다.
+- 클릭 대상 이름은 기본적으로 `[screen]_[ui_name]` 형태의 정규화 이름을 사용한다.
+- 행동이 없으면 의미가 모호한 경우에만 action suffix를 추가한다.
 
-- 전부 `snake_case`를 사용한다
-- 이벤트 이름은 행동 중심으로 작성한다
-- 가능하면 과거형 동사를 사용한다
+## 현재 명시 이벤트 이름
 
-### 속성 이름
-
-- 전부 `snake_case`를 사용한다
-- Boolean은 `has_*` 형태를 우선 사용한다
-- 개수는 `*_count`, 순서는 `*_index` 또는 `*_position`, 비율은 `*_percent`를 우선 사용한다
-- 클릭 대상 이름은 기본적으로 `[screen]_[ui_name]` 형태의 정규화 이름을 사용한다
-- 행동이 없으면 의미가 모호한 경우에만 action suffix를 추가한다
-
-예:
-
-- `has_title`
-- `photo_count`
-- `depth_percent`
-- `home_search_input`
-- `home_item_card`
-- `home_sell_fab_start_sell`
-
-## 표준 속성 구조
-
-### 1. 공통 컨텍스트 속성
-화면과 위치를 설명하는 기본 속성이다.
-
-- `screen_name`
-- `path`
-- `query_string`
-
-향후 필요하면 아래도 검토할 수 있다.
-
-- `previous_screen_name`
-- `session_id`
-- `app_version`
-- `platform`
-
-### 2. UI 맥락 속성
-같은 행동이 화면 안 어디에서 일어났는지 설명한다.
-
-- `surface`
-- `screen_type`
-
-`screen_name`은 제품이 정의한 화면 자체이고, `surface`는 그 화면 안의 UI 영역이다.
-
-예:
-
-- `screen_name=home`
-- `surface=header`
-
-### 3. 액션 대상 속성
-사용자가 무엇과 상호작용했는지 설명한다.
-
-- `target_type`
-- `target_name`
-- `target_id`
-- `target_position`
-
-`target_name`은 사람이 읽는 자유 텍스트가 아니라 팀이 고정해서 쓰는 taxonomy 이름이다.
-
-### 4. 도메인 속성
-도메인별 분석에 필요한 속성이다.
-
-- `category`
-- `query`
-- `item_id`
-- `business_id`
-- `trade_type`
-- `photo_count`
-- `feature_label`
-- `return_to`
-
-### 5. 실험 속성
-실험 이벤트를 별도 이름으로 과하게 분리하지 않기 위해 쓰는 속성이다.
-
-- `experiment_name`
-- `experiment_variant`
-- `experiment_surface`
-- `experiment_source`
-
-## 현재 실제 이벤트 목록
-
-현재 코드에서 명시적으로 호출되는 이벤트는 총 14개다.
-
-`screen_exited`는 이 목록에 포함되지 않으며, 현재 미사용 상태다.
-
-### 공통 이벤트
+현재 라이브 화면 코드 기준으로 살아 있는 명시 이벤트 이름은 아래 4개다.
 
 - `screen_viewed`
 - `element_clicked`
+- `element_exposed`
+- `component_interacted`
+
+즉 아래 이벤트들은 현재 코드에서 제거되었거나 더 이상 전송되지 않는다.
+
+- `home_experiment_scroll_depth_reached`
+- `sell_flow_redirected_missing_photos`
+- `home_experiment_town_map_entered`
+- `home_feed_load_failed`
 - `search_opened`
 - `search_submitted`
 - `search_history_cleared`
-
-### 실험/퍼널 이벤트
-
-- `home_experiment_town_map_entered`
-- `home_experiment_carousel_interacted`
-- `town_map_landing_engaged`
-
-### 도메인 이벤트
-
-- `town_map_bottom_sheet_expanded`
-- `home_feed_load_failed`
-- `sell_photo_toggled`
 - `sell_form_completed`
-- `chat_appointment_invalid_state`
+- `sell_photo_toggled`
+- `town_map_bottom_sheet_expanded`
+- `town_map_landing_engaged`
 - `chat_appointment_started`
+- `chat_appointment_invalid_state`
 - `chat_appointment_completed`
+- `component_exposed`
 
-## 공통 이벤트 표준
+## 초기화
+
+Amplitude 초기화는 [lib/analytics/amplitude.ts](/Users/unsnruu/Projects/dev/2026/Karrot/lib/analytics/amplitude.ts:1) 에서 수행한다.
+
+- SDK: `@amplitude/unified`
+- 초기화: `amplitude.initAll(...)`
+- 자동 수집: `analytics: { autocapture: true }`
+- 사용자 식별: 앱 초기화 시 새 익명 visitor id를 생성해 `setUserId(...)`로 설정
+- 실험 컨텍스트: [lib/analytics/visitor-experiment.ts](/Users/unsnruu/Projects/dev/2026/Karrot/lib/analytics/visitor-experiment.ts:1) 에서 `userId`, `appVersion`, `experiment`를 함께 생성해 메모리에 유지하고 `localStorage`에도 기록
+- user property 세팅:
+  - `app_version`
+  - `experiment_id`
+  - `iteration`
+  - `variant`
+
+## 공통 실험 속성
+
+현재 `trackEvent(...)`를 통해 전송되는 모든 명시 이벤트에는 아래 실험/방문자 속성이 함께 붙는다.
+
+| 속성 | 타입 | 필수 | 설명 |
+| --- | --- | --- | --- |
+| `user_id` | `string` | 예 | 앱 초기화 시 새로 생성되는 익명 visitor id |
+| `app_version` | `string` | 예 | 현재 앱 버전 (`package.json`, 현재 `4.0`) |
+| `experiment_id` | `string` | 예 | 현재 활성 실험 id |
+| `iteration` | `string` | 예 | 현재 실험 iteration |
+| `variant` | `string` | 예 | 현재 실험 variant |
+
+현재 활성 실험은 아래 하나다.
+
+- `experiment_id=item_location_map_chat_callout`
+- `iteration=1`
+- `variant=control | map_flow_callout`
+
+## 공통 helper 스키마
 
 ### `screen_viewed`
 
-#### 기본 속성
+공통 helper: [lib/analytics/screen-view.ts](/Users/unsnruu/Projects/dev/2026/Karrot/lib/analytics/screen-view.ts:1)  
+scroll milestone helper: [lib/analytics/screen-scroll.ts](/Users/unsnruu/Projects/dev/2026/Karrot/lib/analytics/screen-scroll.ts:1)
 
-- `screen_name`
-- `path`
-- `query_string`
+| 속성 | 타입 | 필수 | 설명 |
+| --- | --- | --- | --- |
+| `screen_name` | `string` | 예 | pathname을 제품 화면명으로 정규화한 값 |
+| `path` | `string` | 예 | 현재 pathname |
+| `query_string` | `string` | 아니오 | query string이 있을 때만 포함 |
+| `scroll_reached` | `number` | 아니오 | 일부 화면에서만 붙는 scroll milestone 퍼센트 |
+| `query` | `string` | 아니오 | 동네지도 검색 결과 화면의 검색어 |
+| `entry_source` | `string` | 아니오 | 동네지도 검색 결과 화면 진입 출처 |
+| `return_to` | `string` | 아니오 | 동네지도 검색 결과 화면의 뒤로가기 목적지 |
 
-#### 전송 위치
+운영 원칙:
 
-- 공통 화면: `components/analytics-provider.tsx`
-- 로컬 화면 상태가 필요한 sell flow 화면: 각 화면 컴포넌트에서 직접 전송
-
-#### 기본 `screen_name` 매핑
-정의: `lib/analytics/screen-view.ts`
-
-- `/` -> `root`
-- `/home` -> `home`
-- `/community` -> `community`
-- `/community/[id]` -> `community_post_detail`
-- `/town-map` -> `town_map`
-- `/town-map/search` -> `town_map_search`
-- `/town-map/businesses/[id]` -> `town_map_business_detail`
-- `/chat` -> `chat`
-- `/chat/[id]` -> `chat_detail`
-- `/chat/[id]/appointment` -> `chat_appointment`
-- `/chat/[id]/appointment/location` -> `chat_appointment_location`
-- `/my-karrot` -> `my_karrot`
-- `/home/services` -> `home_services`
-- `/home/sell` -> `sell_entry`
-- `/home/sell/photos` -> `sell_photos`
-- `/home/sell/write` -> `sell_write`
-- `/home/sell/price` -> `sell_price`
-- `/home/sell/location` -> `sell_location`
-- `/home/sell/preview` -> `sell_preview`
-- `/home/items/[id]` -> `item_detail`
-- `/home/items/[id]/location` -> `item_location`
-- `/exp/[variant]/*` -> `exp_{variant}_{screen}`
-
-#### 로컬 tracked screen
-아래 5개는 provider가 아니라 각 화면에서 직접 `screen_viewed`를 보낸다.
-
-- `sell_photos`
-  - 추가 속성: `flow_name=sell`, `step_name=photos`, `photo_count`
-- `sell_write`
-  - 추가 속성: `flow_name=sell`, `step_name=write`, `photo_count`, `has_title`, `has_description`, `has_price`, `has_location`
-- `sell_price`
-  - 추가 속성: `flow_name=sell`, `step_name=price`, `photo_count`, `has_price`
-- `sell_location`
-  - 추가 속성: `flow_name=sell`, `step_name=location`, `photo_count`, `has_location`
-- `sell_preview`
-  - 추가 속성: `flow_name=sell`, `step_name=preview`, `photo_count`, `has_published_item`
-
-#### provider가 붙이는 추가 속성
-`components/analytics-provider.tsx`
-
-- 홈 실험 화면
-  - `category`
-  - `experiment_name=home_to_town_map_entry`
-  - `experiment_variant`
-- `/developing` 화면
-  - `feature_label`
-  - `return_to`
-  - `screen_type=pending_feature`
+- 기본 진입은 기존처럼 `screen_viewed` 1회를 보낸다.
+- 일부 화면은 추가로 `screen_viewed + scroll_reached`를 milestone 도달 시 재전송한다.
+- 현재 milestone은 `25`, `50`, `75` 세 값만 사용한다.
 
 ### `element_clicked`
 
-클릭 계열 이벤트의 기본 이벤트 이름은 `element_clicked`다.
+공통 helper: [lib/analytics/element-click.ts](/Users/unsnruu/Projects/dev/2026/Karrot/lib/analytics/element-click.ts:1)
 
-#### 권장 속성
+| 속성 | 타입 | 필수 | 설명 |
+| --- | --- | --- | --- |
+| `screen_name` | `string` | 예 | 클릭이 발생한 화면 |
+| `target_name` | `string` | 예 | 제품 내 정규화된 클릭 대상 이름 |
+| `path` | `string` | 아니오 | 현재 pathname |
+| `destination_path` | `string` | 아니오 | 클릭 후 이동 경로 |
+| `target_type` | `string` | 아니오 | 버튼, 카드, 링크 등 대상 유형 |
+| `surface` | `string` | 아니오 | 화면 내 UI 영역 |
+| `query_string` | `string` | 아니오 | 필요 시 현재 query string |
+| `target_id` | `string` | 아니오 | 대상 entity id |
+| `target_position` | `number` | 아니오 | 리스트/캐러셀 내 순서 |
 
-필수:
+### `element_exposed` / `component_exposed`
 
-- `screen_name`
-- `target_name`
+공통 helper: [lib/analytics/exposure.ts](/Users/unsnruu/Projects/dev/2026/Karrot/lib/analytics/exposure.ts:1)
 
-권장:
+운영 원칙:
 
-- `path`
+- 모든 UI에 붙이지 않는다.
+- 실험 판단이나 핵심 퍼널 해석에 직접 필요한 surface에만 붙인다.
+- 기본 노출은 `IntersectionObserver` 기준 60% 이상 보였을 때 1회만 전송한다.
 
-선택:
+`element_exposed` 권장 속성:
 
-- `experiment_name`
-- `experiment_variant`
-- `destination_path`
+| 속성 | 타입 | 필수 | 설명 |
+| --- | --- | --- | --- |
+| `screen_name` | `string` | 예 | 노출이 발생한 화면 |
+| `target_name` | `string` | 예 | 노출 대상 element taxonomy 이름 |
+| `path` | `string` | 아니오 | 현재 pathname |
+| `destination_path` | `string` | 아니오 | 클릭 시 이동할 경로 |
+| `target_type` | `string` | 아니오 | 카드, 버튼, 링크 등 |
+| `surface` | `string` | 아니오 | 노출 위치 |
+| `target_id` | `string` | 아니오 | 대상 id |
+| `target_position` | `number` | 아니오 | 노출 순서 |
 
-#### `target_name`
+`component_exposed` 권장 속성:
 
-- `target_name`은 요소의 제품 역할을 설명하는 정규화 이름이다
-- UI 형태나 위치보다 "무엇을 눌렀는가"가 더 직접적인 분석 기준이면 `target_name` 중심으로 충분하다
+| 속성 | 타입 | 필수 | 설명 |
+| --- | --- | --- | --- |
+| `component_name` | `string` | 예 | 노출된 component 이름 |
+| `screen_name` | `string` | 예 | 노출이 발생한 화면 |
+| `surface` | `string` | 예 | 화면 내 UI 영역 |
+| `path` | `string` | 아니오 | 현재 pathname |
 
-예:
+## 이벤트별 스키마
 
-- `home_search_input`
-- `home_item_card`
-- `home_sell_fab_start_sell`
-- `item_detail_chat_button_open_chat`
+아래 섹션은 각 이벤트의 "고유 속성"만 정리한다.
 
-#### 현재 `target_name` taxonomy
-현재 `target_name` 기준 taxonomy는 아래 22개다.
+- `user_id`
+- `app_version`
+- `experiment_id`
+- `iteration`
+- `variant`
 
-Navigation:
+는 위 `공통 실험 속성` 섹션에서 한 번만 설명하고, 아래 이벤트별 스키마에서는 반복하지 않는다.
 
-- `bottom_nav_tab`
-  - `target_type=tab`
-  - `surface=bottom_navigation`
-  - 추가 속성: `tab_label`
+### `screen_viewed`
 
-Home:
+전송 위치:
 
-- `home_town_selector`
-  - `target_type=button`
-  - `surface=header`
-- `home_search_input`
-  - `target_type=button`
-  - `surface=header`
-- `home_notification_button`
-  - `target_type=button`
-  - `surface=header`
-- `home_menu_button`
-  - `target_type=button`
-  - `surface=header`
-- `home_category_chip`
-  - `target_type=chip`
-  - `surface=header`
-  - 추가 속성: `category`, `previous_category`
-- `home_fab_trigger_open_menu`
-  - `target_type=button`
-  - `surface=floating_action_button`
-- `home_lesson_fab_entry`
-  - `target_type=button`
-  - `surface=fab_menu`
-  - 추가 속성: `action_icon=lesson`
-- `home_real_estate_fab_entry`
-  - `target_type=button`
-  - `surface=fab_menu`
-  - 추가 속성: `action_icon=home`
-- `home_used_car_fab_entry`
-  - `target_type=button`
-  - `surface=fab_menu`
-  - 추가 속성: `action_icon=car`
-- `home_community_fab_entry`
-  - `target_type=button`
-  - `surface=fab_menu`
-  - 추가 속성: `action_icon=community`
-- `home_story_fab_entry`
-  - `target_type=button`
-  - `surface=fab_menu`
-  - 추가 속성: `action_icon=story`
-- `home_bundle_sale_fab_entry`
-  - `target_type=button`
-  - `surface=fab_menu`
-  - 추가 속성: `action_icon=bundle`
-- `home_sell_fab_start_sell`
-  - `target_type=button`
-  - `surface=fab_menu`
-  - 추가 속성: `action_icon=sell`
-- `home_item_card`
-  - `target_type=card`
-  - `surface=feed`
-  - 추가 속성: `category`, `is_promoted`
+- [components/analytics-provider.tsx](/Users/unsnruu/Projects/dev/2026/Karrot/components/analytics-provider.tsx:1)
+- [features/home/screens/sell-photo-selection-screen.tsx](/Users/unsnruu/Projects/dev/2026/Karrot/features/home/screens/sell-photo-selection-screen.tsx:1)
+- [features/home/screens/sell-write-screen.tsx](/Users/unsnruu/Projects/dev/2026/Karrot/features/home/screens/sell-write-screen.tsx:1)
+- [features/home/screens/sell-price-screen.tsx](/Users/unsnruu/Projects/dev/2026/Karrot/features/home/screens/sell-price-screen.tsx:1)
+- [features/home/screens/sell-location-screen.tsx](/Users/unsnruu/Projects/dev/2026/Karrot/features/home/screens/sell-location-screen.tsx:1)
+- [features/home/screens/sell-preview-screen.tsx](/Users/unsnruu/Projects/dev/2026/Karrot/features/home/screens/sell-preview-screen.tsx:1)
+- [features/chat/screens/chat-appointment-screen.tsx](/Users/unsnruu/Projects/dev/2026/Karrot/features/chat/screens/chat-appointment-screen.tsx:1)
+- [features/home/components/item-detail-main-column.tsx](/Users/unsnruu/Projects/dev/2026/Karrot/features/home/components/item-detail-main-column.tsx:1)
+- [features/home/components/home-feed.tsx](/Users/unsnruu/Projects/dev/2026/Karrot/features/home/components/home-feed.tsx:1)
+
+기본 스키마:
+
+- `screen_name: string`
+- `path: string`
+- `query_string?: string`
+- `scroll_reached?: 25 | 50 | 75`
+
+현재 `scroll_reached`가 붙는 화면:
+
+- `home`
+- `item_detail`
+
+### `element_clicked`
+
+전송 위치:
+
+- 여러 UI 컴포넌트
+
+기본 스키마:
+
+- `screen_name: string`
+- `target_name: string`
+- `path?: string`
+- `destination_path?: string`
+- `target_type?: string`
+- `surface?: string`
+- `query_string?: string`
+- `target_id?: string`
+- `target_position?: number`
+
+현재 추가된 대표 target:
+
+- `town_map_search_input`
+- `town_map_search_history_clear`
+- `town_map_search_submit`
+- `town_map_recent_search_item`
+- `town_map_search_suggestion`
+- `town_map_search_complete_button`
+- `town_map_search_results_back_button`
+- `town_map_search_results_close_button`
+- `town_map_search_results_list_button`
+- `sell_write_submit_button`
+- `chat_quick_action_appointment`
+- `chat_appointment_complete_button`
+- `chat_appointment_place_recommendation_cta`
+- `chat_appointment_place_recommendation_callout_link`
+- `item_detail_location_header_link`
+- `item_detail_location_map_cta`
+- `item_detail_location_distance_link`
+- `item_detail_recommendation_card`
 - `home_native_ad`
-  - 사용 surface: `inline_card`, `inline_banner`, `top_carousel`
-  - 추가 속성: `ad_destination`, `ad_feature`, `experiment_name`, `experiment_surface`, `experiment_variant`
+- `home_item_card`
 
-Item Detail:
+### `element_exposed`
 
-- `item_detail_location_link`
-  - `target_type=link`
-  - `surface=content`
-  - 추가 속성: `has_meetup_address`, `item_title`, `meetup_hint`
-- `item_detail_chat_button_open_chat`
-  - `target_type=button`
-  - `surface=sticky_footer`
-  - 추가 속성: `chat_key`, `seller_name`, `town`
+전송 위치:
 
-Community:
+- [features/home/components/home-native-ad-card.tsx](/Users/unsnruu/Projects/dev/2026/Karrot/features/home/components/home-native-ad-card.tsx:1)
 
-- `community_top_tab`
-  - `target_type=tab`
-  - `surface=header`
-  - 추가 속성: `previous_tab`
-- `community_town_map_banner`
-  - `target_type=banner`
-  - `surface=meetup_banner`
+현재는 중요한 entry surface만 부착한다.
 
-Chat:
+기본 스키마:
 
-- `chat_thread_row`
-  - `target_type=list_item`
-  - `surface=thread_list`
-  - 추가 속성: `counterparty_name`, `town`
+- `screen_name: string`
+- `target_name: string`
+- `path?: string`
+- `destination_path?: string`
+- `target_type?: string`
+- `surface?: string`
+- `target_id?: string`
+- `target_position?: number`
 
-Town Map:
+현재 추가된 target:
 
-- `town_map_category_chip`
-  - `target_type=chip`
-  - `surface=header`
-  - 추가 속성: `category_label`
-- `town_map_business_pin`
-  - `target_type=pin`
-  - `surface=map`
-  - 추가 속성: `pin_label`
-- `town_map_quick_action_card`
-  - `target_type=card`
-  - `surface=bottom_sheet`
-  - 추가 속성: `action_label`
-- `town_map_bottom_sheet_ad_button`
-  - `target_type=button`
-  - `surface=bottom_sheet`
-- `town_map_post_card`
-  - `target_type=card`
-  - `surface=bottom_sheet`
-  - 추가 속성: `business_name`
-- `town_map_business_tab`
-  - `target_type=tab`
-  - `surface=tab_bar`
-  - 추가 속성: `previous_tab`
-- `town_map_business_call_button`
-  - `target_type=button`
-  - `surface=sticky_footer`
-  - 추가 속성: `business_name`, `contact_type=call`
-- `town_map_business_chat_button`
-  - `target_type=button`
-  - `surface=sticky_footer`
-  - 추가 속성: `business_name`, `contact_type=chat`
+- `home_native_ad`
 
-### 검색 이벤트
+### `component_exposed`
 
-검색 진입과 제출은 클릭 이벤트와 별도로 해석한다.
+전송 위치:
 
-#### 기본 속성
+- 현재 라이브 화면 코드에는 없다.
+- 이전 `item_detail_nearby_business_carousel` 실험 코드는 `features/home/components/archive/` 아래에 보관되어 있다.
 
-- `screen_name`
-- `path`
-- `query_string`
-- `search_name`
-- `surface`
-- `destination_path`
-- `query`
-- `has_query`
+기본 스키마:
 
-#### 현재 구현
+- `component_name: string`
+- `screen_name: string`
+- `surface: string`
+- `path?: string`
 
-`search_opened`
+현재 추가된 component:
 
-- 위치: town map 메인 검색 진입
-- `screen_name=town_map`
-- `search_name=town_map_search_input`
-- `surface=header`
+- 없음
 
-`search_submitted`
+### `component_interacted`
 
-- 위치: town map 검색 화면
-- `screen_name=town_map_search`
-- `search_name=town_map_search_input`
-- `surface=search_screen`
-- 추가 속성: `query`, `has_query`
+전송 위치:
 
-`search_history_cleared`
+- [features/town-map/components/town-map-bottom-sheet.tsx](/Users/unsnruu/Projects/dev/2026/Karrot/features/town-map/components/town-map-bottom-sheet.tsx:1)
+- [features/town-map/components/town-map-kakao-map.tsx](/Users/unsnruu/Projects/dev/2026/Karrot/features/town-map/components/town-map-kakao-map.tsx:1)
 
-- 위치: town map 검색 화면 최근 검색 삭제
-- `screen_name=town_map_search`
-- `search_name=town_map_search_input`
-- `surface=recent_searches`
+스키마:
 
-## 실험 이벤트
+| 속성 | 타입 | 필수 | 설명 |
+| --- | --- | --- | --- |
+| `component_name` | `string` | 예 | `town_map_bottom_sheet`, `town_map_map` |
+| `interaction_type` | `string` | 예 | `scroll`, `expand`, `pan`, `zoom`, `tap` |
+| `screen_name` | `string` | 예 | 화면명 |
+| `surface` | `string` | 예 | UI 영역 |
+| `path` | `string` | 아니오 | 현재 path |
 
-실험명은 모두 `home_to_town_map_entry`로 수렴한다.
+현재 추가된 component:
 
-### `home_experiment_town_map_entered`
-홈 실험 광고를 통해 town map에 진입했을 때 전송된다.
+- `town_map_bottom_sheet`
+- `town_map_map`
 
-주요 속성:
+## 현재 해석상의 주의점
 
-- `experiment_name`
-- `experiment_surface`
-- `experiment_variant`
-- `screen_name`
-- `path`
-- `target_id`
-- `target_name`
-- `target_position`
-- `target_type`
+### 1. 검색 전용 이벤트는 현재 모두 `element_clicked`로 흡수됐다
 
-### `home_experiment_carousel_interacted`
-홈 상단 carousel이 실제로 스크롤되면 한 번 전송된다.
+`search_opened`, `search_submitted`, `search_history_cleared`는 현재 코드에서 별도 이벤트로 남아 있지 않다.
 
-주요 속성:
+### 2. 채팅 약속의 시작/완료도 전용 이벤트가 아니다
 
-- `ad_count`
-- `experiment_name`
-- `experiment_surface=top_carousel`
-- `experiment_variant`
+- 약속 화면 진입은 `screen_viewed(chat_appointment)`로 본다.
+- 약속 완료는 `element_clicked(chat_appointment_complete_button)`로 본다.
 
-### `town_map_landing_engaged`
-실험 광고를 타고 들어온 town map 랜딩에서 첫 engagement가 발생하면 한 번 전송된다.
+### 3. 노출 이벤트는 다시 도입됐지만 전면 부착하지 않는다
 
-주요 속성:
+`element_exposed`, `component_exposed`는 다시 살아났지만, 모든 카드/섹션에 붙이지 않는다.
 
-- `engagement_type`
-- `experiment_name`
-- `experiment_surface`
-- `experiment_variant`
-- `screen_name`
-- `path`
-- `target_id`
-- `target_name`
-- `target_position`
-- `target_type`
+현재 기준은 아래와 같다.
 
-`engagement_type` 값:
+- 실험 판단에 직접 쓰이는 surface인가
+- 클릭률/진입율의 분모로 삼을 가치가 있는가
+- 노이즈 대비 해석 이득이 충분한가
 
-- `dwell`
-- `scroll`
-- `tap`
+즉 현재는 `home_native_ad`처럼 중요한 지점만 선별적으로 추적한다.
 
-## 도메인 특화 이벤트
+### 4. scroll depth도 별도 이벤트가 아니라 `screen_viewed` 속성으로 본다
 
-### Home
+기존의 `*_scroll_depth_reached` 계열 이벤트는 다시 만들지 않는다.
 
-- `home_feed_load_failed`
-  - 속성: `category`, `offset`, `error_message`
+대신 일부 긴 상세 화면에서만 아래처럼 해석한다.
 
-### Sell flow
+- 상세 진입: `screen_viewed(screen_name=item_detail)`
+- 절반 이상 읽음: `screen_viewed(screen_name=item_detail, scroll_reached=50)`
+- 거의 끝까지 읽음: `screen_viewed(screen_name=item_detail, scroll_reached=90)`
 
-- `sell_photo_toggled`
-  - 속성: `photo_id`, `selected`, `next_selected_count`, `step_name=photos`
-- `sell_form_completed`
-  - 속성: `has_location`, `photo_count`, `price_text`, `trade_type`
+현재는 `home`, `item_detail` 두 화면에만 적용한다.
 
-### Chat appointment
+### 5. 상품 상세 근처 업체 carousel 실험은 종료됐다
 
-- `chat_appointment_invalid_state`
-  - 속성: `has_item`, `has_seller`, `source=chat_appointment`
-- `chat_appointment_started`
-  - 속성: `item_id`, `seller_name`, `thread_id`
-- `chat_appointment_completed`
-  - 속성: `has_location`, `has_reminder`, `item_id`, `scheduled_date`, `scheduled_time`, `seller_name`, `thread_id`
-- `element_clicked(target_name=chat_quick_action_appointment)`
-  - 채팅 상세에서 약속잡기 진입 클릭
-- `element_clicked(target_name=chat_appointment_complete_button)`
-  - 약속 잡기 완료 클릭
-- `element_clicked(target_name=chat_appointment_place_recommendation_cta)`
-  - `control` variant에서 약속 완료 후 주변 장소 CTA 클릭
-- `element_clicked(target_name=chat_appointment_place_recommendation_callout_link)`
-  - `map_flow_callout` variant에서 약속 완료 후 Callout 안의 `동네지도 바로가기` 링크 클릭
-
-### Town Map
-
-- `town_map_bottom_sheet_expanded`
-  - 속성: `source=town_map_bottom_sheet`
-
-## 실제 surface 목록
-
-- `bottom_navigation`
-- `bottom_sheet`
-- `content`
-- `fab_menu`
-- `feed`
-- `floating_action_button`
-- `header`
-- `inline_banner`
-- `inline_card`
-- `map`
-- `meetup_banner`
-- `recent_searches`
-- `search_screen`
-- `sticky_footer`
-- `tab_bar`
-- `thread_list`
-- `top_carousel`
-
-## 정리
-현재 코드는 아래 원칙으로 이해하면 된다.
-
-1. 화면은 `screen_viewed`
-2. 클릭은 `element_clicked`
-3. 검색은 `search_*`
-4. 진짜 별도 의미가 있는 퍼널, 완료, 실패만 개별 이벤트
-
-앞으로 taxonomy 복잡도를 줄이려면 새 이벤트를 계속 만들기보다 아래 두 축을 먼저 관리하는 것이 맞다.
-
-- `target_name` 추가 규칙
-- `surface` 추가 규칙
+이전 `item_detail_nearby_business_entry` 실험에서 쓰던 carousel UI와 관련 이벤트는 현재 라이브 화면에서 전송되지 않는다.
+관련 코드는 `features/home/components/archive/` 아래에 보관한다.
