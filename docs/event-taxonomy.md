@@ -152,16 +152,16 @@ Amplitude 초기화는 [lib/analytics/amplitude.ts](/Users/unsnruu/Projects/dev/
 | 속성 | 타입 | 필수 | 설명 |
 | --- | --- | --- | --- |
 | `user_id` | `string` | 예 | 앱 초기화 시 새로 생성되는 익명 visitor id |
-| `app_version` | `string` | 예 | 현재 앱 버전 (`package.json`, 현재 `4.0`) |
+| `app_version` | `string` | 예 | 현재 앱 버전 (`package.json`, 현재 `5.0`) |
 | `experiment_id` | `string` | 예 | 현재 활성 실험 id |
 | `iteration` | `string` | 예 | 현재 실험 iteration |
 | `variant` | `string` | 예 | 현재 실험 variant |
 
-현재 활성 실험은 아래 하나다.
+현재 활성 실험은 없다. 이벤트 속성은 아래 기본값을 사용한다.
 
-- `experiment_id=item_location_map_chat_callout`
+- `experiment_id=none`
 - `iteration=1`
-- `variant=control | map_flow_callout`
+- `variant=none`
 
 ## 공통 helper 스키마
 
@@ -178,7 +178,8 @@ scroll milestone helper: [lib/analytics/screen-scroll.ts](/Users/unsnruu/Project
 | `scroll_reached` | `number` | 아니오 | 일부 화면에서만 붙는 scroll milestone 퍼센트 |
 | `query` | `string` | 아니오 | 동네지도 검색 결과 화면의 검색어 |
 | `entry_source` | `string` | 아니오 | 동네지도 검색 결과 화면 진입 출처 |
-| `return_to` | `string` | 아니오 | 동네지도 검색 결과 화면의 뒤로가기 목적지 |
+| `return_to` | `string` | 아니오 | 동네지도 검색 결과 화면 또는 developing 화면의 뒤로가기 목적지 |
+| `feature_label` | `string` | 아니오 | developing 화면에서 안내하는 미구현 기능명 |
 
 운영 원칙:
 
@@ -312,6 +313,11 @@ scroll milestone helper: [lib/analytics/screen-scroll.ts](/Users/unsnruu/Project
 - `item_detail_recommendation_card`
 - `home_native_ad`
 - `home_item_card`
+- `community_write_fab_open_sheet`
+- `community_write_poll_entry`
+- `community_write_town_entry`
+- `community_write_meetup_entry`
+- `community_write_cafe_entry`
 
 ### `element_exposed`
 

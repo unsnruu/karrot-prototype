@@ -9,6 +9,7 @@ import { buildElementClickedEventProperties } from "@/lib/analytics/element-clic
 import { buildPendingFeatureHref } from "@/lib/tab-navigation";
 
 type CommunityWriteAction = {
+  id: string;
   label: string;
   description?: string;
   featureLabel: string;
@@ -21,6 +22,7 @@ type CommunityWriteAction = {
 
 const COMMUNITY_WRITE_ACTIONS: CommunityWriteAction[] = [
   {
+    id: "poll",
     label: "이웃에게 투표받기",
     description: "이웃들의 의견이 궁금할 땐, 투표로 물어보세요",
     featureLabel: "커뮤니티 투표 글쓰기",
@@ -30,6 +32,7 @@ const COMMUNITY_WRITE_ACTIONS: CommunityWriteAction[] = [
     targetName: "community_write_poll_entry",
   },
   {
+    id: "town",
     label: "동네생활 글쓰기",
     featureLabel: "동네생활 글쓰기",
     icon: Pencil,
@@ -38,6 +41,7 @@ const COMMUNITY_WRITE_ACTIONS: CommunityWriteAction[] = [
     targetName: "community_write_town_entry",
   },
   {
+    id: "meetup",
     label: "모임 만들기",
     description: "동네 이웃과 오프라인 모임을 시작해보세요",
     featureLabel: "모임 만들기",
@@ -48,6 +52,7 @@ const COMMUNITY_WRITE_ACTIONS: CommunityWriteAction[] = [
     sectionLabel: "모임·카페",
   },
   {
+    id: "cafe",
     label: "온라인 카페 만들기",
     description: "관심사를 주제로 온라인에서 소통해요",
     featureLabel: "온라인 카페 만들기",
@@ -167,7 +172,7 @@ export function CommunityWriteFab() {
           </div>
 
           <div className="space-y-5">
-            {COMMUNITY_WRITE_ACTIONS.map((action) => {
+            {COMMUNITY_WRITE_ACTIONS.map((action, index) => {
               const Icon = action.icon;
               const destinationPath = buildPendingFeatureHref(currentHref, action.featureLabel);
 
@@ -196,6 +201,8 @@ export function CommunityWriteFab() {
                           path: pathname,
                           queryString: searchParams.toString(),
                           destinationPath,
+                          targetId: action.id,
+                          targetPosition: index + 1,
                         }),
                       );
                       setIsSheetOpen(false);

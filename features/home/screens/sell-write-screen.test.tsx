@@ -85,10 +85,10 @@ describe("SellWriteScreen", () => {
         expect.objectContaining({
           path: "/home/sell/write",
           screen_name: "sell_write",
-          app_version: "4.0",
-          experiment_id: "item_location_map_chat_callout",
+          app_version: "5.0",
+          experiment_id: "none",
           iteration: "1",
-          variant: "control",
+          variant: "none",
         }),
       );
     });

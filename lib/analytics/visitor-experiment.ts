@@ -5,12 +5,15 @@ import packageJson from "@/package.json";
 const LEGACY_VISITOR_EXPERIMENT_STORAGE_KEY = "karrot_visitor_experiment_context";
 const PREVIOUS_VISITOR_EXPERIMENT_STORAGE_KEY = "karrot_visitor_experiment_context.v2";
 const PREVIOUS_VISITOR_EXPERIMENT_STORAGE_KEY_V3 = "karrot_visitor_experiment_context.v3";
-const VISITOR_EXPERIMENT_STORAGE_KEY = "karrot_visitor_experiment_context.v4";
+const PREVIOUS_VISITOR_EXPERIMENT_STORAGE_KEY_V4 = "karrot_visitor_experiment_context.v4";
+const VISITOR_EXPERIMENT_STORAGE_KEY = "karrot_visitor_experiment_context.v5";
 
-export const ITEM_LOCATION_MAP_CHAT_CALLOUT_EXPERIMENT_ID = "item_location_map_chat_callout";
-export const ITEM_LOCATION_MAP_CHAT_CALLOUT_ITERATION = "1";
+export const ACTIVE_EXPERIMENT_ID = "none";
+export const ACTIVE_EXPERIMENT_ITERATION = "1";
+export const ACTIVE_EXPERIMENT_VARIANT = "none";
 
 export type ItemLocationMapChatCalloutVariant = "control" | "map_flow_callout";
+type VisitorExperimentVariant = typeof ACTIVE_EXPERIMENT_VARIANT;
 
 export type VisitorExperimentContext = {
   userId: string;
@@ -18,13 +21,13 @@ export type VisitorExperimentContext = {
   experiment: {
     id: string;
     iteration: string;
-    variant: ItemLocationMapChatCalloutVariant;
+    variant: VisitorExperimentVariant;
   };
 };
 
 let visitorExperimentContext: VisitorExperimentContext | null = null;
 
-function getDevVariantOverride(): ItemLocationMapChatCalloutVariant | null {
+function getLegacyUiVariantOverride(): ItemLocationMapChatCalloutVariant | null {
   if (process.env.NODE_ENV === "production" || typeof window === "undefined") {
     return null;
   }
@@ -46,50 +49,20 @@ function createAnonymousVisitorId() {
   return `anon_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
 }
 
-function pickItemLocationMapChatCalloutVariant(): ItemLocationMapChatCalloutVariant {
-  const variantOverride = getDevVariantOverride();
-
-  if (variantOverride) {
-    return variantOverride;
-  }
-
-  const bucket = Math.random();
-
-  if (bucket < 1 / 2) {
-    return "control";
-  }
-
-  return "map_flow_callout";
-}
-
 function createVisitorExperimentContext(): VisitorExperimentContext {
   return {
     userId: createAnonymousVisitorId(),
     appVersion: packageJson.version,
     experiment: {
-      id: ITEM_LOCATION_MAP_CHAT_CALLOUT_EXPERIMENT_ID,
-      iteration: ITEM_LOCATION_MAP_CHAT_CALLOUT_ITERATION,
-      variant: pickItemLocationMapChatCalloutVariant(),
+      id: ACTIVE_EXPERIMENT_ID,
+      iteration: ACTIVE_EXPERIMENT_ITERATION,
+      variant: ACTIVE_EXPERIMENT_VARIANT,
     },
   };
 }
 
 export function ensureVisitorExperimentContext() {
   if (visitorExperimentContext) {
-    const variantOverride = getDevVariantOverride();
-
-    if (variantOverride && visitorExperimentContext.experiment.variant !== variantOverride) {
-      visitorExperimentContext = {
-        ...visitorExperimentContext,
-        experiment: {
-          ...visitorExperimentContext.experiment,
-          variant: variantOverride,
-        },
-      };
-
-      window.localStorage.setItem(VISITOR_EXPERIMENT_STORAGE_KEY, JSON.stringify(visitorExperimentContext));
-    }
-
     return visitorExperimentContext;
   }
 
@@ -100,6 +73,7 @@ export function ensureVisitorExperimentContext() {
   window.localStorage.removeItem(LEGACY_VISITOR_EXPERIMENT_STORAGE_KEY);
   window.localStorage.removeItem(PREVIOUS_VISITOR_EXPERIMENT_STORAGE_KEY);
   window.localStorage.removeItem(PREVIOUS_VISITOR_EXPERIMENT_STORAGE_KEY_V3);
+  window.localStorage.removeItem(PREVIOUS_VISITOR_EXPERIMENT_STORAGE_KEY_V4);
 
   const nextContext = createVisitorExperimentContext();
   window.localStorage.setItem(VISITOR_EXPERIMENT_STORAGE_KEY, JSON.stringify(nextContext));
@@ -125,7 +99,7 @@ export function getEventExperimentProperties() {
 }
 
 export function getItemLocationMapChatCalloutVariant() {
-  return getDevVariantOverride() ?? ensureVisitorExperimentContext()?.experiment.variant;
+  return getLegacyUiVariantOverride() ?? "control";
 }
 
 export function resetVisitorExperimentContextForTests() {
@@ -135,6 +109,7 @@ export function resetVisitorExperimentContextForTests() {
     window.localStorage.removeItem(LEGACY_VISITOR_EXPERIMENT_STORAGE_KEY);
     window.localStorage.removeItem(PREVIOUS_VISITOR_EXPERIMENT_STORAGE_KEY);
     window.localStorage.removeItem(PREVIOUS_VISITOR_EXPERIMENT_STORAGE_KEY_V3);
+    window.localStorage.removeItem(PREVIOUS_VISITOR_EXPERIMENT_STORAGE_KEY_V4);
     window.localStorage.removeItem(VISITOR_EXPERIMENT_STORAGE_KEY);
   }
 }

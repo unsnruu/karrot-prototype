@@ -125,7 +125,8 @@ export function buildScreenViewedEventProperties({
     screen_name: getScreenName(pathname),
     query: pathname === "/town-map/search/results" ? params.get("query") ?? undefined : undefined,
     entry_source: pathname === "/town-map/search/results" ? params.get("entrySource") ?? undefined : undefined,
-    return_to: pathname === "/town-map/search/results" ? params.get("returnTo") ?? undefined : undefined,
+    return_to: pathname === "/town-map/search/results" || pathname === "/developing" ? params.get("returnTo") ?? undefined : undefined,
+    feature_label: pathname === "/developing" ? params.get("feature") ?? undefined : undefined,
   });
 }
 
