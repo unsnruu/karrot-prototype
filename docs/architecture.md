@@ -19,7 +19,6 @@
 
 제품 배경은 `docs/product-context.md`를 참고합니다.
 구현 순서와 현재 우선순위는 `docs/roadmap.md`를 참고합니다.
-데이터, 반응형, 변경 범위와 관련된 안정적인 구현 규칙은 `docs/implementation-principles.md`를 참고합니다.
 
 ## 사용 범위
 이 문서는 아래 상황에서 참고합니다.
