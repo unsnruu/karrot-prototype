@@ -6,17 +6,6 @@ export const VISITOR_EXPERIMENT_COOKIE_KEY = "karrot_visitor_experiment_context_
 export const ACTIVE_EXPERIMENT_ID = "community_post_list_preview";
 export const ACTIVE_EXPERIMENT_ITERATION = "1";
 export const ACTIVE_EXPERIMENT_VARIANTS = ["one_line_content", "two_line_content", "ai_summary", "full_content"] as const;
-export const COMMUNITY_EXPERIMENT_ENTRY_VARIANTS = {
-  "/community-control": "one_line_content",
-  "/community-one-line": "one_line_content",
-  "/community-a": "one_line_content",
-  "/community-two-line": "two_line_content",
-  "/community-b": "two_line_content",
-  "/community-ai-summary": "ai_summary",
-  "/community-c": "ai_summary",
-  "/community-full-content": "full_content",
-  "/community-d": "full_content",
-} as const satisfies Record<string, VisitorExperimentVariant>;
 
 export type VisitorExperimentVariant = (typeof ACTIVE_EXPERIMENT_VARIANTS)[number];
 
