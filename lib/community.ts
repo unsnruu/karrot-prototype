@@ -1,4 +1,5 @@
 import { LOCAL_FALLBACK_AVATAR_SRC, LOCAL_FALLBACK_IMAGE_SRC } from "@/lib/fallback-images";
+import { buildSeedCommunityComments } from "@/lib/community-seed-comments";
 
 export type CommunityFilter = {
   id: string;
@@ -441,7 +442,7 @@ function buildDefaultCommunityPostDetail(post: CommunityPost): CommunityPostDeta
     },
     bodyParagraphs: [post.excerpt, "이 글의 상세 내용은 이후 Supabase 데이터와 연결되면 더 풍부하게 보여줄 예정입니다."],
     viewSummary: `${post.views}명이 봤어요`,
-    commentsList: [],
+    commentsList: buildSeedCommunityComments(post),
   };
 }
 
@@ -458,7 +459,7 @@ function buildFallbackCommunityPostDetail(
     ...override,
     author: override?.author ?? baseDetail.author,
     bodyParagraphs: override?.bodyParagraphs ?? baseDetail.bodyParagraphs,
-    commentsList: communityCommentThreadsByPostId[post.id] ?? [],
+    commentsList: communityCommentThreadsByPostId[post.id] ?? baseDetail.commentsList,
   };
 }
 

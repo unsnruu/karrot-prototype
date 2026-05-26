@@ -6,9 +6,11 @@ import {
   communityPosts,
   getFallbackCommunityPostDetail,
   getFallbackCommunityRecommendations,
+  type CommunityComment,
   type CommunityPost,
   type CommunityPostDetail,
 } from "@/lib/community";
+import { buildSeedCommunityComments } from "@/lib/community-seed-comments";
 import { createServerSupabaseClient, hasSupabaseEnv } from "@/lib/supabase/server";
 import {
   isRecord,
@@ -25,6 +27,8 @@ import { buildSupabaseBackedImageSrc } from "@/lib/supabase/storage";
 
 type CommunityPostRow = {
   id: string;
+  author_id: string;
+  author: CommunityPostAuthorRow | null;
   topic: string;
   title: string;
   summary: string | null;
@@ -35,6 +39,13 @@ type CommunityPostRow = {
   views_count: number;
   likes_count: number | null;
   image_path: string | null;
+  seed_comments: unknown;
+};
+
+type CommunityPostAuthorRow = {
+  name: string;
+  avatar_url: string | null;
+  town: string;
 };
 
 // ─── Row parsers ──────────────────────────────────────────────────────────────
@@ -46,6 +57,8 @@ function parseCommunityPostRow(value: unknown, scope: string): CommunityPostRow 
 
   return {
     id: readString(value, "id", scope),
+    author_id: readString(value, "author_id", scope),
+    author: parseCommunityPostAuthorRow(value.author, `${scope}.author`),
     topic: readString(value, "topic", scope),
     title: readString(value, "title", scope),
     summary: readNullableString(value, "summary", scope),
@@ -56,6 +69,23 @@ function parseCommunityPostRow(value: unknown, scope: string): CommunityPostRow 
     views_count: readNumber(value, "views_count", scope),
     likes_count: readNullableNumber(value, "likes_count", scope),
     image_path: readNullableString(value, "image_path", scope),
+    seed_comments: "seed_comments" in value ? value.seed_comments : null,
+  };
+}
+
+function parseCommunityPostAuthorRow(value: unknown, scope: string): CommunityPostAuthorRow | null {
+  if (value == null) {
+    return null;
+  }
+
+  if (!isRecord(value)) {
+    throw new Error(`[${scope}] Expected author row object or null`);
+  }
+
+  return {
+    name: readString(value, "name", scope),
+    avatar_url: readNullableString(value, "avatar_url", scope),
+    town: readString(value, "town", scope),
   };
 }
 
@@ -133,7 +163,48 @@ function buildSummary(row: CommunityPostRow) {
   return `${firstSentence.slice(0, 64).trimEnd()}…`;
 }
 
+function parseSeedComments(value: unknown, scope: string): CommunityComment[] {
+  if (value == null) {
+    return [];
+  }
+
+  if (!Array.isArray(value)) {
+    throw new Error(`[${scope}] Expected "seed_comments" to be an array or null`);
+  }
+
+  return value.map((entry, index) => {
+    const commentScope = `${scope}.seed_comments[${index}]`;
+
+    if (!isRecord(entry)) {
+      throw new Error(`[${commentScope}] Expected seed comment object`);
+    }
+
+    const id = readString(entry, "id", commentScope);
+    const authorName = readString(entry, "authorName", commentScope);
+    const metaLabel = readString(entry, "metaLabel", commentScope);
+    const body = readString(entry, "body", commentScope);
+
+    return {
+      id,
+      authorName,
+      authorAvatar: readNullableString(entry, "authorAvatar", commentScope) ?? undefined,
+      badgeLabel: readNullableString(entry, "badgeLabel", commentScope) ?? undefined,
+      metaLabel,
+      body,
+    };
+  });
+}
+
 function mapCommunityPost(row: CommunityPostRow): CommunityPost {
+  const seedComments = parseSeedComments(row.seed_comments, `community-post:${row.id}`);
+  const hasSeedComments = Array.isArray(row.seed_comments);
+  const fallbackSeedCommentCount = buildSeedCommunityComments({
+    id: row.id,
+    title: row.title,
+    topic: row.topic,
+    town: row.town,
+  }).length;
+
   return {
     id: row.id,
     topic: row.topic,
@@ -144,7 +215,7 @@ function mapCommunityPost(row: CommunityPostRow): CommunityPost {
     town: row.town,
     postedAt: formatRelativeTimeLabel(row.published_at ?? row.created_at),
     views: formatViewsLabel(row.views_count),
-    comments: 0,
+    comments: hasSeedComments ? seedComments.length : fallbackSeedCommentCount,
     likes: row.likes_count ?? undefined,
     image: buildCommunityImageSrc(row.image_path),
   };
@@ -152,6 +223,8 @@ function mapCommunityPost(row: CommunityPostRow): CommunityPost {
 
 function mapCommunityPostDetail(row: CommunityPostRow): CommunityPostDetail {
   const post = mapCommunityPost(row);
+  const seedComments = parseSeedComments(row.seed_comments, `community-detail:${row.id}`);
+  const hasSeedComments = Array.isArray(row.seed_comments);
   const normalizedBody = row.body.trim();
   const bodyParagraphs = normalizedBody
     .split(/\n{2,}/)
@@ -162,13 +235,13 @@ function mapCommunityPostDetail(row: CommunityPostRow): CommunityPostDetail {
     ...post,
     badgeLabel: "동네친구",
     author: {
-      name: "당근 이웃",
-      avatar: post.image ?? LOCAL_FALLBACK_AVATAR_SRC,
-      activityLabel: `${row.town} 인증 · ${post.postedAt}`,
+      name: row.author?.name ?? "당근 이웃",
+      avatar: row.author?.avatar_url ?? LOCAL_FALLBACK_AVATAR_SRC,
+      activityLabel: `${row.author?.town ?? row.town} 인증 · ${post.postedAt}`,
     },
     bodyParagraphs: bodyParagraphs.length ? bodyParagraphs : [post.excerpt],
     viewSummary: `${post.views}명이 봤어요`,
-    commentsList: [],
+    commentsList: hasSeedComments ? seedComments : buildSeedCommunityComments(post),
   };
 }
 
@@ -183,7 +256,7 @@ export const getCommunityPosts = cache(async (): Promise<CommunityPost[]> => {
     const supabase = createServerSupabaseClient();
     const { data, error } = await supabase
       .from("community_posts")
-      .select("*")
+      .select("*, author:users!community_posts_author_id_fkey(name, avatar_url, town)")
       .order("published_at", { ascending: false, nullsFirst: false })
       .order("created_at", { ascending: false });
 
@@ -205,7 +278,11 @@ export const getCommunityPostDetail = cache(async (postId: string): Promise<Comm
 
   try {
     const supabase = createServerSupabaseClient();
-    const { data, error } = await supabase.from("community_posts").select("*").eq("id", postId).maybeSingle();
+    const { data, error } = await supabase
+      .from("community_posts")
+      .select("*, author:users!community_posts_author_id_fkey(name, avatar_url, town)")
+      .eq("id", postId)
+      .maybeSingle();
 
     if (error) {
       throw error;
