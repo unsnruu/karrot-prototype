@@ -1,6 +1,11 @@
+"use client";
+
 import { EllipsisVertical, Reply, ThumbsUp } from "lucide-react";
+import { usePathname } from "next/navigation";
+import { useState } from "react";
 import { PendingFeatureLink } from "@/components/ui/pending-feature-link";
 import { UserAvatar } from "@/components/ui/user-avatar";
+import { trackElementClicked } from "@/lib/analytics/element-click";
 import { cn } from "@/lib/utils";
 import { type CommunityComment } from "@/lib/community";
 
@@ -11,6 +16,10 @@ export function CommunityCommentThread({
   comment: CommunityComment;
   isReply?: boolean;
 }) {
+  const pathname = usePathname();
+  const [hasLikedComment, setHasLikedComment] = useState(false);
+  const likeCount = hasLikedComment ? 1 : 0;
+
   return (
     <div className={cn("flex gap-3", isReply ? "pl-4" : "")}>
       <UserAvatar
@@ -53,22 +62,26 @@ export function CommunityCommentThread({
         <p className="mt-2 whitespace-pre-line text-sm leading-5 tracking-[-0.015em] text-[#0a0a0a]">{comment.body}</p>
 
         <div className="mt-3 flex items-center gap-4 text-sm font-medium text-[#6b7280]">
-          <PendingFeatureLink
-            className="inline-flex items-center gap-1"
-            featureLabel="댓글 좋아요"
-            returnTo="/community"
-            tracking={{
-              screenName: "community_post_detail",
-              targetType: "button",
-              targetName: "community_comment_like_button",
-              surface: "comment_thread",
-              path: "/community",
-              targetId: comment.id,
+          <button
+            aria-pressed={hasLikedComment}
+            className={cn("inline-flex items-center gap-1", hasLikedComment ? "text-[#ff6f0f]" : "text-[#6b7280]")}
+            onClick={() => {
+              setHasLikedComment((current) => !current);
+              trackElementClicked({
+                screenName: "community_post_detail",
+                targetType: "button",
+                targetName: "community_comment_like_button",
+                surface: "comment_thread",
+                path: pathname,
+                targetId: comment.id,
+              });
             }}
+            type="button"
           >
             <ThumbsUp aria-hidden="true" className="h-4 w-4" strokeWidth={1.8} />
             좋아요
-          </PendingFeatureLink>
+            {likeCount > 0 ? <span className="ml-0.5">{likeCount}</span> : null}
+          </button>
           <PendingFeatureLink
             className="inline-flex items-center gap-1"
             featureLabel="답글 작성하기"
