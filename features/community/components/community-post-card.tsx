@@ -2,10 +2,9 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
 import { AppImage } from "@/components/ui/app-image";
 import { trackElementClicked } from "@/lib/analytics/element-click";
-import { getVisitorExperimentVariant, type VisitorExperimentVariant } from "@/lib/analytics/visitor-experiment";
+import { type VisitorExperimentVariant } from "@/lib/analytics/experiment-assignment";
 import { type CommunityPost } from "@/lib/community";
 
 const iconChat = "/icons/chat.svg";
@@ -38,14 +37,15 @@ function getPreviewContent(post: CommunityPost, variant: VisitorExperimentVarian
   };
 }
 
-export function CommunityPostCard({ post }: { post: CommunityPost }) {
+export function CommunityPostCard({
+  post,
+  experimentVariant,
+}: {
+  post: CommunityPost;
+  experimentVariant: VisitorExperimentVariant;
+}) {
   const pathname = usePathname();
-  const [experimentVariant, setExperimentVariant] = useState<VisitorExperimentVariant>("one_line_content");
   const previewContent = getPreviewContent(post, experimentVariant);
-
-  useEffect(() => {
-    setExperimentVariant(getVisitorExperimentVariant());
-  }, []);
 
   return (
     <article className="border-b border-[#eceef2] py-4">

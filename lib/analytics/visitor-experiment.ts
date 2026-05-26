@@ -1,6 +1,17 @@
 "use client";
 
-import packageJson from "@/package.json";
+import {
+  ACTIVE_EXPERIMENT_ID,
+  ACTIVE_EXPERIMENT_ITERATION,
+  ACTIVE_EXPERIMENT_VARIANTS,
+  createVisitorExperimentContext,
+  parseVisitorExperimentContext,
+  pickVisitorExperimentVariant,
+  VISITOR_EXPERIMENT_COOKIE_KEY,
+  VISITOR_EXPERIMENT_STORAGE_KEY,
+  type VisitorExperimentContext,
+  type VisitorExperimentVariant,
+} from "@/lib/analytics/experiment-assignment";
 
 const LEGACY_VISITOR_EXPERIMENT_STORAGE_KEY = "karrot_visitor_experiment_context";
 const PREVIOUS_VISITOR_EXPERIMENT_STORAGE_KEY = "karrot_visitor_experiment_context.v2";
@@ -8,100 +19,30 @@ const PREVIOUS_VISITOR_EXPERIMENT_STORAGE_KEY_V3 = "karrot_visitor_experiment_co
 const PREVIOUS_VISITOR_EXPERIMENT_STORAGE_KEY_V4 = "karrot_visitor_experiment_context.v4";
 const PREVIOUS_VISITOR_EXPERIMENT_STORAGE_KEY_V5 = "karrot_visitor_experiment_context.v5";
 const PREVIOUS_VISITOR_EXPERIMENT_STORAGE_KEY_V6 = "karrot_visitor_experiment_context.v6";
-const VISITOR_EXPERIMENT_STORAGE_KEY = "karrot_visitor_experiment_context.v7";
-
-export const ACTIVE_EXPERIMENT_ID = "community_post_list_preview";
-export const ACTIVE_EXPERIMENT_ITERATION = "1";
-export const ACTIVE_EXPERIMENT_VARIANTS = ["one_line_content", "two_line_content", "ai_summary", "full_content"] as const;
-
-export type VisitorExperimentVariant = (typeof ACTIVE_EXPERIMENT_VARIANTS)[number];
-
-export type VisitorExperimentContext = {
-  userId: string;
-  appVersion: string;
-  experiment: {
-    id: string;
-    iteration: string;
-    variant: VisitorExperimentVariant;
-  };
-};
 
 let visitorExperimentContext: VisitorExperimentContext | null = null;
 
-function createAnonymousVisitorId() {
-  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
-    return crypto.randomUUID();
-  }
-
-  return `anon_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
-}
-
-function hashString(value: string) {
-  let hash = 2166136261;
-
-  for (let index = 0; index < value.length; index += 1) {
-    hash ^= value.charCodeAt(index);
-    hash = Math.imul(hash, 16777619);
-  }
-
-  return hash >>> 0;
-}
-
-function pickVisitorExperimentVariant(userId: string): VisitorExperimentVariant {
-  const variantIndex = hashString(userId) % ACTIVE_EXPERIMENT_VARIANTS.length;
-  return ACTIVE_EXPERIMENT_VARIANTS[variantIndex] ?? ACTIVE_EXPERIMENT_VARIANTS[0];
-}
-
-function createVisitorExperimentContext(): VisitorExperimentContext {
-  const userId = createAnonymousVisitorId();
-
-  return {
-    userId,
-    appVersion: packageJson.version,
-    experiment: {
-      id: ACTIVE_EXPERIMENT_ID,
-      iteration: ACTIVE_EXPERIMENT_ITERATION,
-      variant: pickVisitorExperimentVariant(userId),
-    },
-  };
-}
-
-function isVisitorExperimentVariant(value: unknown): value is VisitorExperimentVariant {
-  return typeof value === "string" && ACTIVE_EXPERIMENT_VARIANTS.includes(value as VisitorExperimentVariant);
-}
-
 function readStoredVisitorExperimentContext(): VisitorExperimentContext | null {
-  const rawContext = window.localStorage.getItem(VISITOR_EXPERIMENT_STORAGE_KEY);
+  return parseVisitorExperimentContext(window.localStorage.getItem(VISITOR_EXPERIMENT_STORAGE_KEY));
+}
 
-  if (!rawContext) {
-    return null;
-  }
+function readCookieVisitorExperimentContext(): VisitorExperimentContext | null {
+  const cookieContext = document.cookie
+    .split("; ")
+    .find((cookie) => cookie.startsWith(`${VISITOR_EXPERIMENT_COOKIE_KEY}=`))
+    ?.split("=")[1];
 
   try {
-    const parsedContext = JSON.parse(rawContext) as Partial<VisitorExperimentContext>;
-
-    if (
-      typeof parsedContext.userId !== "string" ||
-      parsedContext.appVersion !== packageJson.version ||
-      parsedContext.experiment?.id !== ACTIVE_EXPERIMENT_ID ||
-      parsedContext.experiment.iteration !== ACTIVE_EXPERIMENT_ITERATION ||
-      !isVisitorExperimentVariant(parsedContext.experiment.variant)
-    ) {
-      return null;
-    }
-
-    return {
-      userId: parsedContext.userId,
-      appVersion: parsedContext.appVersion,
-      experiment: {
-        id: parsedContext.experiment.id,
-        iteration: parsedContext.experiment.iteration,
-        variant: parsedContext.experiment.variant,
-      },
-    };
+    return parseVisitorExperimentContext(cookieContext ? decodeURIComponent(cookieContext) : null);
   } catch {
     return null;
   }
+}
+
+function persistVisitorExperimentContext(context: VisitorExperimentContext) {
+  const serializedContext = JSON.stringify(context);
+  window.localStorage.setItem(VISITOR_EXPERIMENT_STORAGE_KEY, serializedContext);
+  document.cookie = `${VISITOR_EXPERIMENT_COOKIE_KEY}=${encodeURIComponent(serializedContext)}; path=/; max-age=31536000; samesite=lax`;
 }
 
 export function ensureVisitorExperimentContext() {
@@ -120,22 +61,39 @@ export function ensureVisitorExperimentContext() {
   window.localStorage.removeItem(PREVIOUS_VISITOR_EXPERIMENT_STORAGE_KEY_V5);
   window.localStorage.removeItem(PREVIOUS_VISITOR_EXPERIMENT_STORAGE_KEY_V6);
 
+  const cookieContext = readCookieVisitorExperimentContext();
+
+  if (cookieContext) {
+    persistVisitorExperimentContext(cookieContext);
+    visitorExperimentContext = cookieContext;
+    return cookieContext;
+  }
+
   const storedContext = readStoredVisitorExperimentContext();
 
   if (storedContext) {
+    persistVisitorExperimentContext(storedContext);
     visitorExperimentContext = storedContext;
     return storedContext;
   }
 
   const nextContext = createVisitorExperimentContext();
-  window.localStorage.setItem(VISITOR_EXPERIMENT_STORAGE_KEY, JSON.stringify(nextContext));
+  persistVisitorExperimentContext(nextContext);
   visitorExperimentContext = nextContext;
 
   return nextContext;
 }
 
+export function buildVisitorExperimentContextFromSessionId(sessionId: string) {
+  return createVisitorExperimentContext(sessionId);
+}
+
 export function getVisitorExperimentVariant() {
   return ensureVisitorExperimentContext()?.experiment.variant ?? ACTIVE_EXPERIMENT_VARIANTS[0];
+}
+
+export function getVisitorExperimentVariantForSessionId(sessionId: string) {
+  return pickVisitorExperimentVariant(sessionId);
 }
 
 export function getEventExperimentProperties() {
@@ -166,5 +124,6 @@ export function resetVisitorExperimentContextForTests() {
     window.localStorage.removeItem(PREVIOUS_VISITOR_EXPERIMENT_STORAGE_KEY_V5);
     window.localStorage.removeItem(PREVIOUS_VISITOR_EXPERIMENT_STORAGE_KEY_V6);
     window.localStorage.removeItem(VISITOR_EXPERIMENT_STORAGE_KEY);
+    document.cookie = `${VISITOR_EXPERIMENT_COOKIE_KEY}=; path=/; max-age=0; samesite=lax`;
   }
 }

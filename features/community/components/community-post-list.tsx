@@ -3,17 +3,20 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ListEmptyState, ListSection } from "@/components/ui/list-section";
 import { CommunityPostCard } from "@/features/community/components/community-post-card";
+import { type VisitorExperimentVariant } from "@/lib/analytics/experiment-assignment";
 import { type CommunityPost } from "@/lib/community";
 
 const COMMUNITY_POST_PAGE_SIZE = 80;
 
 type CommunityPostListProps = {
   posts: CommunityPost[];
+  experimentVariant: VisitorExperimentVariant;
   emptyMessage?: string;
 };
 
 export function CommunityPostList({
   posts,
+  experimentVariant,
   emptyMessage = "게시글이 아직 없어요.",
 }: CommunityPostListProps) {
   const [visibleCount, setVisibleCount] = useState(COMMUNITY_POST_PAGE_SIZE);
@@ -66,7 +69,7 @@ export function CommunityPostList({
   return (
     <ListSection itemsClassName="border-t border-[#eceef2]">
       {visiblePosts.map((post) => (
-        <CommunityPostCard key={post.id} post={post} />
+        <CommunityPostCard experimentVariant={experimentVariant} key={post.id} post={post} />
       ))}
       {hasMore ? <div aria-hidden="true" className="h-12" ref={sentinelRef} /> : null}
     </ListSection>

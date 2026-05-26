@@ -1,4 +1,10 @@
+import { cookies } from "next/headers";
 import { CommunityScreen } from "@/features/community/screens/community-screen";
+import {
+  createVisitorExperimentContext,
+  parseVisitorExperimentContext,
+  VISITOR_EXPERIMENT_COOKIE_KEY,
+} from "@/lib/analytics/experiment-assignment";
 import { cafePosts, communityFilters, communityMeetups, type CommunityPost, type CommunityTabKey, type CommunityTopicFilterKey } from "@/lib/community";
 import { getCommunityPosts } from "@/lib/community-data";
 
@@ -39,15 +45,32 @@ function filterPostsByTopic(posts: CommunityPost[], selectedTopic: CommunityTopi
   return posts.filter((post) => post.topic === selectedFilter.topic);
 }
 
+async function getServerVisitorExperimentContext() {
+  const cookieStore = await cookies();
+  const rawContext = cookieStore.get(VISITOR_EXPERIMENT_COOKIE_KEY)?.value;
+
+  if (!rawContext) {
+    return createVisitorExperimentContext();
+  }
+
+  try {
+    return parseVisitorExperimentContext(rawContext) ?? parseVisitorExperimentContext(decodeURIComponent(rawContext)) ?? createVisitorExperimentContext();
+  } catch {
+    return createVisitorExperimentContext();
+  }
+}
+
 export default async function CommunityPage({ searchParams }: CommunityPageProps) {
   const resolvedSearchParams = (await searchParams) ?? {};
   const selectedTab = resolveCommunityTab(resolvedSearchParams.tab);
   const selectedTopic = resolveCommunityTopicFilter(resolvedSearchParams.topic);
+  const visitorExperimentContext = await getServerVisitorExperimentContext();
   const posts = filterPostsByTopic(await getCommunityPosts(), selectedTopic);
 
   return (
     <CommunityScreen
       cafePosts={cafePosts}
+      experimentVariant={visitorExperimentContext.experiment.variant}
       meetups={communityMeetups}
       posts={posts}
       selectedTab={selectedTab}

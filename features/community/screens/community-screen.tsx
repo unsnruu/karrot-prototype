@@ -4,6 +4,7 @@ import { CommunityHeader } from "@/features/community/components/community-heade
 import { CommunityMeetupList } from "@/features/community/components/community-meetup-list";
 import { CommunityPostList } from "@/features/community/components/community-post-list";
 import { CommunityWriteFab } from "@/features/community/components/community-write-fab";
+import { type VisitorExperimentVariant } from "@/lib/analytics/experiment-assignment";
 import { type CafePost, type CommunityMeetup, type CommunityPost, type CommunityTabKey, type CommunityTopicFilterKey } from "@/lib/community";
 
 type CommunityScreenProps = {
@@ -12,16 +13,17 @@ type CommunityScreenProps = {
   posts: CommunityPost[];
   meetups: CommunityMeetup[];
   cafePosts: CafePost[];
+  experimentVariant: VisitorExperimentVariant;
 };
 
-export function CommunityScreen({ selectedTab, selectedTopic, posts, meetups, cafePosts }: CommunityScreenProps) {
+export function CommunityScreen({ selectedTab, selectedTopic, posts, meetups, cafePosts, experimentVariant }: CommunityScreenProps) {
   return (
     <main className="min-h-screen bg-[#f3f4f6] text-[#111827]">
       <div className="mobile-shell-wide flex min-h-screen flex-col bg-white pb-24 shadow-none">
         <CommunityHeader selectedTab={selectedTab} selectedTopic={selectedTopic} />
 
         <section className={`w-full flex-1 pb-28 ${selectedTab === "town" ? "px-4 pt-5" : ""}`}>
-          {selectedTab === "town" ? <CommunityPostList posts={posts} /> : null}
+          {selectedTab === "town" ? <CommunityPostList experimentVariant={experimentVariant} posts={posts} /> : null}
           {selectedTab === "meetup" ? <CommunityMeetupList meetups={meetups} /> : null}
           {selectedTab === "cafe" ? <CafePostList posts={cafePosts} /> : null}
         </section>
