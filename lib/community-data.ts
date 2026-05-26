@@ -27,6 +27,7 @@ type CommunityPostRow = {
   id: string;
   topic: string;
   title: string;
+  summary: string | null;
   body: string;
   town: string;
   published_at: string | null;
@@ -47,6 +48,7 @@ function parseCommunityPostRow(value: unknown, scope: string): CommunityPostRow 
     id: readString(value, "id", scope),
     topic: readString(value, "topic", scope),
     title: readString(value, "title", scope),
+    summary: readNullableString(value, "summary", scope),
     body: readString(value, "body", scope),
     town: readString(value, "town", scope),
     published_at: readNullableString(value, "published_at", scope),
@@ -98,11 +100,37 @@ function buildCommunityImageSrc(imagePath: string | null) {
 
 function buildExcerpt(body: string) {
   const normalized = body.replace(/\s+/g, " ").trim();
-  if (normalized.length <= 88) {
+  if (normalized.length <= 54) {
     return normalized;
   }
 
-  return `${normalized.slice(0, 88).trimEnd()}…`;
+  return `${normalized.slice(0, 54).trimEnd()}…`;
+}
+
+function buildBodyPreview(body: string) {
+  const normalized = body.replace(/\s+/g, " ").trim();
+  if (normalized.length <= 220) {
+    return normalized;
+  }
+
+  return `${normalized.slice(0, 220).trimEnd()}…`;
+}
+
+function buildSummary(row: CommunityPostRow) {
+  if (row.summary?.trim()) {
+    return row.summary.trim();
+  }
+
+  const firstSentence = row.body
+    .replace(/\s+/g, " ")
+    .trim()
+    .split(/(?<=[.!?。！？])\s+/)[0];
+
+  if (firstSentence.length <= 64) {
+    return firstSentence;
+  }
+
+  return `${firstSentence.slice(0, 64).trimEnd()}…`;
 }
 
 function mapCommunityPost(row: CommunityPostRow): CommunityPost {
@@ -111,6 +139,8 @@ function mapCommunityPost(row: CommunityPostRow): CommunityPost {
     topic: row.topic,
     title: row.title,
     excerpt: buildExcerpt(row.body),
+    summary: buildSummary(row),
+    bodyPreview: buildBodyPreview(row.body),
     town: row.town,
     postedAt: formatRelativeTimeLabel(row.published_at ?? row.created_at),
     views: formatViewsLabel(row.views_count),

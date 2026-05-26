@@ -22,7 +22,7 @@ function resolveCommunityTab(tab?: string | string[]): CommunityTabKey {
 function resolveCommunityTopicFilter(topic?: string | string[]): CommunityTopicFilterKey {
   const value = Array.isArray(topic) ? topic[0] : topic;
 
-  if (value === "general" || value === "town-scene" || value === "story") {
+  if (value && communityFilters.some((filter) => filter.id === value)) {
     return value;
   }
 

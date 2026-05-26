@@ -20,6 +20,11 @@ const nextConfig: NextConfig = {
         hostname: "www.figma.com",
         pathname: "/api/mcp/asset/**",
       },
+      {
+        protocol: "https",
+        hostname: "community-api-cdn.kr.karrotmarket.com",
+        pathname: "/v1/resource/images/load/**",
+      },
       ...(supabaseHostname
         ? [
             {

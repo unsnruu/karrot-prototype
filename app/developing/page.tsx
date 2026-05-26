@@ -14,7 +14,7 @@ export default async function DevelopingPage({
 
   return (
     <DevelopmentPendingScreen
-      fallbackHref={resolveReturnHref(rawReturnTo, "/home")}
+      fallbackHref={resolveReturnHref(rawReturnTo, "/community")}
       featureLabel={rawFeature?.trim() || "이 기능"}
     />
   );

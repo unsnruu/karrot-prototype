@@ -7,7 +7,7 @@ export type CommunityFilter = {
 };
 
 export type CommunityTabKey = "town" | "meetup" | "cafe";
-export type CommunityTopicFilterKey = "all" | "general" | "town-scene" | "story";
+export type CommunityTopicFilterKey = string;
 
 export type CommunityTopTab = {
   key: CommunityTabKey;
@@ -19,6 +19,8 @@ export type CommunityPost = {
   topic: string;
   title: string;
   excerpt: string;
+  summary: string;
+  bodyPreview: string;
   town: string;
   postedAt: string;
   views: string;
@@ -117,8 +119,24 @@ export const communityTopTabs: CommunityTopTab[] = [
 export const communityFilters: CommunityFilter[] = [
   { id: "all", label: "전체" },
   { id: "general", label: "일반", topic: "일반" },
-  { id: "town-scene", label: "동네풍경", topic: "동네풍경" },
+  { id: "life", label: "생활/편의", topic: "생활/편의" },
+  { id: "lost", label: "분실/실종", topic: "분실/실종" },
+  { id: "friends", label: "동네친구", topic: "동네친구" },
+  { id: "hobby", label: "취미", topic: "취미" },
   { id: "story", label: "고민/사연", topic: "고민/사연" },
+  { id: "pet", label: "반려동물", topic: "반려동물" },
+  { id: "exercise", label: "운동", topic: "운동" },
+  { id: "food", label: "맛집", topic: "맛집" },
+  { id: "hospital", label: "병원/약국", topic: "병원/약국" },
+  { id: "beauty", label: "미용", topic: "미용" },
+  { id: "incident", label: "동네사건사고", topic: "동네사건사고" },
+  { id: "moving", label: "이사/시공", topic: "이사/시공" },
+  { id: "event", label: "동네행사", topic: "동네행사" },
+  { id: "parenting", label: "임신/육아", topic: "임신/육아" },
+  { id: "education", label: "교육", topic: "교육" },
+  { id: "real-estate", label: "주거/부동산", topic: "주거/부동산" },
+  { id: "town-scene", label: "동네풍경", topic: "동네풍경" },
+  { id: "poll", label: "투표", topic: "투표" },
 ];
 
 export const communityBanner = {
@@ -278,6 +296,8 @@ export const communityPosts: CommunityPost[] = [
     topic: "일반",
     title: "합정 지금 당장 만나서 산책하실 분!!!",
     excerpt: "합정역 근처예요. 심심해요… 두 명 있어요 같이 걸어요",
+    summary: "합정역 근처에서 지금 같이 산책할 이웃을 찾고 있어요",
+    bodyPreview: "합정역 근처예요. 심심해요… 두 명 있어요 같이 걸어요",
     town: "합정동",
     postedAt: "2시간 전",
     views: "182",
@@ -288,6 +308,8 @@ export const communityPosts: CommunityPost[] = [
     topic: "고민/사연",
     title: "합정역 헤어샵 전단지 이거 진짜인가요?",
     excerpt: "요즘 붙어 있는 할인 전단지인데 실제로 가본 분 있나요??",
+    summary: "합정역 근처 헤어샵 할인 전단지가 실제인지 경험담을 묻고 있어요",
+    bodyPreview: "요즘 붙어 있는 할인 전단지인데 실제로 가본 분 있나요?? 가격이 너무 싸서 혹시 실제로 가본 분 있는지 궁금해요.",
     town: "서교동",
     postedAt: "3일전",
     views: "721",
@@ -300,6 +322,8 @@ export const communityPosts: CommunityPost[] = [
     topic: "일반",
     title: "넌 누구냐...",
     excerpt: "어제 과음으로 거실에서 그대로 잠들어버림... 아침에 눈 떴는데 햇빛이 너무 직격이라 괴로웠어요",
+    summary: "아침에 집 창문 밖에서 낯선 새를 발견해 주인을 찾고 있어요",
+    bodyPreview: "어제 과음으로 거실에서 그대로 잠들어버림... 아침에 눈 떴는데 햇빛이 너무 직격이라 괴로웠어요. 창문을 보니까 앵무새가 저를 보고 있더라고요. 혹시 주인분 계시면 댓글 주세요.",
     town: "합정동",
     postedAt: "1일 전",
     views: "123",
@@ -312,6 +336,8 @@ export const communityPosts: CommunityPost[] = [
     topic: "일반",
     title: "오늘 합정에서 고기 드실 분 있나요?",
     excerpt: "혼자 먹기 싫어요… 삼겹살 땡김",
+    summary: "오늘 합정에서 같이 고기 먹을 사람을 찾고 있어요",
+    bodyPreview: "혼자 먹기 싫어요… 삼겹살 땡김. 오늘 저녁 합정 근처에서 가볍게 고기 드실 분 있나요?",
     town: "합정동",
     postedAt: "4일 전",
     views: "3,982",
@@ -322,6 +348,8 @@ export const communityPosts: CommunityPost[] = [
     topic: "동네풍경",
     title: "합정동 쪽 시끄러웠던 거 뭐였어요?",
     excerpt: "어제 밤에 소방차 여러 대 지나간 것 같던데 혹시 아시는 분",
+    summary: "어젯밤 합정동 소방차 소동의 이유를 묻고 있어요",
+    bodyPreview: "어제 밤에 소방차 여러 대 지나간 것 같던데 혹시 아시는 분 있나요? 갑자기 시끄러워서 무슨 일인지 궁금해요.",
     town: "합정동",
     postedAt: "1시간 전",
     views: "123",
@@ -332,6 +360,8 @@ export const communityPosts: CommunityPost[] = [
     topic: "일반",
     title: "합정역 8번 출구 쪽 사람 왜 이렇게 많아요?",
     excerpt: "퇴근 시간도 아닌데 갑자기 붐비는 느낌… 무슨 일 있었나요",
+    summary: "합정역 8번 출구가 갑자기 붐빈 이유를 알고 싶어 해요",
+    bodyPreview: "퇴근 시간도 아닌데 갑자기 붐비는 느낌… 무슨 일 있었나요? 행사나 촬영 같은 게 있었는지 궁금합니다.",
     town: "합정동",
     postedAt: "47분 전",
     views: "264",
