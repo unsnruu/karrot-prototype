@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowLeft, Bell, ChevronRight, EllipsisVertical, Eye, ImageIcon, MapPin, Pencil, Plus, Send, Share, Smile, ThumbsUp } from "lucide-react";
+import { ArrowLeft, Bell, Check, ChevronRight, EllipsisVertical, Eye, ImageIcon, MapPin, Pencil, Plus, Send, Share, Smile, ThumbsUp, X } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { type FormEvent, useRef, useState } from "react";
 import { AppImage } from "@/components/ui/app-image";
@@ -20,6 +20,8 @@ type CommunityPostDetailScreenProps = {
   recommendations: CommunityPost[];
 };
 
+const PRESET_COMMENT_BODY = "잘 보고 가요";
+
 export function CommunityPostDetailScreen({
   detail,
   recommendations,
@@ -28,11 +30,15 @@ export function CommunityPostDetailScreen({
   const [comments, setComments] = useState(detail.commentsList);
   const [commentDraft, setCommentDraft] = useState("");
   const [isCommentInputFocused, setIsCommentInputFocused] = useState(false);
+  const [hasLikedPost, setHasLikedPost] = useState(false);
+  const [selectedAlertTags, setSelectedAlertTags] = useState<string[]>([]);
   const commentInputRef = useRef<HTMLInputElement | null>(null);
   const hasComments = comments.length > 0;
   const alertTags = buildSimilarPostAlertTags(detail);
   const canSubmitComment = commentDraft.trim().length > 0;
   const shouldShowSubmitButton = isCommentInputFocused || canSubmitComment;
+  const likeCount = (detail.likes ?? 0) + (hasLikedPost ? 1 : 0);
+  const shouldShowLikeCount = hasLikedPost || likeCount > 0;
 
   function addComment() {
     const body = (commentInputRef.current?.value ?? commentDraft).trim();
@@ -49,6 +55,8 @@ export function CommunityPostDetailScreen({
 
     setComments((currentComments) => [...currentComments, nextComment]);
     setCommentDraft("");
+    setIsCommentInputFocused(false);
+    commentInputRef.current?.blur();
 
     trackElementClicked({
       screenName: "community_post_detail",
@@ -144,13 +152,25 @@ export function CommunityPostDetailScreen({
         />
 
         <section className="mobile-shell-wide mt-0 bg-white px-5 pb-8 pt-8 sm:px-6">
-          <div className="inline-flex items-center gap-1 rounded-full bg-[#f3f4f6] px-3 py-2 text-[13px] font-medium tracking-[-0.02em] text-[#0a0a0a]">
+          <PendingFeatureLink
+            className="inline-flex items-center gap-1 rounded-full bg-[#f3f4f6] px-3 py-2 text-[13px] font-medium tracking-[-0.02em] text-[#0a0a0a]"
+            featureLabel={`${detail.badgeLabel} 게시판 보기`}
+            returnTo={pathname}
+            tracking={{
+              screenName: "community_post_detail",
+              targetType: "button",
+              targetName: "community_post_badge_button",
+              surface: "content",
+              path: pathname,
+              targetId: detail.badgeLabel,
+            }}
+          >
             <span className="inline-flex h-[18px] w-[18px] items-center justify-center rounded-[3px] bg-[#d1d5dc]">
               <CardIcon />
             </span>
             {detail.badgeLabel}
             <ChevronRight aria-hidden="true" className="h-4 w-4 text-[#9ca3af]" strokeWidth={1.5} />
-          </div>
+          </PendingFeatureLink>
 
           <div className="mt-6 flex items-center gap-3">
             <UserAvatar alt={detail.author.name} fallback={detail.author.name.slice(0, 1)} size="lg" src={detail.author.avatar} />
@@ -182,10 +202,13 @@ export function CommunityPostDetailScreen({
           </div>
 
           <div className="mt-4 flex items-center justify-between gap-3">
-            <ActionButton
-              className="rounded-full text-sm font-medium"
-              leading={<ThumbsUp aria-hidden="true" className="h-5 w-5" strokeWidth={1.8} />}
+            <button
+              aria-pressed={hasLikedPost}
+              className={`inline-flex h-11 min-w-[78px] items-center justify-center gap-2.5 rounded-full border px-4 text-[17px] font-medium tracking-[-0.02em] transition-colors ${
+                hasLikedPost ? "border-[#ff6f0f] text-[#ff6f0f]" : "border-[#e5e7eb] text-[#6b7280]"
+              }`}
               onClick={() => {
+                setHasLikedPost((current) => !current);
                 trackElementClicked({
                   screenName: "community_post_detail",
                   targetType: "button",
@@ -194,13 +217,17 @@ export function CommunityPostDetailScreen({
                   path: pathname,
                 });
               }}
-              pendingFeatureLabel="커뮤니티 글 공감하기"
-              returnTo="/community"
-              size="small"
-              variant="neutralOutline"
+              type="button"
             >
-              공감하기
-            </ActionButton>
+              <span
+                className={`inline-flex h-7 w-7 items-center justify-center rounded-full ${
+                  hasLikedPost ? "bg-[#ff9b6a] text-white" : "bg-transparent text-[#6b7280]"
+                }`}
+              >
+                <ThumbsUp aria-hidden="true" className="h-[15px] w-[15px]" strokeWidth={2} />
+              </span>
+              {shouldShowLikeCount ? <span>{likeCount}</span> : <span className="text-[14px]">공감하기</span>}
+            </button>
             <ActionButton
               className="rounded-full text-sm font-medium"
               onClick={() => {
@@ -297,25 +324,40 @@ export function CommunityPostDetailScreen({
             비슷한 게시글이 올라오면 바로 알려드릴까요?
           </h2>
           <div className="mt-7 flex gap-3 overflow-x-auto pb-1">
-            {alertTags.map((tag) => (
-              <PendingFeatureLink
-                className="inline-flex h-10 shrink-0 items-center justify-center gap-1.5 rounded-full border border-[#e5e7eb] bg-white px-4 text-[14px] font-medium tracking-[-0.02em] text-[#6b7280]"
-                featureLabel={`${tag} 알림 받기`}
-                key={tag}
-                returnTo="/community"
-                tracking={{
-                  screenName: "community_post_detail",
-                  targetType: "chip",
-                  targetName: "community_similar_post_alert_tag",
-                  surface: "similar_post_alert",
-                  path: pathname,
-                  targetId: tag,
-                }}
-              >
-                <Plus aria-hidden="true" className="h-5 w-5 text-[#a1a6ae]" strokeWidth={1.8} />
-                {tag}
-              </PendingFeatureLink>
-            ))}
+            {alertTags.map((tag) => {
+              const isSelected = selectedAlertTags.includes(tag);
+
+              return (
+                <button
+                  aria-pressed={isSelected}
+                  className={`inline-flex h-10 shrink-0 items-center justify-center gap-1.5 rounded-full border px-4 text-[14px] font-medium tracking-[-0.02em] ${
+                    isSelected ? "border-black bg-[#f5f5f5] text-[#111827]" : "border-[#e5e7eb] bg-white text-[#6b7280]"
+                  }`}
+                  key={tag}
+                  onClick={() => {
+                    setSelectedAlertTags((currentTags) =>
+                      currentTags.includes(tag) ? currentTags.filter((currentTag) => currentTag !== tag) : [...currentTags, tag],
+                    );
+                    trackElementClicked({
+                      screenName: "community_post_detail",
+                      targetType: "chip",
+                      targetName: "community_similar_post_alert_tag",
+                      surface: "similar_post_alert",
+                      path: pathname,
+                      targetId: tag,
+                    });
+                  }}
+                  type="button"
+                >
+                  {isSelected ? (
+                    <Check aria-hidden="true" className="h-5 w-5 text-[#111827]" strokeWidth={1.8} />
+                  ) : (
+                    <Plus aria-hidden="true" className="h-5 w-5 text-[#a1a6ae]" strokeWidth={1.8} />
+                  )}
+                  {tag}
+                </button>
+              );
+            })}
           </div>
         </section>
 
@@ -371,11 +413,16 @@ export function CommunityPostDetailScreen({
               onBlur={() => {
                 setIsCommentInputFocused(false);
               }}
-              onChange={(event) => {
-                setCommentDraft(event.target.value);
+              onClick={() => {
+                if (!commentDraft.trim()) {
+                  setCommentDraft(PRESET_COMMENT_BODY);
+                }
               }}
               onFocus={() => {
                 setIsCommentInputFocused(true);
+                if (!commentDraft.trim()) {
+                  setCommentDraft(PRESET_COMMENT_BODY);
+                }
               }}
               onKeyDown={(event) => {
                 if (event.key === "Enter" && !event.nativeEvent.isComposing) {
@@ -384,9 +431,34 @@ export function CommunityPostDetailScreen({
                 }
               }}
               placeholder="댓글을 입력해주세요."
+              readOnly
               ref={commentInputRef}
               value={commentDraft}
             />
+            {canSubmitComment ? (
+              <button
+                aria-label="댓글 입력 지우기"
+                className="ml-3 flex h-6 w-6 shrink-0 items-center justify-center text-[#9ca3af]"
+                onClick={() => {
+                  setCommentDraft("");
+                  setIsCommentInputFocused(false);
+                  commentInputRef.current?.blur();
+                  trackElementClicked({
+                    screenName: "community_post_detail",
+                    targetType: "button",
+                    targetName: "community_comment_clear_button",
+                    surface: "comment_input",
+                    path: pathname,
+                  });
+                }}
+                onMouseDown={(event) => {
+                  event.preventDefault();
+                }}
+                type="button"
+              >
+                <X aria-hidden="true" className="h-5 w-5" strokeWidth={2} />
+              </button>
+            ) : null}
             <button
               aria-label="이모지"
               className="ml-3 text-[#9ca3af]"
@@ -411,7 +483,6 @@ export function CommunityPostDetailScreen({
               disabled={!canSubmitComment}
               onClick={() => {
                 addComment();
-                commentInputRef.current?.focus();
               }}
               onMouseDown={(event) => {
                 event.preventDefault();
