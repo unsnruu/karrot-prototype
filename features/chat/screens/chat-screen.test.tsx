@@ -18,21 +18,6 @@ vi.mock("next/navigation", () => ({
   useRouter: () => routerMock,
 }));
 
-vi.mock("@seed-design/react", () => ({
-  Callout: {
-    Root: ({ asChild: _asChild, children, tone: _tone, ...props }: React.HTMLAttributes<HTMLDivElement> & { asChild?: boolean; tone?: string }) =>
-      React.createElement("div", props, children),
-    Content: ({ children, ...props }: React.HTMLAttributes<HTMLDivElement>) =>
-      React.createElement("div", props, children),
-    Title: ({ children, ...props }: React.HTMLAttributes<HTMLSpanElement>) =>
-      React.createElement("span", props, children),
-    Description: ({ children, ...props }: React.HTMLAttributes<HTMLSpanElement>) =>
-      React.createElement("span", props, children),
-    Link: ({ asChild: _asChild, children, ...props }: React.ButtonHTMLAttributes<HTMLButtonElement> & { asChild?: boolean }) =>
-      React.createElement("span", props, children),
-  },
-}));
-
 describe("ChatScreen experiment", () => {
   const completedAppointmentDraft: ChatAppointmentDraft = {
     createdAt: "오후 3:20",
@@ -134,20 +119,6 @@ describe("ChatScreen experiment", () => {
     expect(screen.queryByRole("link", { name: "동네지도 바로가기" })).not.toBeInTheDocument();
   });
 
-  it("shows the follow-up recommendation as an actionable callout for the v4 combined variant", async () => {
-    vi.spyOn(Math, "random").mockReturnValue(0.8);
-
-    renderCompletedAppointmentChat();
-
-    expect(await screen.findByText("약속을 만들었어요.")).toBeInTheDocument();
-    expect(await screen.findByText("추천")).toBeInTheDocument();
-    expect(screen.getByText(/가신 김에 주변 업체도 둘러보세요/)).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "동네지도 바로가기" })).toHaveAttribute(
-      "href",
-      "/town-map/search/results?query=%ED%95%A9%EC%A0%95%EC%97%AD+2%EB%B2%88+%EC%B6%9C%EA%B5%AC&returnTo=%2Fchat%2Fitem-1%3Ftab%3Dchat%26returnTo%3D%252Fchat&entrySource=chat_appointment",
-    );
-  });
-
   it("replaces to the chat list when going back after completing an appointment", async () => {
     vi.spyOn(Math, "random").mockReturnValue(0.8);
 
@@ -158,19 +129,6 @@ describe("ChatScreen experiment", () => {
 
     expect(routerMock.replace).toHaveBeenCalledWith("/chat");
     expect(routerMock.back).not.toHaveBeenCalled();
-  });
-
-  it("scrolls to the recommendation after completing an appointment", async () => {
-    vi.spyOn(Math, "random").mockReturnValue(0.8);
-
-    renderCompletedAppointmentChat();
-
-    await screen.findByText("추천");
-
-    expect(window.HTMLElement.prototype.scrollIntoView).toHaveBeenCalledWith({
-      block: "center",
-      behavior: "smooth",
-    });
   });
 
   it("restores a completed appointment during the current client session only", async () => {

@@ -1,21 +1,16 @@
 "use client";
 
-import type { Ref } from "react";
 import { ActionButton } from "@/components/ui/action-button";
 import { UserAvatar } from "@/components/ui/user-avatar";
-import { Callout } from "@seed-design/react";
-import Link from "next/link";
 import { trackElementClicked } from "@/lib/analytics/element-click";
 import { type ChatMessage } from "@/lib/marketplace";
 import { usePathname } from "next/navigation";
 
 export function ChatMessageRow({
   message,
-  rowRef,
   sellerAvatar,
 }: {
   message: ChatMessage;
-  rowRef?: Ref<HTMLDivElement>;
   sellerAvatar?: string;
 }) {
   const pathname = usePathname();
@@ -48,46 +43,8 @@ export function ChatMessageRow({
   }
 
   if (message.type === "appointment-place-recommendation") {
-    if (message.display === "callout") {
-      const handleRecommendationLinkClick = () => {
-        trackElementClicked({
-          screenName: "chat_detail",
-          targetType: "link",
-          targetName: "chat_appointment_place_recommendation_callout_link",
-          surface: "appointment_followup",
-          path: pathname,
-          destinationPath: message.href,
-          entrySource: "chat_appointment",
-          query: message.location,
-        });
-      };
-
-      return (
-        <div className="flex items-end justify-end gap-2" ref={rowRef}>
-          <p className="text-[11px] text-[#adb1ba]">{message.createdAt}</p>
-          <Callout.Root className="w-[272px]" tone="informative">
-            <Callout.Content>
-              <Callout.Title>추천</Callout.Title>
-              <Callout.Description>
-                {message.location}에서 만나시네요. 가신 김에 주변 업체도 둘러보세요.
-              </Callout.Description>
-              <Callout.Link asChild>
-                <Link
-                  className="no-underline"
-                  href={message.href}
-                  onClick={handleRecommendationLinkClick}
-                >
-                  동네지도 바로가기
-                </Link>
-              </Callout.Link>
-            </Callout.Content>
-          </Callout.Root>
-        </div>
-      );
-    }
-
     return (
-      <div className="flex items-end justify-end gap-2" ref={rowRef}>
+      <div className="flex items-end justify-end gap-2">
         <p className="text-[11px] text-[#adb1ba]">{message.createdAt}</p>
         <div className="w-[272px] rounded-[14px] border border-[#eeeeee] bg-white px-4 py-5 shadow-[0_1px_0_rgba(17,17,17,0.02)]">
           <div className="space-y-2 text-[16px] leading-[1.5] text-[#111111]">

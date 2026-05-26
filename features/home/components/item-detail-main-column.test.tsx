@@ -82,16 +82,4 @@ describe("ItemDetailMainColumn", () => {
     expect(screen.queryByRole("link", { name: /구경하기/i })).not.toBeInTheDocument();
   });
 
-  it("connects the meetup location map to town map for the v4 combined variant", async () => {
-    vi.spyOn(Math, "random").mockReturnValue(0.8);
-
-    renderItemDetail();
-
-    expect(await screen.findByText("거래 희망 장소")).toBeInTheDocument();
-    expect(screen.getByText("약속 장소 주변도 둘러보기")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /약속 장소 주변도 둘러보기/ })).toHaveAttribute(
-      "href",
-      "/town-map/search/results?query=%ED%95%A9%EC%A0%95%EC%97%AD+2%EB%B2%88+%EC%B6%9C%EA%B5%AC&returnTo=%2Fhome%2Fitems%2Fitem-1%3FreturnTo%3D%252Fhome&entrySource=item_detail",
-    );
-  });
 });

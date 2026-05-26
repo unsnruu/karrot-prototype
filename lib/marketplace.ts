@@ -262,7 +262,6 @@ export type ChatMessage =
   | {
       id: string;
       type: "appointment-place-recommendation";
-      display: "message" | "callout";
       location: string;
       createdAt: string;
       href: string;
