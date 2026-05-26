@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowLeft, Bell, ChevronRight, EllipsisVertical, Eye, Plus, Share, Smile, ThumbsUp } from "lucide-react";
+import { ArrowLeft, Bell, ChevronRight, EllipsisVertical, Eye, ImageIcon, MapPin, Pencil, Plus, Send, Share, Smile, ThumbsUp } from "lucide-react";
 import { usePathname } from "next/navigation";
+import { type FormEvent, useRef, useState } from "react";
 import { AppImage } from "@/components/ui/app-image";
 import { AppToolbar } from "@/components/ui/app-toolbar";
 import { ActionButton } from "@/components/ui/action-button";
@@ -12,7 +13,7 @@ import { UserAvatar } from "@/components/ui/user-avatar";
 import { CommunityCommentThread } from "@/features/community/components/community-comment-thread";
 import { CommunityRecommendedPostRow } from "@/features/community/components/community-recommended-post-row";
 import { trackElementClicked } from "@/lib/analytics/element-click";
-import { type CommunityPost, type CommunityPostDetail } from "@/lib/community";
+import { type CommunityComment, type CommunityPost, type CommunityPostDetail } from "@/lib/community";
 
 type CommunityPostDetailScreenProps = {
   detail: CommunityPostDetail;
@@ -24,6 +25,44 @@ export function CommunityPostDetailScreen({
   recommendations,
 }: CommunityPostDetailScreenProps) {
   const pathname = usePathname();
+  const [comments, setComments] = useState(detail.commentsList);
+  const [commentDraft, setCommentDraft] = useState("");
+  const [isCommentInputFocused, setIsCommentInputFocused] = useState(false);
+  const commentInputRef = useRef<HTMLInputElement | null>(null);
+  const hasComments = comments.length > 0;
+  const alertTags = buildSimilarPostAlertTags(detail);
+  const canSubmitComment = commentDraft.trim().length > 0;
+  const shouldShowSubmitButton = isCommentInputFocused || canSubmitComment;
+
+  function addComment() {
+    const body = (commentInputRef.current?.value ?? commentDraft).trim();
+    if (!body) {
+      return;
+    }
+
+    const nextComment: CommunityComment = {
+      id: `local-comment-${Date.now()}`,
+      authorName: "나",
+      metaLabel: "방금",
+      body,
+    };
+
+    setComments((currentComments) => [...currentComments, nextComment]);
+    setCommentDraft("");
+
+    trackElementClicked({
+      screenName: "community_post_detail",
+      targetType: "button",
+      targetName: "community_comment_submit_button",
+      surface: "comment_input",
+      path: pathname,
+    });
+  }
+
+  function handleCommentSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    addComment();
+  }
 
   return (
     <main className="min-h-screen bg-[#f3f4f6] text-[#0a0a0a]">
@@ -184,51 +223,99 @@ export function CommunityPostDetailScreen({
         </section>
 
         <section className="mobile-shell-wide mt-3 bg-white">
-          <div className="flex items-center justify-between border-b border-[#f3f4f6] px-5 py-4">
-            <h2 className="text-base font-medium tracking-[-0.02em] text-[#0a0a0a]">댓글 {detail.commentsList.length}</h2>
-            <div className="flex items-center gap-2 text-base">
-              <PendingFeatureLink
-                className="font-medium text-black"
-                featureLabel="댓글 정렬 바꾸기"
-                returnTo="/community"
-                tracking={{
-                  screenName: "community_post_detail",
-                  targetType: "button",
-                  targetName: "community_comment_sort_register_order",
-                  surface: "comments",
-                  path: pathname,
-                }}
-              >
-                등록순
-              </PendingFeatureLink>
-              <span className="text-[#d1d5dc]">|</span>
-              <PendingFeatureLink
-                className="font-medium text-[#6a7282]"
-                featureLabel="댓글 정렬 바꾸기"
-                returnTo="/community"
-                tracking={{
-                  screenName: "community_post_detail",
-                  targetType: "button",
-                  targetName: "community_comment_sort_latest_order",
-                  surface: "comments",
-                  path: pathname,
-                }}
-              >
-                최신순
-              </PendingFeatureLink>
-            </div>
+          <div className={`flex items-center justify-between px-5 py-4 ${hasComments ? "border-b border-[#f3f4f6]" : ""}`}>
+            <h2 className="text-base font-medium tracking-[-0.02em] text-[#0a0a0a]">댓글 {comments.length}</h2>
+            {hasComments ? (
+              <div className="flex items-center gap-2 text-base">
+                <PendingFeatureLink
+                  className="font-medium text-black"
+                  featureLabel="댓글 정렬 바꾸기"
+                  returnTo="/community"
+                  tracking={{
+                    screenName: "community_post_detail",
+                    targetType: "button",
+                    targetName: "community_comment_sort_register_order",
+                    surface: "comments",
+                    path: pathname,
+                  }}
+                >
+                  등록순
+                </PendingFeatureLink>
+                <span className="text-[#d1d5dc]">|</span>
+                <PendingFeatureLink
+                  className="font-medium text-[#6a7282]"
+                  featureLabel="댓글 정렬 바꾸기"
+                  returnTo="/community"
+                  tracking={{
+                    screenName: "community_post_detail",
+                    targetType: "button",
+                    targetName: "community_comment_sort_latest_order",
+                    surface: "comments",
+                    path: pathname,
+                  }}
+                >
+                  최신순
+                </PendingFeatureLink>
+              </div>
+            ) : null}
           </div>
 
           <div className="divide-y divide-[#f3f4f6]">
-            {detail.commentsList.length ? (
-              detail.commentsList.map((comment) => (
+            {hasComments ? (
+              comments.map((comment) => (
                 <div className="px-5 py-4" key={comment.id}>
                   <CommunityCommentThread comment={comment} />
                 </div>
               ))
             ) : (
-              <div className="px-5 py-12 text-center text-sm text-[#9ca3af]">아직 댓글이 없어요.</div>
+              <div className="px-5 pb-20 pt-14 text-center">
+                <p className="text-[16px] leading-none tracking-[-0.02em] text-[#9ca3af]">첫 댓글을 남겨보세요.</p>
+                <button
+                  className="mt-8 inline-flex h-12 items-center justify-center gap-1.5 rounded-[10px] bg-[#f2f3f5] px-6 text-[16px] font-semibold tracking-[-0.02em] text-[#111827]"
+                  onClick={() => {
+                    trackElementClicked({
+                      screenName: "community_post_detail",
+                      targetType: "button",
+                      targetName: "community_empty_comment_write_button",
+                      surface: "comments_empty",
+                      path: pathname,
+                    });
+                    commentInputRef.current?.focus();
+                  }}
+                  type="button"
+                >
+                  <Pencil aria-hidden="true" className="h-5 w-5" strokeWidth={2} />
+                  댓글 쓰기
+                </button>
+              </div>
             )}
+          </div>
+        </section>
+
+        <section className="mobile-shell-wide mt-3 overflow-hidden bg-white px-5 py-8 sm:px-6">
+          <h2 className="text-[14px] font-semibold leading-[1.35] tracking-[-0.02em] text-[#111827]">
+            비슷한 게시글이 올라오면 바로 알려드릴까요?
+          </h2>
+          <div className="mt-7 flex gap-3 overflow-x-auto pb-1">
+            {alertTags.map((tag) => (
+              <PendingFeatureLink
+                className="inline-flex h-10 shrink-0 items-center justify-center gap-1.5 rounded-full border border-[#e5e7eb] bg-white px-4 text-[14px] font-medium tracking-[-0.02em] text-[#6b7280]"
+                featureLabel={`${tag} 알림 받기`}
+                key={tag}
+                returnTo="/community"
+                tracking={{
+                  screenName: "community_post_detail",
+                  targetType: "chip",
+                  targetName: "community_similar_post_alert_tag",
+                  surface: "similar_post_alert",
+                  path: pathname,
+                  targetId: tag,
+                }}
+              >
+                <Plus aria-hidden="true" className="h-5 w-5 text-[#a1a6ae]" strokeWidth={1.8} />
+                {tag}
+              </PendingFeatureLink>
+            ))}
           </div>
         </section>
 
@@ -245,30 +332,109 @@ export function CommunityPostDetailScreen({
       <div className="fixed inset-x-0 bottom-0 z-20 border-t border-black/5 bg-white/95 backdrop-blur">
         <div className="mobile-shell-wide flex items-center gap-3 px-2 py-2 pb-10 sm:px-4">
           <IconButton
-            ariaLabel="댓글 추가"
+            ariaLabel="사진 추가"
             className="text-[#6b7280]"
             onClick={() => {
               trackElementClicked({
                 screenName: "community_post_detail",
                 targetType: "button",
-                targetName: "community_comment_add_button",
+                targetName: "community_comment_image_button",
                 surface: "comment_input",
                 path: pathname,
               });
             }}
-            pendingFeatureLabel="댓글 작성하기"
+            pendingFeatureLabel="댓글 사진 첨부"
             returnTo="/community"
           >
-            <Plus aria-hidden="true" className="h-6 w-6" strokeWidth={1.8} />
+            <ImageIcon aria-hidden="true" className="h-7 w-7" strokeWidth={1.9} />
           </IconButton>
-          <div className="flex h-10 flex-1 items-center justify-between rounded-full bg-[#f2f4f5] px-4 text-base text-[#aeb2b5]">
-            <span>댓글을 입력해주세요.</span>
-            <Smile aria-hidden="true" className="h-6 w-6 text-[#9ca3af]" strokeWidth={1.6} />
-          </div>
+          <IconButton
+            ariaLabel="장소 추가"
+            className="text-[#6b7280]"
+            onClick={() => {
+              trackElementClicked({
+                screenName: "community_post_detail",
+                targetType: "button",
+                targetName: "community_comment_location_button",
+                surface: "comment_input",
+                path: pathname,
+              });
+            }}
+            pendingFeatureLabel="댓글 장소 첨부"
+            returnTo="/community"
+          >
+            <MapPin aria-hidden="true" className="h-7 w-7" strokeWidth={1.9} />
+          </IconButton>
+          <form className="flex h-12 flex-1 items-center justify-between rounded-full bg-[#f2f4f5] px-5" onSubmit={handleCommentSubmit}>
+            <input
+              className="min-w-0 flex-1 bg-transparent text-[16px] tracking-[-0.02em] text-[#111827] outline-none placeholder:text-[#aeb2b5]"
+              onBlur={() => {
+                setIsCommentInputFocused(false);
+              }}
+              onChange={(event) => {
+                setCommentDraft(event.target.value);
+              }}
+              onFocus={() => {
+                setIsCommentInputFocused(true);
+              }}
+              onKeyDown={(event) => {
+                if (event.key === "Enter" && !event.nativeEvent.isComposing) {
+                  event.preventDefault();
+                  addComment();
+                }
+              }}
+              placeholder="댓글을 입력해주세요."
+              ref={commentInputRef}
+              value={commentDraft}
+            />
+            <button
+              aria-label="이모지"
+              className="ml-3 text-[#9ca3af]"
+              onClick={() => {
+                trackElementClicked({
+                  screenName: "community_post_detail",
+                  targetType: "button",
+                  targetName: "community_comment_emoji_button",
+                  surface: "comment_input",
+                  path: pathname,
+                });
+              }}
+              type="button"
+            >
+              <Smile aria-hidden="true" className="h-6 w-6" strokeWidth={1.6} />
+            </button>
+          </form>
+          {shouldShowSubmitButton ? (
+            <button
+              aria-label="댓글 등록"
+              className="flex h-12 w-10 shrink-0 items-center justify-center text-[#c5c9cf] enabled:text-[#ff7f2a]"
+              disabled={!canSubmitComment}
+              onClick={() => {
+                addComment();
+                commentInputRef.current?.focus();
+              }}
+              onMouseDown={(event) => {
+                event.preventDefault();
+              }}
+              type="button"
+            >
+              <Send aria-hidden="true" className="h-8 w-8" strokeWidth={2} />
+            </button>
+          ) : null}
         </div>
       </div>
     </main>
   );
+}
+
+function buildSimilarPostAlertTags(detail: CommunityPostDetail) {
+  const titleTags = detail.title
+    .split(/\s+/)
+    .map((word) => word.replace(/[^\p{L}\p{N}]/gu, ""))
+    .filter((word) => word.length >= 2)
+    .slice(0, 3);
+
+  return Array.from(new Set([detail.topic, ...titleTags, detail.town])).slice(0, 5);
 }
 
 function CardIcon() {
