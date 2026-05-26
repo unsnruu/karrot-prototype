@@ -22,6 +22,7 @@ export function initAmplitude() {
 
     const identify = new amplitude.Identify();
     identify.set("app_version", visitorExperimentContext.appVersion);
+    identify.set("session_id", visitorExperimentContext.userId);
     identify.set("experiment_id", visitorExperimentContext.experiment.id);
     identify.set("iteration", visitorExperimentContext.experiment.iteration);
     identify.set("variant", visitorExperimentContext.experiment.variant);

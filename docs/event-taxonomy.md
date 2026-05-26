@@ -3,7 +3,7 @@
 ## 문서 목적
 이 문서는 현재 코드베이스에서 실제로 Amplitude로 전송되는 이벤트와 각 이벤트의 속성 스키마를 정리하는 단일 기준 문서다.
 
-- 기준 시점: 2026-05-20
+- 기준 시점: 2026-05-26
 - 기준 범위: `components/`, `features/`, `lib/analytics/`
 - 제외 범위: 테스트 코드, `archive/` 보관 코드
 - 기준 방식: `trackEvent(...)`, `amplitude.track(...)`, 공용 analytics helper 직접 확인
@@ -141,6 +141,7 @@ Amplitude 초기화는 [lib/analytics/amplitude.ts](/Users/unsnruu/Projects/dev/
 - 실험 컨텍스트: [lib/analytics/visitor-experiment.ts](/Users/unsnruu/Projects/dev/2026/Karrot/lib/analytics/visitor-experiment.ts:1) 에서 `userId`, `appVersion`, `experiment`를 함께 생성해 메모리에 유지하고 `localStorage`에도 기록
 - user property 세팅:
   - `app_version`
+  - `session_id`
   - `experiment_id`
   - `iteration`
   - `variant`
@@ -152,16 +153,30 @@ Amplitude 초기화는 [lib/analytics/amplitude.ts](/Users/unsnruu/Projects/dev/
 | 속성 | 타입 | 필수 | 설명 |
 | --- | --- | --- | --- |
 | `user_id` | `string` | 예 | 앱 초기화 시 새로 생성되는 익명 visitor id |
+| `session_id` | `string` | 예 | `user_id`와 같은 익명 session id. 실험 variant 배정 기준 |
 | `app_version` | `string` | 예 | 현재 앱 버전 (`package.json`, 현재 `5.0`) |
 | `experiment_id` | `string` | 예 | 현재 활성 실험 id |
 | `iteration` | `string` | 예 | 현재 실험 iteration |
 | `variant` | `string` | 예 | 현재 실험 variant |
 
-현재 활성 실험은 없다. 이벤트 속성은 아래 기본값을 사용한다.
+현재 활성 실험은 커뮤니티 글 목록 preview 실험이다.
 
-- `experiment_id=none`
+- `experiment_id=community_post_list_preview`
 - `iteration=1`
-- `variant=none`
+- `variant=one_line_content | two_line_content | ai_summary | full_content`
+
+실험 가설:
+
+> 글 목록에서 제목과 내용을 더 많이 보여주면, 유저가 `나와 관련 있는 글`인지 더 잘 판단하고 글 확인 이후 참여도 늘어날 것이다.
+
+variant 의미:
+
+- `one_line_content`: 기존 default/control. 글 내용을 1줄까지 보여준다.
+- `two_line_content`: 글 내용을 2줄까지 보여준다.
+- `ai_summary`: 글 내용을 요약해 보여준다.
+- `full_content`: 글 전체에 가까운 본문 preview를 목록에서 노출한다.
+
+variant 배정은 방문자에게 부여한 익명 `session_id`를 해시해 4개 bucket 중 하나로 안정적으로 나눈다. 같은 visitor context가 유지되는 동안 같은 variant를 본다.
 
 ## 공통 helper 스키마
 
@@ -186,6 +201,8 @@ scroll milestone helper: [lib/analytics/screen-scroll.ts](/Users/unsnruu/Project
 - 기본 진입은 기존처럼 `screen_viewed` 1회를 보낸다.
 - 일부 화면은 추가로 `screen_viewed + scroll_reached`를 milestone 도달 시 재전송한다.
 - 현재 milestone은 `25`, `50`, `75` 세 값만 사용한다.
+
+루트 `/` 진입은 커뮤니티 우선 실험 맥락에 맞춰 `/community`로 redirect된다.
 
 ### `element_clicked`
 
@@ -240,6 +257,7 @@ scroll milestone helper: [lib/analytics/screen-scroll.ts](/Users/unsnruu/Project
 아래 섹션은 각 이벤트의 "고유 속성"만 정리한다.
 
 - `user_id`
+- `session_id`
 - `app_version`
 - `experiment_id`
 - `iteration`
@@ -313,6 +331,7 @@ scroll milestone helper: [lib/analytics/screen-scroll.ts](/Users/unsnruu/Project
 - `item_detail_recommendation_card`
 - `home_native_ad`
 - `home_item_card`
+- `community_post_card`
 - `community_write_fab_open_sheet`
 - `community_write_poll_entry`
 - `community_write_town_entry`
@@ -347,7 +366,7 @@ scroll milestone helper: [lib/analytics/screen-scroll.ts](/Users/unsnruu/Project
 전송 위치:
 
 - 현재 라이브 화면 코드에는 없다.
-- 이전 `item_detail_nearby_business_carousel` 실험 코드는 `features/home/components/archive/` 아래에 보관되어 있다.
+- 이전 `item_detail_nearby_business_carousel` 실험 코드는 `.archived/features/home/components/archive/` 아래에 보관되어 있다.
 
 기본 스키마:
 
@@ -420,4 +439,4 @@ scroll milestone helper: [lib/analytics/screen-scroll.ts](/Users/unsnruu/Project
 ### 5. 상품 상세 근처 업체 carousel 실험은 종료됐다
 
 이전 `item_detail_nearby_business_entry` 실험에서 쓰던 carousel UI와 관련 이벤트는 현재 라이브 화면에서 전송되지 않는다.
-관련 코드는 `features/home/components/archive/` 아래에 보관한다.
+관련 코드는 `.archived/features/home/components/archive/` 아래에 보관한다.
