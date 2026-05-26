@@ -1,6 +1,8 @@
 import { NextResponse, type NextRequest } from "next/server";
 import {
+  COMMUNITY_EXPERIMENT_ENTRY_VARIANTS,
   createVisitorExperimentContext,
+  createVisitorExperimentContextForVariant,
   parseVisitorExperimentContext,
   VISITOR_EXPERIMENT_COOKIE_KEY,
 } from "@/lib/analytics/experiment-assignment";
@@ -20,8 +22,29 @@ function parseCookieContext(rawContext: string | undefined) {
 }
 
 export function middleware(request: NextRequest) {
-  const context = parseCookieContext(request.cookies.get(VISITOR_EXPERIMENT_COOKIE_KEY)?.value) ?? createVisitorExperimentContext();
+  const pathname = request.nextUrl.pathname;
+  const existingContext = parseCookieContext(request.cookies.get(VISITOR_EXPERIMENT_COOKIE_KEY)?.value);
+  const forcedVariant = COMMUNITY_EXPERIMENT_ENTRY_VARIANTS[pathname as keyof typeof COMMUNITY_EXPERIMENT_ENTRY_VARIANTS];
+  const context = forcedVariant
+    ? createVisitorExperimentContextForVariant(forcedVariant, existingContext?.userId)
+    : existingContext ?? createVisitorExperimentContext();
   const serializedContext = JSON.stringify(context);
+
+  if (forcedVariant) {
+    const redirectUrl = request.nextUrl.clone();
+    redirectUrl.pathname = "/community";
+
+    const response = NextResponse.redirect(redirectUrl);
+
+    response.cookies.set(VISITOR_EXPERIMENT_COOKIE_KEY, serializedContext, {
+      maxAge: ONE_YEAR_SECONDS,
+      path: "/",
+      sameSite: "lax",
+    });
+
+    return response;
+  }
+
   const requestHeaders = new Headers(request.headers);
   const currentCookieHeader = requestHeaders.get("cookie");
   const nextCookie = `${VISITOR_EXPERIMENT_COOKIE_KEY}=${encodeURIComponent(serializedContext)}`;
