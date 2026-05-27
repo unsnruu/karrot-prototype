@@ -95,6 +95,7 @@ describe("event taxonomy alignment", () => {
 
     render(
       React.createElement(CommunityHeader, {
+        selectedFeed: "recommended",
         selectedTab: "town",
         selectedTopic: "all",
       }),

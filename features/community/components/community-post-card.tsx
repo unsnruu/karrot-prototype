@@ -4,12 +4,14 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AppImage } from "@/components/ui/app-image";
 import { trackElementClicked } from "@/lib/analytics/element-click";
-import { type VisitorExperimentVariant } from "@/lib/analytics/experiment-assignment";
+import { type LegacyPreviewExperimentVariant, type VisitorExperimentVariant } from "@/lib/analytics/experiment-assignment";
 import { type CommunityPost } from "@/lib/community";
 
 const iconChat = "/icons/chat.svg";
 
-function getPreviewContent(post: CommunityPost, variant: VisitorExperimentVariant) {
+export type CommunityPostPreviewVariant = VisitorExperimentVariant | LegacyPreviewExperimentVariant;
+
+function getPreviewContent(post: CommunityPost, variant: CommunityPostPreviewVariant) {
   if (variant === "ai_summary") {
     return {
       text: post.summary,
@@ -42,7 +44,7 @@ export function CommunityPostCard({
   experimentVariant,
 }: {
   post: CommunityPost;
-  experimentVariant: VisitorExperimentVariant;
+  experimentVariant: CommunityPostPreviewVariant;
 }) {
   const pathname = usePathname();
   const previewContent = getPreviewContent(post, experimentVariant);

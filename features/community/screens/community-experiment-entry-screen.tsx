@@ -3,14 +3,21 @@
 import { useEffect } from "react";
 import {
   createVisitorExperimentContextForVariant,
+  isVisitorExperimentVariant,
   parseVisitorExperimentContext,
   VISITOR_EXPERIMENT_COOKIE_KEY,
   VISITOR_EXPERIMENT_STORAGE_KEY,
+  type LegacyPreviewExperimentVariant,
   type VisitorExperimentVariant,
 } from "@/lib/analytics/experiment-assignment";
+import {
+  COMMUNITY_INTEREST_TOPIC_COOKIE_KEY,
+  COMMUNITY_INTEREST_TOPIC_STORAGE_KEY,
+} from "@/lib/community-interest-preference";
 
 type CommunityExperimentEntryScreenProps = {
-  variant: VisitorExperimentVariant;
+  clearInterestPreference?: boolean;
+  variant: VisitorExperimentVariant | LegacyPreviewExperimentVariant;
 };
 
 const ONE_YEAR_SECONDS = 60 * 60 * 24 * 365;
@@ -28,9 +35,10 @@ function readCookieContext() {
   }
 }
 
-function persistForcedVariant(variant: VisitorExperimentVariant) {
+function persistForcedVariant(variant: VisitorExperimentVariant | LegacyPreviewExperimentVariant) {
   const previousContext = readCookieContext();
-  const nextContext = createVisitorExperimentContextForVariant(variant, previousContext?.userId);
+  const activeVariant = isVisitorExperimentVariant(variant) ? variant : "control";
+  const nextContext = createVisitorExperimentContextForVariant(activeVariant, previousContext?.userId);
   const serializedContext = JSON.stringify(nextContext);
 
   try {
@@ -42,9 +50,23 @@ function persistForcedVariant(variant: VisitorExperimentVariant) {
   document.cookie = `${VISITOR_EXPERIMENT_COOKIE_KEY}=${encodeURIComponent(serializedContext)}; path=/; max-age=${ONE_YEAR_SECONDS}; samesite=lax`;
 }
 
-export function CommunityExperimentEntryScreen({ variant }: CommunityExperimentEntryScreenProps) {
+function clearCommunityInterestPreference() {
+  try {
+    window.localStorage.removeItem(COMMUNITY_INTEREST_TOPIC_STORAGE_KEY);
+  } catch {
+    // Ignore unavailable storage; clearing the cookie is enough for server-rendered control entry.
+  }
+
+  document.cookie = `${COMMUNITY_INTEREST_TOPIC_COOKIE_KEY}=; path=/; max-age=0; samesite=lax`;
+}
+
+export function CommunityExperimentEntryScreen({ clearInterestPreference = false, variant }: CommunityExperimentEntryScreenProps) {
   useEffect(() => {
     persistForcedVariant(variant);
+
+    if (clearInterestPreference) {
+      clearCommunityInterestPreference();
+    }
 
     const redirectTimer = window.setTimeout(() => {
       window.location.replace("/community");
@@ -53,7 +75,7 @@ export function CommunityExperimentEntryScreen({ variant }: CommunityExperimentE
     return () => {
       window.clearTimeout(redirectTimer);
     };
-  }, [variant]);
+  }, [clearInterestPreference, variant]);
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-white text-[#111827]">

@@ -9,6 +9,7 @@ export type CommunityFilter = {
 
 export type CommunityTabKey = "town" | "meetup" | "cafe";
 export type CommunityTopicFilterKey = string;
+export type CommunityFeedFilterKey = "recommended" | "latest";
 
 export type CommunityTopTab = {
   key: CommunityTabKey;
@@ -115,6 +116,11 @@ export const communityTopTabs: CommunityTopTab[] = [
   { key: "town", label: "동네생활" },
   { key: "meetup", label: "모임" },
   { key: "cafe", label: "카페" },
+];
+
+export const communityFeedFilters: Array<{ id: CommunityFeedFilterKey; label: string }> = [
+  { id: "recommended", label: "추천" },
+  { id: "latest", label: "최신" },
 ];
 
 export const communityFilters: CommunityFilter[] = [
