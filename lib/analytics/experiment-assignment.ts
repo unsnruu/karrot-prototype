@@ -1,15 +1,13 @@
 import packageJson from "@/package.json";
 
-export const VISITOR_EXPERIMENT_STORAGE_KEY = "karrot_visitor_experiment_context.v8";
-export const VISITOR_EXPERIMENT_COOKIE_KEY = "karrot_visitor_experiment_context_v8";
+export const VISITOR_EXPERIMENT_STORAGE_KEY = "karrot_visitor_experiment_context.v9";
+export const VISITOR_EXPERIMENT_COOKIE_KEY = "karrot_visitor_experiment_context_v9";
 
-export const ACTIVE_EXPERIMENT_ID = "community_interest_topic_recommendation";
+export const ACTIVE_EXPERIMENT_ID = "community_post_list_preview";
 export const ACTIVE_EXPERIMENT_ITERATION = "1";
-export const ACTIVE_EXPERIMENT_VARIANTS = ["control", "interest_based"] as const;
-export const LEGACY_PREVIEW_EXPERIMENT_VARIANTS = ["one_line_content", "two_line_content", "ai_summary", "full_content"] as const;
+export const ACTIVE_EXPERIMENT_VARIANTS = ["one_line_content", "two_line_content", "ai_summary", "full_content"] as const;
 
 export type VisitorExperimentVariant = (typeof ACTIVE_EXPERIMENT_VARIANTS)[number];
-export type LegacyPreviewExperimentVariant = (typeof LEGACY_PREVIEW_EXPERIMENT_VARIANTS)[number];
 
 export type VisitorExperimentContext = {
   userId: string;

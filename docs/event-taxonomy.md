@@ -159,22 +159,24 @@ Amplitude 초기화는 [lib/analytics/amplitude.ts](/Users/unsnruu/Projects/dev/
 | `iteration` | `string` | 예 | 현재 실험 iteration |
 | `variant` | `string` | 예 | 현재 실험 variant |
 
-현재 활성 실험은 커뮤니티 관심 주제 추천 실험이다.
+현재 활성 실험은 커뮤니티 글 목록 preview 실험이다.
 
-- `experiment_id=community_interest_topic_recommendation`
+- `experiment_id=community_post_list_preview`
 - `iteration=1`
-- `variant=control | interest_based`
+- `variant=one_line_content | two_line_content | ai_summary | full_content`
 
 실험 가설:
 
-> 사용자가 커뮤니티에 최초 진입할 때 관심 주제를 물어보고 해당 주제 위주로 추천 피드를 구성하면, 유저가 `나와 관련 있는 글`을 더 잘 찾고 글 확인 이후 참여도 늘어날 것이다.
+> 글 목록에서 제목과 내용을 더 많이 보여주면, 유저가 `나와 관련 있는 글`인지 더 잘 판단하고 글 확인 이후 참여도 늘어날 것이다.
 
 variant 의미:
 
-- `control`: 기존 커뮤니티 목록 UI를 유지한다.
-- `interest_based`: 최초 진입 시 관심 주제를 수집하고 해당 주제 중심 추천 피드를 보여준다.
+- `one_line_content`: 기존 default/control. 글 내용을 1줄까지 보여준다.
+- `two_line_content`: 글 내용을 2줄까지 보여준다.
+- `ai_summary`: 글 내용을 요약해 보여준다.
+- `full_content`: 글 전체에 가까운 본문 preview를 목록에서 노출한다.
 
-variant 배정은 방문자에게 부여한 익명 `session_id`를 해시해 2개 bucket 중 하나로 안정적으로 나눈다. 같은 visitor context가 유지되는 동안 같은 variant를 본다.
+variant 배정은 방문자에게 부여한 익명 `session_id`를 해시해 4개 bucket 중 하나로 안정적으로 나눈다. 같은 visitor context가 유지되는 동안 같은 variant를 본다.
 
 ## 공통 helper 스키마
 

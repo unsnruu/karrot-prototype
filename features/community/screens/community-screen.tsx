@@ -3,8 +3,8 @@ import { CafePostList } from "@/features/community/components/cafe-post-list";
 import { CommunityHeader } from "@/features/community/components/community-header";
 import { CommunityMeetupList } from "@/features/community/components/community-meetup-list";
 import { CommunityPostList } from "@/features/community/components/community-post-list";
-import { type CommunityPostPreviewVariant } from "@/features/community/components/community-post-card";
 import { CommunityWriteFab } from "@/features/community/components/community-write-fab";
+import { type VisitorExperimentVariant } from "@/lib/analytics/experiment-assignment";
 import { type CafePost, type CommunityFeedFilterKey, type CommunityMeetup, type CommunityPost, type CommunityTabKey, type CommunityTopicFilterKey } from "@/lib/community";
 
 type CommunityScreenProps = {
@@ -14,7 +14,7 @@ type CommunityScreenProps = {
   posts: CommunityPost[];
   meetups: CommunityMeetup[];
   cafePosts: CafePost[];
-  experimentVariant: CommunityPostPreviewVariant;
+  experimentVariant: VisitorExperimentVariant;
 };
 
 export function CommunityScreen({ selectedTab, selectedFeed, selectedTopic, posts, meetups, cafePosts, experimentVariant }: CommunityScreenProps) {
