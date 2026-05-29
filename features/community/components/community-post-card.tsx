@@ -10,6 +10,10 @@ import { type CommunityPost } from "@/lib/community";
 const iconChat = "/icons/chat.svg";
 
 function getPreviewContent(post: CommunityPost, variant: VisitorExperimentVariant) {
+  if (variant === "zero_line_content") {
+    return null;
+  }
+
   if (variant === "ai_summary") {
     return {
       text: post.summary,
@@ -64,9 +68,11 @@ export function CommunityPostCard({
       <div className="flex items-start gap-4">
         <div className="min-w-0 flex-1">
           <h2 className="text-[16px] font-medium leading-[1.35] text-black">{post.title}</h2>
-          <p className={`mt-1 text-[14px] leading-[1.4] text-[#555d6d] ${previewContent.className}`}>
-            {previewContent.text}
-          </p>
+          {previewContent ? (
+            <p className={`mt-1 text-[14px] leading-[1.4] text-[#555d6d] ${previewContent.className}`}>
+              {previewContent.text}
+            </p>
+          ) : null}
         </div>
 
         {post.image ? (

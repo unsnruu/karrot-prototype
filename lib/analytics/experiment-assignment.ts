@@ -5,7 +5,7 @@ export const VISITOR_EXPERIMENT_COOKIE_KEY = "karrot_visitor_experiment_context_
 
 export const ACTIVE_EXPERIMENT_ID = "community_interest_feed_preview";
 export const ACTIVE_EXPERIMENT_ITERATION = "1";
-export const ACTIVE_EXPERIMENT_VARIANTS = ["ai_summary", "full_content"] as const;
+export const ACTIVE_EXPERIMENT_VARIANTS = ["zero_line_content", "ai_summary", "full_content"] as const;
 
 export type VisitorExperimentVariant = (typeof ACTIVE_EXPERIMENT_VARIANTS)[number];
 

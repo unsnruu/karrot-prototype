@@ -163,18 +163,19 @@ Amplitude 초기화는 [lib/analytics/amplitude.ts](/Users/unsnruu/Projects/dev/
 
 - `experiment_id=community_interest_feed_preview`
 - `iteration=1`
-- `variant=ai_summary | full_content`
+- `variant=zero_line_content | ai_summary | full_content`
 
 실험 가설:
 
-> 관심사 기반 동네 피드에서 글 내용을 AI로 요약하거나 전체에 가깝게 보여주면, 유저가 `나와 관련 있는 글`인지 더 잘 판단하고 글 확인 이후 참여도 늘어날 것이다.
+> 관심사 기반 동네 피드에서 글 내용 노출량과 표현 방식을 조절하면, 유저가 `나와 관련 있는 글`인지 더 잘 판단하고 글 확인 이후 참여도 늘어날 것이다.
 
 variant 의미:
 
+- `zero_line_content`: 선택 관심사 글을 먼저 보여주고, 목록에서 글 내용을 노출하지 않는다.
 - `ai_summary`: 선택 관심사 글을 먼저 보여주고, 목록에서 글 내용을 요약해 보여준다.
 - `full_content`: 선택 관심사 글을 먼저 보여주고, 글 전체에 가까운 본문 preview를 목록에서 노출한다.
 
-variant 배정은 방문자에게 부여한 익명 `session_id`를 해시해 2개 bucket 중 하나로 안정적으로 나눈다. 같은 visitor context가 유지되는 동안 같은 variant를 본다.
+variant 배정은 방문자에게 부여한 익명 `session_id`를 해시해 3개 bucket 중 하나로 안정적으로 나눈다. 같은 visitor context가 유지되는 동안 같은 variant를 본다.
 
 ## 공통 helper 스키마
 
