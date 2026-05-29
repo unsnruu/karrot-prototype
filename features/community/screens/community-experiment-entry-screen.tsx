@@ -15,6 +15,7 @@ import {
 
 type CommunityExperimentEntryScreenProps = {
   clearInterestPreference?: boolean;
+  redirectTo?: string;
   variant: VisitorExperimentVariant;
 };
 
@@ -56,7 +57,11 @@ function clearCommunityInterestPreference() {
   document.cookie = `${COMMUNITY_INTEREST_TOPIC_COOKIE_KEY}=; path=/; max-age=0; samesite=lax`;
 }
 
-export function CommunityExperimentEntryScreen({ clearInterestPreference = false, variant }: CommunityExperimentEntryScreenProps) {
+export function CommunityExperimentEntryScreen({
+  clearInterestPreference = false,
+  redirectTo = "/community",
+  variant,
+}: CommunityExperimentEntryScreenProps) {
   useEffect(() => {
     persistForcedVariant(variant);
 
@@ -65,13 +70,13 @@ export function CommunityExperimentEntryScreen({ clearInterestPreference = false
     }
 
     const redirectTimer = window.setTimeout(() => {
-      window.location.replace("/community");
+      window.location.replace(redirectTo);
     }, 80);
 
     return () => {
       window.clearTimeout(redirectTimer);
     };
-  }, [clearInterestPreference, variant]);
+  }, [clearInterestPreference, redirectTo, variant]);
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-white text-[#111827]">

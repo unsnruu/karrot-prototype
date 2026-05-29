@@ -4,45 +4,12 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AppImage } from "@/components/ui/app-image";
 import { trackElementClicked } from "@/lib/analytics/element-click";
-import { type VisitorExperimentVariant } from "@/lib/analytics/experiment-assignment";
 import { type CommunityPost } from "@/lib/community";
 
 const iconChat = "/icons/chat.svg";
 
-function getPreviewContent(post: CommunityPost, variant: VisitorExperimentVariant) {
-  if (variant === "zero_line_content") {
-    return null;
-  }
-
-  if (variant === "ai_summary") {
-    return {
-      text: post.summary,
-      className: "line-clamp-2",
-    };
-  }
-
-  if (variant === "full_content") {
-    return {
-      text: post.bodyPreview,
-      className: "",
-    };
-  }
-
-  return {
-    text: post.bodyPreview,
-    className: "",
-  };
-}
-
-export function CommunityPostCard({
-  post,
-  experimentVariant,
-}: {
-  post: CommunityPost;
-  experimentVariant: VisitorExperimentVariant;
-}) {
+export function CommunityPostCard({ post }: { post: CommunityPost }) {
   const pathname = usePathname();
-  const previewContent = getPreviewContent(post, experimentVariant);
 
   return (
     <article className="border-b border-[#eceef2] py-4">
@@ -68,11 +35,7 @@ export function CommunityPostCard({
       <div className="flex items-start gap-4">
         <div className="min-w-0 flex-1">
           <h2 className="text-[16px] font-medium leading-[1.35] text-black">{post.title}</h2>
-          {previewContent ? (
-            <p className={`mt-1 text-[14px] leading-[1.4] text-[#555d6d] ${previewContent.className}`}>
-              {previewContent.text}
-            </p>
-          ) : null}
+          <p className="mt-1 text-[14px] leading-[1.4] text-[#555d6d]">{post.bodyPreview}</p>
         </div>
 
         {post.image ? (

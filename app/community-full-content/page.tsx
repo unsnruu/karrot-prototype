@@ -1,5 +1,5 @@
-import { CommunityInterestEntryScreen } from "@/features/community/screens/community-interest-entry-screen";
+import { redirect } from "next/navigation";
 
 export default function CommunityFullContentEntryPage() {
-  return <CommunityInterestEntryScreen variant="full_content" />;
+  redirect("/community");
 }

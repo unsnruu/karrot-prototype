@@ -1,10 +1,5 @@
 import { cookies } from "next/headers";
 import { CommunityScreen } from "@/features/community/screens/community-screen";
-import {
-  createVisitorExperimentContext,
-  parseVisitorExperimentContext,
-  VISITOR_EXPERIMENT_COOKIE_KEY,
-} from "@/lib/analytics/experiment-assignment";
 import { cafePosts, communityFilters, communityMeetups, type CommunityFeedFilterKey, type CommunityPost, type CommunityTabKey, type CommunityTopicFilterKey } from "@/lib/community";
 import { getCommunityPosts } from "@/lib/community-data";
 import { COMMUNITY_INTEREST_TOPIC_COOKIE_KEY, parseCommunityInterestTopicIds, sortPostsByInterestTopics } from "@/lib/community-interest-preference";
@@ -57,25 +52,12 @@ function filterPostsByTopic(posts: CommunityPost[], selectedTopic: CommunityTopi
   return posts.filter((post) => post.topic === selectedFilter.topic);
 }
 
-function getServerVisitorExperimentContext(rawContext: string | undefined) {
-  if (!rawContext) {
-    return createVisitorExperimentContext();
-  }
-
-  try {
-    return parseVisitorExperimentContext(rawContext) ?? parseVisitorExperimentContext(decodeURIComponent(rawContext)) ?? createVisitorExperimentContext();
-  } catch {
-    return createVisitorExperimentContext();
-  }
-}
-
 export default async function CommunityPage({ searchParams }: CommunityPageProps) {
   const resolvedSearchParams = (await searchParams) ?? {};
   const selectedTab = resolveCommunityTab(resolvedSearchParams.tab);
   const selectedFeed = resolveCommunityFeedFilter(resolvedSearchParams.feed);
   const selectedTopic = resolveCommunityTopicFilter(resolvedSearchParams.topic);
   const cookieStore = await cookies();
-  const visitorExperimentContext = getServerVisitorExperimentContext(cookieStore.get(VISITOR_EXPERIMENT_COOKIE_KEY)?.value);
   const rawInterestTopicIds = cookieStore.get(COMMUNITY_INTEREST_TOPIC_COOKIE_KEY)?.value;
   const interestTopicIds = parseCommunityInterestTopicIds(rawInterestTopicIds ? decodeURIComponent(rawInterestTopicIds) : null);
   const shouldPrioritizeInterestTopic = selectedTab === "town" && selectedFeed === "recommended" && selectedTopic === "all";
@@ -85,7 +67,6 @@ export default async function CommunityPage({ searchParams }: CommunityPageProps
   return (
     <CommunityScreen
       cafePosts={cafePosts}
-      experimentVariant={visitorExperimentContext.experiment.variant}
       meetups={communityMeetups}
       posts={posts}
       selectedFeed={selectedFeed}

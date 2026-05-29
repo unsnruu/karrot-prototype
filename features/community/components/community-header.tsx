@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronDown, ChevronUp } from "lucide-react";
-import { usePathname } from "next/navigation";
+import { Bell, ChevronDown, ChevronUp, Search } from "lucide-react";
+import { usePathname, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { PendingFeatureLink } from "@/components/ui/pending-feature-link";
 import { SelectionChipButton, SelectionChipLink } from "@/components/ui/selection-chip";
 import { TabsList, TextTabLink } from "@/components/ui/tabs";
 import { trackEvent } from "@/lib/analytics/amplitude";
@@ -22,9 +23,12 @@ export function CommunityHeader({
   selectedTopic: CommunityTopicFilterKey;
 }) {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [isFeedMenuOpen, setIsFeedMenuOpen] = useState(false);
   const selectedFeedLabel = communityFeedFilters.find((filter) => filter.id === selectedFeed)?.label ?? "추천";
   const topicFilters = communityFilters.filter((filter) => filter.id !== "all");
+  const currentQuery = searchParams.toString();
+  const communityHref = currentQuery ? `${pathname}?${currentQuery}` : pathname;
 
   function getFeedHref(feed: CommunityFeedFilterKey) {
     const params = new URLSearchParams();
@@ -59,7 +63,48 @@ export function CommunityHeader({
   return (
     <header className="sticky top-0 z-50 bg-white">
       <div className="w-full px-4 pb-1 pt-5">
-        <p className="text-[22px] font-bold tracking-[-0.03em] text-black">커뮤니티</p>
+        <div className="flex items-center justify-between gap-4">
+          <p className="text-[22px] font-bold tracking-[-0.03em] text-black">커뮤니티</p>
+          <div className="flex items-center gap-4 text-black">
+            <Link
+              aria-label="검색"
+              className="flex h-9 w-9 items-center justify-center"
+              href="/home/search"
+              onClick={() => {
+                trackEvent(
+                  "element_clicked",
+                  buildElementClickedEventProperties({
+                    screenName: "community",
+                    targetType: "button",
+                    targetName: "community_search_button",
+                    surface: "header",
+                    path: pathname,
+                    destinationPath: "/home/search",
+                  }),
+                );
+              }}
+            >
+              <Search aria-hidden="true" className="h-6 w-6" strokeWidth={1.8} />
+            </Link>
+            <PendingFeatureLink
+              aria-label="알림"
+              className="relative flex h-9 w-9 items-center justify-center"
+              featureLabel="커뮤니티 알림 확인"
+              returnTo={communityHref}
+              tracking={{
+                screenName: "community",
+                targetType: "button",
+                targetName: "community_notification_button",
+                surface: "header",
+                path: pathname,
+                destinationPath: communityHref,
+              }}
+            >
+              <Bell aria-hidden="true" className="h-6 w-6" strokeWidth={1.8} />
+              <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-[#ff6f0f]" />
+            </PendingFeatureLink>
+          </div>
+        </div>
 
         <TabsList className="mt-5 flex items-center gap-5 text-[20px] font-semibold leading-none">
           {communityTopTabs.map((tab) => (

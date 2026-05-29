@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowLeft, Bell, Check, ChevronRight, EllipsisVertical, Eye, ImageIcon, MapPin, Pencil, Plus, Send, Share, Smile, ThumbsUp, X } from "lucide-react";
+import { ArrowLeft, Bell, Check, ChevronRight, EllipsisVertical, Eye, FileText, ImageIcon, MapPin, Pencil, Plus, Send, Share, Smile, ThumbsUp, X } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { type FormEvent, useRef, useState } from "react";
 import { AppImage } from "@/components/ui/app-image";
@@ -13,11 +13,14 @@ import { UserAvatar } from "@/components/ui/user-avatar";
 import { CommunityCommentThread } from "@/features/community/components/community-comment-thread";
 import { CommunityRecommendedPostRow } from "@/features/community/components/community-recommended-post-row";
 import { trackElementClicked } from "@/lib/analytics/element-click";
+import { type VisitorExperimentVariant } from "@/lib/analytics/experiment-assignment";
 import { type CommunityComment, type CommunityPost, type CommunityPostDetail } from "@/lib/community";
 
 type CommunityPostDetailScreenProps = {
   detail: CommunityPostDetail;
   recommendations: CommunityPost[];
+  returnTo?: string;
+  shortcutVariant?: VisitorExperimentVariant;
 };
 
 const PRESET_COMMENT_BODY = "잘 보고 가요";
@@ -25,6 +28,8 @@ const PRESET_COMMENT_BODY = "잘 보고 가요";
 export function CommunityPostDetailScreen({
   detail,
   recommendations,
+  returnTo = "/community",
+  shortcutVariant = "shortcut_top_bar",
 }: CommunityPostDetailScreenProps) {
   const pathname = usePathname();
   const [comments, setComments] = useState(detail.commentsList);
@@ -40,6 +45,8 @@ export function CommunityPostDetailScreen({
   const shouldShowSubmitButton = isCommentInputFocused || canSubmitComment;
   const likeCount = (detail.likes ?? 0) + (hasLikedPost ? 1 : 0);
   const shouldShowLikeCount = hasLikedPost || likeCount > 0;
+  const shouldShowCommunityShortcut = returnTo.startsWith("/home/search");
+  const shortcutLink = shouldShowCommunityShortcut ? <CommunityShortcutLink pathname={pathname} variant={shortcutVariant} /> : null;
 
   function addComment() {
     const body = (commentInputRef.current?.value ?? commentDraft).trim();
@@ -105,7 +112,7 @@ export function CommunityPostDetailScreen({
             <Link
               aria-label="뒤로 가기"
               className="flex h-8 w-8 items-center justify-center text-black"
-              href="/community"
+              href={returnTo}
               onClick={() => {
                 trackElementClicked({
                   screenName: "community_post_detail",
@@ -113,7 +120,7 @@ export function CommunityPostDetailScreen({
                   targetName: "community_post_detail_back_button",
                   surface: "header",
                   path: pathname,
-                  destinationPath: "/community",
+                  destinationPath: returnTo,
                 });
               }}
             >
@@ -134,7 +141,7 @@ export function CommunityPostDetailScreen({
                   });
                 }}
                 pendingFeatureLabel="커뮤니티 알림 확인"
-                returnTo="/community"
+                returnTo={returnTo}
               >
                 <Bell aria-hidden="true" className="h-6 w-6" strokeWidth={1.8} />
               </IconButton>
@@ -150,7 +157,7 @@ export function CommunityPostDetailScreen({
                   });
                 }}
                 pendingFeatureLabel="커뮤니티 글 공유하기"
-                returnTo="/community"
+                returnTo={returnTo}
               >
                 <Share aria-hidden="true" className="h-6 w-6" strokeWidth={1.8} />
               </IconButton>
@@ -166,13 +173,15 @@ export function CommunityPostDetailScreen({
                   });
                 }}
                 pendingFeatureLabel="커뮤니티 글 메뉴"
-                returnTo="/community"
+                returnTo={returnTo}
               >
                 <EllipsisVertical aria-hidden="true" className="h-6 w-6" strokeWidth={1.8} />
               </IconButton>
             </>
           }
         />
+
+        {shortcutVariant === "shortcut_top_bar" ? shortcutLink : null}
 
         <section className="mobile-shell-wide mt-0 bg-white px-5 pb-8 pt-8 sm:px-6">
           <PendingFeatureLink
@@ -203,7 +212,7 @@ export function CommunityPostDetailScreen({
             </div>
           </div>
 
-          <h1 className="mt-7 text-[31px] font-semibold tracking-[-0.04em] text-black">{detail.title}</h1>
+          <h1 className="mt-7 text-[20px] font-semibold tracking-[-0.03em] text-black">{detail.title}</h1>
 
           <div className="mt-4 space-y-4 text-[16px] leading-[1.55] tracking-[-0.02em] text-[#111111]">
             {detail.bodyParagraphs.map((paragraph, index) => (
@@ -271,6 +280,8 @@ export function CommunityPostDetailScreen({
             </ActionButton>
           </div>
         </section>
+
+        {shortcutVariant === "shortcut_above_comments" ? shortcutLink : null}
 
         <section className="mobile-shell-wide mt-3 bg-white">
           <div className={`flex items-center justify-between px-5 py-4 ${hasComments ? "border-b border-[#f3f4f6]" : ""}`}>
@@ -341,6 +352,8 @@ export function CommunityPostDetailScreen({
             )}
           </div>
         </section>
+
+        {shortcutVariant === "shortcut_below_comments" ? shortcutLink : null}
 
         <section className="mobile-shell-wide mt-3 overflow-hidden bg-white px-5 py-8 sm:px-6">
           <h2 className="text-[14px] font-semibold leading-[1.35] tracking-[-0.02em] text-[#111827]">
@@ -515,6 +528,40 @@ export function CommunityPostDetailScreen({
         </div>
       </div>
     </main>
+  );
+}
+
+function CommunityShortcutLink({ pathname, variant }: { pathname: string; variant: VisitorExperimentVariant }) {
+  const surface = variant === "shortcut_top_bar" ? "header" : "content";
+  const className =
+    variant === "shortcut_top_bar"
+      ? "mobile-shell-wide flex h-12 items-center justify-between bg-[#f3f4f6] px-5 text-[14px] font-bold tracking-[-0.02em] text-[#111827] sm:px-6"
+      : "mobile-shell-wide flex h-12 items-center justify-between bg-[#f7f8f9] px-5 text-[14px] font-bold tracking-[-0.02em] text-[#111827] sm:px-6";
+
+  return (
+    <Link
+      className={className}
+      href="/community"
+      onClick={() => {
+        trackElementClicked({
+          screenName: "community_post_detail",
+          targetType: "button",
+          targetName: "community_detail_shortcut_button",
+          surface,
+          path: pathname,
+          destinationPath: "/community",
+          targetId: variant,
+        });
+      }}
+    >
+      <span className="flex items-center gap-3">
+        <span className="inline-flex h-6 w-6 items-center justify-center rounded-[4px] bg-[#62b5ef] text-white">
+          <FileText aria-hidden="true" className="h-4 w-4" strokeWidth={2.2} />
+        </span>
+        동네생활 바로가기
+      </span>
+      <ChevronRight aria-hidden="true" className="h-6 w-6 text-[#111827]" strokeWidth={2} />
+    </Link>
   );
 }
 
