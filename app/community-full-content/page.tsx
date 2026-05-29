@@ -1,5 +1,5 @@
-import { CommunityExperimentEntryScreen } from "@/features/community/screens/community-experiment-entry-screen";
+import { CommunityInterestEntryScreen } from "@/features/community/screens/community-interest-entry-screen";
 
 export default function CommunityFullContentEntryPage() {
-  return <CommunityExperimentEntryScreen variant="full_content" />;
+  return <CommunityInterestEntryScreen variant="full_content" />;
 }

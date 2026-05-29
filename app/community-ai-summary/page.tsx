@@ -1,5 +1,5 @@
-import { CommunityExperimentEntryScreen } from "@/features/community/screens/community-experiment-entry-screen";
+import { CommunityInterestEntryScreen } from "@/features/community/screens/community-interest-entry-screen";
 
 export default function CommunityAiSummaryEntryPage() {
-  return <CommunityExperimentEntryScreen variant="ai_summary" />;
+  return <CommunityInterestEntryScreen variant="ai_summary" />;
 }

@@ -7,6 +7,7 @@ import {
 } from "@/lib/analytics/experiment-assignment";
 import { cafePosts, communityFilters, communityMeetups, type CommunityFeedFilterKey, type CommunityPost, type CommunityTabKey, type CommunityTopicFilterKey } from "@/lib/community";
 import { getCommunityPosts } from "@/lib/community-data";
+import { COMMUNITY_INTEREST_TOPIC_COOKIE_KEY, parseCommunityInterestTopicIds, sortPostsByInterestTopics } from "@/lib/community-interest-preference";
 
 type CommunityPageProps = {
   searchParams?: Promise<{
@@ -75,7 +76,11 @@ export default async function CommunityPage({ searchParams }: CommunityPageProps
   const selectedTopic = resolveCommunityTopicFilter(resolvedSearchParams.topic);
   const cookieStore = await cookies();
   const visitorExperimentContext = getServerVisitorExperimentContext(cookieStore.get(VISITOR_EXPERIMENT_COOKIE_KEY)?.value);
-  const posts = filterPostsByTopic(await getCommunityPosts(), selectedTopic);
+  const rawInterestTopicIds = cookieStore.get(COMMUNITY_INTEREST_TOPIC_COOKIE_KEY)?.value;
+  const interestTopicIds = parseCommunityInterestTopicIds(rawInterestTopicIds ? decodeURIComponent(rawInterestTopicIds) : null);
+  const shouldPrioritizeInterestTopic = selectedTab === "town" && selectedFeed === "recommended" && selectedTopic === "all";
+  const allPosts = await getCommunityPosts();
+  const posts = shouldPrioritizeInterestTopic ? sortPostsByInterestTopics(allPosts, interestTopicIds) : filterPostsByTopic(allPosts, selectedTopic);
 
   return (
     <CommunityScreen

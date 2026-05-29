@@ -8,6 +8,10 @@ import {
   VISITOR_EXPERIMENT_STORAGE_KEY,
   type VisitorExperimentVariant,
 } from "@/lib/analytics/experiment-assignment";
+import {
+  COMMUNITY_INTEREST_TOPIC_COOKIE_KEY,
+  COMMUNITY_INTEREST_TOPIC_STORAGE_KEY,
+} from "@/lib/community-interest-preference";
 
 type CommunityExperimentEntryScreenProps = {
   clearInterestPreference?: boolean;
@@ -15,9 +19,6 @@ type CommunityExperimentEntryScreenProps = {
 };
 
 const ONE_YEAR_SECONDS = 60 * 60 * 24 * 365;
-const COMMUNITY_INTEREST_TOPIC_STORAGE_KEY = "karrot_community_interest_topic.v1";
-const COMMUNITY_INTEREST_TOPIC_COOKIE_KEY = "karrot_community_interest_topic_v1";
-
 function readCookieContext() {
   const cookieValue = document.cookie
     .split("; ")

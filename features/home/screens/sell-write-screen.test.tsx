@@ -86,9 +86,9 @@ describe("SellWriteScreen", () => {
           path: "/home/sell/write",
           screen_name: "sell_write",
           app_version: "5.0",
-          experiment_id: "community_post_list_preview",
+          experiment_id: "community_interest_feed_preview",
           iteration: "1",
-          variant: expect.stringMatching(/^(one_line_content|two_line_content|ai_summary|full_content)$/),
+          variant: expect.stringMatching(/^(ai_summary|full_content)$/),
         }),
       );
     });

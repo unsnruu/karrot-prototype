@@ -159,24 +159,22 @@ Amplitude 초기화는 [lib/analytics/amplitude.ts](/Users/unsnruu/Projects/dev/
 | `iteration` | `string` | 예 | 현재 실험 iteration |
 | `variant` | `string` | 예 | 현재 실험 variant |
 
-현재 활성 실험은 커뮤니티 글 목록 preview 실험이다.
+현재 활성 실험은 커뮤니티 관심사 피드 preview 실험이다.
 
-- `experiment_id=community_post_list_preview`
+- `experiment_id=community_interest_feed_preview`
 - `iteration=1`
-- `variant=one_line_content | two_line_content | ai_summary | full_content`
+- `variant=ai_summary | full_content`
 
 실험 가설:
 
-> 글 목록에서 제목과 내용을 더 많이 보여주면, 유저가 `나와 관련 있는 글`인지 더 잘 판단하고 글 확인 이후 참여도 늘어날 것이다.
+> 관심사 기반 동네 피드에서 글 내용을 AI로 요약하거나 전체에 가깝게 보여주면, 유저가 `나와 관련 있는 글`인지 더 잘 판단하고 글 확인 이후 참여도 늘어날 것이다.
 
 variant 의미:
 
-- `one_line_content`: 기존 default/control. 글 내용을 1줄까지 보여준다.
-- `two_line_content`: 글 내용을 2줄까지 보여준다.
-- `ai_summary`: 글 내용을 요약해 보여준다.
-- `full_content`: 글 전체에 가까운 본문 preview를 목록에서 노출한다.
+- `ai_summary`: 선택 관심사 글을 먼저 보여주고, 목록에서 글 내용을 요약해 보여준다.
+- `full_content`: 선택 관심사 글을 먼저 보여주고, 글 전체에 가까운 본문 preview를 목록에서 노출한다.
 
-variant 배정은 방문자에게 부여한 익명 `session_id`를 해시해 4개 bucket 중 하나로 안정적으로 나눈다. 같은 visitor context가 유지되는 동안 같은 variant를 본다.
+variant 배정은 방문자에게 부여한 익명 `session_id`를 해시해 2개 bucket 중 하나로 안정적으로 나눈다. 같은 visitor context가 유지되는 동안 같은 variant를 본다.
 
 ## 공통 helper 스키마
 

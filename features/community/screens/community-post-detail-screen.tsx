@@ -33,6 +33,7 @@ export function CommunityPostDetailScreen({
   const [hasLikedPost, setHasLikedPost] = useState(false);
   const [selectedAlertTags, setSelectedAlertTags] = useState<string[]>([]);
   const commentInputRef = useRef<HTMLInputElement | null>(null);
+  const hasTrackedEmptyCommentInputRef = useRef(false);
   const hasComments = comments.length > 0;
   const alertTags = buildSimilarPostAlertTags(detail);
   const canSubmitComment = commentDraft.trim().length > 0;
@@ -56,6 +57,7 @@ export function CommunityPostDetailScreen({
     setComments((currentComments) => [...currentComments, nextComment]);
     setCommentDraft("");
     setIsCommentInputFocused(false);
+    hasTrackedEmptyCommentInputRef.current = false;
     commentInputRef.current?.blur();
 
     trackElementClicked({
@@ -70,6 +72,27 @@ export function CommunityPostDetailScreen({
   function handleCommentSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     addComment();
+  }
+
+  function handleEmptyCommentInputIntent(entrySource: "click" | "focus") {
+    if (commentDraft.trim()) {
+      return;
+    }
+
+    if (!hasTrackedEmptyCommentInputRef.current) {
+      hasTrackedEmptyCommentInputRef.current = true;
+      trackElementClicked({
+        screenName: "community_post_detail",
+        targetType: "input",
+        targetName: "community_comment_input_prefill",
+        surface: "comment_input",
+        path: pathname,
+        targetId: detail.id,
+        entrySource,
+      });
+    }
+
+    setCommentDraft(PRESET_COMMENT_BODY);
   }
 
   return (
@@ -414,15 +437,11 @@ export function CommunityPostDetailScreen({
                 setIsCommentInputFocused(false);
               }}
               onClick={() => {
-                if (!commentDraft.trim()) {
-                  setCommentDraft(PRESET_COMMENT_BODY);
-                }
+                handleEmptyCommentInputIntent("click");
               }}
               onFocus={() => {
                 setIsCommentInputFocused(true);
-                if (!commentDraft.trim()) {
-                  setCommentDraft(PRESET_COMMENT_BODY);
-                }
+                handleEmptyCommentInputIntent("focus");
               }}
               onKeyDown={(event) => {
                 if (event.key === "Enter" && !event.nativeEvent.isComposing) {
@@ -442,6 +461,7 @@ export function CommunityPostDetailScreen({
                 onClick={() => {
                   setCommentDraft("");
                   setIsCommentInputFocused(false);
+                  hasTrackedEmptyCommentInputRef.current = false;
                   commentInputRef.current?.blur();
                   trackElementClicked({
                     screenName: "community_post_detail",

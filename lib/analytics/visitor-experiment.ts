@@ -21,6 +21,7 @@ const PREVIOUS_VISITOR_EXPERIMENT_STORAGE_KEY_V5 = "karrot_visitor_experiment_co
 const PREVIOUS_VISITOR_EXPERIMENT_STORAGE_KEY_V6 = "karrot_visitor_experiment_context.v6";
 const PREVIOUS_VISITOR_EXPERIMENT_STORAGE_KEY_V7 = "karrot_visitor_experiment_context.v7";
 const PREVIOUS_VISITOR_EXPERIMENT_STORAGE_KEY_V8 = "karrot_visitor_experiment_context.v8";
+const PREVIOUS_VISITOR_EXPERIMENT_STORAGE_KEY_V9 = "karrot_visitor_experiment_context.v9";
 
 let visitorExperimentContext: VisitorExperimentContext | null = null;
 
@@ -64,6 +65,7 @@ export function ensureVisitorExperimentContext() {
   window.localStorage.removeItem(PREVIOUS_VISITOR_EXPERIMENT_STORAGE_KEY_V6);
   window.localStorage.removeItem(PREVIOUS_VISITOR_EXPERIMENT_STORAGE_KEY_V7);
   window.localStorage.removeItem(PREVIOUS_VISITOR_EXPERIMENT_STORAGE_KEY_V8);
+  window.localStorage.removeItem(PREVIOUS_VISITOR_EXPERIMENT_STORAGE_KEY_V9);
 
   const cookieContext = readCookieVisitorExperimentContext();
 
@@ -129,6 +131,7 @@ export function resetVisitorExperimentContextForTests() {
     window.localStorage.removeItem(PREVIOUS_VISITOR_EXPERIMENT_STORAGE_KEY_V6);
     window.localStorage.removeItem(PREVIOUS_VISITOR_EXPERIMENT_STORAGE_KEY_V7);
     window.localStorage.removeItem(PREVIOUS_VISITOR_EXPERIMENT_STORAGE_KEY_V8);
+    window.localStorage.removeItem(PREVIOUS_VISITOR_EXPERIMENT_STORAGE_KEY_V9);
     window.localStorage.removeItem(VISITOR_EXPERIMENT_STORAGE_KEY);
     document.cookie = `${VISITOR_EXPERIMENT_COOKIE_KEY}=; path=/; max-age=0; samesite=lax`;
   }

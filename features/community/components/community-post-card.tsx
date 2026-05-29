@@ -24,16 +24,9 @@ function getPreviewContent(post: CommunityPost, variant: VisitorExperimentVarian
     };
   }
 
-  if (variant === "two_line_content") {
-    return {
-      text: post.excerpt,
-      className: "line-clamp-2",
-    };
-  }
-
   return {
-    text: post.excerpt,
-    className: "line-clamp-1",
+    text: post.bodyPreview,
+    className: "",
   };
 }
 
