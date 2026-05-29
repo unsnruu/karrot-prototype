@@ -51,9 +51,9 @@ export function HomeHeader({
             <ChevronDown aria-hidden="true" className="h-6 w-6" strokeWidth={1.8} />
           </PendingFeatureLink>
           <div className="flex items-center gap-3">
-            <PendingFeatureLink
+            <Link
               aria-label="검색"
-              featureLabel="홈 검색"
+              href="/home/search"
               onClick={() => {
                 trackEvent(
                   "element_clicked",
@@ -64,14 +64,13 @@ export function HomeHeader({
                     surface: "header",
                     path: pathname,
                     queryString,
-                    destinationPath: buildPendingFeatureHref(homeHref, "홈 검색"),
+                    destinationPath: "/home/search",
                   }),
                 );
               }}
-              returnTo={homeHref}
             >
               <Search aria-hidden="true" className="h-8 w-8" strokeWidth={1.8} />
-            </PendingFeatureLink>
+            </Link>
             <PendingFeatureLink
               aria-label="알림"
               featureLabel="알림 확인"

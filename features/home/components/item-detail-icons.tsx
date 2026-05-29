@@ -10,8 +10,8 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export function ArrowLeftIcon() {
-  return <ArrowLeft absoluteStrokeWidth height={32} strokeWidth={2.2} width={32} />;
+export function ArrowLeftIcon({ className }: { className?: string }) {
+  return <ArrowLeft absoluteStrokeWidth className={cn("h-8 w-8", className)} strokeWidth={2.2} />;
 }
 
 export function HomeIcon() {
