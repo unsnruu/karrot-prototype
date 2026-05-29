@@ -86,6 +86,7 @@ function persistInterestTopics(topicIds: string[]) {
 export function CommunityInterestEntryScreen({ variant }: CommunityInterestEntryScreenProps) {
   const [selectedTopicIds, setSelectedTopicIds] = useState<string[]>([]);
   const [isCheckingPreference, setIsCheckingPreference] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const topicOptions = useMemo(() => communityFilters.filter((filter) => Boolean(filter.topic)).slice(0, 12), []);
 
   useEffect(() => {
@@ -102,6 +103,10 @@ export function CommunityInterestEntryScreen({ variant }: CommunityInterestEntry
   }, [variant]);
 
   function toggleTopic(topicId: string) {
+    if (isSubmitting) {
+      return;
+    }
+
     setSelectedTopicIds((currentTopicIds) => {
       if (currentTopicIds.includes(topicId)) {
         return currentTopicIds.filter((currentTopicId) => currentTopicId !== topicId);
@@ -124,10 +129,11 @@ export function CommunityInterestEntryScreen({ variant }: CommunityInterestEntry
   }
 
   function handleSubmit() {
-    if (selectedTopicIds.length === 0) {
+    if (selectedTopicIds.length === 0 || isSubmitting) {
       return;
     }
 
+    setIsSubmitting(true);
     persistInterestTopics(selectedTopicIds);
     trackEvent("element_clicked", {
       screen_name: "community_interest_entry",
@@ -177,7 +183,7 @@ export function CommunityInterestEntryScreen({ variant }: CommunityInterestEntry
                         ? "border-[#eceef2] bg-[#f7f8fa] text-[#b0b6bf]"
                         : "border-[#eceef2] bg-[#f7f8fa] text-[#374151]"
                   }`}
-                  disabled={isDisabled}
+                  disabled={isDisabled || isSubmitting}
                   key={topic.id}
                   onClick={() => {
                     toggleTopic(topic.id);
@@ -196,12 +202,21 @@ export function CommunityInterestEntryScreen({ variant }: CommunityInterestEntry
           className={`mt-8 flex h-[56px] w-full items-center justify-center gap-1 rounded-[14px] text-[17px] font-bold transition-colors ${
             selectedTopicIds.length > 0 ? "bg-[#ff6f0f] text-white" : "bg-[#eef0f3] text-[#a3a8b0]"
           }`}
-          disabled={selectedTopicIds.length === 0}
+          disabled={selectedTopicIds.length === 0 || isSubmitting}
           onClick={handleSubmit}
           type="button"
         >
-          선택 완료 ({selectedTopicIds.length}/{COMMUNITY_INTEREST_TOPIC_LIMIT})
-          <ChevronRight aria-hidden="true" className="h-5 w-5" strokeWidth={2.2} />
+          {isSubmitting ? (
+            <>
+              <span aria-hidden="true" className="h-5 w-5 animate-spin rounded-full border-2 border-white/40 border-t-white" />
+              피드를 불러오는 중
+            </>
+          ) : (
+            <>
+              선택 완료 ({selectedTopicIds.length}/{COMMUNITY_INTEREST_TOPIC_LIMIT})
+              <ChevronRight aria-hidden="true" className="h-5 w-5" strokeWidth={2.2} />
+            </>
+          )}
         </button>
       </div>
     </main>
