@@ -1,7 +1,25 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowLeft, Bell, Check, ChevronRight, EllipsisVertical, Eye, FileText, ImageIcon, MapPin, Pencil, Plus, Send, Share, Smile, ThumbsUp, X } from "lucide-react";
+import {
+  ArrowLeft,
+  Bell,
+  Check,
+  ChevronRight,
+  CircleQuestionMark,
+  EllipsisVertical,
+  Eye,
+  FileText,
+  ImageIcon,
+  MapPin,
+  Pencil,
+  Plus,
+  Send,
+  Share,
+  Smile,
+  ThumbsUp,
+  X,
+} from "lucide-react";
 import { usePathname } from "next/navigation";
 import { type FormEvent, useRef, useState } from "react";
 import { AppImage } from "@/components/ui/app-image";
@@ -12,9 +30,16 @@ import { PendingFeatureLink } from "@/components/ui/pending-feature-link";
 import { UserAvatar } from "@/components/ui/user-avatar";
 import { CommunityCommentThread } from "@/features/community/components/community-comment-thread";
 import { CommunityRecommendedPostRow } from "@/features/community/components/community-recommended-post-row";
+import { trackComponentInteracted } from "@/lib/analytics/component-interaction";
 import { trackElementClicked } from "@/lib/analytics/element-click";
 import { type VisitorExperimentVariant } from "@/lib/analytics/experiment-assignment";
 import { type CommunityComment, type CommunityPost, type CommunityPostDetail } from "@/lib/community";
+import {
+  removeCommunityEmpathyRecord,
+  saveCommunityEmpathyRecord,
+  shouldShowCommunityEmpathyCallout,
+  type CommunityEmpathyReactionType,
+} from "@/lib/community-empathy";
 
 type CommunityPostDetailScreenProps = {
   detail: CommunityPostDetail;
@@ -36,6 +61,7 @@ export function CommunityPostDetailScreen({
   const [commentDraft, setCommentDraft] = useState("");
   const [isCommentInputFocused, setIsCommentInputFocused] = useState(false);
   const [hasLikedPost, setHasLikedPost] = useState(false);
+  const [isEmpathyCalloutVisible, setIsEmpathyCalloutVisible] = useState(false);
   const [selectedAlertTags, setSelectedAlertTags] = useState<string[]>([]);
   const commentInputRef = useRef<HTMLInputElement | null>(null);
   const hasTrackedEmptyCommentInputRef = useRef(false);
@@ -43,6 +69,10 @@ export function CommunityPostDetailScreen({
   const alertTags = buildSimilarPostAlertTags(detail);
   const canSubmitComment = commentDraft.trim().length > 0;
   const shouldShowSubmitButton = isCommentInputFocused || canSubmitComment;
+  const empathyReactionType: CommunityEmpathyReactionType = detail.topic === "고민/사연" ? "curious" : "like";
+  const empathyButtonLabel = empathyReactionType === "curious" ? "나도 궁금해요" : "공감하기";
+  const empathyDescription = empathyReactionType === "curious" ? "궁금해하셨어요." : "공감하셨어요.";
+  const EmpathyIcon = empathyReactionType === "curious" ? CircleQuestionMark : ThumbsUp;
   const likeCount = (detail.likes ?? 0) + (hasLikedPost ? 1 : 0);
   const shouldShowLikeCount = hasLikedPost || likeCount > 0;
   const shouldShowCommunityShortcut = returnTo.startsWith("/home/search");
@@ -236,15 +266,47 @@ export function CommunityPostDetailScreen({
           <div className="mt-4 flex items-center justify-between gap-3">
             <button
               aria-pressed={hasLikedPost}
-              className={`inline-flex h-11 min-w-[78px] items-center justify-center gap-2.5 rounded-full border px-4 text-[17px] font-medium tracking-[-0.02em] transition-colors ${
-                hasLikedPost ? "border-[#ff6f0f] text-[#ff6f0f]" : "border-[#e5e7eb] text-[#6b7280]"
+              className={`inline-flex h-11 min-w-[78px] items-center justify-center gap-2.5 rounded-full border px-4 text-[14px] font-medium tracking-[-0.02em] transition-colors ${
+                hasLikedPost
+                  ? empathyReactionType === "curious"
+                    ? "border-[#2f7df6] text-[#2f7df6]"
+                    : "border-[#ff6f0f] text-[#ff6f0f]"
+                  : "border-[#e5e7eb] text-[#6b7280]"
               }`}
               onClick={() => {
-                setHasLikedPost((current) => !current);
+                const nextHasLikedPost = !hasLikedPost;
+
+                setHasLikedPost(nextHasLikedPost);
+
+                if (nextHasLikedPost) {
+                  saveCommunityEmpathyRecord({
+                    postId: detail.id,
+                    postTitle: detail.title,
+                    reactionType: empathyReactionType,
+                    reactionLabel: empathyButtonLabel,
+                    description: empathyDescription,
+                  });
+
+                  if (shouldShowCommunityEmpathyCallout()) {
+                    setIsEmpathyCalloutVisible(true);
+                    trackComponentInteracted({
+                      componentName: "community_empathy_callout",
+                      interactionType: "show",
+                      screenName: "community_post_detail",
+                      surface: "empathy_callout",
+                      path: pathname,
+                      entrySource: empathyReactionType,
+                      targetId: detail.id,
+                    });
+                  }
+                } else {
+                  removeCommunityEmpathyRecord(detail.id, empathyReactionType);
+                }
+
                 trackElementClicked({
                   screenName: "community_post_detail",
                   targetType: "button",
-                  targetName: "community_post_like_button",
+                  targetName: empathyReactionType === "curious" ? "community_post_curious_button" : "community_post_like_button",
                   surface: "content",
                   path: pathname,
                 });
@@ -253,15 +315,20 @@ export function CommunityPostDetailScreen({
             >
               <span
                 className={`inline-flex h-7 w-7 items-center justify-center rounded-full ${
-                  hasLikedPost ? "bg-[#ff9b6a] text-white" : "bg-transparent text-[#6b7280]"
+                  hasLikedPost
+                    ? empathyReactionType === "curious"
+                      ? "bg-[#d8e8ff] text-[#2f7df6]"
+                      : "bg-[#ff9b6a] text-white"
+                    : "bg-transparent text-[#6b7280]"
                 }`}
               >
-                <ThumbsUp aria-hidden="true" className="h-[15px] w-[15px]" strokeWidth={2} />
+                <EmpathyIcon aria-hidden="true" className="h-[15px] w-[15px]" strokeWidth={2} />
               </span>
-              {shouldShowLikeCount ? <span>{likeCount}</span> : <span className="text-[14px]">공감하기</span>}
+              <span>{empathyButtonLabel}</span>
+              {shouldShowLikeCount ? <span className="text-[15px]">{likeCount}</span> : null}
             </button>
             <ActionButton
-              className="rounded-full text-sm font-medium"
+              className="rounded-full px-4 text-sm font-medium"
               onClick={() => {
                 trackElementClicked({
                   screenName: "community_post_detail",
@@ -407,6 +474,40 @@ export function CommunityPostDetailScreen({
         </section>
       </div>
 
+      {isEmpathyCalloutVisible ? (
+        <div className="fixed inset-x-0 bottom-[104px] z-30 px-4">
+          <div className="mobile-shell-wide flex min-h-12 items-center justify-between gap-3 rounded-[8px] bg-[#2a3038] px-4 py-3 text-white shadow-[0_8px_24px_rgba(0,0,0,0.24)]">
+            <p className="min-w-0 flex-1 text-[14px] font-medium leading-[1.4] tracking-[-0.02em]">공감하신 내용을 모아서 볼 수 있어요</p>
+            <Link
+              className="shrink-0 text-[14px] font-bold tracking-[-0.02em] text-[#ff8a3d]"
+              href="/community?empathySheet=open"
+              onClick={() => {
+                setIsEmpathyCalloutVisible(false);
+                trackComponentInteracted({
+                  componentName: "community_empathy_callout",
+                  interactionType: "open_sheet",
+                  screenName: "community_post_detail",
+                  surface: "empathy_callout",
+                  path: pathname,
+                  entrySource: empathyReactionType,
+                  targetId: detail.id,
+                });
+                trackElementClicked({
+                  screenName: "community_post_detail",
+                  targetType: "button",
+                  targetName: "community_empathy_callout_view_button",
+                  surface: "empathy_callout",
+                  path: pathname,
+                  destinationPath: "/community",
+                });
+              }}
+            >
+              보러가기
+            </Link>
+          </div>
+        </div>
+      ) : null}
+
       <div className="fixed inset-x-0 bottom-0 z-20 border-t border-black/5 bg-white/95 backdrop-blur">
         <div className="mobile-shell-wide flex items-center gap-3 px-2 py-2 pb-10 sm:px-4">
           <IconButton
@@ -527,6 +628,7 @@ export function CommunityPostDetailScreen({
           ) : null}
         </div>
       </div>
+
     </main>
   );
 }
