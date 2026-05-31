@@ -3,11 +3,12 @@ import packageJson from "@/package.json";
 export const VISITOR_EXPERIMENT_STORAGE_KEY = "karrot_visitor_experiment_context.v11";
 export const VISITOR_EXPERIMENT_COOKIE_KEY = "karrot_visitor_experiment_context_v11";
 
-export const ACTIVE_EXPERIMENT_ID = "community_search_detail_shortcut";
+export const ACTIVE_EXPERIMENT_ID = "community_today_empathy_collection";
 export const ACTIVE_EXPERIMENT_ITERATION = "1";
-export const ACTIVE_EXPERIMENT_VARIANTS = ["shortcut_top_bar", "shortcut_above_comments", "shortcut_below_comments"] as const;
+export const ACTIVE_EXPERIMENT_VARIANTS = ["treatment"] as const;
+export const LEGACY_COMMUNITY_SHORTCUT_VARIANTS = ["shortcut_top_bar", "shortcut_above_comments", "shortcut_below_comments"] as const;
 
-export type VisitorExperimentVariant = (typeof ACTIVE_EXPERIMENT_VARIANTS)[number];
+export type VisitorExperimentVariant = (typeof ACTIVE_EXPERIMENT_VARIANTS)[number] | (typeof LEGACY_COMMUNITY_SHORTCUT_VARIANTS)[number];
 
 export type VisitorExperimentContext = {
   userId: string;
@@ -71,7 +72,7 @@ export function createVisitorExperimentContextForVariant(
 }
 
 export function isVisitorExperimentVariant(value: unknown): value is VisitorExperimentVariant {
-  return typeof value === "string" && ACTIVE_EXPERIMENT_VARIANTS.includes(value as VisitorExperimentVariant);
+  return typeof value === "string" && ACTIVE_EXPERIMENT_VARIANTS.includes(value as (typeof ACTIVE_EXPERIMENT_VARIANTS)[number]);
 }
 
 export function parseVisitorExperimentContext(rawContext: string | null | undefined): VisitorExperimentContext | null {

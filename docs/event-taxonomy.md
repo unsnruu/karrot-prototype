@@ -159,23 +159,17 @@ Amplitude 초기화는 [lib/analytics/amplitude.ts](/Users/unsnruu/Projects/dev/
 | `iteration` | `string` | 예 | 현재 실험 iteration |
 | `variant` | `string` | 예 | 현재 실험 variant |
 
-현재 활성 실험은 커뮤니티 관심사 피드 preview 실험이다.
+현재 활성 실험은 커뮤니티 공감 모아보기 실험이다.
 
-- `experiment_id=community_interest_feed_preview`
+- `experiment_id=community_today_empathy_collection`
 - `iteration=1`
-- `variant=zero_line_content | ai_summary | full_content`
+- `variant=treatment`
 
 실험 가설:
 
-> 관심사 기반 동네 피드에서 글 내용 노출량과 표현 방식을 조절하면, 유저가 `나와 관련 있는 글`인지 더 잘 판단하고 글 확인 이후 참여도 늘어날 것이다.
+> 상세에서 남긴 공감/궁금해요 반응을 커뮤니티 메인에서 모아볼 수 있게 하면, 유저가 자신의 관심 글을 다시 확인하고 이어지는 참여 행동을 더 쉽게 만든다.
 
-variant 의미:
-
-- `zero_line_content`: 선택 관심사 글을 먼저 보여주고, 목록에서 글 내용을 노출하지 않는다.
-- `ai_summary`: 선택 관심사 글을 먼저 보여주고, 목록에서 글 내용을 요약해 보여준다.
-- `full_content`: 선택 관심사 글을 먼저 보여주고, 글 전체에 가까운 본문 preview를 목록에서 노출한다.
-
-variant 배정은 방문자에게 부여한 익명 `session_id`를 해시해 3개 bucket 중 하나로 안정적으로 나눈다. 같은 visitor context가 유지되는 동안 같은 variant를 본다.
+현재는 단일 treatment bucket으로 운영한다. 이전 `community_search_detail_shortcut` 실험은 종료되었고 공통 이벤트 payload에는 더 이상 붙이지 않는다.
 
 ## 공통 helper 스키마
 
@@ -394,11 +388,15 @@ scroll milestone helper: [lib/analytics/screen-scroll.ts](/Users/unsnruu/Project
 | `screen_name` | `string` | 예 | 화면명 |
 | `surface` | `string` | 예 | UI 영역 |
 | `path` | `string` | 아니오 | 현재 path |
+| `entry_source` | `string` | 아니오 | 상호작용 진입 출처 |
+| `target_id` | `string` | 아니오 | 관련 entity 또는 record id |
 
 현재 추가된 component:
 
 - `town_map_bottom_sheet`
 - `town_map_map`
+- `community_empathy_callout`
+- `community_today_empathy_sheet`
 
 ## 현재 해석상의 주의점
 

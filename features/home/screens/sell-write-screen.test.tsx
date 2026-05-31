@@ -86,9 +86,9 @@ describe("SellWriteScreen", () => {
           path: "/home/sell/write",
           screen_name: "sell_write",
           app_version: "5.0",
-          experiment_id: "community_search_detail_shortcut",
+          experiment_id: "community_today_empathy_collection",
           iteration: "1",
-          variant: expect.stringMatching(/^(shortcut_top_bar|shortcut_above_comments|shortcut_below_comments)$/),
+          variant: "treatment",
         }),
       );
     });

@@ -4,8 +4,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { AnalyticsProvider } from "@/components/analytics-provider";
 import { resetVisitorExperimentContextForTests } from "@/lib/analytics/visitor-experiment";
 
-const experimentVariantMatcher = /^(shortcut_top_bar|shortcut_above_comments|shortcut_below_comments)$/;
-
 const navigationState = vi.hoisted(() => ({
   pathname: "/home",
   searchParams: new URLSearchParams("category=%EB%94%94%EC%A7%80%ED%84%B8%EA%B8%B0%EA%B8%B0"),
@@ -56,9 +54,9 @@ describe("AnalyticsProvider", () => {
           query_string: "category=%EB%94%94%EC%A7%80%ED%84%B8%EA%B8%B0%EA%B8%B0",
           screen_name: "home",
           app_version: "5.0",
-          experiment_id: "community_search_detail_shortcut",
+          experiment_id: "community_today_empathy_collection",
           iteration: "1",
-          variant: expect.stringMatching(experimentVariantMatcher),
+          variant: "treatment",
         }),
       );
     });
@@ -78,9 +76,9 @@ describe("AnalyticsProvider", () => {
           query_string: "feature=%EC%83%81%ED%92%88+%EA%B3%B5%EC%9C%A0%ED%95%98%EA%B8%B0&returnTo=%2Fhome",
           screen_name: "developing",
           app_version: "5.0",
-          experiment_id: "community_search_detail_shortcut",
+          experiment_id: "community_today_empathy_collection",
           iteration: "1",
-          variant: expect.stringMatching(experimentVariantMatcher),
+          variant: "treatment",
         }),
       );
     });
@@ -103,9 +101,9 @@ describe("AnalyticsProvider", () => {
             "entry_source=home_native_ad&entry_surface=top_carousel&entry_target_id=ad-1&entry_target_position=2&entry_target_name=home_native_ad&entry_target_type=ad",
           screen_name: "town_map",
           app_version: "5.0",
-          experiment_id: "community_search_detail_shortcut",
+          experiment_id: "community_today_empathy_collection",
           iteration: "1",
-          variant: expect.stringMatching(experimentVariantMatcher),
+          variant: "treatment",
         }),
       );
     });
@@ -129,9 +127,9 @@ describe("AnalyticsProvider", () => {
           entry_source: "town_map_search",
           screen_name: "town_map_search_results",
           app_version: "5.0",
-          experiment_id: "community_search_detail_shortcut",
+          experiment_id: "community_today_empathy_collection",
           iteration: "1",
-          variant: expect.stringMatching(experimentVariantMatcher),
+          variant: "treatment",
         }),
       );
     });
@@ -146,9 +144,9 @@ describe("AnalyticsProvider", () => {
         expect.objectContaining({
           path: "/home",
           screen_name: "home",
-          experiment_id: "community_search_detail_shortcut",
+          experiment_id: "community_today_empathy_collection",
           iteration: "1",
-          variant: expect.stringMatching(experimentVariantMatcher),
+          variant: "treatment",
         }),
       );
     });
@@ -163,7 +161,7 @@ describe("AnalyticsProvider", () => {
         userId: firstPayload.user_id,
         appVersion: "5.0",
         experiment: {
-          id: "community_search_detail_shortcut",
+          id: "community_today_empathy_collection",
           iteration: "1",
           variant: firstPayload.variant,
         },
