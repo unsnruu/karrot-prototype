@@ -159,17 +159,13 @@ Amplitude 초기화는 [lib/analytics/amplitude.ts](/Users/unsnruu/Projects/dev/
 | `iteration` | `string` | 예 | 현재 실험 iteration |
 | `variant` | `string` | 예 | 현재 실험 variant |
 
-현재 활성 실험은 커뮤니티 공감 모아보기 실험이다.
+현재 활성 실험은 없다.
 
-- `experiment_id=community_today_empathy_collection`
+- `experiment_id=none`
 - `iteration=1`
-- `variant=treatment`
+- `variant=none`
 
-실험 가설:
-
-> 상세에서 남긴 공감/궁금해요 반응을 커뮤니티 메인에서 모아볼 수 있게 하면, 유저가 자신의 관심 글을 다시 확인하고 이어지는 참여 행동을 더 쉽게 만든다.
-
-현재는 단일 treatment bucket으로 운영한다. 이전 `community_search_detail_shortcut` 실험은 종료되었고 공통 이벤트 payload에는 더 이상 붙이지 않는다.
+이전 커뮤니티 실험들은 종료되었고 공통 이벤트 payload에는 더 이상 붙이지 않는다.
 
 ## 공통 helper 스키마
 
@@ -395,8 +391,6 @@ scroll milestone helper: [lib/analytics/screen-scroll.ts](/Users/unsnruu/Project
 
 - `town_map_bottom_sheet`
 - `town_map_map`
-- `community_empathy_callout`
-- `community_today_empathy_sheet`
 
 ## 현재 해석상의 주의점
 

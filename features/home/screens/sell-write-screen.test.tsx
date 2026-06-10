@@ -86,9 +86,9 @@ describe("SellWriteScreen", () => {
           path: "/home/sell/write",
           screen_name: "sell_write",
           app_version: "5.0",
-          experiment_id: "community_today_empathy_collection",
+          experiment_id: "none",
           iteration: "1",
-          variant: "treatment",
+          variant: "none",
         }),
       );
     });

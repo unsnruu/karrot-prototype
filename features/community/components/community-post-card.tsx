@@ -35,7 +35,7 @@ export function CommunityPostCard({ post }: { post: CommunityPost }) {
       <div className="flex items-start gap-4">
         <div className="min-w-0 flex-1">
           <h2 className="text-[16px] font-medium leading-[1.35] text-black">{post.title}</h2>
-          <p className="mt-1 line-clamp-1 text-[14px] leading-[1.4] text-[#555d6d]">{post.bodyPreview}</p>
+          <p className="mt-1 line-clamp-2 text-[14px] leading-[1.4] text-[#555d6d]">{post.excerpt}</p>
         </div>
 
         {post.image ? (

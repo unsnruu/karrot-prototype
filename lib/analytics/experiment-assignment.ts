@@ -3,12 +3,11 @@ import packageJson from "@/package.json";
 export const VISITOR_EXPERIMENT_STORAGE_KEY = "karrot_visitor_experiment_context.v11";
 export const VISITOR_EXPERIMENT_COOKIE_KEY = "karrot_visitor_experiment_context_v11";
 
-export const ACTIVE_EXPERIMENT_ID = "community_today_empathy_collection";
+export const ACTIVE_EXPERIMENT_ID = "none";
 export const ACTIVE_EXPERIMENT_ITERATION = "1";
-export const ACTIVE_EXPERIMENT_VARIANTS = ["treatment"] as const;
-export const LEGACY_COMMUNITY_SHORTCUT_VARIANTS = ["shortcut_top_bar", "shortcut_above_comments", "shortcut_below_comments"] as const;
+export const ACTIVE_EXPERIMENT_VARIANTS = ["none"] as const;
 
-export type VisitorExperimentVariant = (typeof ACTIVE_EXPERIMENT_VARIANTS)[number] | (typeof LEGACY_COMMUNITY_SHORTCUT_VARIANTS)[number];
+export type VisitorExperimentVariant = (typeof ACTIVE_EXPERIMENT_VARIANTS)[number];
 
 export type VisitorExperimentContext = {
   userId: string;

@@ -1,8 +1,6 @@
 "use client";
 
 import {
-  ACTIVE_EXPERIMENT_ID,
-  ACTIVE_EXPERIMENT_ITERATION,
   ACTIVE_EXPERIMENT_VARIANTS,
   createVisitorExperimentContext,
   parseVisitorExperimentContext,
@@ -10,7 +8,6 @@ import {
   VISITOR_EXPERIMENT_COOKIE_KEY,
   VISITOR_EXPERIMENT_STORAGE_KEY,
   type VisitorExperimentContext,
-  type VisitorExperimentVariant,
 } from "@/lib/analytics/experiment-assignment";
 
 const LEGACY_VISITOR_EXPERIMENT_STORAGE_KEY = "karrot_visitor_experiment_context";

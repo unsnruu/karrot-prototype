@@ -1,13 +1,10 @@
-import { cookies } from "next/headers";
 import { CommunityScreen } from "@/features/community/screens/community-screen";
-import { cafePosts, communityFilters, communityMeetups, type CommunityFeedFilterKey, type CommunityPost, type CommunityTabKey, type CommunityTopicFilterKey } from "@/lib/community";
+import { cafePosts, communityFilters, communityMeetups, type CommunityPost, type CommunityTabKey, type CommunityTopicFilterKey } from "@/lib/community";
 import { getCommunityPosts } from "@/lib/community-data";
-import { COMMUNITY_INTEREST_TOPIC_COOKIE_KEY, parseCommunityInterestTopicIds, sortPostsByInterestTopics } from "@/lib/community-interest-preference";
 
 type CommunityPageProps = {
   searchParams?: Promise<{
     tab?: string | string[];
-    feed?: string | string[];
     topic?: string | string[];
   }>;
 };
@@ -20,16 +17,6 @@ function resolveCommunityTab(tab?: string | string[]): CommunityTabKey {
   }
 
   return "town";
-}
-
-function resolveCommunityFeedFilter(feed?: string | string[]): CommunityFeedFilterKey {
-  const value = Array.isArray(feed) ? feed[0] : feed;
-
-  if (value === "latest") {
-    return value;
-  }
-
-  return "recommended";
 }
 
 function resolveCommunityTopicFilter(topic?: string | string[]): CommunityTopicFilterKey {
@@ -55,21 +42,14 @@ function filterPostsByTopic(posts: CommunityPost[], selectedTopic: CommunityTopi
 export default async function CommunityPage({ searchParams }: CommunityPageProps) {
   const resolvedSearchParams = (await searchParams) ?? {};
   const selectedTab = resolveCommunityTab(resolvedSearchParams.tab);
-  const selectedFeed = resolveCommunityFeedFilter(resolvedSearchParams.feed);
   const selectedTopic = resolveCommunityTopicFilter(resolvedSearchParams.topic);
-  const cookieStore = await cookies();
-  const rawInterestTopicIds = cookieStore.get(COMMUNITY_INTEREST_TOPIC_COOKIE_KEY)?.value;
-  const interestTopicIds = parseCommunityInterestTopicIds(rawInterestTopicIds ? decodeURIComponent(rawInterestTopicIds) : null);
-  const shouldPrioritizeInterestTopic = selectedTab === "town" && selectedFeed === "recommended" && selectedTopic === "all";
-  const allPosts = await getCommunityPosts();
-  const posts = shouldPrioritizeInterestTopic ? sortPostsByInterestTopics(allPosts, interestTopicIds) : filterPostsByTopic(allPosts, selectedTopic);
+  const posts = filterPostsByTopic(await getCommunityPosts(), selectedTopic);
 
   return (
     <CommunityScreen
       cafePosts={cafePosts}
       meetups={communityMeetups}
       posts={posts}
-      selectedFeed={selectedFeed}
       selectedTab={selectedTab}
       selectedTopic={selectedTopic}
     />

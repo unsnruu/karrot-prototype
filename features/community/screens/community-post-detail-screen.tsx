@@ -1,27 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import {
-  ArrowLeft,
-  Bell,
-  Check,
-  ChevronRight,
-  CircleQuestionMark,
-  EllipsisVertical,
-  Eye,
-  FileText,
-  ImageIcon,
-  MapPin,
-  Pencil,
-  Plus,
-  Send,
-  Share,
-  Smile,
-  ThumbsUp,
-  X,
-} from "lucide-react";
+import { ArrowLeft, Bell, ChevronRight, EllipsisVertical, Eye, Plus, Share, Smile, ThumbsUp } from "lucide-react";
 import { usePathname } from "next/navigation";
-import { type FormEvent, useRef, useState } from "react";
 import { AppImage } from "@/components/ui/app-image";
 import { AppToolbar } from "@/components/ui/app-toolbar";
 import { ActionButton } from "@/components/ui/action-button";
@@ -30,107 +11,19 @@ import { PendingFeatureLink } from "@/components/ui/pending-feature-link";
 import { UserAvatar } from "@/components/ui/user-avatar";
 import { CommunityCommentThread } from "@/features/community/components/community-comment-thread";
 import { CommunityRecommendedPostRow } from "@/features/community/components/community-recommended-post-row";
-import { trackComponentInteracted } from "@/lib/analytics/component-interaction";
 import { trackElementClicked } from "@/lib/analytics/element-click";
-import { type VisitorExperimentVariant } from "@/lib/analytics/experiment-assignment";
-import { type CommunityComment, type CommunityPost, type CommunityPostDetail } from "@/lib/community";
-import {
-  removeCommunityEmpathyRecord,
-  saveCommunityEmpathyRecord,
-  shouldShowCommunityEmpathyCallout,
-  type CommunityEmpathyReactionType,
-} from "@/lib/community-empathy";
+import { type CommunityPost, type CommunityPostDetail } from "@/lib/community";
 
 type CommunityPostDetailScreenProps = {
   detail: CommunityPostDetail;
   recommendations: CommunityPost[];
-  returnTo?: string;
-  shortcutVariant?: VisitorExperimentVariant;
 };
-
-const PRESET_COMMENT_BODY = "잘 보고 가요";
 
 export function CommunityPostDetailScreen({
   detail,
   recommendations,
-  returnTo = "/community",
-  shortcutVariant = "shortcut_top_bar",
 }: CommunityPostDetailScreenProps) {
   const pathname = usePathname();
-  const [comments, setComments] = useState(detail.commentsList);
-  const [commentDraft, setCommentDraft] = useState("");
-  const [isCommentInputFocused, setIsCommentInputFocused] = useState(false);
-  const [hasLikedPost, setHasLikedPost] = useState(false);
-  const [isEmpathyCalloutVisible, setIsEmpathyCalloutVisible] = useState(false);
-  const [selectedAlertTags, setSelectedAlertTags] = useState<string[]>([]);
-  const commentInputRef = useRef<HTMLInputElement | null>(null);
-  const hasTrackedEmptyCommentInputRef = useRef(false);
-  const hasComments = comments.length > 0;
-  const alertTags = buildSimilarPostAlertTags(detail);
-  const canSubmitComment = commentDraft.trim().length > 0;
-  const shouldShowSubmitButton = isCommentInputFocused || canSubmitComment;
-  const empathyReactionType: CommunityEmpathyReactionType = detail.topic === "고민/사연" ? "curious" : "like";
-  const empathyButtonLabel = empathyReactionType === "curious" ? "나도 궁금해요" : "공감하기";
-  const empathyDescription = empathyReactionType === "curious" ? "궁금해하셨어요." : "공감하셨어요.";
-  const EmpathyIcon = empathyReactionType === "curious" ? CircleQuestionMark : ThumbsUp;
-  const likeCount = (detail.likes ?? 0) + (hasLikedPost ? 1 : 0);
-  const shouldShowLikeCount = hasLikedPost || likeCount > 0;
-  const shouldShowCommunityShortcut = returnTo.startsWith("/home/search");
-  const shortcutLink = shouldShowCommunityShortcut ? <CommunityShortcutLink pathname={pathname} variant={shortcutVariant} /> : null;
-
-  function addComment() {
-    const body = (commentInputRef.current?.value ?? commentDraft).trim();
-    if (!body) {
-      return;
-    }
-
-    const nextComment: CommunityComment = {
-      id: `local-comment-${Date.now()}`,
-      authorName: "나",
-      metaLabel: "방금",
-      body,
-    };
-
-    setComments((currentComments) => [...currentComments, nextComment]);
-    setCommentDraft("");
-    setIsCommentInputFocused(false);
-    hasTrackedEmptyCommentInputRef.current = false;
-    commentInputRef.current?.blur();
-
-    trackElementClicked({
-      screenName: "community_post_detail",
-      targetType: "button",
-      targetName: "community_comment_submit_button",
-      surface: "comment_input",
-      path: pathname,
-    });
-  }
-
-  function handleCommentSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    addComment();
-  }
-
-  function handleEmptyCommentInputIntent(entrySource: "click" | "focus") {
-    if (commentDraft.trim()) {
-      return;
-    }
-
-    if (!hasTrackedEmptyCommentInputRef.current) {
-      hasTrackedEmptyCommentInputRef.current = true;
-      trackElementClicked({
-        screenName: "community_post_detail",
-        targetType: "input",
-        targetName: "community_comment_input_prefill",
-        surface: "comment_input",
-        path: pathname,
-        targetId: detail.id,
-        entrySource,
-      });
-    }
-
-    setCommentDraft(PRESET_COMMENT_BODY);
-  }
 
   return (
     <main className="min-h-screen bg-[#f3f4f6] text-[#0a0a0a]">
@@ -142,7 +35,7 @@ export function CommunityPostDetailScreen({
             <Link
               aria-label="뒤로 가기"
               className="flex h-8 w-8 items-center justify-center text-black"
-              href={returnTo}
+              href="/community"
               onClick={() => {
                 trackElementClicked({
                   screenName: "community_post_detail",
@@ -150,7 +43,7 @@ export function CommunityPostDetailScreen({
                   targetName: "community_post_detail_back_button",
                   surface: "header",
                   path: pathname,
-                  destinationPath: returnTo,
+                  destinationPath: "/community",
                 });
               }}
             >
@@ -171,7 +64,7 @@ export function CommunityPostDetailScreen({
                   });
                 }}
                 pendingFeatureLabel="커뮤니티 알림 확인"
-                returnTo={returnTo}
+                returnTo="/community"
               >
                 <Bell aria-hidden="true" className="h-6 w-6" strokeWidth={1.8} />
               </IconButton>
@@ -187,7 +80,7 @@ export function CommunityPostDetailScreen({
                   });
                 }}
                 pendingFeatureLabel="커뮤니티 글 공유하기"
-                returnTo={returnTo}
+                returnTo="/community"
               >
                 <Share aria-hidden="true" className="h-6 w-6" strokeWidth={1.8} />
               </IconButton>
@@ -203,7 +96,7 @@ export function CommunityPostDetailScreen({
                   });
                 }}
                 pendingFeatureLabel="커뮤니티 글 메뉴"
-                returnTo={returnTo}
+                returnTo="/community"
               >
                 <EllipsisVertical aria-hidden="true" className="h-6 w-6" strokeWidth={1.8} />
               </IconButton>
@@ -211,28 +104,14 @@ export function CommunityPostDetailScreen({
           }
         />
 
-        {shortcutVariant === "shortcut_top_bar" ? shortcutLink : null}
-
         <section className="mobile-shell-wide mt-0 bg-white px-5 pb-8 pt-8 sm:px-6">
-          <PendingFeatureLink
-            className="inline-flex items-center gap-1 rounded-full bg-[#f3f4f6] px-3 py-2 text-[13px] font-medium tracking-[-0.02em] text-[#0a0a0a]"
-            featureLabel={`${detail.badgeLabel} 게시판 보기`}
-            returnTo={pathname}
-            tracking={{
-              screenName: "community_post_detail",
-              targetType: "button",
-              targetName: "community_post_badge_button",
-              surface: "content",
-              path: pathname,
-              targetId: detail.badgeLabel,
-            }}
-          >
+          <div className="inline-flex items-center gap-1 rounded-full bg-[#f3f4f6] px-3 py-2 text-[13px] font-medium tracking-[-0.02em] text-[#0a0a0a]">
             <span className="inline-flex h-[18px] w-[18px] items-center justify-center rounded-[3px] bg-[#d1d5dc]">
               <CardIcon />
             </span>
             {detail.badgeLabel}
             <ChevronRight aria-hidden="true" className="h-4 w-4 text-[#9ca3af]" strokeWidth={1.5} />
-          </PendingFeatureLink>
+          </div>
 
           <div className="mt-6 flex items-center gap-3">
             <UserAvatar alt={detail.author.name} fallback={detail.author.name.slice(0, 1)} size="lg" src={detail.author.avatar} />
@@ -242,7 +121,7 @@ export function CommunityPostDetailScreen({
             </div>
           </div>
 
-          <h1 className="mt-7 text-[20px] font-semibold tracking-[-0.03em] text-black">{detail.title}</h1>
+          <h1 className="mt-7 text-[31px] font-semibold tracking-[-0.04em] text-black">{detail.title}</h1>
 
           <div className="mt-4 space-y-4 text-[16px] leading-[1.55] tracking-[-0.02em] text-[#111111]">
             {detail.bodyParagraphs.map((paragraph, index) => (
@@ -264,71 +143,27 @@ export function CommunityPostDetailScreen({
           </div>
 
           <div className="mt-4 flex items-center justify-between gap-3">
-            <button
-              aria-pressed={hasLikedPost}
-              className={`inline-flex h-11 min-w-[78px] items-center justify-center gap-2.5 rounded-full border px-4 text-[14px] font-medium tracking-[-0.02em] transition-colors ${
-                hasLikedPost
-                  ? empathyReactionType === "curious"
-                    ? "border-[#2f7df6] text-[#2f7df6]"
-                    : "border-[#ff6f0f] text-[#ff6f0f]"
-                  : "border-[#e5e7eb] text-[#6b7280]"
-              }`}
+            <ActionButton
+              className="rounded-full text-sm font-medium"
+              leading={<ThumbsUp aria-hidden="true" className="h-5 w-5" strokeWidth={1.8} />}
               onClick={() => {
-                const nextHasLikedPost = !hasLikedPost;
-
-                setHasLikedPost(nextHasLikedPost);
-
-                if (nextHasLikedPost) {
-                  saveCommunityEmpathyRecord({
-                    postId: detail.id,
-                    postTitle: detail.title,
-                    reactionType: empathyReactionType,
-                    reactionLabel: empathyButtonLabel,
-                    description: empathyDescription,
-                  });
-
-                  if (shouldShowCommunityEmpathyCallout()) {
-                    setIsEmpathyCalloutVisible(true);
-                    trackComponentInteracted({
-                      componentName: "community_empathy_callout",
-                      interactionType: "show",
-                      screenName: "community_post_detail",
-                      surface: "empathy_callout",
-                      path: pathname,
-                      entrySource: empathyReactionType,
-                      targetId: detail.id,
-                    });
-                  }
-                } else {
-                  removeCommunityEmpathyRecord(detail.id, empathyReactionType);
-                }
-
                 trackElementClicked({
                   screenName: "community_post_detail",
                   targetType: "button",
-                  targetName: empathyReactionType === "curious" ? "community_post_curious_button" : "community_post_like_button",
+                  targetName: "community_post_like_button",
                   surface: "content",
                   path: pathname,
                 });
               }}
-              type="button"
+              pendingFeatureLabel="커뮤니티 글 공감하기"
+              returnTo="/community"
+              size="small"
+              variant="neutralOutline"
             >
-              <span
-                className={`inline-flex h-7 w-7 items-center justify-center rounded-full ${
-                  hasLikedPost
-                    ? empathyReactionType === "curious"
-                      ? "bg-[#d8e8ff] text-[#2f7df6]"
-                      : "bg-[#ff9b6a] text-white"
-                    : "bg-transparent text-[#6b7280]"
-                }`}
-              >
-                <EmpathyIcon aria-hidden="true" className="h-[15px] w-[15px]" strokeWidth={2} />
-              </span>
-              <span>{empathyButtonLabel}</span>
-              {shouldShowLikeCount ? <span className="text-[15px]">{likeCount}</span> : null}
-            </button>
+              공감하기
+            </ActionButton>
             <ActionButton
-              className="rounded-full px-4 text-sm font-medium"
+              className="rounded-full text-sm font-medium"
               onClick={() => {
                 trackElementClicked({
                   screenName: "community_post_detail",
@@ -348,119 +183,52 @@ export function CommunityPostDetailScreen({
           </div>
         </section>
 
-        {shortcutVariant === "shortcut_above_comments" ? shortcutLink : null}
-
         <section className="mobile-shell-wide mt-3 bg-white">
-          <div className={`flex items-center justify-between px-5 py-4 ${hasComments ? "border-b border-[#f3f4f6]" : ""}`}>
-            <h2 className="text-base font-medium tracking-[-0.02em] text-[#0a0a0a]">댓글 {comments.length}</h2>
-            {hasComments ? (
-              <div className="flex items-center gap-2 text-base">
-                <PendingFeatureLink
-                  className="font-medium text-black"
-                  featureLabel="댓글 정렬 바꾸기"
-                  returnTo="/community"
-                  tracking={{
-                    screenName: "community_post_detail",
-                    targetType: "button",
-                    targetName: "community_comment_sort_register_order",
-                    surface: "comments",
-                    path: pathname,
-                  }}
-                >
-                  등록순
-                </PendingFeatureLink>
-                <span className="text-[#d1d5dc]">|</span>
-                <PendingFeatureLink
-                  className="font-medium text-[#6a7282]"
-                  featureLabel="댓글 정렬 바꾸기"
-                  returnTo="/community"
-                  tracking={{
-                    screenName: "community_post_detail",
-                    targetType: "button",
-                    targetName: "community_comment_sort_latest_order",
-                    surface: "comments",
-                    path: pathname,
-                  }}
-                >
-                  최신순
-                </PendingFeatureLink>
-              </div>
-            ) : null}
+          <div className="flex items-center justify-between border-b border-[#f3f4f6] px-5 py-4">
+            <h2 className="text-base font-medium tracking-[-0.02em] text-[#0a0a0a]">댓글 {detail.commentsList.length}</h2>
+            <div className="flex items-center gap-2 text-base">
+              <PendingFeatureLink
+                className="font-medium text-black"
+                featureLabel="댓글 정렬 바꾸기"
+                returnTo="/community"
+                tracking={{
+                  screenName: "community_post_detail",
+                  targetType: "button",
+                  targetName: "community_comment_sort_register_order",
+                  surface: "comments",
+                  path: pathname,
+                }}
+              >
+                등록순
+              </PendingFeatureLink>
+              <span className="text-[#d1d5dc]">|</span>
+              <PendingFeatureLink
+                className="font-medium text-[#6a7282]"
+                featureLabel="댓글 정렬 바꾸기"
+                returnTo="/community"
+                tracking={{
+                  screenName: "community_post_detail",
+                  targetType: "button",
+                  targetName: "community_comment_sort_latest_order",
+                  surface: "comments",
+                  path: pathname,
+                }}
+              >
+                최신순
+              </PendingFeatureLink>
+            </div>
           </div>
 
           <div className="divide-y divide-[#f3f4f6]">
-            {hasComments ? (
-              comments.map((comment) => (
+            {detail.commentsList.length ? (
+              detail.commentsList.map((comment) => (
                 <div className="px-5 py-4" key={comment.id}>
                   <CommunityCommentThread comment={comment} />
                 </div>
               ))
             ) : (
-              <div className="px-5 pb-20 pt-14 text-center">
-                <p className="text-[16px] leading-none tracking-[-0.02em] text-[#9ca3af]">첫 댓글을 남겨보세요.</p>
-                <button
-                  className="mt-8 inline-flex h-12 items-center justify-center gap-1.5 rounded-[10px] bg-[#f2f3f5] px-6 text-[16px] font-semibold tracking-[-0.02em] text-[#111827]"
-                  onClick={() => {
-                    trackElementClicked({
-                      screenName: "community_post_detail",
-                      targetType: "button",
-                      targetName: "community_empty_comment_write_button",
-                      surface: "comments_empty",
-                      path: pathname,
-                    });
-                    commentInputRef.current?.focus();
-                  }}
-                  type="button"
-                >
-                  <Pencil aria-hidden="true" className="h-5 w-5" strokeWidth={2} />
-                  댓글 쓰기
-                </button>
-              </div>
+              <div className="px-5 py-12 text-center text-sm text-[#9ca3af]">아직 댓글이 없어요.</div>
             )}
-          </div>
-        </section>
-
-        {shortcutVariant === "shortcut_below_comments" ? shortcutLink : null}
-
-        <section className="mobile-shell-wide mt-3 overflow-hidden bg-white px-5 py-8 sm:px-6">
-          <h2 className="text-[14px] font-semibold leading-[1.35] tracking-[-0.02em] text-[#111827]">
-            비슷한 게시글이 올라오면 바로 알려드릴까요?
-          </h2>
-          <div className="mt-7 flex gap-3 overflow-x-auto pb-1">
-            {alertTags.map((tag) => {
-              const isSelected = selectedAlertTags.includes(tag);
-
-              return (
-                <button
-                  aria-pressed={isSelected}
-                  className={`inline-flex h-10 shrink-0 items-center justify-center gap-1.5 rounded-full border px-4 text-[14px] font-medium tracking-[-0.02em] ${
-                    isSelected ? "border-black bg-[#f5f5f5] text-[#111827]" : "border-[#e5e7eb] bg-white text-[#6b7280]"
-                  }`}
-                  key={tag}
-                  onClick={() => {
-                    setSelectedAlertTags((currentTags) =>
-                      currentTags.includes(tag) ? currentTags.filter((currentTag) => currentTag !== tag) : [...currentTags, tag],
-                    );
-                    trackElementClicked({
-                      screenName: "community_post_detail",
-                      targetType: "chip",
-                      targetName: "community_similar_post_alert_tag",
-                      surface: "similar_post_alert",
-                      path: pathname,
-                      targetId: tag,
-                    });
-                  }}
-                  type="button"
-                >
-                  {isSelected ? (
-                    <Check aria-hidden="true" className="h-5 w-5 text-[#111827]" strokeWidth={1.8} />
-                  ) : (
-                    <Plus aria-hidden="true" className="h-5 w-5 text-[#a1a6ae]" strokeWidth={1.8} />
-                  )}
-                  {tag}
-                </button>
-              );
-            })}
           </div>
         </section>
 
@@ -474,207 +242,33 @@ export function CommunityPostDetailScreen({
         </section>
       </div>
 
-      {isEmpathyCalloutVisible ? (
-        <div className="fixed inset-x-0 bottom-[104px] z-30 px-4">
-          <div className="mobile-shell-wide flex min-h-12 items-center justify-between gap-3 rounded-[8px] bg-[#2a3038] px-4 py-3 text-white shadow-[0_8px_24px_rgba(0,0,0,0.24)]">
-            <p className="min-w-0 flex-1 text-[14px] font-medium leading-[1.4] tracking-[-0.02em]">공감하신 내용을 모아서 볼 수 있어요</p>
-            <Link
-              className="shrink-0 text-[14px] font-bold tracking-[-0.02em] text-[#ff8a3d]"
-              href="/community?empathySheet=open"
-              onClick={() => {
-                setIsEmpathyCalloutVisible(false);
-                trackComponentInteracted({
-                  componentName: "community_empathy_callout",
-                  interactionType: "open_sheet",
-                  screenName: "community_post_detail",
-                  surface: "empathy_callout",
-                  path: pathname,
-                  entrySource: empathyReactionType,
-                  targetId: detail.id,
-                });
-                trackElementClicked({
-                  screenName: "community_post_detail",
-                  targetType: "button",
-                  targetName: "community_empathy_callout_view_button",
-                  surface: "empathy_callout",
-                  path: pathname,
-                  destinationPath: "/community",
-                });
-              }}
-            >
-              보러가기
-            </Link>
-          </div>
-        </div>
-      ) : null}
-
       <div className="fixed inset-x-0 bottom-0 z-20 border-t border-black/5 bg-white/95 backdrop-blur">
         <div className="mobile-shell-wide flex items-center gap-3 px-2 py-2 pb-10 sm:px-4">
           <IconButton
-            ariaLabel="사진 추가"
+            ariaLabel="댓글 추가"
             className="text-[#6b7280]"
             onClick={() => {
               trackElementClicked({
                 screenName: "community_post_detail",
                 targetType: "button",
-                targetName: "community_comment_image_button",
+                targetName: "community_comment_add_button",
                 surface: "comment_input",
                 path: pathname,
               });
             }}
-            pendingFeatureLabel="댓글 사진 첨부"
+            pendingFeatureLabel="댓글 작성하기"
             returnTo="/community"
           >
-            <ImageIcon aria-hidden="true" className="h-7 w-7" strokeWidth={1.9} />
+            <Plus aria-hidden="true" className="h-6 w-6" strokeWidth={1.8} />
           </IconButton>
-          <IconButton
-            ariaLabel="장소 추가"
-            className="text-[#6b7280]"
-            onClick={() => {
-              trackElementClicked({
-                screenName: "community_post_detail",
-                targetType: "button",
-                targetName: "community_comment_location_button",
-                surface: "comment_input",
-                path: pathname,
-              });
-            }}
-            pendingFeatureLabel="댓글 장소 첨부"
-            returnTo="/community"
-          >
-            <MapPin aria-hidden="true" className="h-7 w-7" strokeWidth={1.9} />
-          </IconButton>
-          <form className="flex h-12 flex-1 items-center justify-between rounded-full bg-[#f2f4f5] px-5" onSubmit={handleCommentSubmit}>
-            <input
-              className="min-w-0 flex-1 bg-transparent text-[16px] tracking-[-0.02em] text-[#111827] outline-none placeholder:text-[#aeb2b5]"
-              onBlur={() => {
-                setIsCommentInputFocused(false);
-              }}
-              onClick={() => {
-                handleEmptyCommentInputIntent("click");
-              }}
-              onFocus={() => {
-                setIsCommentInputFocused(true);
-                handleEmptyCommentInputIntent("focus");
-              }}
-              onKeyDown={(event) => {
-                if (event.key === "Enter" && !event.nativeEvent.isComposing) {
-                  event.preventDefault();
-                  addComment();
-                }
-              }}
-              placeholder="댓글을 입력해주세요."
-              readOnly
-              ref={commentInputRef}
-              value={commentDraft}
-            />
-            {canSubmitComment ? (
-              <button
-                aria-label="댓글 입력 지우기"
-                className="ml-3 flex h-6 w-6 shrink-0 items-center justify-center text-[#9ca3af]"
-                onClick={() => {
-                  setCommentDraft("");
-                  setIsCommentInputFocused(false);
-                  hasTrackedEmptyCommentInputRef.current = false;
-                  commentInputRef.current?.blur();
-                  trackElementClicked({
-                    screenName: "community_post_detail",
-                    targetType: "button",
-                    targetName: "community_comment_clear_button",
-                    surface: "comment_input",
-                    path: pathname,
-                  });
-                }}
-                onMouseDown={(event) => {
-                  event.preventDefault();
-                }}
-                type="button"
-              >
-                <X aria-hidden="true" className="h-5 w-5" strokeWidth={2} />
-              </button>
-            ) : null}
-            <button
-              aria-label="이모지"
-              className="ml-3 text-[#9ca3af]"
-              onClick={() => {
-                trackElementClicked({
-                  screenName: "community_post_detail",
-                  targetType: "button",
-                  targetName: "community_comment_emoji_button",
-                  surface: "comment_input",
-                  path: pathname,
-                });
-              }}
-              type="button"
-            >
-              <Smile aria-hidden="true" className="h-6 w-6" strokeWidth={1.6} />
-            </button>
-          </form>
-          {shouldShowSubmitButton ? (
-            <button
-              aria-label="댓글 등록"
-              className="flex h-12 w-10 shrink-0 items-center justify-center text-[#c5c9cf] enabled:text-[#ff7f2a]"
-              disabled={!canSubmitComment}
-              onClick={() => {
-                addComment();
-              }}
-              onMouseDown={(event) => {
-                event.preventDefault();
-              }}
-              type="button"
-            >
-              <Send aria-hidden="true" className="h-8 w-8" strokeWidth={2} />
-            </button>
-          ) : null}
+          <div className="flex h-10 flex-1 items-center justify-between rounded-full bg-[#f2f4f5] px-4 text-base text-[#aeb2b5]">
+            <span>댓글을 입력해주세요.</span>
+            <Smile aria-hidden="true" className="h-6 w-6 text-[#9ca3af]" strokeWidth={1.6} />
+          </div>
         </div>
       </div>
-
     </main>
   );
-}
-
-function CommunityShortcutLink({ pathname, variant }: { pathname: string; variant: VisitorExperimentVariant }) {
-  const surface = variant === "shortcut_top_bar" ? "header" : "content";
-  const className =
-    variant === "shortcut_top_bar"
-      ? "mobile-shell-wide flex h-12 items-center justify-between bg-[#f3f4f6] px-5 text-[14px] font-bold tracking-[-0.02em] text-[#111827] sm:px-6"
-      : "mobile-shell-wide flex h-12 items-center justify-between bg-[#f7f8f9] px-5 text-[14px] font-bold tracking-[-0.02em] text-[#111827] sm:px-6";
-
-  return (
-    <Link
-      className={className}
-      href="/community"
-      onClick={() => {
-        trackElementClicked({
-          screenName: "community_post_detail",
-          targetType: "button",
-          targetName: "community_detail_shortcut_button",
-          surface,
-          path: pathname,
-          destinationPath: "/community",
-          targetId: variant,
-        });
-      }}
-    >
-      <span className="flex items-center gap-3">
-        <span className="inline-flex h-6 w-6 items-center justify-center rounded-[4px] bg-[#62b5ef] text-white">
-          <FileText aria-hidden="true" className="h-4 w-4" strokeWidth={2.2} />
-        </span>
-        동네생활 바로가기
-      </span>
-      <ChevronRight aria-hidden="true" className="h-6 w-6 text-[#111827]" strokeWidth={2} />
-    </Link>
-  );
-}
-
-function buildSimilarPostAlertTags(detail: CommunityPostDetail) {
-  const titleTags = detail.title
-    .split(/\s+/)
-    .map((word) => word.replace(/[^\p{L}\p{N}]/gu, ""))
-    .filter((word) => word.length >= 2)
-    .slice(0, 3);
-
-  return Array.from(new Set([detail.topic, ...titleTags, detail.town])).slice(0, 5);
 }
 
 function CardIcon() {
